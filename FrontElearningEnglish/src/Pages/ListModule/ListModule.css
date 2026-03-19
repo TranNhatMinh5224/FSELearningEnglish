@@ -1,0 +1,81 @@
+.list-module-container {
+    padding: var(--padding-container-lg, clamp(1.5rem, 1rem + 2.5vw, 3rem)) clamp(10rem, 8rem + 10vw, 15.625rem);
+    padding-top: calc(70px + clamp(2rem, 1.5rem + 2.5vw, 3.125rem));
+    background: var(--color-bg-secondary, #f6f8fb);
+    min-height: calc(100vh - 70px);
+}
+
+.loading-message,
+.error-message,
+.no-modules-message {
+    text-align: center;
+    padding: var(--padding-container-lg, clamp(1.5rem, 1rem + 2.5vw, 3rem)) var(--padding-container-md, clamp(1rem, 0.75rem + 1.25vw, 2rem));
+    color: var(--color-text-secondary, #6b7280);
+    font-size: var(--font-size-base, clamp(1rem, 0.95rem + 0.25vw, 1.125rem));
+}
+
+.modules-list {
+    margin-top: var(--spacing-xl, clamp(1.5rem, 1.2rem + 1.5vw, 2rem));
+}
+
+/* ===========================
+   RESPONSIVE - Same as CourseLearn
+=========================== */
+
+@media (max-width: 1600px) {
+    .list-module-container {
+        padding-left: clamp(8rem, 6rem + 10vw, 13.75rem);
+        padding-right: clamp(8rem, 6rem + 10vw, 13.75rem);
+    }
+}
+
+@media (max-width: 1400px) {
+    .list-module-container {
+        padding-left: clamp(6rem, 4.5rem + 7.5vw, 11.25rem);
+        padding-right: clamp(6rem, 4.5rem + 7.5vw, 11.25rem);
+    }
+}
+
+@media (max-width: 1200px) {
+    .list-module-container {
+        padding-left: clamp(5rem, 3.75rem + 6.25vw, 9.375rem);
+        padding-right: clamp(5rem, 3.75rem + 6.25vw, 9.375rem);
+    }
+}
+
+@media (max-width: 992px) {
+    .list-module-container {
+        padding-left: var(--padding-container-xl, clamp(2rem, 1.5rem + 2.5vw, 4rem));
+        padding-right: var(--padding-container-xl, clamp(2rem, 1.5rem + 2.5vw, 4rem));
+    }
+}
+
+@media (max-width: 768px) {
+    .list-module-container {
+        padding: var(--padding-container-md, clamp(1rem, 0.75rem + 1.25vw, 2rem)) var(--padding-container-lg, clamp(1.5rem, 1rem + 2.5vw, 3rem));
+        padding-top: calc(70px + var(--padding-container-md, clamp(1rem, 0.75rem + 1.25vw, 2rem)));
+    }
+
+    .modules-list {
+        gap: var(--spacing-sm, clamp(0.5rem, 0.4rem + 0.5vw, 0.75rem));
+    }
+}
+
+@media (max-width: 576px) {
+    .list-module-container {
+        padding: var(--padding-container-sm, clamp(0.75rem, 0.5rem + 1.25vw, 1.5rem)) var(--padding-container-md, clamp(1rem, 0.75rem + 1.25vw, 2rem));
+        padding-top: calc(70px + var(--padding-container-sm, clamp(0.75rem, 0.5rem + 1.25vw, 1.5rem)));
+    }
+
+    .loading-message,
+    .error-message,
+    .no-modules-message {
+        padding: var(--spacing-xl, clamp(1.5rem, 1.2rem + 1.5vw, 2rem)) var(--padding-container-sm, clamp(0.75rem, 0.5rem + 1.25vw, 1.5rem));
+        font-size: var(--font-size-sm, clamp(0.875rem, 0.8rem + 0.375vw, 1rem));
+    }
+
+    .modules-list {
+        margin-top: var(--spacing-lg, clamp(1rem, 0.8rem + 1vw, 1.5rem));
+        gap: var(--spacing-xs, clamp(0.25rem, 0.2rem + 0.25vw, 0.5rem));
+    }
+}

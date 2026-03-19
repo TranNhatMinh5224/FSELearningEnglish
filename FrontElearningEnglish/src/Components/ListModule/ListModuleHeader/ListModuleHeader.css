@@ -1,0 +1,55 @@
+.list-module-header-banner {
+    background: var(--color-primary-gradient, linear-gradient(90deg, #6fd5e0, #d447b6));
+    border-radius: 20px;
+    padding: 24px 32px;
+    margin-bottom: 24px;
+    box-shadow: 0 8px 24px rgba(111, 213, 224, 0.3);
+    position: relative;
+    overflow: hidden;
+}
+
+.list-module-header-banner::before,
+.list-module-header-banner::after {
+    content: "";
+    position: absolute;
+    width: 120px;
+    height: 120px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 50%;
+    /* keep decorative circles inside the banner so they don't overlap the fixed navbar */
+    top: -40px;
+}
+
+.list-module-header-banner::before {
+    left: -40px;
+}
+
+.list-module-header-banner::after {
+    right: -40px;
+}
+
+
+
+.list-module-header-banner h1 {
+    font-size: var(--font-size-3xl, clamp(1.875rem, 1.5rem + 1.875vw, 2.25rem));
+    font-weight: 700;
+    color: var(--color-text-white, white);
+    margin: 0;
+    text-align: center;
+    position: relative;
+    z-index: 1;
+}
+
+.lesson-description {
+    font-size: var(--font-size-base, clamp(1rem, 0.95rem + 0.25vw, 1.125rem));
+    color: var(--color-text-secondary, #6b7280);
+    margin: 0 0 30px 0;
+    line-height: 1.6;
+}
+
+/* Responsive typography tự động điều chỉnh với clamp() - không cần media query */
+@media (max-width: 768px) {
+    .list-module-header-banner {
+        padding: var(--padding-container-md, clamp(1rem, 0.75rem + 1.25vw, 2rem)) var(--padding-container-sm, clamp(0.75rem, 0.5rem + 1.25vw, 1.5rem));
+    }
+}

@@ -1,0 +1,229 @@
+/* ============================================
+   LECTURE DETAIL PAGE
+   Layout: Header (full width) | Content Area (Tree | Content+Footer)
+   ============================================ */
+
+.lecture-detail-page {
+    display: flex;
+    flex-direction: column;
+    position: fixed;
+    top: 70px; /* MainHeader height */
+    left: 0;
+    right: 0;
+    bottom: 0;
+    width: 100%;
+    height: calc(100vh - 70px);
+    overflow: hidden;
+    background-color: #f8f9fa;
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+[data-theme="dark"] .lecture-detail-page {
+    background-color: #1a1a1a;
+}
+
+/* ============================================
+   CONTENT WRAPPER - Split Layout
+   ============================================ */
+
+.lecture-content-wrapper {
+    flex: 1;
+    display: flex;
+    overflow: hidden;
+    min-height: 0;
+}
+
+/* ============================================
+   LEFT SIDEBAR - TREE
+   ============================================ */
+
+.lecture-sidebar {
+    width: 320px;
+    min-width: 320px;
+    height: 100%;
+    background-color: #ffffff;
+    border-right: 1px solid #e5e7eb;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    flex-shrink: 0;
+    transition: all 0.3s ease;
+}
+
+[data-theme="dark"] .lecture-sidebar {
+    background-color: #2d2d2d;
+    border-right-color: #404040;
+}
+
+.lecture-sidebar.collapsed {
+    width: 0;
+    min-width: 0;
+    border-right: none;
+    overflow: hidden;
+}
+
+/* ============================================
+   RIGHT MAIN CONTENT AREA
+   ============================================ */
+
+.lecture-main-wrapper {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    min-width: 0;
+    background-color: #ffffff;
+}
+
+[data-theme="dark"] .lecture-main-wrapper {
+    background-color: #1a1a1a;
+}
+
+.lecture-content-section {
+    flex: 1;
+    overflow-y: auto;
+    overflow-x: hidden;
+    background-color: #ffffff;
+    position: relative;
+    /* Smooth scroll behavior */
+    scroll-behavior: smooth;
+}
+
+[data-theme="dark"] .lecture-content-section {
+    background-color: #1a1a1a;
+}
+
+.lecture-content-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 24px 32px 24px;
+    min-height: 100%;
+}
+
+/* Scrollbar */
+.lecture-content-section::-webkit-scrollbar {
+    width: 10px;
+}
+
+.lecture-content-section::-webkit-scrollbar-track {
+    background: #f1f1f1;
+}
+
+[data-theme="dark"] .lecture-content-section::-webkit-scrollbar-track {
+    background: #2d2d2d;
+}
+
+.lecture-content-section::-webkit-scrollbar-thumb {
+    background: #c1c1c1;
+    border-radius: 5px;
+}
+
+.lecture-content-section::-webkit-scrollbar-thumb:hover {
+    background: #a8a8a8;
+}
+
+[data-theme="dark"] .lecture-content-section::-webkit-scrollbar-thumb {
+    background: #4b5563;
+}
+
+[data-theme="dark"] .lecture-content-section::-webkit-scrollbar-thumb:hover {
+    background: #6b7280;
+}
+
+/* ============================================
+   LOADING & ERROR STATES
+   ============================================ */
+
+.lecture-loading,
+.lecture-error {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    width: 100%;
+    padding: 40px;
+}
+
+.lecture-loading {
+    gap: 16px;
+}
+
+.loading-spinner {
+    width: 40px;
+    height: 40px;
+    border: 4px solid #f3f4f6;
+    border-top-color: #0d6efd;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.lecture-loading p,
+.lecture-error p {
+    font-size: 16px;
+    color: #6b7280;
+    margin: 0;
+}
+
+[data-theme="dark"] .lecture-loading p,
+[data-theme="dark"] .lecture-error p {
+    color: #9ca3af;
+}
+
+/* ============================================
+   RESPONSIVE - Bootstrap Breakpoints
+   ============================================ */
+
+/* Mobile Sidebar Overlay */
+.lecture-sidebar-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 999;
+    display: none;
+}
+
+@media (max-width: 767.98px) {
+    .lecture-sidebar {
+        position: fixed;
+        left: 0;
+        top: 0;
+        bottom: 0;
+        z-index: 1000;
+        box-shadow: 2px 0 8px rgba(0, 0, 0, 0.1);
+        transform: translateX(-100%);
+        transition: transform 0.3s ease;
+    }
+
+    .lecture-sidebar:not(.collapsed) {
+        transform: translateX(0);
+    }
+
+    .lecture-sidebar-overlay {
+        display: block;
+    }
+
+    .lecture-content-container {
+        padding: 0 16px 24px 16px;
+    }
+}
+
+@media (min-width: 768px) {
+    .lecture-sidebar.collapsed {
+        width: 0;
+        min-width: 0;
+        border-right: none;
+        overflow: hidden;
+    }
+}

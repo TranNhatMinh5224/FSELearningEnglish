@@ -1,0 +1,243 @@
+.payment-history-container {
+    min-height: calc(100vh - 70px);
+    padding: 40px 20px;
+    padding-top: calc(40px + 70px);
+    background: #f5f5f5;
+    position: relative;
+    overflow: hidden;
+}
+
+/* Background decorative elements */
+.payment-history-container::before {
+    content: "";
+    position: absolute;
+    width: 300px;
+    height: 300px;
+    background: rgba(255, 182, 193, 0.3);
+    border-radius: 50%;
+    filter: blur(80px);
+    top: -100px;
+    left: -100px;
+    z-index: 0;
+}
+
+.payment-history-container::after {
+    content: "";
+    position: absolute;
+    width: 400px;
+    height: 400px;
+    background: rgba(111, 213, 224, 0.2);
+    border-radius: 50%;
+    filter: blur(100px);
+    bottom: -150px;
+    right: -150px;
+    z-index: 0;
+}
+
+.payment-history-header {
+    text-align: center;
+    margin-bottom: 40px;
+    position: relative;
+    z-index: 1;
+}
+
+.payment-history-title {
+    font-size: 36px;
+    font-weight: 700;
+    color: #333;
+    margin: 0 0 16px 0;
+}
+
+.payment-history-subtitle {
+    font-size: 18px;
+    color: #666;
+    margin: 0;
+}
+
+.count-badge {
+    font-weight: 700;
+    color: #6fd5e0;
+    font-size: 20px;
+}
+
+.empty-state {
+    text-align: center;
+    padding: 60px 20px;
+    background: #ffffff;
+    border-radius: 24px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+    position: relative;
+    z-index: 1;
+}
+
+.empty-state p {
+    font-size: 18px;
+    color: #666;
+    margin: 0 0 12px 0;
+}
+
+.empty-state-hint {
+    font-size: 14px;
+    color: #999;
+    font-style: italic;
+}
+
+.payment-list-container {
+    background: #ffffff;
+    border-radius: 24px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+    overflow: hidden;
+    position: relative;
+    z-index: 1;
+}
+
+.payment-list-header {
+    padding: 20px 30px;
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    border-bottom: 2px solid #e9ecef;
+    font-weight: 600;
+    font-size: var(--font-size-base, clamp(1rem, 0.95rem + 0.25vw, 1.125rem));
+    color: #495057;
+}
+
+/* Bootstrap utilities: d-flex, align-items-center - đã được sử dụng trong JSX */
+.payment-header-column {
+}
+
+.payment-list {
+    max-height: calc(100vh - 300px);
+    overflow-y: auto;
+}
+
+.loading-message,
+.error-message {
+    text-align: center;
+    padding: 60px 20px;
+    font-size: 18px;
+    color: #666;
+    background: #ffffff;
+    border-radius: 24px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+    position: relative;
+    z-index: 1;
+}
+
+.error-message {
+    color: #ef4444;
+}
+
+/* Scrollbar styling */
+.payment-list::-webkit-scrollbar {
+    width: 8px;
+}
+
+.payment-list::-webkit-scrollbar-track {
+    background: #f1f1f1;
+}
+
+.payment-list::-webkit-scrollbar-thumb {
+    background: #6fd5e0;
+    border-radius: 4px;
+}
+
+.payment-list::-webkit-scrollbar-thumb:hover {
+    background: #5bc4d0;
+}
+
+/* Responsive */
+@media (max-width: 992px) {
+    .payment-list-header {
+        padding: 16px 20px;
+    }
+}
+
+@media (max-width: 768px) {
+    .payment-history-container {
+        padding: var(--padding-container-md, clamp(1rem, 0.75rem + 1.25vw, 2rem)) var(--padding-container-sm, clamp(0.75rem, 0.5rem + 1.25vw, 1.5rem));
+        padding-top: calc(var(--padding-container-md, clamp(1rem, 0.75rem + 1.25vw, 2rem)) + 70px);
+    }
+
+    .payment-history-title {
+        font-size: var(--font-size-2xl, clamp(1.5rem, 1.3rem + 1vw, 1.875rem));
+    }
+
+    .payment-history-subtitle {
+        font-size: var(--font-size-base, clamp(1rem, 0.95rem + 0.25vw, 1.125rem));
+    }
+
+    .payment-list-header {
+        padding: 14px 16px;
+    }
+
+    /* Bootstrap utilities được sử dụng trong JSX - responsive tự động */
+}
+
+@media (max-width: 576px) {
+    .payment-list-header {
+        padding: 12px 12px;
+    }
+}
+
+/* Pagination Styles - Bootstrap utilities: d-flex, flex-column, flex-md-row, align-items-center, gap-3 */
+.pagination-wrapper {
+    margin-top: 30px;
+    padding: 20px 0;
+    border-top: 1px solid #e9ecef;
+}
+
+.pagination-wrapper .pagination {
+    margin: 0;
+    /* Bootstrap Pagination tự xử lý display: flex */
+    gap: 5px;
+}
+
+.pagination-wrapper .page-link {
+    color: #6fd5e0;
+    border: 1px solid #dee2e6;
+    padding: 8px 16px;
+    border-radius: 8px;
+    transition: all 0.2s ease;
+}
+
+.pagination-wrapper .page-link:hover {
+    background-color: #f8f9fa;
+    border-color: #6fd5e0;
+    color: #5bc4d0;
+}
+
+.pagination-wrapper .page-item.active .page-link {
+    background-color: #6fd5e0;
+    border-color: #6fd5e0;
+    color: white;
+}
+
+.pagination-wrapper .page-item.disabled .page-link {
+    color: #6c757d;
+    background-color: #fff;
+    border-color: #dee2e6;
+    cursor: not-allowed;
+    opacity: 0.6;
+}
+
+.pagination-info {
+    color: #6b7280;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+@media (max-width: 768px) {
+    .pagination-wrapper {
+        margin-top: 20px;
+        padding: 15px 0;
+    }
+
+    .pagination-wrapper .page-link {
+        padding: 6px 12px;
+        font-size: 14px;
+    }
+
+    .pagination-info {
+        font-size: 13px;
+    }
+}
+

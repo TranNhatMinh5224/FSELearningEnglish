@@ -1,0 +1,84 @@
+.essay-detail-container {
+    padding: 30px 0;
+    padding-top: calc(30px + 70px);
+    background: linear-gradient(135deg, #f8fafc 0%, #e0e7ff 50%, #fce7f3 100%);
+    min-height: calc(100vh - 70px);
+    position: relative;
+}
+
+.essay-detail-container::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: 
+        radial-gradient(circle at 20% 50%, rgba(168, 85, 247, 0.1) 0%, transparent 50%),
+        radial-gradient(circle at 80% 80%, rgba(236, 72, 153, 0.1) 0%, transparent 50%);
+    pointer-events: none;
+    z-index: 0;
+}
+
+.essay-detail-container .container {
+    position: relative;
+    z-index: 1;
+}
+
+.essay-detail-container .container {
+    max-width: 1200px;
+    position: relative;
+    z-index: 1;
+}
+
+.cursor-pointer {
+    cursor: pointer;
+}
+
+@media (max-width: 992px) {
+    .essay-detail-container {
+        padding: 20px 0;
+        padding-top: calc(20px + 70px);
+    }
+}
+
+@media (max-width: 768px) {
+    .essay-detail-container {
+        padding: 15px 0;
+        padding-top: calc(15px + 70px);
+    }
+}
+
+/* Info Cards - Simple & Clean Design */
+.essay-detail-container .card {
+    transition: all 0.2s ease;
+    border: 1px solid #e2e8f0;
+    background: #ffffff;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.essay-detail-container .card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08) !important;
+    border-color: #cbd5e1;
+}
+
+/* Card Body */
+.essay-detail-container .card .card-body {
+    padding: 16px 20px;
+}
+
+/* Text Styling */
+.essay-detail-container .card .text-muted {
+    font-size: 13px;
+    font-weight: 500;
+    color: #64748b !important;
+    margin-bottom: 6px;
+}
+
+.essay-detail-container .card .fw-bold {
+    font-size: 16px;
+    font-weight: 600;
+    color: #1e293b;
+    line-height: 1.5;
+}

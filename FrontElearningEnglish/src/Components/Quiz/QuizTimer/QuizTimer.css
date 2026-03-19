@@ -1,0 +1,70 @@
+
+
+
+
+
+
+/* Bootstrap utilities: d-flex, align-items-center */
+.timer-header {
+    gap: var(--spacing-xs, clamp(0.25rem, 0.2rem + 0.25vw, 0.5rem));
+    margin-bottom: var(--spacing-sm, clamp(0.5rem, 0.4rem + 0.5vw, 0.75rem));
+}
+
+.timer-icon {
+    color: var(--color-secondary-cyan, #41d6e3);
+    font-size: var(--font-size-lg, clamp(1.125rem, 1rem + 0.625vw, 1.25rem));
+}
+
+.quiz-timer.warning .timer-icon {
+    color: var(--color-status-warning, #f59e0b);
+}
+
+.quiz-timer.danger .timer-icon {
+    color: var(--color-status-error, #ef4444);
+}
+
+.timer-label {
+    font-size: var(--font-size-sm, clamp(0.875rem, 0.8rem + 0.375vw, 1rem));
+    font-weight: 600;
+    color: var(--color-text-secondary, #6b7280);
+}
+
+.timer-display {
+    font-size: var(--font-size-4xl, clamp(2.25rem, 1.8rem + 2.25vw, 3rem));
+    font-weight: 700;
+    color: var(--color-text-primary, #1f2937);
+    text-align: center;
+    margin-bottom: var(--spacing-sm, clamp(0.5rem, 0.4rem + 0.5vw, 0.75rem));
+    font-variant-numeric: tabular-nums;
+    line-height: 1.2;
+}
+
+.quiz-timer.warning .timer-display {
+    color: var(--color-status-warning, #f59e0b);
+}
+
+.quiz-timer.danger .timer-display {
+    color: var(--color-status-error, #ef4444);
+}
+
+.timer-progress {
+    height: clamp(5px, 0.3125rem + 0.125vw, 6px);
+    background: var(--color-border-light, #e5e7eb);
+    border-radius: clamp(3px, 0.1875rem + 0.0625vw, 3px);
+    overflow: hidden;
+}
+
+.timer-progress-bar {
+    height: 100%;
+    background: var(--color-secondary-cyan, #41d6e3);
+    transition: width 1s linear, background-color 0.3s ease;
+}
+
+.quiz-timer.warning .timer-progress-bar {
+    background: var(--color-status-warning, #f59e0b);
+}
+
+.quiz-timer.danger .timer-progress-bar {
+    background: var(--color-status-error, #ef4444);
+}
+

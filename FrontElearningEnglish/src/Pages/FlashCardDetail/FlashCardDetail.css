@@ -1,0 +1,93 @@
+.flashcard-detail-container {
+    padding: clamp(1.5rem, 1rem + 2.5vw, 2rem) clamp(1rem, 0.75rem + 1.25vw, 15.625rem);
+    padding-top: calc(70px + clamp(1.5rem, 1rem + 2.5vw, 2rem));
+    background: var(--color-bg-secondary, #f6f8fb);
+    min-height: calc(100vh - 70px);
+    transition: background-color 0.3s ease;
+}
+
+[data-theme="dark"] .flashcard-detail-container {
+    background: var(--color-bg-secondary-dark, #1a1a1a);
+}
+
+.flashcard-detail-breadcrumb {
+    margin-bottom: clamp(1rem, 0.75rem + 1.25vw, 1.25rem);
+    margin-top: 70px;
+    font-size: clamp(1rem, 0.95rem + 0.25vw, 1.125rem);
+    color: var(--color-text-secondary, #6b7280);
+    transition: color 0.3s ease;
+}
+
+[data-theme="dark"] .flashcard-detail-breadcrumb {
+    color: var(--color-text-secondary-dark, #9ca3af);
+}
+
+.flashcard-detail-breadcrumb .breadcrumb-link {
+    color: var(--color-secondary-cyan, #41d6e3);
+    cursor: pointer;
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+
+[data-theme="dark"] .flashcard-detail-breadcrumb .breadcrumb-link {
+    color: var(--color-secondary-cyan-dark, #41d6e3);
+}
+
+.flashcard-detail-breadcrumb .breadcrumb-link:hover {
+    text-decoration: underline;
+}
+
+.flashcard-detail-breadcrumb .breadcrumb-separator {
+    margin: 0 8px;
+    color: var(--color-text-tertiary, #9ca3af);
+    transition: color 0.3s ease;
+}
+
+[data-theme="dark"] .flashcard-detail-breadcrumb .breadcrumb-separator {
+    color: var(--color-text-tertiary-dark, #6b7280);
+}
+
+.flashcard-detail-breadcrumb .breadcrumb-current {
+    color: var(--color-text-primary, #1f2937);
+    font-weight: 500;
+    transition: color 0.3s ease;
+}
+
+[data-theme="dark"] .flashcard-detail-breadcrumb .breadcrumb-current {
+    color: var(--color-text-primary-dark, #ffffff);
+}
+
+/* Bootstrap utilities: d-flex, flex-column, align-items-center */
+.flashcard-content-container {
+    gap: 30px;
+    padding-top: 30px;
+    padding-bottom: 40px;
+}
+
+.loading-message,
+.error-message,
+.no-flashcards-message {
+    text-align: center;
+    padding: clamp(2rem, 1.5rem + 2.5vw, 2.5rem) clamp(1rem, 0.75rem + 1.25vw, 1.25rem);
+    color: var(--color-text-secondary, #6b7280);
+    font-size: clamp(1rem, 0.95rem + 0.25vw, 1.125rem);
+    transition: color 0.3s ease;
+}
+
+[data-theme="dark"] .loading-message,
+[data-theme="dark"] .error-message,
+[data-theme="dark"] .no-flashcards-message {
+    color: var(--color-text-secondary-dark, #9ca3af);
+}
+
+@media (max-width: 768px) {
+    .flashcard-detail-container {
+        padding: clamp(1rem, 0.75rem + 1.25vw, 1.25rem) clamp(0.75rem, 0.5rem + 1.25vw, 1rem);
+        padding-top: calc(70px + clamp(1rem, 0.75rem + 1.25vw, 1.25rem));
+    }
+
+    .flashcard-detail-breadcrumb {
+        margin-top: clamp(1rem, 0.75rem + 1.25vw, 1.25rem);
+    }
+}
+

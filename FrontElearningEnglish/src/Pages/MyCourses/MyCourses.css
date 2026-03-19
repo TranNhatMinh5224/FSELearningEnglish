@@ -1,0 +1,336 @@
+.my-courses-container {
+    padding: var(--padding-container-lg, clamp(1.5rem, 1rem + 2.5vw, 3rem)) var(--padding-container-xl, clamp(2rem, 1.5rem + 2.5vw, 4rem));
+    padding-top: calc(var(--padding-container-lg, clamp(1.5rem, 1rem + 2.5vw, 3rem)) + 70px);
+    background: var(--color-bg-secondary, #f6f8fb);
+    min-height: calc(100vh - 70px);
+}
+
+/* Bootstrap utilities được sử dụng trong JSX - không cần CSS này nữa */
+
+/* Welcome Section được import từ WelcomeSection component - không cần CSS riêng */
+
+@keyframes fadeInDown {
+    from {
+        opacity: 0;
+        transform: translateY(-30px) scale(0.9);
+        filter: blur(4px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+        filter: blur(0);
+    }
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(15px) scale(0.95);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+@keyframes gradientTextShift {
+    0%, 100% {
+        background-position: 0% 50%;
+    }
+    50% {
+        background-position: 100% 50%;
+    }
+}
+
+@keyframes floatText {
+    0%, 100% {
+        transform: translateY(0);
+    }
+    50% {
+        transform: translateY(-2px);
+    }
+}
+
+@keyframes fireFlicker {
+    0%, 100% {
+        transform: scale(1) rotate(-2deg);
+        filter: drop-shadow(0 0 8px rgba(255, 87, 34, 0.8)) drop-shadow(0 0 16px rgba(255, 152, 0, 0.6));
+    }
+    25% {
+        transform: scale(1.1) rotate(2deg);
+        filter: drop-shadow(0 0 12px rgba(255, 87, 34, 1)) drop-shadow(0 0 24px rgba(255, 152, 0, 0.8));
+    }
+    50% {
+        transform: scale(1.15) rotate(-1deg);
+        filter: drop-shadow(0 0 15px rgba(255, 87, 34, 1)) drop-shadow(0 0 30px rgba(255, 152, 0, 1));
+    }
+    75% {
+        transform: scale(1.1) rotate(1deg);
+        filter: drop-shadow(0 0 12px rgba(255, 87, 34, 1)) drop-shadow(0 0 24px rgba(255, 152, 0, 0.8));
+    }
+}
+
+/* Bootstrap utilities được sử dụng trong JSX - không cần CSS này nữa */
+
+.search-box {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.search-icon {
+    position: absolute;
+    left: var(--spacing-sm, clamp(0.5rem, 0.4rem + 0.5vw, 0.75rem));
+    color: var(--color-text-tertiary, #9ca3af);
+    font-size: var(--font-size-base, clamp(1rem, 0.95rem + 0.25vw, 1.125rem));
+}
+
+.search-box input {
+    width: clamp(250px, 15.625rem + 2vw, 300px);
+    padding: var(--spacing-sm, clamp(0.5rem, 0.4rem + 0.5vw, 0.75rem)) var(--spacing-md, clamp(0.75rem, 0.6rem + 0.75vw, 1rem)) var(--spacing-sm, clamp(0.5rem, 0.4rem + 0.5vw, 0.75rem)) clamp(2.5rem, 1.5rem + 1vw, 2.625rem);
+    border: 1px solid var(--color-border-medium, #d1d5db);
+    border-radius: var(--radius-md, clamp(0.5rem, 0.4rem + 0.5vw, 0.75rem));
+    font-size: var(--font-size-base, clamp(1rem, 0.95rem + 0.25vw, 1.125rem));
+    background: var(--color-bg-primary, white);
+    box-sizing: border-box;
+    transition: border-color 0.2s ease;
+}
+
+.search-box input:focus {
+    outline: none;
+    border-color: var(--color-secondary-cyan, #41d6e3);
+    box-shadow: 0 0 0 3px rgba(65, 214, 227, 0.1);
+}
+
+.search-box input::placeholder {
+    color: var(--color-text-tertiary, #9ca3af);
+}
+
+/* Bootstrap utilities: d-flex, align-items-center */
+.join-class-btn {
+    gap: var(--spacing-xs, clamp(0.25rem, 0.2rem + 0.25vw, 0.5rem));
+    padding: var(--spacing-sm, clamp(0.5rem, 0.4rem + 0.5vw, 0.75rem)) var(--spacing-lg, clamp(1rem, 0.8rem + 1vw, 1.5rem));
+    background: var(--color-secondary-cyan, #41d6e3);
+    color: var(--color-text-white, white);
+    border: none;
+    border-radius: var(--radius-md, clamp(0.5rem, 0.4rem + 0.5vw, 0.75rem));
+    font-size: var(--font-size-base, clamp(1rem, 0.95rem + 0.25vw, 1.125rem));
+    font-weight: 600;
+    cursor: pointer;
+    transition: opacity 0.2s ease, transform 0.1s ease;
+}
+
+.join-class-btn:hover {
+    opacity: 0.9;
+    transform: translateY(-1px);
+}
+
+.join-class-btn:active {
+    transform: translateY(0);
+}
+
+/* Bootstrap Grid được sử dụng trong JSX - không cần CSS grid nữa */
+/* .my-courses-main-content đã được thay bằng Bootstrap row/col */
+
+.courses-section {
+    margin-bottom: var(--padding-container-xl, clamp(2rem, 1.5rem + 2.5vw, 4rem));
+}
+
+/* Suggested courses section style (tái sử dụng từ SuggestedCoursesSection) */
+.suggested-courses-section h2 {
+    font-size: var(--font-size-3xl, clamp(1.875rem, 1.5rem + 1.875vw, 2.25rem));
+    margin-bottom: var(--spacing-lg, clamp(1rem, 0.8rem + 1vw, 1.5rem));
+    margin-left: 0;
+    font-weight: 800;
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    gap: var(--spacing-xs, clamp(0.25rem, 0.2rem + 0.25vw, 0.5rem));
+    transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    padding: var(--spacing-xs, clamp(0.25rem, 0.2rem + 0.25vw, 0.5rem)) var(--spacing-sm, clamp(0.5rem, 0.4rem + 0.5vw, 0.75rem));
+    border-radius: var(--radius-md, clamp(0.5rem, 0.4rem + 0.5vw, 0.75rem));
+    animation: fadeInLeft 0.8s ease-out;
+    color: #7c3aed;
+    line-height: 1.2;
+}
+
+.suggested-courses-section h2::after {
+    content: '🎯';
+    font-size: var(--font-size-xl, clamp(1.25rem, 1.1rem + 0.75vw, 1.5rem));
+    animation: bounceTarget 2s ease-in-out infinite, pulseTarget 1.5s ease-in-out infinite;
+    filter: drop-shadow(0 0 8px rgba(65, 214, 227, 0.6));
+}
+
+@keyframes fadeInLeft {
+    from {
+        opacity: 0;
+        transform: translateX(-40px) scale(0.9);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0) scale(1);
+    }
+}
+
+@keyframes bounceTarget {
+    0%, 100% {
+        transform: translateY(0) scale(1);
+    }
+    25% {
+        transform: translateY(-8px) scale(1.1);
+    }
+    50% {
+        transform: translateY(-4px) scale(1.05);
+    }
+    75% {
+        transform: translateY(-6px) scale(1.08);
+    }
+}
+
+@keyframes pulseTarget {
+    0%, 100% {
+        filter: drop-shadow(0 0 8px rgba(65, 214, 227, 0.6));
+    }
+    50% {
+        filter: drop-shadow(0 0 15px rgba(217, 70, 239, 0.8));
+    }
+}
+
+.suggested-courses-section h2:hover {
+    color: #6d28d9;
+    transform: translateX(clamp(0.375rem, 0.3rem + 0.375vw, 0.5rem)) scale(1.05);
+}
+
+/* Bootstrap Grid được sử dụng trong JSX - không cần CSS grid nữa */
+/* .suggested-courses-grid đã được thay bằng Bootstrap row/col */
+
+.courses-section h2 {
+    font-size: var(--font-size-xl, clamp(1.25rem, 1.1rem + 0.75vw, 1.5rem));
+    font-weight: 700;
+    color: var(--color-text-primary, #1f2937);
+    margin-bottom: var(--spacing-lg, clamp(1rem, 0.8rem + 1vw, 1.5rem));
+}
+
+/* Bootstrap utilities được sử dụng trong JSX - không cần CSS này nữa */
+
+.pagination-info {
+    font-size: var(--font-size-sm, clamp(0.875rem, 0.8rem + 0.375vw, 1rem));
+    color: var(--color-text-secondary, #6b7280);
+}
+
+.custom-pagination {
+    margin: 0;
+    gap: 4px;
+}
+
+.custom-pagination .page-link {
+    color: var(--color-text-primary, #1f2937);
+    border: 1px solid var(--color-border-medium, #d1d5db);
+    padding: 8px 12px;
+    border-radius: 8px;
+    transition: all 0.2s ease;
+}
+
+.custom-pagination .page-link:hover {
+    background-color: var(--color-secondary-cyan, #41d6e3);
+    border-color: var(--color-secondary-cyan, #41d6e3);
+    color: white;
+}
+
+.custom-pagination .page-item.active .page-link {
+    background-color: var(--color-secondary-cyan, #41d6e3);
+    border-color: var(--color-secondary-cyan, #41d6e3);
+    color: white;
+}
+
+.custom-pagination .page-item.disabled .page-link {
+    opacity: 0.5;
+    cursor: not-allowed;
+    pointer-events: none;
+}
+
+.custom-pagination .page-item.disabled .page-link:hover {
+    background-color: transparent;
+    border-color: var(--color-border-medium, #d1d5db);
+    color: var(--color-text-primary, #1f2937);
+}
+
+/* Bootstrap Grid được sử dụng - không cần CSS grid nữa */
+
+.loading-message,
+.error-message,
+.no-courses-message {
+    text-align: center;
+    padding: var(--padding-container-xl, clamp(2rem, 1.5rem + 2.5vw, 4rem)) var(--padding-container-md, clamp(1rem, 0.75rem + 1.25vw, 2rem));
+    color: var(--color-text-secondary, #6b7280);
+    font-size: var(--font-size-base, clamp(1rem, 0.95rem + 0.25vw, 1.125rem));
+}
+
+/* Bootstrap Grid được sử dụng - không cần media query này nữa */
+
+/* Bootstrap utilities được sử dụng trong JSX - responsive tự động */
+@media (max-width: 968px) {
+    .search-box input {
+        width: 100%;
+    }
+
+    .join-class-btn {
+        width: 100%;
+        justify-content: center;
+    }
+}
+
+/* ===========================
+   RESPONSIVE
+=========================== */
+
+/* Bootstrap Grid được sử dụng - không cần CSS grid nữa */
+
+/* ===========================
+   RESPONSIVE - Professional Pattern
+=========================== */
+
+/* Bootstrap Grid được sử dụng - không cần media query này nữa */
+
+/* Bootstrap utilities được sử dụng trong JSX - responsive tự động */
+
+/* Tablet: 768px and below */
+@media (max-width: 768px) {
+    .my-courses-container {
+        padding: var(--padding-container-md, clamp(1rem, 0.75rem + 1.25vw, 2rem)) var(--padding-container-lg, clamp(1.5rem, 1rem + 2.5vw, 3rem));
+        padding-top: calc(var(--padding-container-md, clamp(1rem, 0.75rem + 1.25vw, 2rem)) + 70px);
+    }
+    
+    .custom-pagination {
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+    
+    .custom-pagination .page-link {
+        padding: var(--spacing-xs, clamp(0.25rem, 0.2rem + 0.25vw, 0.5rem)) var(--spacing-sm, clamp(0.5rem, 0.4rem + 0.5vw, 0.75rem));
+        font-size: var(--font-size-sm, clamp(0.875rem, 0.8rem + 0.375vw, 1rem));
+    }
+}
+
+/* Mobile: 576px and below */
+@media (max-width: 576px) {
+    .my-courses-container {
+        padding: var(--padding-container-sm, clamp(0.75rem, 0.5rem + 1.25vw, 1.5rem)) var(--padding-container-md, clamp(1rem, 0.75rem + 1.25vw, 2rem));
+        padding-top: calc(var(--padding-container-sm, clamp(0.75rem, 0.5rem + 1.25vw, 1.5rem)) + 70px);
+    }
+
+    .loading-message,
+    .error-message,
+    .no-courses-message {
+        padding: var(--spacing-xl, clamp(1.5rem, 1.2rem + 1.5vw, 2rem)) var(--padding-container-sm, clamp(0.75rem, 0.5rem + 1.25vw, 1.5rem));
+        font-size: var(--font-size-sm, clamp(0.875rem, 0.8rem + 0.375vw, 1rem));
+    }
+}
+
+/* Small Mobile: 480px and below */
+@media (max-width: 480px) {
+    .my-courses-container {
+        padding: var(--padding-container-sm, clamp(0.75rem, 0.5rem + 1.25vw, 1.5rem));
+        padding-top: calc(var(--padding-container-sm, clamp(0.75rem, 0.5rem + 1.25vw, 1.5rem)) + 70px);
+    }
+}

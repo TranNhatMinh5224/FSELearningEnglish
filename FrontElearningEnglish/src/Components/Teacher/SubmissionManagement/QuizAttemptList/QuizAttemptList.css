@@ -1,0 +1,28 @@
+.quiz-attempt-list {
+  padding: 0;
+}
+
+.quiz-attempt-list .table {
+  margin-bottom: 0;
+}
+
+.quiz-attempt-list .table thead th {
+  background-color: var(--color-bg-secondary, #f8f9fa);
+  border-bottom: 2px solid var(--color-border-medium, #dee2e6);
+  font-weight: 600;
+  color: var(--color-text-secondary, #495057);
+}
+
+.quiz-attempt-list .table tbody tr {
+  transition: background-color 0.15s ease;
+}
+
+.quiz-attempt-list .table tbody tr:hover {
+  background-color: var(--color-bg-light, #f8f9fa);
+}
+
+.quiz-attempt-list .table .view-btn.btn {
+  font-size: 13px;
+  padding: 6px 30px;
+  min-width: auto;
+}

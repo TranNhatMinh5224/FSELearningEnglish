@@ -1,0 +1,97 @@
+########################################
+# Full Stack .gitignore (Corrected for your Project)
+########################################
+
+# ===========================================
+# 1. HỆ ĐIỀU HÀNH & EDITOR (Rác hệ thống)
+# ===========================================
+.DS_Store
+Thumbs.db
+desktop.ini
+$RECYCLE.BIN/
+*.lnk
+.vs/
+.vscode/
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+.idea/
+*.suo
+*.user
+*.userprefs
+*.dump
+
+# ===========================================
+# 2. BACKEND (.NET CORE)
+# ===========================================
+# Thư mục build (sinh ra khi chạy code)
+[Bb]in/
+[Oo]bj/
+[Dd]ebug/
+[Rr]elease/
+x64/
+x86/
+publish/
+out/
+app_data/
+
+# File tạm và logs
+*.log
+*.tmp
+TestResults/
+*.coverage
+*.coveragexml
+
+# File Database thực tế
+*.mdf
+*.ldf
+*.db
+*.sqlite
+*.sqlite3
+
+# File cấu hình môi trường chứa SECRET
+**/appsettings.Development.json
+**/appsettings.Production.json
+**/appsettings.Local.json
+**/appsettings.Docker.json
+# Giữ lại appsettings.json làm mẫu (nếu không chứa secret)
+
+# ===========================================
+# 3. FRONTEND (REACTJS)
+# ===========================================
+# Thư viện tải về
+**/node_modules/
+
+# Thư mục build production
+**/build/
+**/dist/
+**/.eslintcache
+
+# File log npm/yarn
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# ===========================================
+# 4. ENVIRONMENT VARIABLES (QUAN TRỌNG)
+# ===========================================
+# Chặn tất cả file .env ở mọi thư mục
+.env
+**/.env
+.env.*
+!.env.example
+
+# ===========================================
+# 5. DEVOPS & DOCKER
+# ===========================================
+docker-compose.override.yml
+# Chặn folder data mount ra ngoài server
+minio_data/
+postgres_data/
+
+# ===========================================
+# 6. PROJECT SPECIFIC
+# ===========================================
+BackendELearningEnglish/LearningEnglish.API/wwwroot/uploads/*
+!BackendELearningEnglish/LearningEnglish.API/wwwroot/uploads/.gitkeep

@@ -1,0 +1,613 @@
+/* ========================================
+   EnrollmentSuccessModal - Styles
+   Modal chúc mừng tham gia khóa học thành công
+   Sử dụng Bootstrap Modal + Custom styles
+   Responsive cho tất cả thiết bị
+   ======================================== */
+
+/* Bootstrap Modal Customization */
+.esm-bootstrap-modal .modal-backdrop {
+    backdrop-filter: blur(6px);
+}
+
+.esm-dialog {
+    max-width: 440px;
+    margin: 1rem;
+}
+
+.esm-content {
+    border: none;
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: 
+        0 25px 80px rgba(0, 0, 0, 0.25),
+        0 10px 30px rgba(0, 0, 0, 0.15);
+    animation: esm-slideUp 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+@keyframes esm-slideUp {
+    from {
+        transform: translateY(30px) scale(0.95);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0) scale(1);
+        opacity: 1;
+    }
+}
+
+/* Confetti Animation */
+.esm-confetti-container {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 160px;
+    overflow: hidden;
+    pointer-events: none;
+    z-index: 1;
+}
+
+.esm-confetti {
+    position: absolute;
+    width: 10px;
+    height: 10px;
+    border-radius: 2px;
+    animation: esm-confetti-fall 3s ease-in-out infinite;
+}
+
+.esm-confetti-1 {
+    background: linear-gradient(135deg, #ffd700, #ffec8b);
+    left: 8%;
+    animation-delay: 0s;
+}
+
+.esm-confetti-2 {
+    background: linear-gradient(135deg, #ff6b6b, #ee5a5a);
+    left: 20%;
+    animation-delay: 0.4s;
+    width: 8px;
+    height: 8px;
+}
+
+.esm-confetti-3 {
+    background: linear-gradient(135deg, #4ecdc4, #44a3b0);
+    left: 35%;
+    animation-delay: 0.2s;
+}
+
+.esm-confetti-4 {
+    background: linear-gradient(135deg, #a855f7, #9333ea);
+    left: 50%;
+    animation-delay: 0.6s;
+    width: 12px;
+    height: 12px;
+}
+
+.esm-confetti-5 {
+    background: linear-gradient(135deg, #22c55e, #16a34a);
+    left: 65%;
+    animation-delay: 0.1s;
+}
+
+.esm-confetti-6 {
+    background: linear-gradient(135deg, #3b82f6, #2563eb);
+    left: 78%;
+    animation-delay: 0.5s;
+    width: 8px;
+    height: 8px;
+}
+
+.esm-confetti-7 {
+    background: linear-gradient(135deg, #f97316, #ea580c);
+    left: 88%;
+    animation-delay: 0.3s;
+}
+
+.esm-confetti-8 {
+    background: linear-gradient(135deg, #ec4899, #db2777);
+    left: 95%;
+    animation-delay: 0.7s;
+    width: 6px;
+    height: 6px;
+}
+
+@keyframes esm-confetti-fall {
+    0% {
+        transform: translateY(-20px) rotate(0deg);
+        opacity: 1;
+    }
+    100% {
+        transform: translateY(160px) rotate(720deg);
+        opacity: 0;
+    }
+}
+
+/* Header */
+.esm-header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    padding: 2rem 1.5rem 1.75rem;
+    display: flex;
+    justify-content: center;
+    position: relative;
+    z-index: 2;
+}
+
+.esm-icon-container {
+    position: relative;
+    width: 90px;
+    height: 90px;
+}
+
+.esm-icon-ring {
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.2);
+    animation: esm-pulse-ring 2s ease-out infinite;
+}
+
+@keyframes esm-pulse-ring {
+    0% {
+        transform: scale(1);
+        opacity: 0.8;
+    }
+    50% {
+        transform: scale(1.2);
+        opacity: 0.2;
+    }
+    100% {
+        transform: scale(1);
+        opacity: 0.8;
+    }
+}
+
+.esm-icon-inner {
+    position: absolute;
+    inset: 8px;
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 50%;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+}
+
+.esm-icon {
+    font-size: 38px;
+    color: #667eea;
+}
+
+.esm-check-badge {
+    position: absolute;
+    bottom: 2px;
+    right: 2px;
+    width: 28px;
+    height: 28px;
+    background: linear-gradient(135deg, #22c55e, #16a34a);
+    border-radius: 50%;
+    border: 3px solid white;
+    box-shadow: 0 4px 12px rgba(34, 197, 94, 0.4);
+    animation: esm-badge-pop 0.5s ease-out 0.3s both;
+}
+
+.esm-check-badge svg {
+    font-size: 12px;
+    color: white;
+}
+
+@keyframes esm-badge-pop {
+    0% {
+        transform: scale(0);
+        opacity: 0;
+    }
+    50% {
+        transform: scale(1.2);
+    }
+    100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+/* Body */
+.esm-body {
+    padding-top: 1.5rem !important;
+    padding-bottom: 1.25rem !important;
+}
+
+.esm-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #1f2937;
+    line-height: 1.3;
+}
+
+.esm-subtitle {
+    font-size: 1rem;
+    color: #4b5563;
+    font-weight: 500;
+}
+
+.esm-course-card {
+    background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+    border: 1px solid #bae6fd;
+    border-radius: 12px;
+    padding: 0.875rem 1rem;
+    animation: esm-card-glow 2s ease-in-out infinite alternate;
+}
+
+@keyframes esm-card-glow {
+    from {
+        box-shadow: 0 0 0 0 rgba(14, 165, 233, 0);
+    }
+    to {
+        box-shadow: 0 0 20px 2px rgba(14, 165, 233, 0.15);
+    }
+}
+
+.esm-course-icon {
+    font-size: 20px;
+    color: #0284c7;
+}
+
+.esm-course-title {
+    font-size: 0.9375rem;
+    font-weight: 600;
+    color: #0369a1;
+    line-height: 1.4;
+}
+
+.esm-description {
+    font-size: 0.875rem;
+    color: #6b7280;
+    line-height: 1.6;
+}
+
+/* Footer */
+.esm-footer {
+    border-top: 1px solid #f3f4f6 !important;
+    background: #fafafa;
+}
+
+.esm-btn {
+    padding: 0.75rem 1.25rem !important;
+    border-radius: 10px !important;
+    font-size: 0.9375rem !important;
+    font-weight: 600 !important;
+    transition: all 0.25s ease !important;
+}
+
+.esm-btn-secondary {
+    background: #ffffff !important;
+    border: 2px solid #e5e7eb !important;
+    color: #4b5563 !important;
+}
+
+.esm-btn-secondary:hover {
+    background: #f9fafb !important;
+    border-color: #d1d5db !important;
+    color: #374151 !important;
+}
+
+.esm-btn-primary {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+    border: none !important;
+    color: #ffffff !important;
+    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4) !important;
+}
+
+.esm-btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(102, 126, 234, 0.5) !important;
+}
+
+.esm-btn-primary:active {
+    transform: translateY(0);
+}
+
+.esm-btn-icon {
+    font-size: 14px;
+}
+
+/* ========================================
+   RESPONSIVE BREAKPOINTS (Bootstrap-aligned)
+   ======================================== */
+
+/* Extra Small devices (phones, < 576px) */
+@media (max-width: 575.98px) {
+    .esm-dialog {
+        margin: 0.5rem;
+        max-width: calc(100% - 1rem);
+    }
+
+    .esm-content {
+        border-radius: 16px;
+    }
+
+    .esm-header {
+        padding: 1.5rem 1rem 1.25rem;
+    }
+
+    .esm-icon-container {
+        width: 75px;
+        height: 75px;
+    }
+
+    .esm-icon-inner {
+        inset: 6px;
+    }
+
+    .esm-icon {
+        font-size: 32px;
+    }
+
+    .esm-check-badge {
+        width: 24px;
+        height: 24px;
+        bottom: 0;
+        right: 0;
+    }
+
+    .esm-check-badge svg {
+        font-size: 10px;
+    }
+
+    .esm-title {
+        font-size: 1.25rem;
+    }
+
+    .esm-subtitle {
+        font-size: 0.9375rem;
+    }
+
+    .esm-course-card {
+        padding: 0.75rem;
+        border-radius: 10px;
+    }
+
+    .esm-course-icon {
+        font-size: 18px;
+    }
+
+    .esm-course-title {
+        font-size: 0.875rem;
+    }
+
+    .esm-description {
+        font-size: 0.8125rem;
+    }
+
+    .esm-btn {
+        padding: 0.875rem 1rem !important;
+        font-size: 0.875rem !important;
+    }
+
+    .esm-confetti-container {
+        height: 120px;
+    }
+
+    @keyframes esm-confetti-fall {
+        0% {
+            transform: translateY(-15px) rotate(0deg);
+            opacity: 1;
+        }
+        100% {
+            transform: translateY(120px) rotate(720deg);
+            opacity: 0;
+        }
+    }
+}
+
+/* Small devices (landscape phones, 576px - 767px) */
+@media (min-width: 576px) and (max-width: 767.98px) {
+    .esm-dialog {
+        max-width: 420px;
+    }
+
+    .esm-header {
+        padding: 2rem 1.5rem 1.5rem;
+    }
+
+    .esm-icon-container {
+        width: 85px;
+        height: 85px;
+    }
+
+    .esm-title {
+        font-size: 1.375rem;
+    }
+}
+
+/* Medium devices (tablets, 768px - 991px) */
+@media (min-width: 768px) and (max-width: 991.98px) {
+    .esm-dialog {
+        max-width: 440px;
+    }
+
+    .esm-header {
+        padding: 2.25rem 2rem 1.75rem;
+    }
+
+    .esm-icon-container {
+        width: 95px;
+        height: 95px;
+    }
+
+    .esm-icon {
+        font-size: 40px;
+    }
+
+    .esm-title {
+        font-size: 1.5rem;
+    }
+
+    .esm-body {
+        padding-left: 2rem !important;
+        padding-right: 2rem !important;
+    }
+
+    .esm-footer {
+        padding-left: 2rem !important;
+        padding-right: 2rem !important;
+    }
+}
+
+/* Large devices (desktops, 992px+) */
+@media (min-width: 992px) {
+    .esm-dialog {
+        max-width: 460px;
+    }
+
+    .esm-header {
+        padding: 2.5rem 2rem 2rem;
+    }
+
+    .esm-icon-container {
+        width: 100px;
+        height: 100px;
+    }
+
+    .esm-icon-inner {
+        inset: 10px;
+    }
+
+    .esm-icon {
+        font-size: 44px;
+    }
+
+    .esm-check-badge {
+        width: 30px;
+        height: 30px;
+        bottom: 4px;
+        right: 4px;
+    }
+
+    .esm-check-badge svg {
+        font-size: 13px;
+    }
+
+    .esm-title {
+        font-size: 1.625rem;
+    }
+
+    .esm-subtitle {
+        font-size: 1.0625rem;
+    }
+
+    .esm-course-card {
+        padding: 1rem 1.25rem;
+    }
+
+    .esm-course-icon {
+        font-size: 22px;
+    }
+
+    .esm-course-title {
+        font-size: 1rem;
+    }
+
+    .esm-description {
+        font-size: 0.9375rem;
+    }
+
+    .esm-body {
+        padding: 1.75rem 2rem 1.5rem !important;
+    }
+
+    .esm-footer {
+        padding: 1.25rem 2rem 1.5rem !important;
+    }
+
+    .esm-btn {
+        padding: 0.875rem 1.5rem !important;
+        font-size: 1rem !important;
+    }
+}
+
+/* Touch device optimizations */
+@media (hover: none) and (pointer: coarse) {
+    .esm-btn {
+        min-height: 48px;
+    }
+
+    .esm-btn-primary:hover {
+        transform: none;
+    }
+
+    .esm-btn-primary:active {
+        transform: scale(0.98);
+    }
+}
+
+/* Landscape orientation on small devices */
+@media (max-height: 500px) and (orientation: landscape) {
+    .esm-dialog {
+        margin: 0.25rem;
+    }
+
+    .esm-content {
+        max-height: calc(100vh - 0.5rem);
+        overflow-y: auto;
+    }
+
+    .esm-header {
+        padding: 1rem;
+    }
+
+    .esm-icon-container {
+        width: 60px;
+        height: 60px;
+    }
+
+    .esm-icon {
+        font-size: 26px;
+    }
+
+    .esm-check-badge {
+        width: 20px;
+        height: 20px;
+    }
+
+    .esm-body {
+        padding: 0.75rem 1rem !important;
+    }
+
+    .esm-title {
+        font-size: 1.125rem;
+    }
+
+    .esm-subtitle {
+        font-size: 0.875rem;
+        margin-bottom: 0.5rem !important;
+    }
+
+    .esm-course-card {
+        padding: 0.5rem 0.75rem;
+        margin-bottom: 0.5rem !important;
+    }
+
+    .esm-description {
+        font-size: 0.8125rem;
+    }
+
+    .esm-footer {
+        padding: 0.75rem 1rem !important;
+    }
+
+    .esm-confetti-container {
+        display: none;
+    }
+}
+
+/* Reduced motion preference */
+@media (prefers-reduced-motion: reduce) {
+    .esm-content,
+    .esm-confetti,
+    .esm-icon-ring,
+    .esm-check-badge,
+    .esm-course-card {
+        animation: none;
+    }
+
+    .esm-btn-primary:hover {
+        transform: none;
+    }
+}

@@ -1,0 +1,29 @@
+.home-container {
+  padding: var(--padding-container-lg, clamp(1.5rem, 1rem + 2.5vw, 3rem)) 0;
+  padding-top: calc(var(--padding-container-lg, clamp(1.5rem, 1rem + 2.5vw, 3rem)) + 70px);
+  background: var(--color-bg-secondary, #f6f8fb);
+  min-height: calc(100vh - 70px);
+}
+
+/* Bootstrap Container tự xử lý padding responsive - KHÔNG override */
+/* Bootstrap Grid được sử dụng trong JSX - không cần CSS grid nữa */
+
+/* ===========================
+   RESPONSIVE - Chỉ cho .home-container
+=========================== */
+
+/* Tablet: 768px and below */
+@media (max-width: 768px) {
+  .home-container {
+    padding: var(--padding-container-md, clamp(1rem, 0.75rem + 1.25vw, 2rem)) 0;
+    padding-top: calc(var(--padding-container-md, clamp(1rem, 0.75rem + 1.25vw, 2rem)) + 70px);
+  }
+}
+
+/* Mobile: 576px and below */
+@media (max-width: 576px) {
+  .home-container {
+    padding: var(--padding-container-sm, clamp(0.75rem, 0.5rem + 1.25vw, 1.5rem)) 0;
+    padding-top: calc(var(--padding-container-sm, clamp(0.75rem, 0.5rem + 1.25vw, 1.5rem)) + 70px);
+  }
+}

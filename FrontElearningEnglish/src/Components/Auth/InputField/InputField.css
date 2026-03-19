@@ -1,0 +1,113 @@
+.input-field-wrapper {
+    width: 100%;
+    margin-bottom: 15px;
+}
+
+.input-field-container {
+    position: relative;
+    width: 100%;
+}
+
+/* Default: no password toggle - normal padding */
+.input-field-container .input-field {
+    width: 100%;
+    height: 52px;
+    padding: 0 16px;
+    border-radius: 14px;
+    border: 1px solid var(--color-border-medium, #d1d5db);
+    font-size: 15px;
+    line-height: 52px;
+    background: var(--color-bg-white, white);
+    color: var(--color-text-primary, #1f2937);
+    box-sizing: border-box;
+    transition: 0.25s;
+    font-family: inherit;
+    text-align: left;
+}
+
+/* When password toggle is present - extra padding for icon */
+.input-field-container.has-password-toggle .input-field {
+    padding-right: 48px !important;
+}
+
+.input-field::placeholder {
+    color: var(--color-text-tertiary, #9ca3af);
+}
+
+.input-field:focus {
+    outline: none;
+    border-color: var(--color-primary-main, #7a3df0);
+    box-shadow: 0 0 0 3px rgba(122, 61, 240, 0.15);
+}
+
+.input-field:disabled {
+    background: var(--color-bg-secondary, #f6f8fb);
+    cursor: not-allowed;
+}
+
+.input-field-container.error .input-field {
+    border-color: var(--color-status-error, #ef4444);
+}
+
+.input-field-container.error .input-field:focus {
+    border-color: var(--color-status-error, #ef4444);
+    box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.15);
+}
+
+/* Bootstrap utilities: d-flex, align-items-center, justify-content-center */
+.password-toggle-btn {
+    position: absolute;
+    right: 16px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 18px;
+    color: var(--color-text-tertiary, #9ca3af);
+    padding: 0;
+    width: 24px;
+    height: 24px;
+    transition: color 0.2s ease;
+}
+
+.password-toggle-btn:hover {
+    color: var(--color-text-secondary, #6b7280);
+}
+
+.password-toggle-btn:active {
+    transform: translateY(-50%) scale(0.95);
+}
+
+.input-field-error {
+    display: block;
+    color: var(--color-status-error, #ef4444);
+    font-size: 13px;
+    margin-top: 6px;
+    margin-left: 4px;
+    text-align: left;
+}
+
+/* ===========================
+   RESPONSIVE
+=========================== */
+
+@media (max-width: 576px) {
+    .input-field-container .input-field {
+        height: 48px;
+        line-height: 48px;
+        font-size: 14px;
+        padding: 0 14px;
+    }
+
+    .input-field-container.has-password-toggle .input-field {
+        padding-right: 44px;
+    }
+
+    .password-toggle-btn {
+        right: 14px;
+        width: 22px;
+        height: 22px;
+        font-size: 16px;
+    }
+}

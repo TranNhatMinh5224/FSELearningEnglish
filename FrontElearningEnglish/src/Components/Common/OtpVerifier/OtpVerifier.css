@@ -1,0 +1,138 @@
+.otp-container {
+  min-height: 100vh;
+  height: 100vh;
+  background: linear-gradient(135deg, #7abfec 0%, #fdf2f8 100%);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+}
+
+.otp-box {
+  width: 100%;
+  max-width: 420px;
+  background: #fff;
+  padding: 48px 40px;
+  border-radius: 20px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+  text-align: center;
+}
+
+.otp-box h2 {
+  font-size: 28px;
+  font-weight: 700;
+  color: #1f2937;
+  margin-bottom: 12px;
+}
+
+.otp-desc {
+  font-size: 14px;
+  color: #6b7280;
+  margin-bottom: 32px;
+  line-height: 1.5;
+  text-align: center;
+}
+
+.otp-input-group {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin-bottom: 24px;
+}
+
+/* Bootstrap Form.Control override for OTP inputs */
+.otp-input.form-control {
+  width: 48px;
+  height: 55px;
+  font-size: 22px;
+  text-align: center;
+  border-radius: 12px;
+  border: 1.5px solid #d1d5db;
+  transition: 0.2s;
+}
+
+.otp-input.form-control:focus {
+  border-color: #7f56d9;
+  box-shadow: 0 0 0 3px rgba(127, 86, 217, 0.3);
+}
+
+.otp-input.form-control:disabled {
+  background-color: #f5f5f5;
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+/* Bootstrap Alert override */
+.otp-alert-error.alert {
+  color: #ef4444;
+  background: rgba(239, 68, 68, 0.1);
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  text-align: left;
+  margin-bottom: 20px;
+}
+
+.otp-alert-error.otp-error-max {
+  color: #d32f2f;
+  font-weight: 600;
+}
+
+/* Bootstrap Button primary override */
+.otp-btn.btn-primary {
+  background: linear-gradient(to right, #41d6e3 0%, #06b6d4 100%) !important;
+  border: none !important;
+  border-radius: 12px;
+  font-weight: 600;
+  box-shadow: 0 4px 12px rgba(65, 214, 227, 0.3);
+  transition: all 0.3s ease;
+}
+
+.otp-btn.btn-primary:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(65, 214, 227, 0.4);
+  opacity: 0.95;
+}
+
+.otp-btn.btn-primary:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.otp-btn.btn-primary:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* Bootstrap Button link override */
+.resend-btn.btn-link {
+  color: #7a3df0;
+  font-weight: 600;
+  padding: 0;
+  font-size: 14px;
+  text-decoration: underline;
+  transition: opacity 0.2s ease;
+}
+
+.resend-btn.btn-link:hover:not(:disabled) {
+  color: #7a3df0;
+  opacity: 0.8;
+}
+
+.resend-btn.btn-link:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  text-decoration: none;
+}
+
+.otp-timer {
+  font-size: 13px;
+  color: #6b7280;
+  margin-left: 8px;
+}
+
+.otp-expired {
+  font-size: 13px;
+  color: #ef4444;
+  margin-left: 8px;
+}

@@ -1,0 +1,86 @@
+.course-banner {
+    width: 100%;
+    margin-bottom: var(--spacing-xl, clamp(1.5rem, 1.2rem + 1.5vw, 2rem));
+    border-radius: var(--radius-xl, clamp(1rem, 0.8rem + 1vw, 1.5rem));
+    overflow: hidden;
+    box-shadow: 0 10px 24px var(--shadow-sm, rgba(0, 0, 0, 0.08));
+}
+
+.course-banner img {
+    width: 100%;
+    height: auto;
+    display: block;
+}
+
+.course-banner-background {
+    position: relative;
+    width: 100%;
+    min-height: clamp(200px, 12.5rem + 6.25vw, 300px);
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.course-banner-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(135deg, rgba(0, 0, 0, 0.6) 0%, rgba(0, 0, 0, 0.4) 100%);
+}
+
+.course-banner-content {
+    position: relative;
+    z-index: 1;
+    text-align: center;
+    padding: var(--padding-container-xl, clamp(2rem, 1.5rem + 2.5vw, 4rem)) var(--padding-container-md, clamp(1rem, 0.75rem + 1.25vw, 2rem));
+    color: white;
+    max-width: clamp(600px, 37.5rem + 12.5vw, 800px);
+}
+
+.course-banner-title {
+    font-size: var(--font-size-4xl, clamp(2.25rem, 1.8rem + 2.25vw, 3rem));
+    font-weight: 700;
+    margin: 0 0 var(--spacing-md, clamp(0.75rem, 0.6rem + 0.75vw, 1rem)) 0;
+    color: white;
+    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+    line-height: 1.2;
+}
+
+.course-banner-description {
+    font-size: var(--font-size-lg, clamp(1.125rem, 1rem + 0.625vw, 1.25rem));
+    line-height: 1.6;
+    margin: 0;
+    color: rgba(255, 255, 255, 0.95);
+    text-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
+}
+
+/* ===========================
+   RESPONSIVE - Professional Pattern
+=========================== */
+
+@media (max-width: 768px) {
+    .course-banner {
+        margin-bottom: var(--spacing-lg, clamp(1rem, 0.8rem + 1vw, 1.5rem));
+        border-radius: var(--radius-lg, clamp(0.75rem, 0.6rem + 0.75vw, 1rem));
+    }
+
+    .course-banner-content {
+        padding: var(--padding-container-lg, clamp(1.5rem, 1rem + 2.5vw, 3rem)) var(--padding-container-sm, clamp(0.75rem, 0.5rem + 1.25vw, 1.5rem));
+    }
+}
+
+@media (max-width: 576px) {
+    .course-banner-title {
+        font-size: var(--font-size-3xl, clamp(1.875rem, 1.5rem + 1.875vw, 2.25rem));
+    }
+
+    .course-banner-description {
+        font-size: var(--font-size-base, clamp(1rem, 0.95rem + 0.25vw, 1.125rem));
+    }
+}
+

@@ -1,0 +1,139 @@
+/* Assessment Info Modal - Modern Style like CreateCourseModal */
+
+.assessment-info-modal.modal-modern .modal-header {
+    background: linear-gradient(135deg, var(--color-secondary-cyan, #41d6e3) 0%, #5BB8C8 100%);
+}
+
+.assessment-info-modal.modal-modern .modal-header .modal-title {
+    color: white;
+    font-weight: 700;
+    font-size: 1.4rem;
+}
+
+/* Form Section Cards - Same style as CreateCourseModal */
+.assessment-info-modal .form-section-card {
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    padding: 20px;
+    transition: all 0.2s ease;
+}
+
+.assessment-info-modal .form-section-card:hover {
+    border-color: #cbd5e1;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.assessment-info-modal .form-section-title {
+    font-size: 16px;
+    font-weight: 600;
+    color: #1e293b;
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.assessment-info-modal .form-section-title svg {
+    color: var(--color-secondary-cyan, #41d6e3);
+}
+
+/* Buttons */
+.assessment-info-modal .modal-footer .btn {
+    padding: 0.6rem 2rem;
+    font-size: 15px;
+    font-weight: 600;
+    border-radius: 8px;
+    transition: all 0.2s ease;
+}
+
+.assessment-info-modal .modal-footer .btn-primary.btn-quiz {
+    background: linear-gradient(135deg, #74CEDE 0%, #5BB8C8 100%);
+    border: none;
+    color: white;
+}
+
+.assessment-info-modal .modal-footer .btn-primary.btn-quiz:hover:not(:disabled) {
+    background: linear-gradient(135deg, #5BB8C8 0%, #4AA8B8 100%);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(116, 206, 222, 0.3);
+}
+
+.assessment-info-modal .modal-footer .btn-primary.btn-essay {
+    background: linear-gradient(135deg, #d946ef 0%, #c026d3 100%);
+    border: none;
+    color: white;
+}
+
+.assessment-info-modal .modal-footer .btn-primary.btn-essay:hover:not(:disabled) {
+    background: linear-gradient(135deg, #c026d3 0%, #a21caf 100%);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(217, 70, 239, 0.3);
+}
+
+.assessment-info-modal .modal-footer .btn-secondary {
+    background-color: #f1f5f9;
+    color: #374151;
+    border: 1px solid #e2e8f0;
+}
+
+.assessment-info-modal .modal-footer .btn-secondary:hover {
+    background-color: #e2e8f0;
+}
+
+.assessment-info-modal .modal-footer .btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+}
+
+/* Info Cards - Simple & Clean Design */
+.assessment-info-modal .card {
+    transition: all 0.2s ease;
+    border: 1px solid #e2e8f0;
+    background: #ffffff;
+}
+
+.assessment-info-modal .card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08) !important;
+    border-color: #cbd5e1;
+}
+
+/* Card Body */
+.assessment-info-modal .card .card-body {
+    padding: 16px 20px;
+}
+
+/* Text Styling */
+.assessment-info-modal .card .text-muted {
+    font-size: 13px;
+    font-weight: 500;
+    color: #64748b !important;
+    margin-bottom: 6px;
+}
+
+.assessment-info-modal .card .fw-bold {
+    font-size: 16px;
+    font-weight: 600;
+    color: #1e293b;
+    line-height: 1.5;
+}
+
+/* Badges */
+.assessment-info-modal .badge {
+    padding: 6px 12px;
+    font-size: 13px;
+    font-weight: 500;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .assessment-info-modal .modal-footer {
+        padding: 1rem;
+    }
+    
+    .assessment-info-modal .form-section-card {
+        padding: 16px;
+    }
+}

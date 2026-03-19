@@ -1,0 +1,130 @@
+.suggested-courses-section h3 {
+    /* Bootstrap fs-3 đã xử lý font-size */
+    margin-bottom: var(--spacing-lg, clamp(1rem, 0.8rem + 1vw, 1.5rem));
+    margin-left: 0;
+    font-weight: 800;
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    gap: var(--spacing-xs, clamp(0.25rem, 0.2rem + 0.25vw, 0.5rem));
+    transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    padding: var(--spacing-xs, clamp(0.25rem, 0.2rem + 0.25vw, 0.5rem)) var(--spacing-sm, clamp(0.5rem, 0.4rem + 0.5vw, 0.75rem));
+    border-radius: var(--radius-md, clamp(0.5rem, 0.4rem + 0.5vw, 0.75rem));
+    animation: fadeInLeft 0.8s ease-out;
+    color: var(--color-text-primary, #1f2937);
+    line-height: 1.2;
+}
+
+@keyframes gradientTextShift {
+    0%, 100% {
+        background-position: 0% 50%;
+    }
+    50% {
+        background-position: 100% 50%;
+    }
+}
+
+.suggested-courses-section h3::after {
+    content: '🎯';
+    font-size: var(--font-size-lg, clamp(1.125rem, 1rem + 0.625vw, 1.25rem));
+    animation: bounceTarget 2s ease-in-out infinite, pulseTarget 1.5s ease-in-out infinite;
+    filter: drop-shadow(0 0 8px rgba(65, 214, 227, 0.6));
+}
+
+
+@keyframes fadeInLeft {
+    from {
+        opacity: 0;
+        transform: translateX(-40px) scale(0.9);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0) scale(1);
+    }
+}
+
+@keyframes slideInGlow {
+    0% {
+        text-shadow: 0 0 0 rgba(65, 214, 227, 0);
+    }
+    100% {
+        text-shadow: 0 0 20px rgba(65, 214, 227, 0.4), 0 0 40px rgba(217, 70, 239, 0.2);
+    }
+}
+
+@keyframes bounceTarget {
+    0%, 100% {
+        transform: translateY(0) scale(1);
+    }
+    25% {
+        transform: translateY(-8px) scale(1.1);
+    }
+    50% {
+        transform: translateY(-4px) scale(1.05);
+    }
+    75% {
+        transform: translateY(-6px) scale(1.08);
+    }
+}
+
+@keyframes pulseTarget {
+    0%, 100% {
+        filter: drop-shadow(0 0 8px rgba(65, 214, 227, 0.6));
+    }
+    50% {
+        filter: drop-shadow(0 0 15px rgba(217, 70, 239, 0.8));
+    }
+}
+
+@keyframes gradientBgShift {
+    0%, 100% {
+        background-position: 0% 50%;
+    }
+    50% {
+        background-position: 100% 50%;
+    }
+}
+
+
+.suggested-courses-section h3:hover {
+    color: var(--color-secondary-cyan, #41d6e3);
+    transform: translateX(clamp(0.375rem, 0.3rem + 0.375vw, 0.5rem)) scale(1.05);
+}
+
+@keyframes hoverGlow {
+    to {
+        text-shadow: 0 0 30px rgba(65, 214, 227, 0.6), 0 0 60px rgba(217, 70, 239, 0.4);
+    }
+}
+
+/* Bootstrap Grid được sử dụng trong JSX - không cần CSS grid nữa */
+/* .suggested-courses-grid đã được thay bằng Bootstrap row/col */
+
+/* ===========================
+   RESPONSIVE - Professional Pattern
+=========================== */
+
+@media (max-width: 992px) {
+    .suggested-courses-section h3 {
+        /* Bootstrap fs-3 tự động responsive */
+    }
+}
+
+@media (max-width: 768px) {
+    .suggested-courses-section h3 {
+        /* Bootstrap fs-3 tự động responsive */
+    }
+
+    .suggested-courses-section h3::after {
+        font-size: var(--font-size-base, clamp(1rem, 0.95rem + 0.25vw, 1.125rem));
+    }
+}
+
+.loading-message,
+.error-message,
+.no-courses-message {
+    text-align: center;
+    padding: var(--spacing-lg, clamp(1rem, 0.8rem + 1vw, 1.5rem));
+    color: var(--color-text-secondary, #6b7280);
+    font-size: 14px;
+}

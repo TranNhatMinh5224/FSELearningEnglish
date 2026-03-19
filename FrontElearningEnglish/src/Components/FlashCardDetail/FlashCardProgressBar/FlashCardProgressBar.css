@@ -1,0 +1,75 @@
+.flashcard-progress-bar {
+    width: 100%;
+    max-width: 800px;
+    margin-bottom: -30px;
+}
+
+/* Bootstrap utilities: d-flex, flex-column */
+.progress-container {
+    gap: 12px;
+}
+
+/* Bootstrap utilities: d-flex, justify-content-between, align-items-center */
+.progress-top-row {
+}
+
+.progress-label {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--color-text-primary, #1f2937);
+}
+
+.progress-count {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--color-text-primary, #1f2937);
+}
+
+/* Bootstrap utilities: d-flex, align-items-center */
+.progress-bottom-row {
+    gap: 12px;
+}
+
+/* Bootstrap utilities: d-flex, align-items-center, justify-content-center */
+.progress-close-btn {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    border: none;
+    background: var(--color-border-light, #e5e7eb);
+    color: var(--color-text-secondary, #6b7280);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-size: var(--font-size-sm, clamp(0.875rem, 0.8rem + 0.375vw, 1rem));
+    flex-shrink: 0;
+}
+
+.progress-close-btn:hover {
+    background: var(--color-text-tertiary, #9ca3af);
+    color: white;
+    transform: scale(1.1);
+}
+
+.progress-track {
+    flex: 1;
+    height: 12px;
+    background: var(--color-border-light, #e5e7eb);
+    border-radius: 6px;
+    overflow: hidden;
+}
+
+.progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--color-secondary-cyan, #41d6e3) 0%, var(--color-secondary-pink, #d946ef) 100%);
+    border-radius: 6px;
+    transition: width 0.3s ease;
+}
+
+/* Review variant - chỉnh alignment cho trang review */
+.flashcard-progress-bar.review-variant .progress-top-row {
+    justify-content: flex-end;
+}
+
+.flashcard-progress-bar.review-variant .progress-label {
+    display: none;
+}

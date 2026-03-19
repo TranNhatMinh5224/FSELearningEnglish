@@ -1,0 +1,141 @@
+/* Bootstrap utilities: d-flex, align-items-center, justify-content-center */
+.flashcard-viewer-wrapper {
+    gap: 20px;
+    width: 100%;
+    max-width: 1000px;
+}
+
+.flashcard-viewer-wrapper:has(.flashcard-viewer:only-child) {
+    gap: 0;
+}
+
+.flashcard-viewer {
+    width: 100%;
+    max-width: 450px;
+    height: 500px;
+    perspective: 1000px;
+    cursor: pointer;
+    flex: 0 0 auto;
+}
+
+/* Bootstrap utilities: d-flex, align-items-center, justify-content-center */
+.flashcard-nav-button {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    border: none;
+    background: var(--color-secondary-cyan, #41d6e3);
+    color: white;
+    font-size: 20px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    flex-shrink: 0;
+}
+
+.flashcard-nav-button:hover:not(.disabled) {
+    background: var(--color-secondary-cyan-dark, #35c4d0);
+    transform: scale(1.1);
+}
+
+.flashcard-nav-button.disabled {
+    background: var(--color-border-light, #e5e7eb);
+    color: var(--color-text-tertiary, #9ca3af);
+    cursor: not-allowed;
+    opacity: 0.5;
+}
+
+/* Bootstrap utilities: d-flex, align-items-center, justify-content-center */
+.flashcard-complete-button {
+    width: auto;
+    height: 60px;
+    min-width: 250px;
+    padding: 0 40px;
+    border-radius: 30px;
+    border: none;
+    background: var(--color-status-success, #10b981);
+    color: white;
+    font-size: var(--font-size-base, clamp(1rem, 0.95rem + 0.25vw, 1.125rem));
+    font-weight: 600;
+    gap: 10px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    margin-top: 30px;
+}
+
+.flashcard-complete-button:hover {
+    background: var(--color-status-success-dark, #059669);
+    transform: scale(1.05);
+    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4);
+}
+
+.flashcard-complete-button svg {
+    font-size: 20px;
+}
+
+/* Bootstrap utilities: d-flex, align-items-center, justify-content-center */
+.flashcard-viewer-empty {
+    width: 100%;
+    max-width: 600px;
+    height: 400px;
+    background: var(--color-bg-primary, white);
+    border-radius: 16px;
+    color: var(--color-text-secondary, #6b7280);
+    font-size: var(--font-size-lg, clamp(1.125rem, 1rem + 0.625vw, 1.25rem));
+}
+
+.flashcard-inner {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    text-align: center;
+    transition: transform 0.6s;
+    transform-style: preserve-3d;
+}
+
+.flashcard-viewer.flipped .flashcard-inner {
+    transform: rotateY(180deg);
+}
+
+
+/* Bootstrap responsive breakpoints */
+@media (max-width: 575.98px) {
+    .flashcard-viewer-wrapper {
+        gap: 10px;
+    }
+
+    .flashcard-nav-button {
+        width: 45px;
+        height: 45px;
+        font-size: 16px;
+    }
+
+    .flashcard-viewer {
+        max-width: 100%;
+        height: 400px;
+    }
+}
+
+@media (min-width: 576px) and (max-width: 767.98px) {
+    .flashcard-viewer-wrapper {
+        gap: 15px;
+    }
+
+    .flashcard-nav-button {
+        width: 50px;
+        height: 50px;
+        font-size: 18px;
+    }
+
+    .flashcard-viewer {
+        max-width: 380px;
+        height: 450px;
+    }
+    }
+
+@media (min-width: 768px) {
+    .flashcard-viewer {
+        max-width: 450px;
+        height: 500px;
+    }
+}
+

@@ -1,0 +1,48 @@
+.fill-blank-question {
+    margin-top: 16px;
+}
+
+/* Bootstrap utilities: d-flex, flex-column */
+.fill-blank-question .options-list {
+    gap: 12px;
+}
+
+
+
+
+
+
+
+/* Bootstrap utilities: d-flex, flex-column */
+.fill-blank-question .option-content {
+    gap: 12px;
+    width: 100%;
+}
+
+.fill-blank-question .option-label {
+    font-size: 16px;
+    color: var(--color-text-primary, #1f2937);
+    line-height: 1.5;
+}
+
+.fill-blank-input {
+    border: 2px solid var(--color-border-light, #e5e7eb);
+    border-radius: 12px;
+    padding: 16px;
+    font-size: 16px;
+    color: var(--color-text-primary, #1f2937);
+    transition: all 0.2s ease;
+    resize: vertical;
+    min-height: 120px;
+}
+
+.fill-blank-input:focus {
+    border-color: var(--color-secondary-cyan, #41d6e3);
+    box-shadow: 0 0 0 3px rgba(65, 214, 227, 0.1);
+    outline: none;
+}
+
+.fill-blank-input::placeholder {
+    color: var(--color-text-tertiary, #9ca3af);
+}
+

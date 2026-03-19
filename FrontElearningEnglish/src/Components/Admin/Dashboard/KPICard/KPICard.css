@@ -1,0 +1,69 @@
+/* KPICard Component Styles */
+.admin-card {
+  background: var(--color-bg-card, white);
+  padding: 1.5rem;
+  border-radius: 16px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  border: 1px solid var(--color-border-light, rgba(229, 231, 235, 0.5));
+  position: relative;
+  overflow: hidden;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.admin-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  border-color: var(--card-hover-border, rgba(99, 102, 241, 0.3));
+}
+
+/* Label styling */
+.admin-card .text-muted {
+  font-size: 0.85rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  color: var(--color-text-secondary, #64748b) !important;
+  margin-bottom: 0.5rem;
+  text-transform: uppercase;
+}
+
+/* Value styling */
+.admin-card h3 {
+  font-size: 1.85rem;
+  font-weight: 800;
+  color: var(--color-text-primary, #1e293b);
+  letter-spacing: -0.02em;
+  margin-bottom: 0;
+}
+
+/* Floating Icon Decoration effect */
+.admin-card .kpi-icon-wrapper {
+  position: absolute;
+  right: -10px;
+  bottom: -10px;
+  opacity: 0.1;
+  transform: rotate(-15deg) scale(2.5);
+  transition: all 0.5s ease;
+  pointer-events: none;
+}
+
+.admin-card:hover .kpi-icon-wrapper {
+  transform: rotate(0deg) scale(2.8);
+  opacity: 0.15;
+}
+
+/* Subtitle/Growth indicator */
+.admin-card small {
+  display: inline-flex;
+  align-items: center;
+  font-weight: 500;
+  margin-top: 0.75rem;
+  padding: 2px 8px;
+  background: var(--color-bg-secondary, #f1f5f9);
+  border-radius: 6px;
+  font-size: 0.75rem;
+  width: fit-content;
+}
