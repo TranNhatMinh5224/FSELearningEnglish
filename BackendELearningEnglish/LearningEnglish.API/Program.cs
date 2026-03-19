@@ -126,7 +126,10 @@ builder.Services.AddFluentValidationAutoValidation()
 builder.Services.AddValidatorsFromAssembly(typeof(MappingProfile).Assembly);
 
 // AutoMapper
-builder.Services.AddAutoMapper(typeof(MappingProfile));
+builder.Services.AddAutoMapper(cfg =>
+{
+    cfg.AddProfile<MappingProfile>();
+});
 
 // MediatR (for other features, not Payment)
 builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(typeof(MappingProfile).Assembly));
