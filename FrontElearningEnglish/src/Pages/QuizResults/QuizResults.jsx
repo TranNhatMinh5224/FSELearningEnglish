@@ -2,8 +2,12 @@ import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { Container, Row, Col, Button, Card, Badge } from "react-bootstrap";
 import MainHeader from "../../Components/Header/MainHeader";
+import Breadcrumb from "../../Components/Common/Breadcrumb/Breadcrumb";
 import { quizAttemptService } from "../../Services/quizAttemptService";
 import { quizService } from "../../Services/quizService";
+import { courseService } from "../../Services/courseService";
+import { lessonService } from "../../Services/lessonService";
+import { moduleService } from "../../Services/moduleService";
 import { FaCheckCircle, FaTimesCircle, FaClock, FaTrophy } from "react-icons/fa";
 import "./QuizResults.css";
 
@@ -13,6 +17,9 @@ export default function QuizResults() {
 
     const [result, setResult] = useState(null);
     const [loading, setLoading] = useState(true);
+    const [course, setCourse] = useState(null);
+    const [lesson, setLesson] = useState(null);
+    const [module, setModule] = useState(null);
     const [error, setError] = useState("");
     const [assessmentId, setAssessmentId] = useState(null);
 
@@ -29,13 +36,28 @@ export default function QuizResults() {
                 if (savedResult) {
                     attemptData = JSON.parse(savedResult);
                 } else {
-                    const response = await quizAttemptService.resume(attemptId);
+                    const response = await quizAttemptService.result(attemptId);
 
                     if (response.data?.success && response.data?.data) {
                         attemptData = response.data.data;
+                        localStorage.setItem(`quiz_result_${attemptId}`, JSON.stringify(attemptData));
                     } else {
                         setError("Không tìm thấy kết quả bài thi này.");
                     }
+                }
+
+                // Fetch extra info for breadcrumbs
+                try {
+                    const [courseRes, lessonRes, moduleRes] = await Promise.all([
+                        courseService.getCourseById(courseId),
+                        lessonService.getLessonById(lessonId),
+                        moduleService.getModuleById(moduleId)
+                    ]);
+                    if (courseRes.data?.success) setCourse(courseRes.data.data);
+                    if (lessonRes.data?.success) setLesson(lessonRes.data.data);
+                    if (moduleRes.data?.success) setModule(moduleRes.data.data);
+                } catch (err) {
+                    console.error("Error fetching breadcrumb info:", err);
                 }
 
                 if (attemptData) {
@@ -150,16 +172,29 @@ export default function QuizResults() {
     }
 
     const { totalScore, percentage, isPassed, questions, submittedAt, timeSpentSeconds } = result;
+    const hasScore = typeof totalScore === "number" && typeof percentage === "number";
+    const safeTotalScore = typeof totalScore === "number" ? totalScore : 0;
+    const safePercentage = typeof percentage === "number" ? percentage : 0;
 
     // Tính toán tổng điểm tối đa dựa trên điểm đạt được và tỷ lệ %
     // MaxScore = (totalScore * 100) / percentage
-    const maxScore = (percentage > 0) ? (totalScore * 100) / percentage : (totalScore > 0 ? totalScore : 0);
+    const maxScore = (safePercentage > 0) ? (safeTotalScore * 100) / safePercentage : (safeTotalScore > 0 ? safeTotalScore : 0);
 
     return (
         <>
             <MainHeader />
             <div className="quiz-results-container">
                 <Container>
+                    <Breadcrumb 
+                        items={[
+                            { label: "Khóa học của tôi", path: "/my-courses" },
+                            { label: course?.title || "Khóa học", path: `/course/${courseId}` },
+                            { label: "Lesson", path: `/course/${courseId}/learn` },
+                            { label: lesson?.title || "Bài học", path: `/course/${courseId}/lesson/${lessonId}` },
+                            { label: "Bài tập", path: `/course/${courseId}/lesson/${lessonId}/module/${moduleId}/assignment` },
+                            { label: "Kết quả Quiz", isCurrent: true }
+                        ]}
+                    />
                     <Row className="justify-content-center">
                         <Col lg={10}>
                             <Card className="results-card">
@@ -174,19 +209,27 @@ export default function QuizResults() {
                                             )}
                                         </div>
                                         <h2 className="results-title">
-                                            {isPassed ? "Chúc mừng! Bạn đã hoàn thành bài thi" : "Kết quả làm bài của bạn"}
+                                            {hasScore
+                                                ? (isPassed ? "Chúc mừng! Bạn đã hoàn thành bài thi" : "Kết quả làm bài của bạn")
+                                                : "Bài làm đã được nộp"}
                                         </h2>
                                         <div className="results-score d-flex flex-column align-items-center">
-                                            <div className="score-display">
-                                                <span className="score-current">{totalScore.toFixed(1)}</span>
-                                                <span className="score-separator">/</span>
-                                                <span className="score-total">{Math.round(maxScore)}</span>
-                                            </div>
-                                            <div className="score-percentage-badge">
-                                                <Badge bg={isPassed ? "success" : "danger"}>
-                                                    {percentage.toFixed(1)}%
-                                                </Badge>
-                                            </div>
+                                            {hasScore ? (
+                                                <>
+                                                    <div className="score-display">
+                                                        <span className="score-current">{safeTotalScore.toFixed(1)}</span>
+                                                        <span className="score-separator">/</span>
+                                                        <span className="score-total">{Math.round(maxScore)}</span>
+                                                    </div>
+                                                    <div className="score-percentage-badge">
+                                                        <Badge bg={isPassed ? "success" : "danger"}>
+                                                            {safePercentage.toFixed(1)}%
+                                                        </Badge>
+                                                    </div>
+                                                </>
+                                            ) : (
+                                                <div className="text-muted small">Điểm sẽ được công bố sau</div>
+                                            )}
                                         </div>
                                     </div>
 
@@ -207,7 +250,9 @@ export default function QuizResults() {
                                                     <FaCheckCircle className="summary-icon text-success mb-2" size={24} />
                                                     <div className="summary-content">
                                                         <div className="summary-label text-muted small">Điểm số đạt được</div>
-                                                        <div className="summary-value fw-bold text-success">{totalScore.toFixed(1)} điểm</div>
+                                                        <div className="summary-value fw-bold text-success">
+                                                            {hasScore ? `${safeTotalScore.toFixed(1)} điểm` : "Chưa công bố"}
+                                                        </div>
                                                     </div>
                                                 </div>
                                             </Col>

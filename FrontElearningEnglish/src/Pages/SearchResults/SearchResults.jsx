@@ -4,6 +4,7 @@ import { Container, Row, Col, Spinner } from "react-bootstrap";
 import { courseService } from "../../Services/courseService";
 import { useAssets } from "../../Context/AssetContext";
 import MainHeader from "../../Components/Header/MainHeader";
+import Breadcrumb from "../../Components/Common/Breadcrumb/Breadcrumb";
 import SuggestedCourseCard from "../../Components/Home/SuggestedCourseCard/SuggestedCourseCard";
 import SearchBox from "../../Components/Home/SearchBox/SearchBox";
 import "./SearchResults.css";
@@ -59,6 +60,11 @@ export default function SearchResults() {
             <MainHeader />
             <div className="search-results-page">
                 <Container>
+                    <Breadcrumb 
+                        items={[
+                            { label: "Tìm kiếm", isCurrent: true }
+                        ]}
+                    />
                     <div className="search-results-header">
                         <h1 className="search-results-title">
                             {keyword ? `Kết quả tìm kiếm cho "${keyword}"` : "Tìm kiếm khóa học"}

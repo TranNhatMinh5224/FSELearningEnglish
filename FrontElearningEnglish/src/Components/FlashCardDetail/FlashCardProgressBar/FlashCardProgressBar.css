@@ -52,17 +52,42 @@
 
 .progress-track {
     flex: 1;
-    height: 12px;
-    background: var(--color-border-light, #e5e7eb);
-    border-radius: 6px;
+    height: 14px;
+    background: rgba(229, 231, 235, 0.5);
+    border-radius: 100px;
     overflow: hidden;
+    position: relative;
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.05);
 }
 
 .progress-fill {
     height: 100%;
-    background: linear-gradient(90deg, var(--color-secondary-cyan, #41d6e3) 0%, var(--color-secondary-pink, #d946ef) 100%);
-    border-radius: 6px;
-    transition: width 0.3s ease;
+    background: linear-gradient(90deg, #41d6e3 0%, #d946ef 50%, #41d6e3 100%);
+    background-size: 200% 100%;
+    border-radius: 100px;
+    transition: width 0.8s cubic-bezier(0.34, 1.56, 0.64, 1);
+    position: relative;
+    box-shadow: 0 4px 10px rgba(65, 214, 227, 0.3);
+    animation: glow-flow 3s linear infinite;
+}
+
+@keyframes glow-flow {
+    0% { background-position: 100% 0%; }
+    100% { background-position: -100% 0%; }
+}
+
+.progress-fill::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(
+        transparent 0%, 
+        rgba(255, 255, 255, 0.25) 50%, 
+        transparent 100%
+    );
 }
 
 /* Review variant - chỉnh alignment cho trang review */

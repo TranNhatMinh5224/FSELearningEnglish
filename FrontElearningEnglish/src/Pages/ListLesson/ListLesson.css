@@ -44,6 +44,36 @@
 /* Bootstrap utilities: d-flex, flex-column, gap-* */
 .lessons-list {
     margin-top: var(--spacing-xl, clamp(1.5rem, 1.2rem + 1.5vw, 2rem));
+    padding-bottom: 50px;
+}
+
+.progress-section {
+    transition: all 0.3s ease;
+    z-index: 100;
+}
+
+.progress-section.sticky-active {
+    position: fixed;
+    top: 70px;
+    left: 0;
+    right: 0;
+    background: rgba(255, 255, 255, 0.9);
+    backdrop-filter: blur(10px);
+    padding: 15px clamp(1rem, 5vw, 15.625rem);
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+    margin-bottom: 0;
+}
+
+.progress-section.sticky-active .progress-bar-container {
+    margin-bottom: 0;
+    padding: 10px 20px;
+    background: transparent;
+    box-shadow: none;
+    border: none;
+}
+
+.progress-section.sticky-active .progress-header {
+    margin-bottom: 8px;
 }
 
 /* ===========================

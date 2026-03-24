@@ -11,6 +11,7 @@ import LectureTreeView from "../../../Components/Teacher/LectureTreeView/Lecture
 import LectureDetailModal from "../../../Components/Teacher/LectureDetailModal/LectureDetailModal";
 import ConfirmModal from "../../../Components/Common/ConfirmModal/ConfirmModal";
 import SuccessModal from "../../../Components/Common/SuccessModal/SuccessModal";
+import NotificationModal from "../../../Components/Common/NotificationModal/NotificationModal";
 import "./TeacherModuleLectureDetail.css";
 
 export default function TeacherModuleLectureDetail() {
@@ -29,6 +30,7 @@ export default function TeacherModuleLectureDetail() {
   const [lectureToDelete, setLectureToDelete] = useState(null);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [successMessage, setSuccessMessage] = useState("");
+  const [notification, setNotification] = useState({ isOpen: false, type: "info", message: "" });
   const [showDetailModal, setShowDetailModal] = useState(false);
   const [selectedLectureId, setSelectedLectureId] = useState(null);
 
@@ -105,11 +107,11 @@ export default function TeacherModuleLectureDetail() {
         setShowDeleteModal(false);
         fetchData();
       } else {
-        alert("Xóa thất bại: " + res.data?.message);
+        setNotification({ isOpen: true, type: "error", message: "Xóa thất bại: " + res.data?.message });
       }
     } catch (err) {
       console.error(err);
-      alert("Lỗi khi xóa lecture");
+      setNotification({ isOpen: true, type: "error", message: "Lỗi khi xóa lecture" });
     }
   };
 
@@ -123,11 +125,11 @@ export default function TeacherModuleLectureDetail() {
         // Refresh data to get updated order
         fetchData();
       } else {
-        alert("Reorder thất bại: " + res.data?.message);
+        setNotification({ isOpen: true, type: "error", message: "Reorder thất bại: " + res.data?.message });
       }
     } catch (err) {
       console.error("Reorder error:", err);
-      alert("Lỗi khi sắp xếp lại lectures");
+      setNotification({ isOpen: true, type: "error", message: "Lỗi khi sắp xếp lại lectures" });
     }
   };
 
@@ -214,6 +216,13 @@ export default function TeacherModuleLectureDetail() {
         message={successMessage}
         autoClose={true}
         autoCloseDelay={1500}
+      />
+
+      <NotificationModal
+        isOpen={notification.isOpen}
+        onClose={() => setNotification({ ...notification, isOpen: false })}
+        type={notification.type}
+        message={notification.message}
       />
     </>
   );

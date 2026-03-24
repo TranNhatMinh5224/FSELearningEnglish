@@ -4,8 +4,9 @@ import { Container, Button, Card, Badge } from "react-bootstrap";
 import { FaPlus, FaArrowLeft, FaEdit, FaTrash, FaLayerGroup } from "react-icons/fa";
 import CreateQuestionModal from "../../../Components/Teacher/CreateQuestionModal/CreateQuestionModal";
 import CreateQuizGroupModal from "../../../Components/Teacher/CreateQuizGroupModal/CreateQuizGroupModal";
-import ConfirmModal from "../../../Components/Common/ConfirmModal/ConfirmModal";
 import SuccessModal from "../../../Components/Common/SuccessModal/SuccessModal";
+import NotificationModal from "../../../Components/Common/NotificationModal/NotificationModal";
+import ConfirmModal from "../../../Components/Common/ConfirmModal/ConfirmModal";
 import { questionService } from "../../../Services/questionService";
 import { quizService } from "../../../Services/quizService";
 import { useAuth } from "../../../Context/AuthContext";
@@ -23,6 +24,7 @@ export default function AdminQuestionManagement() {
   const [contextData, setContextData] = useState({ title: "", subtitle: "" });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [notification, setNotification] = useState({ isOpen: false, type: "info", message: "" });
 
   // Question Modal states
   const [showCreateModal, setShowCreateModal] = useState(false);
@@ -118,11 +120,11 @@ export default function AdminQuestionManagement() {
               setShowGroupDeleteModal(false);
               fetchData();
           } else {
-              alert(res.data?.message || "Xóa thất bại");
+              setNotification({ isOpen: true, type: "error", message: res.data?.message || "Xóa thất bại" });
           }
       } catch (err) {
           console.error(err);
-          alert("Lỗi khi xóa Group");
+          setNotification({ isOpen: true, type: "error", message: "Lỗi khi xóa Group" });
       }
   };
 
@@ -154,11 +156,11 @@ export default function AdminQuestionManagement() {
         setQuestionToDelete(null);
         fetchData();
       } else {
-        alert(res.data?.message || "Xóa thất bại");
+        setNotification({ isOpen: true, type: "error", message: res.data?.message || "Xóa thất bại" });
       }
     } catch (err) {
       console.error(err);
-      alert("Lỗi khi xóa câu hỏi");
+      setNotification({ isOpen: true, type: "error", message: "Lỗi khi xóa câu hỏi" });
     }
   };
 
@@ -330,7 +332,11 @@ export default function AdminQuestionManagement() {
 
       <CreateQuestionModal 
         show={showCreateModal}
-        onClose={() => setShowCreateModal(false)}
+        onClose={() => {
+          setShowCreateModal(false);
+          setQuestionToUpdate(null);
+          setTargetGroupId(null);
+        }}
         onSuccess={questionToUpdate ? handleUpdateSuccess : handleCreateSuccess}
         sectionId={sectionId ? parseInt(sectionId) : null}
         groupId={targetGroupId}
@@ -375,6 +381,13 @@ export default function AdminQuestionManagement() {
         title="Thành công"
         message={successMessage}
         autoClose={true}
+      />
+
+      <NotificationModal
+        isOpen={notification.isOpen}
+        onClose={() => setNotification({ ...notification, isOpen: false })}
+        type={notification.type}
+        message={notification.message}
       />
     </div>
   );

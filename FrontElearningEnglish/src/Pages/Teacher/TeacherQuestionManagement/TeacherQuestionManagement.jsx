@@ -7,6 +7,7 @@ import CreateQuestionModal from "../../../Components/Teacher/CreateQuestionModal
 import CreateQuizGroupModal from "../../../Components/Teacher/CreateQuizGroupModal/CreateQuizGroupModal"; // Import Group Modal
 import ConfirmModal from "../../../Components/Common/ConfirmModal/ConfirmModal";
 import SuccessModal from "../../../Components/Common/SuccessModal/SuccessModal";
+import NotificationModal from "../../../Components/Common/NotificationModal/NotificationModal";
 import { questionService } from "../../../Services/questionService";
 import { quizService } from "../../../Services/quizService";
 import { useQuestionTypes } from "../../../hooks/useQuestionTypes";
@@ -32,6 +33,7 @@ export default function TeacherQuestionManagement() {
   const [contextData, setContextData] = useState({ title: "", subtitle: "" });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [notification, setNotification] = useState({ isOpen: false, type: "info", message: "" });
 
 
   // Question Modal states
@@ -142,11 +144,11 @@ export default function TeacherQuestionManagement() {
               setShowGroupDeleteModal(false);
               fetchData();
           } else {
-              alert(res.data?.message || "Xóa thất bại");
+              setNotification({ isOpen: true, type: "error", message: res.data?.message || "Xóa thất bại" });
           }
       } catch (err) {
           console.error(err);
-          alert("Lỗi khi xóa Group");
+          setNotification({ isOpen: true, type: "error", message: "Lỗi khi xóa Group" });
       }
   };
 
@@ -180,11 +182,11 @@ export default function TeacherQuestionManagement() {
         setQuestionToDelete(null);
         fetchData();
       } else {
-        alert(res.data?.message || "Xóa thất bại");
+        setNotification({ isOpen: true, type: "error", message: res.data?.message || "Xóa thất bại" });
       }
     } catch (err) {
       console.error(err);
-      alert("Lỗi khi xóa câu hỏi");
+      setNotification({ isOpen: true, type: "error", message: "Lỗi khi xóa câu hỏi" });
     }
   };
 
@@ -286,20 +288,24 @@ export default function TeacherQuestionManagement() {
         <Container>
           {/* Header */}
           <div className="question-header-section mb-4">
-            <div className="d-flex align-items-center justify-content-between">
-              <div className="d-flex align-items-center">
-                  <Button variant="outline-secondary" className="me-3" onClick={() => navigate(-1)}>
-                    <FaArrowLeft /> Quay lại
-                  </Button>
-                  <div>
-                    <h2 className="mb-0 text-primary fw-bold">Quản lý câu hỏi</h2>
-                    <div className="text-muted small">
-                      {contextData.title}
-                    </div>
-                  </div>
+            <button 
+              className="back-nav-link mb-3 text-muted" 
+              onClick={() => navigate(-1)}
+            >
+              <FaArrowLeft className="me-2" /> Quay lại
+            </button>
+            
+            <div className="d-flex align-items-center justify-content-between flex-wrap gap-3">
+              <div className="title-wrapper">
+                <h2 className="mb-2 fw-bold premium-gradient-text">Quản lý câu hỏi</h2>
+                {contextData.title && (
+                   <div className="section-pill">
+                     {contextData.title}
+                   </div>
+                )}
               </div>
               <div>
-                  <Button variant="primary" onClick={() => handleAddQuestion(null)}>
+                  <Button variant="primary" className="premium-btn shadow-sm px-4 py-2" onClick={() => handleAddQuestion(null)}>
                       <FaPlus className="me-2" /> Thêm câu hỏi
                   </Button>
               </div>
@@ -397,7 +403,11 @@ export default function TeacherQuestionManagement() {
       {/* Question Modal */}
       <CreateQuestionModal 
         show={showCreateModal}
-        onClose={() => setShowCreateModal(false)}
+        onClose={() => {
+          setShowCreateModal(false);
+          setQuestionToUpdate(null);
+          setTargetGroupId(null);
+        }}
         onSuccess={questionToUpdate ? handleUpdateSuccess : handleCreateSuccess}
         sectionId={sectionId ? parseInt(sectionId) : null}
         groupId={targetGroupId || (groupId ? parseInt(groupId) : null)}
@@ -444,6 +454,13 @@ export default function TeacherQuestionManagement() {
         title="Thành công"
         message={successMessage}
         autoClose={true}
+      />
+
+      <NotificationModal
+        isOpen={notification.isOpen}
+        onClose={() => setNotification({ ...notification, isOpen: false })}
+        type={notification.type}
+        message={notification.message}
       />
     </>
   );

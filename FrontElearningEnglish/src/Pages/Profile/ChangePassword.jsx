@@ -224,7 +224,7 @@ export default function ChangePassword() {
             <MainHeader />
             <div className="change-password-container">
                 <div className="change-password-header">
-                        {/* Back button removed — streamlined header */}
+
                     </div>
 
                 <div className="change-password-card">

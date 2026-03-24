@@ -42,9 +42,6 @@ export default function OTP() {
       const registerData = JSON.parse(storedData);
       const res = await authService.register(registerData);
       if (res.data?.success || res.status === 200) {
-        setSuccessMessage("Mã OTP mới đã được gửi đến email của bạn!");
-        setShowSuccessModal(true);
-        setSuccessOnCloseNavigate(false);
         return { success: true };
       }
       return { success: false, message: res.data?.message };
@@ -67,7 +64,8 @@ export default function OTP() {
         description={`Mã xác minh đã được gửi đến email ${email}`}
         verifyFn={verifyFn}
         resendFn={resendFn}
-        initialSeconds={120}
+        expirySeconds={300}
+        resendSeconds={65}
       />
 
       <SuccessModal

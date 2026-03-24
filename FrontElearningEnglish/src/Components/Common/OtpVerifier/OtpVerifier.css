@@ -63,17 +63,26 @@
 }
 
 /* Bootstrap Alert override */
-.otp-alert-error.alert {
-  color: #ef4444;
-  background: rgba(239, 68, 68, 0.1);
+.otp-alert.alert {
   border: none;
   border-radius: 8px;
   font-size: 14px;
-  text-align: left;
+  text-align: center;
   margin-bottom: 20px;
+  padding: 10px;
 }
 
-.otp-alert-error.otp-error-max {
+.otp-alert.alert-danger {
+  color: #ef4444;
+  background: rgba(239, 68, 68, 0.1);
+}
+
+.otp-alert.alert-success {
+  color: #10b981;
+  background: rgba(16, 185, 129, 0.1);
+}
+
+.otp-alert.otp-error-max {
   color: #d32f2f;
   font-weight: 600;
 }
@@ -104,31 +113,69 @@
   transform: none;
 }
 
-/* Bootstrap Button link override */
+/* Bootstrap Button link override (Resend) */
 .resend-btn.btn-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
   color: #7a3df0;
   font-weight: 600;
-  padding: 0;
+  padding: 8px 16px;
   font-size: 14px;
-  text-decoration: underline;
-  transition: opacity 0.2s ease;
+  text-decoration: none;
+  background: rgba(122, 61, 240, 0.05);
+  border-radius: 10px;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  border: 1px solid transparent;
 }
 
 .resend-btn.btn-link:hover:not(:disabled) {
   color: #7a3df0;
-  opacity: 0.8;
+  background: rgba(122, 61, 240, 0.1);
+  transform: translateY(-2px) scale(1.05);
+  box-shadow: 0 10px 20px rgba(122, 61, 240, 0.15);
+  border-color: rgba(122, 61, 240, 0.3);
+}
+
+.resend-btn.btn-link:active:not(:disabled) {
+  transform: translateY(0) scale(0.98);
+  box-shadow: 0 5px 10px rgba(122, 61, 240, 0.1);
 }
 
 .resend-btn.btn-link:disabled {
   opacity: 0.5;
   cursor: not-allowed;
-  text-decoration: none;
+  background: transparent;
+}
+
+.resend-icon {
+  font-size: 14px;
+  transition: transform 0.5s ease;
+}
+
+.resend-btn:hover:not(:disabled) .resend-icon {
+  transform: rotate(180deg);
+}
+
+.resend-icon.spinning {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
 }
 
 .otp-timer {
-  font-size: 13px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #1f2937;
+  margin-bottom: 4px;
+}
+
+.otp-resend-wait {
+  font-size: 12px;
   color: #6b7280;
-  margin-left: 8px;
 }
 
 .otp-expired {
@@ -136,3 +183,5 @@
   color: #ef4444;
   margin-left: 8px;
 }
+
+

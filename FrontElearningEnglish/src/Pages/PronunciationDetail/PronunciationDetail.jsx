@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { Container, Row, Col, Button } from "react-bootstrap";
 import MainHeader from "../../Components/Header/MainHeader";
+import Breadcrumb from "../../Components/Common/Breadcrumb/Breadcrumb";
 import PronunciationCard from "../../Components/PronunciationDetail/PronunciationCard/PronunciationCard";
 import { pronunciationService } from "../../Services/pronunciationService";
 import { moduleService } from "../../Services/moduleService";
@@ -15,7 +16,9 @@ export default function PronunciationDetail() {
 
     const [flashcards, setFlashcards] = useState([]);
     const [currentIndex, setCurrentIndex] = useState(0);
-    // module / lesson / course state removed (not used in this component)
+    const [module, setModule] = useState(null);
+    const [lesson, setLesson] = useState(null);
+    const [course, setCourse] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
     const [summary, setSummary] = useState(null);
@@ -30,14 +33,17 @@ export default function PronunciationDetail() {
                 setLoading(true);
                 setError("");
 
-                // Fetch course info (not required in UI, just for validation)
-                await courseService.getCourseById(courseId);
-
-                // Fetch lesson info (not required in UI, just for validation)
-                await lessonService.getLessonById(lessonId);
-
-                // Fetch module info (not required in UI, just for validation)
-                await moduleService.getModuleById(moduleId);
+                // Fetch course info
+                const courseRes = await courseService.getCourseById(courseId);
+                if (courseRes.data?.success) setCourse(courseRes.data.data);
+                
+                // Fetch lesson info
+                const lessonRes = await lessonService.getLessonById(lessonId);
+                if (lessonRes.data?.success) setLesson(lessonRes.data.data);
+                
+                // Fetch module info
+                const moduleRes = await moduleService.getModuleById(moduleId);
+                if (moduleRes.data?.success) setModule(moduleRes.data.data);
 
                 // Fetch flashcards with pronunciation progress
                 const flashcardsResponse = await pronunciationService.getByModule(moduleId);
@@ -203,6 +209,15 @@ export default function PronunciationDetail() {
             <MainHeader />
             <div className="pronunciation-detail-container">
                 <Container>
+                    <Breadcrumb 
+                        items={[
+                            { label: "Khóa học của tôi", path: "/my-courses" },
+                            { label: course?.title || "Khóa học", path: `/course/${courseId}` },
+                            { label: "Lesson", path: `/course/${courseId}/learn` },
+                            { label: lesson?.title || "Bài học", path: `/course/${courseId}/lesson/${lessonId}` },
+                            { label: "Luyện phát âm", isCurrent: true }
+                        ]}
+                    />
                     <Row>
                         <Col>
                             <div className="pronunciation-header d-flex align-items-center justify-content-center gap-3">

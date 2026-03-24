@@ -121,7 +121,7 @@ export default function EditProfile() {
             <MainHeader />
             <div className="edit-profile-container">
                 <div className="edit-profile-header">
-                    {/* Back button removed — streamlined header */}
+
                 </div>
 
                 <div className="edit-profile-card">

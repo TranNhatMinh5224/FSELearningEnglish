@@ -3,6 +3,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import { Container, Row, Col, Card, Button } from "react-bootstrap";
 import { FaBook, FaClock, FaArrowRight } from "react-icons/fa";
 import MainHeader from "../../Components/Header/MainHeader";
+import Breadcrumb from "../../Components/Common/Breadcrumb/Breadcrumb";
 import { assessmentService } from "../../Services/assessmentService";
 import { moduleService } from "../../Services/moduleService";
 import { courseService } from "../../Services/courseService";
@@ -15,8 +16,8 @@ export default function AssignmentDetail() {
     
     const [assessments, setAssessments] = useState([]);
     const [module, setModule] = useState(null);
-    const [, setLesson] = useState(null);
-    const [, setCourse] = useState(null);
+    const [lesson, setLesson] = useState(null);
+    const [course, setCourse] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
 
@@ -73,6 +74,15 @@ export default function AssignmentDetail() {
             <MainHeader />
             <div className="assignment-detail-container">
                 <Container>
+                    <Breadcrumb 
+                        items={[
+                            { label: "Khóa học của tôi", path: "/my-courses" },
+                            { label: course?.title || "Khóa học", path: `/course/${courseId}` },
+                            { label: "Lesson", path: `/course/${courseId}/learn` },
+                            { label: lesson?.title || "Bài học", path: `/course/${courseId}/lesson/${lessonId}` },
+                            { label: "Bài tập", isCurrent: true }
+                        ]}
+                    />
                     {/* Breadcrumb ... (Giữ nguyên logic breadcrumb cũ) */}
                     <div className="mb-4 pt-3">
                         <h2 className="text-primary fw-bold">{moduleName}</h2>
@@ -98,9 +108,21 @@ export default function AssignmentDetail() {
                                                 </div>
                                                 <h5 className="fw-bold mb-0 text-dark">{a.title}</h5>
                                             </div>
-                                            <p className="text-muted small mb-3 line-clamp-2">
+                                            <p className="text-muted small mb-2 line-clamp-2">
                                                 {a.description || "Không có mô tả."}
                                             </p>
+                                            <div className="assessment-item-times mb-3">
+                                                {a.openAt && (
+                                                    <div className="text-muted x-small mb-1" style={{fontSize: '0.75rem'}}>
+                                                        <strong>Bắt đầu:</strong> {new Date(a.openAt).toLocaleString('vi-VN', {day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit'})}
+                                                    </div>
+                                                )}
+                                                {a.dueAt && (
+                                                    <div className="text-danger x-small fw-bold" style={{fontSize: '0.75rem'}}>
+                                                        <strong>Hạn chót:</strong> {new Date(a.dueAt).toLocaleString('vi-VN', {day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit'})}
+                                                    </div>
+                                                )}
+                                            </div>
                                             <div className="d-flex justify-content-between align-items-center mt-auto pt-3 border-top">
                                                 <small className="text-muted"><FaClock className="me-1"/> {a.timeLimit || "Không giới hạn"}</small>
                                                 <Button variant="outline-primary" size="sm" className="rounded-pill">

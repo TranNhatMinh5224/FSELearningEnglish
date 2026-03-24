@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { Container, Row, Col } from "react-bootstrap";
-import { FaEdit, FaTrash } from "react-icons/fa";
+import { FaEdit, FaTrash, FaArrowLeft } from "react-icons/fa";
 import { useAuth } from "../../../Context/AuthContext";
 import { assessmentService } from "../../../Services/assessmentService";
 import { quizService } from "../../../Services/quizService";
@@ -9,6 +9,7 @@ import { essayService } from "../../../Services/essayService";
 import CreateQuizModal from "../../../Components/Teacher/CreateQuizModal/CreateQuizModal";
 import CreateEssayModal from "../../../Components/Teacher/CreateEssayModal/CreateEssayModal";
 import SuccessModal from "../../../Components/Common/SuccessModal/SuccessModal";
+import NotificationModal from "../../../Components/Common/NotificationModal/NotificationModal";
 import ConfirmModal from "../../../Components/Common/ConfirmModal/ConfirmModal";
 import { useQuizStatus } from "../../../hooks/useQuizStatus";
 import "./AdminQuizEssayManagement.css";
@@ -18,11 +19,12 @@ export default function AdminQuizEssayManagement() {
   const navigate = useNavigate();
   const { roles, isAuthenticated } = useAuth();
   const { getStatusLabel } = useQuizStatus();
-  const [, setAssessment] = useState(null);
+  const [assessment, setAssessment] = useState(null);
   const [quizzes, setQuizzes] = useState([]);
   const [essays, setEssays] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [notification, setNotification] = useState({ isOpen: false, type: "info", message: "" });
   const [showCreateQuizModal, setShowCreateQuizModal] = useState(false);
   const [showCreateQuizSuccessModal, setShowCreateQuizSuccessModal] = useState(false);
   const [showUpdateQuizModal, setShowUpdateQuizModal] = useState(false);
@@ -129,7 +131,7 @@ export default function AdminQuizEssayManagement() {
     } catch (error) {
       console.error("Error deleting quiz:", error);
       const errorMessage = error.response?.data?.message || error.message || "Có lỗi xảy ra khi xóa Quiz";
-      alert(errorMessage);
+      setNotification({ isOpen: true, type: "error", message: errorMessage });
     } finally {
       setDeleting(false);
     }
@@ -178,7 +180,7 @@ export default function AdminQuizEssayManagement() {
     } catch (error) {
       console.error("Error deleting essay:", error);
       const errorMessage = error.response?.data?.message || error.message || "Có lỗi xảy ra khi xóa Essay";
-      alert(errorMessage);
+      setNotification({ isOpen: true, type: "error", message: errorMessage });
     } finally {
       setDeletingEssay(false);
     }
@@ -216,8 +218,32 @@ export default function AdminQuizEssayManagement() {
     <div className="admin-quiz-essay-management-container">
       <Container>
         {/* Header */}
-        <div className="mb-5">
-          <h1 className="mb-0 fw-bold text-primary text-center">Quản lý bài kiểm tra</h1>
+        <div className="mb-4 question-header-section">
+          <button 
+            className="back-nav-link mb-3 text-muted" 
+            onClick={() => navigate(-1)}
+          >
+            <FaArrowLeft className="me-2" /> Quay lại
+          </button>
+          <div className="text-center mb-4">
+            <h1 className="mb-2 fw-bold premium-gradient-text">Quản lý nội dung bài kiểm tra</h1>
+            {assessment && (
+              <div className="assessment-context-info">
+                <h4 className="text-primary mb-2">{assessment.title || assessment.Title}</h4>
+                <div className="d-flex justify-content-center gap-4 text-muted small flex-wrap">
+                  {(assessment.openAt || assessment.OpenAt) && (
+                    <span><strong>Mở lúc:</strong> {new Date(assessment.openAt || assessment.OpenAt).toLocaleString('vi-VN')}</span>
+                  )}
+                  {(assessment.dueAt || assessment.DueAt) && (
+                    <span><strong>Hạn chót:</strong> {new Date(assessment.dueAt || assessment.DueAt).toLocaleString('vi-VN')}</span>
+                  )}
+                  {(assessment.timeLimit || assessment.TimeLimit) && (
+                    <span><strong>Thời gian:</strong> {assessment.timeLimit || assessment.TimeLimit}</span>
+                  )}
+                </div>
+              </div>
+            )}
+          </div>
         </div>
 
         {/* Create Buttons */}
@@ -497,6 +523,13 @@ export default function AdminQuizEssayManagement() {
         message="Essay đã được xóa thành công!"
         autoClose={true}
         autoCloseDelay={1500}
+      />
+
+      <NotificationModal
+        isOpen={notification.isOpen}
+        onClose={() => setNotification({ ...notification, isOpen: false })}
+        type={notification.type}
+        message={notification.message}
       />
     </div>
   );

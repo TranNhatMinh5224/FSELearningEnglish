@@ -31,6 +31,11 @@ export default function CreateQuizSectionModal({ show, onClose, onSuccess, quizI
   const [submitting, setSubmitting] = useState(false);
   const [loadingSection, setLoadingSection] = useState(false);
   const [showConfirmClose, setShowConfirmClose] = useState(false);
+  const [touched, setTouched] = useState({});
+
+  const handleBlur = (field) => {
+    setTouched(prev => ({ ...prev, [field]: true }));
+  };
 
   // Load section data when in update mode
   useEffect(() => {
@@ -131,6 +136,7 @@ export default function CreateQuizSectionModal({ show, onClose, onSuccess, quizI
     e.preventDefault();
 
     if (!validateForm()) {
+      setTouched({ title: true, description: true });
       return;
     }
 
@@ -187,7 +193,7 @@ export default function CreateQuizSectionModal({ show, onClose, onSuccess, quizI
       className="create-quiz-section-modal modal-modern" 
       dialogClassName="create-quiz-section-modal-dialog"
     >
-      <Modal.Header>
+      <Modal.Header closeButton>
         <Modal.Title>{isUpdateMode ? "Cập nhật Section" : "Tạo Section mới"}</Modal.Title>
       </Modal.Header>
       <Modal.Body>
@@ -208,38 +214,48 @@ export default function CreateQuizSectionModal({ show, onClose, onSuccess, quizI
               
               {/* Tiêu đề */}
               <div className="mb-4">
-                <label className="form-label required">Tiêu đề Section</label>
+                <div className="d-flex justify-content-between align-items-center mb-1">
+                  <label className="form-label required mb-0">Tiêu đề Section</label>
+                  <span className={`small ${title.length > 200 ? "text-danger fw-bold" : "text-muted"}`}>
+                    {title.length}/200
+                  </span>
+                </div>
                 <input
                   type="text"
-                  className={`form-control ${errors.title ? "is-invalid" : ""}`}
+                  className={`form-control ${touched.title && errors.title ? "is-invalid" : ""}`}
                   value={title}
                   onChange={(e) => {
                     setTitle(e.target.value);
-                    setErrors({ ...errors, title: null });
+                    if (touched.title) validateForm();
                   }}
+                  onBlur={() => handleBlur("title")}
                   placeholder="Nhập tiêu đề Section"
                   maxLength={200}
                 />
-                {errors.title && <div className="invalid-feedback">{errors.title}</div>}
-                <div className="form-text">*Bắt buộc (tối đa 200 ký tự)</div>
+                {touched.title && errors.title && <div className="invalid-feedback">{errors.title}</div>}
               </div>
 
               {/* Mô tả */}
               <div className="mb-3">
-                <label className="form-label">Mô tả</label>
+                <div className="d-flex justify-content-between align-items-center mb-1">
+                  <label className="form-label mb-0">Mô tả</label>
+                  <span className={`small ${description.length > 1000 ? "text-danger fw-bold" : "text-muted"}`}>
+                    {description.length}/1000
+                  </span>
+                </div>
                 <textarea
-                  className={`form-control ${errors.description ? "is-invalid" : ""}`}
+                  className={`form-control ${touched.description && errors.description ? "is-invalid" : ""}`}
                   value={description}
                   onChange={(e) => {
                     setDescription(e.target.value);
-                    setErrors({ ...errors, description: null });
+                    if (touched.description) validateForm();
                   }}
+                  onBlur={() => handleBlur("description")}
                   placeholder="Nhập mô tả Section (không bắt buộc)"
                   rows={4}
                   maxLength={1000}
                 />
-                {errors.description && <div className="invalid-feedback">{errors.description}</div>}
-                <div className="form-text">Không bắt buộc (tối đa 1000 ký tự)</div>
+                {touched.description && errors.description && <div className="invalid-feedback">{errors.description}</div>}
               </div>
             </div>
 
@@ -271,14 +287,14 @@ export default function CreateQuizSectionModal({ show, onClose, onSuccess, quizI
     </Modal>
 
     <ConfirmModal
-      show={showConfirmClose}
-      onHide={() => setShowConfirmClose(false)}
+      isOpen={showConfirmClose}
+      onClose={() => setShowConfirmClose(false)}
       onConfirm={handleConfirmClose}
       title="Xác nhận đóng"
       message="Bạn có dữ liệu chưa lưu. Bạn có chắc chắn muốn đóng không?"
       confirmText="Đóng"
       cancelText="Tiếp tục chỉnh sửa"
-      variant="warning"
+      type="warning"
     />
     </>
   );

@@ -74,7 +74,7 @@ export default function LectureDetailModal({
       size="xl" 
       className="lecture-detail-modal modal-modern"
     >
-      <Modal.Header className="lecture-detail-header">
+      <Modal.Header closeButton className="lecture-detail-header">
         <Modal.Title className="d-flex align-items-center gap-2">
           {lecture && getLectureIcon(lecture.type || lecture.Type)}
           <span>Chi tiết Lecture</span>

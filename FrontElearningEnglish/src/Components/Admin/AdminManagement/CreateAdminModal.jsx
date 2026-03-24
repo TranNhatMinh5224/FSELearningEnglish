@@ -4,9 +4,9 @@ import { superAdminService } from "../../../Services/superAdminService";
 import ConfirmModal from "../../Common/ConfirmModal/ConfirmModal";
 import "./CreateAdminModal.css";
 
-// Validation patterns (theo backend)
+// Validation patterns (khớp backend)
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-const PHONE_REGEX = /^[0-9]{10,11}$/;
+const PHONE_REGEX = /^0[0-9]{9}$/;
 const MIN_PASSWORD_LENGTH = 6;
 
 export default function CreateAdminModal({ show, onClose, onSuccess }) {
@@ -20,6 +20,7 @@ export default function CreateAdminModal({ show, onClose, onSuccess }) {
   });
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState({});
+  const [touched, setTouched] = useState({});
   const [showConfirmClose, setShowConfirmClose] = useState(false);
 
   // Reset form when modal closes
@@ -34,6 +35,7 @@ export default function CreateAdminModal({ show, onClose, onSuccess }) {
         roleId: 2,
       });
       setErrors({});
+      setTouched({});
       setShowConfirmClose(false);
     }
   }, [show]);
@@ -64,13 +66,44 @@ export default function CreateAdminModal({ show, onClose, onSuccess }) {
     onClose();
   };
 
+  // Validate a single field — khớp backend rules
+  const validateField = (name, value) => {
+    if (name === "email") {
+      if (!value.trim()) return "Email là bắt buộc";
+      if (!EMAIL_REGEX.test(value.trim())) return "Email không hợp lệ";
+    }
+    if (name === "password") {
+      if (!value) return "Mật khẩu là bắt buộc";
+      if (value.length < MIN_PASSWORD_LENGTH) return `Mật khẩu phải có ít nhất ${MIN_PASSWORD_LENGTH} ký tự`;
+    }
+    if (name === "firstName") {
+      if (!value.trim()) return "Họ là bắt buộc";
+      if (value.trim().length > 50) return "Họ không được quá 50 ký tự";
+    }
+    if (name === "lastName") {
+      if (!value.trim()) return "Tên là bắt buộc";
+      if (value.trim().length > 50) return "Tên không được quá 50 ký tự";
+    }
+    if (name === "phoneNumber" && value.trim() && !PHONE_REGEX.test(value.trim())) {
+      return "Số điện thoại phải có đúng 10 chữ số và bắt đầu bằng 0";
+    }
+    return "";
+  };
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: name === "roleId" ? parseInt(value) : value }));
-    // Clear error for this field when user types
-    if (errors[name]) {
-      setErrors(prev => ({ ...prev, [name]: null }));
+    // Real-time update only if field already touched
+    if (touched[name]) {
+      setErrors(prev => ({ ...prev, [name]: validateField(name, value) || null }));
     }
+  };
+
+  const handleBlur = (e) => {
+    const { name, value } = e.target;
+    setTouched(prev => ({ ...prev, [name]: true }));
+    const err = validateField(name, value);
+    setErrors(prev => ({ ...prev, [name]: err || null }));
   };
 
   // Validation function (theo backend)
@@ -175,8 +208,10 @@ export default function CreateAdminModal({ show, onClose, onSuccess }) {
                   name="email"
                   value={formData.email}
                   onChange={handleChange}
+                  onBlur={handleBlur}
                   placeholder="admin@example.com"
                   isInvalid={!!errors.email}
+                  maxLength={100}
                 />
                 <Form.Control.Feedback type="invalid">{errors.email}</Form.Control.Feedback>
               </Form.Group>
@@ -188,6 +223,7 @@ export default function CreateAdminModal({ show, onClose, onSuccess }) {
                   name="password"
                   value={formData.password}
                   onChange={handleChange}
+                  onBlur={handleBlur}
                   placeholder="Tối thiểu 6 ký tự"
                   isInvalid={!!errors.password}
                 />
@@ -207,8 +243,10 @@ export default function CreateAdminModal({ show, onClose, onSuccess }) {
                       name="firstName"
                       value={formData.firstName}
                       onChange={handleChange}
+                      onBlur={handleBlur}
                       placeholder="Nguyễn"
                       isInvalid={!!errors.firstName}
+                      maxLength={50}
                     />
                     <Form.Control.Feedback type="invalid">{errors.firstName}</Form.Control.Feedback>
                   </Form.Group>
@@ -221,8 +259,10 @@ export default function CreateAdminModal({ show, onClose, onSuccess }) {
                       name="lastName"
                       value={formData.lastName}
                       onChange={handleChange}
+                      onBlur={handleBlur}
                       placeholder="Văn A"
                       isInvalid={!!errors.lastName}
+                      maxLength={50}
                     />
                     <Form.Control.Feedback type="invalid">{errors.lastName}</Form.Control.Feedback>
                   </Form.Group>
@@ -236,8 +276,10 @@ export default function CreateAdminModal({ show, onClose, onSuccess }) {
                   name="phoneNumber"
                   value={formData.phoneNumber}
                   onChange={handleChange}
+                  onBlur={handleBlur}
                   placeholder="0123456789"
                   isInvalid={!!errors.phoneNumber}
+                  maxLength={10}
                 />
                 <Form.Control.Feedback type="invalid">{errors.phoneNumber}</Form.Control.Feedback>
               </Form.Group>

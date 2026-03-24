@@ -37,22 +37,13 @@ export default function AdminLayout() {
   });
 
   useEffect(() => {
-    // Debug: Log roles to check
-    console.log("=== AdminLayout DEBUG ===");
-    console.log("Roles:", roles);
-    console.log("Is Authenticated:", isAuthenticated);
-    console.log("Is Admin:", isAdmin);
-    console.log("Loading:", loading);
-
     if (!loading) {
       if (!isAuthenticated) {
-        console.log("Not authenticated, redirecting to login");
         navigate(ROUTE_PATHS.LOGIN);
         return;
       }
 
       if (!isAdmin) {
-        console.log("Not admin, redirecting to home");
         navigate(ROUTE_PATHS.HOME);
         return;
       }

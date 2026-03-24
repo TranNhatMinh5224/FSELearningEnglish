@@ -7,8 +7,9 @@ import { useAuth } from "../../../Context/AuthContext";
 import { teacherService } from "../../../Services/teacherService";
 import { flashcardService } from "../../../Services/flashcardService";
 import CreateFlashCardModal from "../../../Components/Teacher/CreateFlashCardModal/CreateFlashCardModal";
-import ConfirmModal from "../../../Components/Common/ConfirmModal/ConfirmModal";
 import SuccessModal from "../../../Components/Common/SuccessModal/SuccessModal";
+import NotificationModal from "../../../Components/Common/NotificationModal/NotificationModal";
+import ConfirmModal from "../../../Components/Common/ConfirmModal/ConfirmModal";
 import "./TeacherModuleFlashCardDetail.css";
 
 export default function TeacherModuleFlashCardDetail() {
@@ -27,6 +28,7 @@ export default function TeacherModuleFlashCardDetail() {
   const [flashcardToDelete, setFlashcardToDelete] = useState(null);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [successMessage, setSuccessMessage] = useState("");
+  const [notification, setNotification] = useState({ isOpen: false, type: "info", message: "" });
 
   const isTeacher = roles.includes("Teacher") || user?.teacherSubscription?.isTeacher === true;
 
@@ -81,7 +83,7 @@ export default function TeacherModuleFlashCardDetail() {
       
       if (!cardId) {
         console.error("Flashcard ID not found. Available keys:", Object.keys(flashcardToDelete));
-        alert("Không tìm thấy ID của flashcard. Vui lòng thử lại.");
+        setNotification({ isOpen: true, type: "error", message: "Không tìm thấy ID của flashcard. Vui lòng thử lại." });
         return;
       }
       
@@ -92,11 +94,11 @@ export default function TeacherModuleFlashCardDetail() {
         setShowDeleteModal(false);
         fetchData();
       } else {
-        alert("Xóa thất bại: " + res.data?.message);
+        setNotification({ isOpen: true, type: "error", message: "Xóa thất bại: " + res.data?.message });
       }
     } catch (err) {
       console.error("Error deleting flashcard:", err);
-      alert("Lỗi khi xóa flashcard: " + (err.response?.data?.message || err.message));
+      setNotification({ isOpen: true, type: "error", message: "Lỗi khi xóa flashcard: " + (err.response?.data?.message || err.message) });
     }
   };
 
@@ -199,6 +201,13 @@ export default function TeacherModuleFlashCardDetail() {
         message={successMessage}
         autoClose={true}
         autoCloseDelay={1500}
+      />
+
+      <NotificationModal
+        isOpen={notification.isOpen}
+        onClose={() => setNotification({ ...notification, isOpen: false })}
+        type={notification.type}
+        message={notification.message}
       />
     </>
   );

@@ -2,32 +2,32 @@ import React, { useState, useEffect, useRef } from "react";
 import PropTypes from "prop-types";
 import "./SmartDateInput.css";
 
+// Helper to pad numbers
 function pad(n) {
   return String(n).padStart(2, "0");
 }
 
-function parseDateFromString(text) {
-  const digits = text.replace(/[^0-9]/g, "");
-  // Prefer formats where year is 4 digits at end (e.g. 112026 -> 1/1/2026 or 0112026)
-  if (digits.length < 6 || digits.length > 8) return null;
-  const year = parseInt(digits.slice(-4), 10);
-  const prefix = digits.slice(0, -4);
-
-  // try possible splits of prefix into day/month (dayLen 1..2, monthLen 1..2)
-  for (let dayLen = 1; dayLen <= 2; dayLen++) {
-    const monthLen = prefix.length - dayLen;
-    if (monthLen < 1 || monthLen > 2) continue;
-    const dayStr = prefix.slice(0, dayLen);
-    const monthStr = prefix.slice(dayLen);
-    const dd = parseInt(dayStr, 10);
-    const mm = parseInt(monthStr, 10) - 1;
-    if (Number.isNaN(dd) || Number.isNaN(mm) || Number.isNaN(year)) continue;
-    if (dd < 1 || dd > 31) continue;
-    if (mm < 0 || mm > 11) continue;
-    const d = new Date(year, mm, dd);
-    if (d && d.getFullYear() === year && d.getMonth() === mm && d.getDate() === dd) return d;
+// Robust parsing from dd/mm/yyyy hh:mm
+function parseDateTime(dateStr, timeStr = "00:00") {
+  const dateDigits = dateStr.replace(/\D/g, "");
+  if (dateDigits.length !== 8) return null;
+  
+  const day = parseInt(dateDigits.slice(0, 2), 10);
+  const month = parseInt(dateDigits.slice(2, 4), 10) - 1;
+  const year = parseInt(dateDigits.slice(4, 8), 10);
+  
+  const [hours, minutes] = timeStr.split(":").map(s => parseInt(s, 10) || 0);
+  
+  const date = new Date(year, month, day, hours, minutes);
+  
+  // Validation
+  if (
+    date.getFullYear() === year &&
+    date.getMonth() === month &&
+    date.getDate() === day
+  ) {
+    return date;
   }
-
   return null;
 }
 
@@ -38,160 +38,170 @@ export default function SmartDateInput({
   minDate,
   compareAfter,
   required,
-  placeholder,
+  showTime = true,
 }) {
-  const [text, setText] = useState("");
+  const [day, setDay] = useState("");
+  const [month, setMonth] = useState("");
+  const [year, setYear] = useState("");
+  const [time, setTime] = useState("00:00");
   const [error, setError] = useState(null);
-  const inputRef = useRef(null);
+  
+  const dayRef = useRef(null);
+  const monthRef = useRef(null);
+  const yearRef = useRef(null);
+  const timeRef = useRef(null);
 
   useEffect(() => {
     if (value instanceof Date && !isNaN(value.getTime())) {
-      const day = pad(value.getDate());
-      const month = pad(value.getMonth() + 1);
-      const year = value.getFullYear();
-      setText(`${day}/${month}/${year}`);
+      setDay(pad(value.getDate()));
+      setMonth(pad(value.getMonth() + 1));
+      setYear(String(value.getFullYear()));
+      setTime(`${pad(value.getHours())}:${pad(value.getMinutes())}`);
       setError(null);
-    } else {
-      if (text !== "") setText("");
-      setError(null);
+    } else if (!value) {
+      setDay("");
+      setMonth("");
+      setYear("");
+      setTime("00:00");
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [value]);
+  }, [value, showTime]);
 
-  const handleChange = (e) => {
-    let v = e.target.value;
-    // Allow only digits and '/'
-    v = v.replace(/[^0-9/]/g, "");
-    // Remove duplicated slashes
-    v = v.replace(/\/+/g, "/");
-    // Remove leading slashes
-    v = v.replace(/^\/+/, "");
-    const digits = v.replace(/[^0-9]/g, "");
-
-    
-    if (digits.length <= 2) {
-      v = digits;
-    } else if (digits.length === 3) {
-      // keep raw to avoid invalid-looking month like '11/0'
-      v = digits;
-    } else if (digits.length === 4) {
-      v = `${digits.slice(0, 2)}/${digits.slice(2)}`;
-    } else {
-      const yr = digits.slice(-4);
-      const prefix = digits.slice(0, -4);
-      // try splitting prefix into day/month for display; prefer dayLen=1 then 2
-      let day = prefix;
-      let month = "";
-      if (prefix.length === 2) {
-        // ambiguous: try 1+1 first
-        day = prefix.slice(0, 1);
-        month = prefix.slice(1);
-        const dd = parseInt(day, 10);
-        const mm = parseInt(month, 10);
-        if (!(dd >= 1 && dd <= 31 && mm >= 1 && mm <= 12)) {
-          day = prefix.slice(0, 2);
-          month = "";
-        }
-      } else if (prefix.length === 3) {
-        day = prefix.slice(0, 1);
-        month = prefix.slice(1);
-      } else if (prefix.length === 1) {
-        day = prefix;
-        month = "";
-      }
-      if (month) v = `${day}/${month}/${yr}`;
-      else v = `${day}/${yr}`;
+  // Re-validate when compareAfter changes
+  useEffect(() => {
+    if (day && month && year) {
+      validateAndNotify(day, month, year, time);
     }
+  }, [compareAfter]);
 
-    if (v.length > 10) v = v.slice(0, 10);
+  const handleDayChange = (e) => {
+    const val = e.target.value.replace(/\D/g, "").slice(0, 2);
+    setDay(val);
+    if (val.length === 2) monthRef.current?.focus();
+    validateAndNotify(val, month, year, time);
+  };
 
-    setText(v);
+  const handleMonthChange = (e) => {
+    const val = e.target.value.replace(/\D/g, "").slice(0, 2);
+    setMonth(val);
+    if (val.length === 2) yearRef.current?.focus();
+    validateAndNotify(day, val, year, time);
+  };
 
-    // If full date entered, try to parse
-    const parsed = parseDateFromString(v);
-    if (parsed) {
-      // Validate minDate (copy to avoid mutating prop)
-      if (minDate) {
-        const min = new Date(minDate);
-        min.setHours(0, 0, 0, 0);
-        if (parsed < min) {
-          setError("Ngày không được trước ngày cho phép");
-          return;
-        }
-      }
+  const handleYearChange = (e) => {
+    const val = e.target.value.replace(/\D/g, "").slice(0, 4);
+    setYear(val);
+    if (val.length === 4 && showTime) timeRef.current?.focus();
+    validateAndNotify(day, month, val, time);
+  };
 
-      // Validate compareAfter
-      if (compareAfter && compareAfter instanceof Date && !isNaN(compareAfter.getTime())) {
-        const ca = new Date(compareAfter);
-        ca.setHours(0, 0, 0, 0);
-        const p = new Date(parsed);
-        p.setHours(0, 0, 0, 0);
-        if (p <= ca) {
-          setError("Thời gian phải sau thời gian so sánh");
-          return;
-        }
-      }
+  const handleTimeChange = (e) => {
+    const val = e.target.value;
+    setTime(val);
+    validateAndNotify(day, month, year, val);
+  };
 
-      setError(null);
-      onChange && onChange(parsed);
-    } else {
-      // Partial input - don't show error yet and don't clear parent's value
-      setError(null);
-      // do not call onChange(null) here to avoid parent resetting value while typing
+  const handleKeyDown = (e, current) => {
+    if (e.key === "Backspace" && !e.target.value) {
+      if (current === "month") dayRef.current?.focus();
+      if (current === "year") monthRef.current?.focus();
+      if (current === "time") yearRef.current?.focus();
     }
   };
 
-  const handleBlur = () => {
-    if (!text) {
-      if (required) setError("Trường này là bắt buộc");
-      onChange && onChange(null);
+  const validateAndNotify = (d, m, y, t) => {
+    if (d.length < 1 || m.length < 1 || y.length < 4) {
+      setError(null);
       return;
     }
-    const parsed = parseDateFromString(text);
-    if (!parsed) {
-      setError("Ngày không hợp lệ (dd/mm/yyyy)");
-      onChange && onChange(null);
+
+    const dd = parseInt(d, 10);
+    const mm = parseInt(m, 10) - 1;
+    const yyyy = parseInt(y, 10);
+    const [hh, min] = t.split(":").map(s => parseInt(s, 10));
+
+    const date = new Date(yyyy, mm, dd, hh, min);
+    
+    // Check validity
+    if (date.getFullYear() !== yyyy || date.getMonth() !== mm || date.getDate() !== dd) {
+      setError("Ngày tháng không hợp lệ");
       return;
     }
-    // Final validation same as onChange
-    if (minDate) {
-      const min = new Date(minDate);
-      min.setHours(0, 0, 0, 0);
-      if (parsed < min) {
-        setError("Ngày không được trước ngày cho phép");
-        onChange && onChange(null);
-        return;
-      }
+
+    // MinDate check (Strict)
+    const now = new Date();
+    now.setSeconds(0, 0); // Ignore seconds/ms to avoid "false past" errors for current minute
+    
+    if (minDate && date < now) {
+      setError("Không được chọn thời gian trong quá khứ");
+      return;
     }
-    if (compareAfter && compareAfter instanceof Date && !isNaN(compareAfter.getTime())) {
-      const ca = new Date(compareAfter);
-      ca.setHours(0, 0, 0, 0);
-      const p = new Date(parsed);
-      p.setHours(0, 0, 0, 0);
-      if (p <= ca) {
-        setError("Thời gian phải sau thời gian so sánh");
-        onChange && onChange(null);
-        return;
-      }
+
+    // compareAfter check
+    if (compareAfter && date <= compareAfter) {
+      setError("Phải sau thời điểm bắt đầu");
+      return;
     }
+
     setError(null);
-    onChange && onChange(parsed);
+    onChange && onChange(date);
   };
 
   return (
-    <div className="form-group smart-date-group">
-      <label className={`form-label ${required ? 'required' : ''}`}>{label} {required && <span className="text-danger">*</span>}</label>
-      <input
-        ref={inputRef}
-        type="text"
-        className={`form-control smart-date-input ${error ? 'is-invalid' : ''}`}
-        value={text}
-        onChange={handleChange}
-        onBlur={handleBlur}
-        placeholder={placeholder || 'dd/mm/yyyy'}
-        maxLength={10}
-      />
-      {error && <div className="invalid-feedback">{error}</div>}
+    <div className={`smart-segmented-group ${error ? 'has-error' : ''}`}>
+      <label className="smart-segmented-label">
+        {label} {required && <span className="text-danger">*</span>}
+      </label>
+      
+      <div className="segmented-input-container">
+        <div className="date-segments-wrapper">
+          <input
+            ref={dayRef}
+            type="text"
+            className="segment-input day"
+            value={day}
+            onChange={handleDayChange}
+            placeholder="DD"
+            maxLength={2}
+          />
+          <span className="segment-separator">/</span>
+          <input
+            ref={monthRef}
+            type="text"
+            className="segment-input month"
+            value={month}
+            onChange={handleMonthChange}
+            onKeyDown={(e) => handleKeyDown(e, "month")}
+            placeholder="MM"
+            maxLength={2}
+          />
+          <span className="segment-separator">/</span>
+          <input
+            ref={yearRef}
+            type="text"
+            className="segment-input year"
+            value={year}
+            onChange={handleYearChange}
+            onKeyDown={(e) => handleKeyDown(e, "year")}
+            placeholder="YYYY"
+            maxLength={4}
+          />
+        </div>
+        
+        {showTime && (
+          <div className="time-segment-wrapper">
+            <input
+              ref={timeRef}
+              type="time"
+              className="segment-input-time"
+              value={time}
+              onChange={handleTimeChange}
+              onKeyDown={(e) => handleKeyDown(e, "time")}
+            />
+          </div>
+        )}
+      </div>
+      
+      {error && <div className="segment-error-msg">{error}</div>}
     </div>
   );
 }
@@ -203,5 +213,5 @@ SmartDateInput.propTypes = {
   minDate: PropTypes.instanceOf(Date),
   compareAfter: PropTypes.instanceOf(Date),
   required: PropTypes.bool,
-  placeholder: PropTypes.string,
+  showTime: PropTypes.bool,
 };

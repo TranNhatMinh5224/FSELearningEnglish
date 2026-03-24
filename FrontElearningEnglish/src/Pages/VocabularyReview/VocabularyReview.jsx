@@ -39,6 +39,7 @@ export default function VocabularyReview() {
             <MainHeader />
             <div className="vocabulary-review-container">
                 <Container>
+
                     <div className="vocabulary-review-card">
                         <h1 className="vocabulary-review-title">Ôn tập từ vựng hôm nay</h1>
 

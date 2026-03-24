@@ -210,21 +210,25 @@
 }
 
 .lessons-header {
-  margin-bottom: 1.5rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+    padding-bottom: 1rem;
+    border-bottom: 2px solid #f0f0f0;
 }
 
 .lessons-header h3 {
-  font-size: 1.5rem;
-  font-weight: 700;
-  color: #2d3748;
-  margin: 0;
+    font-size: 1.5rem;
+    font-weight: 800;
+    color: #1a1a1a;
+    margin: 0;
 }
 
-.lessons-list {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-  margin-bottom: 1.5rem;
+.admin-lessons-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
 }
 
 .lesson-item {
@@ -284,19 +288,6 @@
 }
 
 .add-lesson-btn {
-  width: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.75rem;
-  padding: 1rem;
-  background: #74CEDE;
-  color: white;
-  border: none;
-  border-radius: 12px;
-  font-weight: 600;
-  font-size: 1.05rem;
-  cursor: pointer;
   transition: all 0.3s ease;
 }
 

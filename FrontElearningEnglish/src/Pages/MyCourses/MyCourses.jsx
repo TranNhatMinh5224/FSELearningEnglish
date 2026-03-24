@@ -216,6 +216,7 @@ export default function MyCourses() {
             <MainHeader />
             <div className="my-courses-container">
                 <Container>
+
                     {/* Welcome Section giống trang chủ */}
                     <Row className="welcome-section g-3 g-md-4 align-items-center mb-4">
                         <Col xs={12} lg={7} className="welcome-section__left d-flex flex-column justify-content-center align-items-start">

@@ -2,17 +2,28 @@ import React, { useState } from "react";
 import { Modal, Form, Button, Alert } from "react-bootstrap";
 import { superAdminService } from "../../../Services/superAdminService";
 
+const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
 export default function ChangeEmailModal({ show, onClose, admin, onSuccess }) {
   const [newEmail, setNewEmail] = useState("");
+  const [touched, setTouched] = useState(false);
+  const [fieldError, setFieldError] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+
+  const validateEmail = (val) => {
+    if (!val.trim()) return "Email là bắt buộc";
+    if (!EMAIL_REGEX.test(val.trim())) return "Email không hợp lệ (ví dụ: admin@example.com)";
+    return "";
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
-
-    if (!newEmail || !newEmail.includes("@")) {
-      setError("Email không hợp lệ");
+    const emailErr = validateEmail(newEmail);
+    if (emailErr) {
+      setTouched(true);
+      setFieldError(emailErr);
       return;
     }
 
@@ -26,6 +37,8 @@ export default function ChangeEmailModal({ show, onClose, admin, onSuccess }) {
       if (response.data?.success) {
         onSuccess(response.data?.message || "Đổi email thành công!");
         setNewEmail("");
+        setTouched(false);
+        setFieldError("");
       } else {
         setError(response.data?.message || "Không thể đổi email");
       }
@@ -62,10 +75,21 @@ export default function ChangeEmailModal({ show, onClose, admin, onSuccess }) {
             <Form.Control
               type="email"
               value={newEmail}
-              onChange={(e) => setNewEmail(e.target.value)}
+              onChange={(e) => {
+                setNewEmail(e.target.value);
+                if (touched) setFieldError(validateEmail(e.target.value));
+              }}
+              onBlur={(e) => {
+                setTouched(true);
+                setFieldError(validateEmail(e.target.value));
+              }}
               placeholder="newemail@example.com"
-              required
+              isInvalid={touched && !!fieldError}
+              maxLength={100}
             />
+            {touched && fieldError && (
+              <Form.Control.Feedback type="invalid">{fieldError}</Form.Control.Feedback>
+            )}
           </Form.Group>
         </Form>
       </Modal.Body>

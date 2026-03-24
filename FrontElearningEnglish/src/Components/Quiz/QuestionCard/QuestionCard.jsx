@@ -91,9 +91,23 @@ export default function QuestionCard({ question, answer, onChange, questionNumbe
     return (
         <Card className="question-card">
             <Card.Body>
-                <Row className="question-header d-flex justify-content-between align-items-center flex-wrap">
-                    <Col xs="auto" className="question-number">
-                        Câu {questionNumber}/{totalQuestions}
+                <Row className="question-header align-items-center mb-3">
+                    <Col>
+                        {question._sectionInfo && (
+                            <div className="part-breadcrumb mb-1">
+                                <span className="part-tag-mini text-uppercase fw-bold text-primary">
+                                    {question._sectionInfo.sectionTitle || `Part ${question._sectionInfo.sectionIndex}`}
+                                </span>
+                                {question._sectionInfo.sectionDescription && (
+                                    <span className="ms-2 text-muted x-small fst-italic">
+                                        • {question._sectionInfo.sectionDescription}
+                                    </span>
+                                )}
+                            </div>
+                        )}
+                        <div className="question-number">
+                            Câu {questionNumber}/{totalQuestions}
+                        </div>
                     </Col>
                     <Col xs="auto" className="question-points">
                         <Badge bg="info" className="px-3 py-2">

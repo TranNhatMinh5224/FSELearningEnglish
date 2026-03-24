@@ -73,6 +73,7 @@ export default function VocabularyNotebook() {
             <MainHeader />
             <div className="vocabulary-notebook-container">
                 <Container>
+
                     <div className="vocabulary-notebook-header">
                         <h1 className="vocabulary-notebook-title">Sổ tay từ vựng</h1>
                         <p className="vocabulary-notebook-subtitle">

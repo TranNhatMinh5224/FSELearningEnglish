@@ -7,6 +7,7 @@ namespace LearningEnglish.Application.DTOs
         public int AttemptId { get; set; }
         public int QuizId { get; set; }
         public string? QuizTitle { get; set; }  // Tiêu đề quiz
+        public int? Duration { get; set; }      // Thời gian làm bài (phút) - Lấy từ Quiz
         public int UserId { get; set; }
         public int AttemptNumber { get; set; }  // Lần làm thứ mấy
 
@@ -210,6 +211,7 @@ namespace LearningEnglish.Application.DTOs
         public string? QuizTitle { get; set; }
         public DateTime? StartedAt { get; set; }
         public DateTime? EndTime { get; set; }  // StartedAt + Duration
+        public int? Duration { get; set; }      // Tông thời gian (phút)
         public int? TimeRemainingSeconds { get; set; }  // Thời gian còn lại (nếu có duration)
     }
 }

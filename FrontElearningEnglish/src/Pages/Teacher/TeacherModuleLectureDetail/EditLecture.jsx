@@ -167,19 +167,18 @@ export default function EditLecture() {
     <>
       <TeacherHeader />
       <div className="teacher-module-lecture-detail-container">
-        <div className="breadcrumb-section">
-          <Breadcrumb
-            items={[
-              { label: "Quản lý khoá học", path: ROUTE_PATHS.TEACHER_COURSE_MANAGEMENT },
-              { label: courseTitle, path: `/teacher/course/${courseId}` },
-              { label: lessonTitle, path: ROUTE_PATHS.TEACHER_LESSON_DETAIL(courseId, lessonId) },
-              { label: "Sửa Lecture", isCurrent: true }
-            ]}
-            showHomeIcon={false}
-          />
-        </div>
-
         <Container fluid className="create-lecture-content">
+          <div className="breadcrumb-section pt-0">
+            <Breadcrumb
+              items={[
+                { label: "Quản lý khoá học", path: ROUTE_PATHS.TEACHER_COURSE_MANAGEMENT },
+                { label: courseTitle, path: `/teacher/course/${courseId}` },
+                { label: lessonTitle, path: ROUTE_PATHS.TEACHER_LESSON_DETAIL(courseId, lessonId) },
+                { label: "Sửa Lecture", isCurrent: true }
+              ]}
+              showHomeIcon={false}
+            />
+          </div>
           <div className="create-lecture-card">
             <h1 className="page-title">Sửa Lecture</h1>
 

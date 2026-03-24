@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 /**
  * Logger utility - Only logs in development mode
  * Prevents console.log spam in production

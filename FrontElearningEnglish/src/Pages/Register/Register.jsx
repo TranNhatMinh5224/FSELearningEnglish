@@ -30,6 +30,16 @@ export default function Register() {
     dateOfBirth: "",
     gender: "",
   });
+  const [touched, setTouched] = useState({
+    firstName: false,
+    lastName: false,
+    email: false,
+    password: false,
+    confirmPassword: false,
+    phoneNumber: false,
+    dateOfBirth: false,
+    gender: false,
+  });
 
   const [generalError, setGeneralError] = useState("");
   const [loading, setLoading] = useState(false);
@@ -116,8 +126,20 @@ export default function Register() {
 
     setGeneralError("");
 
-    // Real-time validation
-    if (name === "email") {
+    // Only validate real-time if the field has already been touched (blurred)
+    if (!touched[name]) return;
+
+    if (name === "firstName") {
+      setErrors((prev) => ({
+        ...prev,
+        firstName: !value ? "Vui lòng nhập họ" : value.length > 20 ? "Họ không được vượt quá 20 ký tự" : "",
+      }));
+    } else if (name === "lastName") {
+      setErrors((prev) => ({
+        ...prev,
+        lastName: !value ? "Vui lòng nhập tên" : value.length > 20 ? "Tên không được vượt quá 20 ký tự" : "",
+      }));
+    } else if (name === "email") {
       setErrors((prev) => ({
         ...prev,
         email: validateEmail(value),
@@ -127,7 +149,7 @@ export default function Register() {
       setErrors((prev) => ({
         ...prev,
         password: passwordError,
-        confirmPassword: formData.confirmPassword && value !== formData.confirmPassword
+        confirmPassword: touched.confirmPassword && formData.confirmPassword && value !== formData.confirmPassword
           ? "Mật khẩu không khớp"
           : prev.confirmPassword,
       }));
@@ -141,6 +163,35 @@ export default function Register() {
         ...prev,
         phoneNumber: validatePhoneNumber(value),
       }));
+    }
+  };
+
+  // Handle blur: mark field as touched and trigger first validation
+  const handleBlur = (e) => {
+    const { name, value } = e.target;
+    setTouched((prev) => ({ ...prev, [name]: true }));
+
+    if (name === "firstName") {
+      setErrors((prev) => ({
+        ...prev,
+        firstName: !value ? "Vui lòng nhập họ" : value.length > 20 ? "Họ không được vượt quá 20 ký tự" : "",
+      }));
+    } else if (name === "lastName") {
+      setErrors((prev) => ({
+        ...prev,
+        lastName: !value ? "Vui lòng nhập tên" : value.length > 20 ? "Tên không được vượt quá 20 ký tự" : "",
+      }));
+    } else if (name === "email") {
+      setErrors((prev) => ({ ...prev, email: validateEmail(value) }));
+    } else if (name === "password") {
+      setErrors((prev) => ({ ...prev, password: validatePassword(value) }));
+    } else if (name === "confirmPassword") {
+      setErrors((prev) => ({
+        ...prev,
+        confirmPassword: value !== formData.password ? "Mật khẩu không khớp" : "",
+      }));
+    } else if (name === "phoneNumber") {
+      setErrors((prev) => ({ ...prev, phoneNumber: validatePhoneNumber(value) }));
     }
   };
 
@@ -263,6 +314,7 @@ export default function Register() {
                       placeholder="Họ"
                       value={formData.firstName}
                       onChange={handleInputChange}
+                      onBlur={handleBlur}
                       error={errors.firstName}
                       disabled={loading}
                       maxLength={20}
@@ -275,6 +327,7 @@ export default function Register() {
                       placeholder="Tên"
                       value={formData.lastName}
                       onChange={handleInputChange}
+                      onBlur={handleBlur}
                       error={errors.lastName}
                       disabled={loading}
                       maxLength={20}
@@ -290,6 +343,7 @@ export default function Register() {
                     placeholder="Email"
                     value={formData.email}
                     onChange={handleInputChange}
+                    onBlur={handleBlur}
                     error={errors.email}
                     disabled={loading}
                     required
@@ -306,6 +360,7 @@ export default function Register() {
                     placeholder="Mật khẩu"
                     value={formData.password}
                     onChange={handleInputChange}
+                    onBlur={handleBlur}
                     error={errors.password}
                     disabled={loading}
                     showPasswordToggle={true}
@@ -325,6 +380,7 @@ export default function Register() {
                     placeholder="Xác nhận mật khẩu"
                     value={formData.confirmPassword}
                     onChange={handleInputChange}
+                    onBlur={handleBlur}
                     error={errors.confirmPassword}
                     disabled={loading}
                     showPasswordToggle={true}
@@ -341,6 +397,7 @@ export default function Register() {
                     placeholder="Số điện thoại"
                     value={formData.phoneNumber}
                     onChange={handleInputChange}
+                    onBlur={handleBlur}
                     error={errors.phoneNumber}
                     disabled={loading}
                   />

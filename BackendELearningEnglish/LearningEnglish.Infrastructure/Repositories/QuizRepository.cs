@@ -76,6 +76,7 @@ namespace LearningEnglish.Infrastructure.Repositories
             return await _context.Quizzes
                 .AsNoTracking()
                 .Where(q => q.QuizId == quizId)
+                .Include(q => q.Assessment)
                 .Include(q => q.QuizSections)
                     .ThenInclude(s => s.QuizGroups)
                         .ThenInclude(g => g.Questions)

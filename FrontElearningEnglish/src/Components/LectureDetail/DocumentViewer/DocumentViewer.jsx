@@ -1,5 +1,6 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { FaDownload, FaExternalLinkAlt, FaFilePdf, FaFileWord, FaFileAlt, FaEye } from "react-icons/fa";
+import { Spinner } from "react-bootstrap";
 import "./DocumentViewer.css";
 
 /**
@@ -11,6 +12,34 @@ export default function DocumentViewer({
     title,
     mediaType
 }) {
+    const [isLoading, setIsLoading] = useState(true);
+    const [progress, setProgress] = useState(0);
+
+    // Simulate progress since iframe doesn't give us real progress events
+    useEffect(() => {
+        if (!isLoading) return;
+
+        // Start progress quickly, then slow down as it gets closer to 100
+        const interval = setInterval(() => {
+            setProgress(prev => {
+                if (prev < 50) return prev + Math.floor(Math.random() * 10) + 5; // Fast to 50%
+                if (prev < 80) return prev + Math.floor(Math.random() * 5) + 2;  // Medium to 80%
+                if (prev < 90) return prev + 1; // Slow to 90%
+                if (prev < 98) return prev + 0.5; // Very slow to 98%
+                return prev; // Stop at 98% until actually loaded
+            });
+        }, 500);
+
+        return () => clearInterval(interval);
+    }, [isLoading]);
+
+    const handleLoad = () => {
+        setProgress(100);
+        setTimeout(() => {
+            setIsLoading(false);
+        }, 500); // Wait half a second at 100% before hiding
+    };
+
     // Get file icon based on type
     const getFileIcon = () => {
         if (!mediaType) return <FaFileAlt />;
@@ -86,13 +115,28 @@ export default function DocumentViewer({
             </div>
 
             {/* Document iframe */}
-            <div className="document-frame-wrapper">
+            <div className={`document-frame-wrapper ${isLoading ? 'is-loading' : ''}`}>
+                {isLoading && (
+                    <div className="document-loading-overlay">
+                        <Spinner animation="border" variant="primary" className="document-loading-spinner" />
+                        <div className="document-loading-text">
+                            <p className="fw-bold mb-1">Đang tải và dựng tài liệu</p>
+                            <span className="text-muted small">Vui lòng đợi giây lát, quá trình này phụ thuộc vào dung lượng file...</span>
+                        </div>
+                        <div className="document-progress-container mt-3">
+                            <div className="document-progress-bar" style={{ width: `${progress}%` }}></div>
+                            <div className="document-progress-text">{Math.floor(progress)}%</div>
+                        </div>
+                    </div>
+                )}
                 <iframe
                     src={viewerUrl}
                     className="document-iframe"
                     title="Document Viewer"
                     allowFullScreen
                     loading="lazy"
+                    onLoad={handleLoad}
+                    style={{ opacity: isLoading ? 0 : 1, transition: 'opacity 0.5s ease' }}
                 />
             </div>
         </div>

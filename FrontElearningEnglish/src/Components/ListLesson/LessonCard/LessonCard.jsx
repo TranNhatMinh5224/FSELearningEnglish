@@ -59,8 +59,9 @@ export default function LessonCard({ lesson, orderNumber, onClick }) {
                 )}
             </div>
             <div className="lesson-info">
+                <span className="lesson-order">Bài học {displayOrder}</span>
                 <h3 className="lesson-title">{finalTitle}</h3>
-                <span className="lesson-order">{displayOrder}. {finalDescription || finalTitle}</span>
+                {finalDescription && <p className="lesson-description">{finalDescription}</p>}
             </div>
         </div>
     );

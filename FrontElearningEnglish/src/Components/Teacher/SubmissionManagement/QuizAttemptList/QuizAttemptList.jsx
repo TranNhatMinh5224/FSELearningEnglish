@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback } from "react";
 import { Card, Table, Badge, Pagination, Spinner, Button } from "react-bootstrap";
 import { quizAttemptService } from "../../../../Services/quizAttemptService";
 import QuizAttemptDetailModal from "../QuizAttemptDetailModal/QuizAttemptDetailModal";
+import NotificationModal from "../../../Common/NotificationModal/NotificationModal";
 import "./QuizAttemptList.css";
 
 export default function QuizAttemptList({ quizId, quizTitle, onBack, isAdmin = false }) {
@@ -13,6 +14,7 @@ export default function QuizAttemptList({ quizId, quizTitle, onBack, isAdmin = f
   const [totalPages, setTotalPages] = useState(0);
   const [selectedAttempt, setSelectedAttempt] = useState(null);
   const [showDetailModal, setShowDetailModal] = useState(false);
+  const [notification, setNotification] = useState({ isOpen: false, type: "info", message: "" });
 
   const fetchAttempts = useCallback(async () => {
     try {
@@ -51,7 +53,7 @@ export default function QuizAttemptList({ quizId, quizTitle, onBack, isAdmin = f
       }
     } catch (err) {
       console.error("Error fetching attempt detail:", err);
-      alert("Không thể tải chi tiết bài làm");
+      setNotification({ isOpen: true, type: "error", message: "Không thể tải chi tiết bài làm" });
     }
   };
 
@@ -201,6 +203,13 @@ export default function QuizAttemptList({ quizId, quizTitle, onBack, isAdmin = f
           quizId={quizId}
         />
       )}
+
+      <NotificationModal
+        isOpen={notification.isOpen}
+        onClose={() => setNotification({ ...notification, isOpen: false })}
+        type={notification.type}
+        message={notification.message}
+      />
     </div>
   );
 }

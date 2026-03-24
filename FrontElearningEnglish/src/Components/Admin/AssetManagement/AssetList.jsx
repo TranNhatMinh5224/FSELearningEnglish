@@ -68,7 +68,6 @@ export default function AssetList({ assets, onEdit, onDelete }) {
                                                 }}
                                                 onError={(e) => {
                                                     e.target.style.display = "none";
-                                                    e.target.nextSibling.style.display = "flex";
                                                 }}
                                                 title="Click để xem chi tiết"
                                             />

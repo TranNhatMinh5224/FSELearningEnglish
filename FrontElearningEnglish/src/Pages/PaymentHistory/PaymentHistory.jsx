@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Container, Pagination, Row, Col } from "react-bootstrap";
 import "./PaymentHistory.css";
 import MainHeader from "../../Components/Header/MainHeader";
+import Breadcrumb from "../../Components/Common/Breadcrumb/Breadcrumb";
 import { paymentService } from "../../Services/paymentService";
 import PaymentHistoryItem from "../../Components/PaymentHistory/PaymentHistoryItem/PaymentHistoryItem";
 import PaymentDetailModal from "../../Components/PaymentHistory/PaymentDetailModal/PaymentDetailModal";
@@ -138,6 +139,11 @@ export default function PaymentHistory() {
             <MainHeader />
             <div className="payment-history-container">
                 <Container>
+                    <Breadcrumb 
+                        items={[
+                            { label: "Lịch sử thanh toán", isCurrent: true }
+                        ]}
+                    />
                     <div className="payment-history-header">
                         <h1 className="payment-history-title">Lịch sử thanh toán</h1>
                         <p className="payment-history-subtitle">

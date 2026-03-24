@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef, useCallback } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { Container, Row, Col, Button } from "react-bootstrap";
 import MainHeader from "../../Components/Header/MainHeader";
+import Breadcrumb from "../../Components/Common/Breadcrumb/Breadcrumb";
 import QuizTimer from "../../Components/Quiz/QuizTimer/QuizTimer";
 import QuizNavigation from "../../Components/Quiz/QuizNavigation/QuizNavigation";
 import QuestionCard from "../../Components/Quiz/QuestionCard/QuestionCard";
@@ -9,6 +10,8 @@ import ConfirmModal from "../../Components/Common/ConfirmModal/ConfirmModal";
 import NotificationModal from "../../Components/Common/NotificationModal/NotificationModal";
 import { quizAttemptService } from "../../Services/quizAttemptService";
 import { quizService } from "../../Services/quizService";
+import { courseService } from "../../Services/courseService";
+import { lessonService } from "../../Services/lessonService";
 import "./QuizDetail.css";
 
 export default function QuizDetail() {
@@ -20,6 +23,8 @@ export default function QuizDetail() {
     const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
     const [answers, setAnswers] = useState({}); // { questionId: answer }
     const [loading, setLoading] = useState(true);
+    const [course, setCourse] = useState(null);
+    const [lesson, setLesson] = useState(null);
     const [error, setError] = useState("");
     const [submitting, setSubmitting] = useState(false);
     const [showSubmitModal, setShowSubmitModal] = useState(false);
@@ -48,6 +53,13 @@ export default function QuizDetail() {
 
         const allQuestions = [];
         sections.forEach((section, sectionIdx) => {
+            const sectionInfo = {
+                sectionId: section.SectionId || section.sectionId || section.QuizSectionId,
+                sectionTitle: section.Title || section.title,
+                sectionDescription: section.Description || section.description,
+                sectionIndex: sectionIdx + 1
+            };
+
             // New Structure: QuizSections -> Items (Group/Question)
             const items = section.Items || section.items || [];
 
@@ -56,15 +68,15 @@ export default function QuizDetail() {
                     const type = item.ItemType || item.itemType;
 
                     if (type === "Question") {
-                        // Item itself acts as a question wrapper or contains question props
-                        // Make sure we have a valid question object
                         if (item.QuestionId || item.questionId) {
-                            allQuestions.push(item);
+                            allQuestions.push({
+                                ...item,
+                                _sectionInfo: sectionInfo
+                            });
                         }
                     } else if (type === "Group") {
                         const groupQuestions = item.Questions || item.questions || [];
                         if (Array.isArray(groupQuestions)) {
-                            // Attach group info to each question in the group
                             const groupInfo = {
                                 groupName: item.Name || item.name,
                                 groupTitle: item.Title || item.title,
@@ -77,28 +89,31 @@ export default function QuizDetail() {
                             groupQuestions.forEach(q => {
                                 allQuestions.push({
                                     ...q,
-                                    _groupInfo: groupInfo // Add group info as metadata
+                                    _groupInfo: groupInfo,
+                                    _sectionInfo: sectionInfo
                                 });
                             });
                         }
                     }
                 });
             } else {
-                // Fallback: Legacy/Alternative Structure (Direct Questions/QuizGroups lists)
+                // Fallback: Legacy/Alternative Structure
                 const questions = section.Questions || section.questions || [];
                 const groups = section.QuizGroups || section.quizGroups || [];
 
-
-
                 if (Array.isArray(questions) && questions.length > 0) {
-                    allQuestions.push(...questions);
+                    questions.forEach(q => {
+                        allQuestions.push({
+                            ...q,
+                            _sectionInfo: sectionInfo
+                        });
+                    });
                 }
 
                 if (Array.isArray(groups) && groups.length > 0) {
                     groups.forEach((group) => {
                         const groupQuestions = group.Questions || group.questions || [];
                         if (Array.isArray(groupQuestions) && groupQuestions.length > 0) {
-                            // Attach group info to legacy structure as well
                             const groupInfo = {
                                 groupName: group.Name || group.name,
                                 groupTitle: group.Title || group.title,
@@ -111,7 +126,8 @@ export default function QuizDetail() {
                             groupQuestions.forEach(q => {
                                 allQuestions.push({
                                     ...q,
-                                    _groupInfo: groupInfo
+                                    _groupInfo: groupInfo,
+                                    _sectionInfo: sectionInfo
                                 });
                             });
                         }
@@ -239,7 +255,12 @@ export default function QuizDetail() {
                         const status = attempt.Status !== undefined ? attempt.Status : attempt.status;
 
                         if (status !== 0 && status !== 1) {
-                            setError("Bài quiz này đã được nộp hoặc kết thúc.");
+                            setNotification({
+                                isOpen: true,
+                                type: "info",
+                                message: "Bài quiz này đã được nộp hoặc kết thúc.",
+                                isTerminal: true
+                            });
                             setLoading(false);
                             return;
                         }
@@ -272,7 +293,12 @@ export default function QuizDetail() {
                     return;
                 }
             } else {
-                setError("Thiếu thông tin attemptId.");
+                setNotification({
+                    isOpen: true,
+                    type: "error",
+                    message: "Thiếu thông tin attemptId.",
+                    isTerminal: true
+                });
                 setLoading(false);
                 return;
             }
@@ -359,10 +385,35 @@ export default function QuizDetail() {
             });
             setAnswers(existingAnswers);
 
-            const attemptDuration = attempt.Duration || attempt.duration;
+            const attemptDuration = attempt.Duration !== undefined ? attempt.Duration : attempt.duration;
+            const attemptTitle = attempt.QuizTitle || attempt.quizTitle;
             const attemptQuizInfo = attempt.Quiz || attempt.quiz;
-            if (attemptQuizInfo) setQuiz(attemptQuizInfo);
-            else if (attemptDuration != null) setQuiz({ Duration: attemptDuration });
+            
+            if (attemptQuizInfo) {
+                const qDuration = attemptQuizInfo.Duration !== undefined ? attemptQuizInfo.Duration : attemptQuizInfo.duration;
+                setQuiz({
+                    ...attemptQuizInfo,
+                    Duration: qDuration != null ? qDuration : attemptDuration,
+                    title: attemptQuizInfo.title || attemptQuizInfo.Title || attemptTitle
+                });
+            } else {
+                setQuiz({
+                    Duration: attemptDuration ?? null,
+                    title: attemptTitle
+                });
+            }
+
+            // Fetch course and lesson info for breadcrumbs
+            try {
+                const [courseRes, lessonRes] = await Promise.all([
+                    courseService.getCourseById(courseId),
+                    lessonService.getLessonById(lessonId)
+                ]);
+                if (courseRes.data?.success) setCourse(courseRes.data.data);
+                if (lessonRes.data?.success) setLesson(lessonRes.data.data);
+            } catch (err) {
+                console.error("Error fetching course/lesson for breadcrumbs:", err);
+            }
 
             setLoading(false);
 
@@ -590,20 +641,26 @@ export default function QuizDetail() {
             return;
         }
 
-        // Get quiz duration (in minutes) - handle both camelCase and PascalCase
-        const quizDuration = quiz.Duration !== undefined ? quiz.Duration : (quiz.duration !== undefined ? quiz.duration : null);
+        // Get quiz duration (in minutes) - try all possible sources and cases
+        const quizDuration = 
+            quiz?.Duration || 
+            quiz?.duration || 
+            quizAttempt?.Duration || 
+            quizAttempt?.duration || 
+            quizAttempt?.Quiz?.Duration || 
+            quizAttempt?.Quiz?.duration || 
+            quizAttempt?.quiz?.Duration || 
+            quizAttempt?.quiz?.duration || 0;
 
-        if (quizDuration === null || quizDuration === undefined || isNaN(quizDuration) || quizDuration <= 0) {
+        if (quizDuration === null || quizDuration === undefined || isNaN(Number(quizDuration)) || Number(quizDuration) <= 0) {
             endTimeRef.current = null; // No time limit
+            console.log("⏰ [Timer] No valid duration found, setting to unlimited");
             return;
         }
 
         // Get StartedAt from attempt - handle both camelCase and PascalCase
         const startedAtStr = quizAttempt.StartedAt || quizAttempt.startedAt;
-        console.log("📅 StartedAt string:", startedAtStr);
-
         if (!startedAtStr) {
-            console.warn("⚠️ StartedAt not found in quizAttempt");
             endTimeRef.current = null;
             return;
         }
@@ -611,7 +668,6 @@ export default function QuizDetail() {
         try {
             const startedAt = new Date(startedAtStr);
             if (isNaN(startedAt.getTime())) {
-                console.error("❌ Invalid StartedAt date:", startedAtStr);
                 endTimeRef.current = null;
                 return;
             }
@@ -622,13 +678,7 @@ export default function QuizDetail() {
             const endTime = new Date(startedAt.getTime() + durationMs);
             endTimeRef.current = endTime;
 
-            console.log("✅ === Timer Calculation ===");
-            console.log("StartedAt:", startedAt.toISOString());
-            console.log("Duration:", quizDuration, "minutes");
-            console.log("Duration (ms):", durationMs);
-            console.log("EndTime:", endTime.toISOString());
-            console.log("Now:", new Date().toISOString());
-            console.log("============================");
+
         } catch (err) {
             console.error("❌ Error calculating endTime:", err);
             endTimeRef.current = null;
@@ -638,7 +688,6 @@ export default function QuizDetail() {
     // Calculate endTime when quizAttempt or quiz changes
     useEffect(() => {
         if (quizAttempt && quiz) {
-            console.log("🔄 Calculating endTime and starting timer...");
             calculateEndTime();
             // Calculate remaining time immediately
             calculateAndUpdateRemainingTime();
@@ -686,15 +735,12 @@ export default function QuizDetail() {
             try {
                 savingAnswersRef.current.add(questionId);
 
-                console.log(`💾 [AutoSave] Saving answer for question ${questionId}:`, answer);
                 const response = await quizAttemptService.updateAnswer(currentAttemptId, {
                     questionId,
                     userAnswer: answer
                 });
 
                 if (response.data?.success) {
-                    const newScore = response.data?.data; // Backend trả về score của câu này
-                    console.log(`✅ [AutoSave] Answer saved successfully. Score: ${newScore}`);
                     // Không cần update state vì đã update ở trên
                 } else {
                     console.error("❌ [AutoSave] Error saving answer:", response.data?.message);
@@ -839,6 +885,16 @@ export default function QuizDetail() {
                         </div>
                     )}
                 </div>
+                <NotificationModal
+                    isOpen={notification.isOpen}
+                    onClose={() => {
+                        setNotification(prev => ({ ...prev, isOpen: false }));
+                        if (notification.isTerminal) navigate(-1);
+                    }}
+                    type={notification.type}
+                    message={notification.message}
+                    autoClose={false}
+                />
             </>
         );
     }
@@ -854,14 +910,30 @@ export default function QuizDetail() {
         );
     }
 
-    // Tính thời gian làm bài
-    // Backend trả về Duration (phút), StartedAt, TimeSpentSeconds
-    const quizDuration = quiz?.Duration || quiz?.duration; // Phút
-    const timeLimit = quizDuration ? (quizDuration * 60 + 10) : null; // Convert minutes to seconds + 10s buffer
-
+    // Tính thời gian làm bài (Cần cực kỳ cẩn thận với kiểu dữ liệu)
+    const rawDuration = 
+        quiz?.Duration || 
+        quiz?.duration || 
+        quizAttempt?.Duration || 
+        quizAttempt?.duration || 
+        quizAttempt?.Quiz?.Duration || 
+        quizAttempt?.Quiz?.duration || 
+        quizAttempt?.quiz?.Duration || 
+        quizAttempt?.quiz?.duration || 0;
+        
+    const quizDuration = Number(rawDuration);
+    const timeLimit = (!isNaN(quizDuration) && quizDuration > 0) ? (quizDuration * 60) : null; 
+    
+    // Add debug log to verify on each render
+    if (quiz || quizAttempt) {
+        console.log("🕒 [Timer Debug] rawDuration:", rawDuration, "timeLimit:", timeLimit);
+    }
     // Debug logs
     console.log("=== Timer Debug ===");
     console.log("quiz:", quiz);
+    console.log("quizAttempt:", quizAttempt);
+    console.log("rawDuration:", rawDuration);
+    console.log("timeLimit:", timeLimit);
     console.log("quizDuration:", quizDuration, "minutes");
     console.log("timeLimit:", timeLimit, "seconds");
     console.log("quizAttempt:", quizAttempt);
@@ -871,8 +943,20 @@ export default function QuizDetail() {
     return (
         <>
             <MainHeader />
-            <div className="quiz-detail-container">
-                <Container fluid>
+            <div className="quiz-detail-page">
+                <Container>
+                    <Breadcrumb 
+                        items={[
+                            { label: "Khóa học của tôi", path: "/my-courses" },
+                            { label: course?.title || "Khóa học", path: `/course/${courseId}` },
+                            { label: "Lesson", path: `/course/${courseId}/learn` },
+                            { label: lesson?.title || "Bài học", path: `/course/${courseId}/lesson/${lessonId}` },
+                            { label: "Bài tập", path: `/course/${courseId}/lesson/${lessonId}/module/${moduleId}/assignment` },
+                            { label: quizAttempt?.quiz?.title || quiz?.title || "Quiz", isCurrent: true }
+                        ]}
+                    />
+                </Container>
+                <Container className="py-4">
                     <Row>
                         <Col lg={9}>
                             <div className="quiz-content">
@@ -983,9 +1067,13 @@ export default function QuizDetail() {
 
             <NotificationModal
                 isOpen={notification.isOpen}
-                onClose={() => setNotification({ ...notification, isOpen: false })}
+                onClose={() => {
+                    setNotification(prev => ({ ...prev, isOpen: false }));
+                    if (notification.isTerminal) navigate(-1);
+                }}
                 type={notification.type}
                 message={notification.message}
+                autoClose={notification.type === "success"}
             />
         </>
     );

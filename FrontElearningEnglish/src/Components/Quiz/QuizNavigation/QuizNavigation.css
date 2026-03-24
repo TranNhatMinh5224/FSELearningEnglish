@@ -44,6 +44,43 @@
     font-size: 18px;
 }
 
+.navigation-sections-container {
+    max-height: 55vh; /* Use viewport height for better responsiveness */
+    overflow-y: auto;
+    padding-right: 4px;
+    margin-right: -4px;
+}
+
+/* Custom scrollbar for better UI */
+.navigation-sections-container::-webkit-scrollbar {
+    width: 5px;
+}
+
+.navigation-sections-container::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.navigation-sections-container::-webkit-scrollbar-thumb {
+    background: var(--color-border-light, #e5e7eb);
+    border-radius: 10px;
+}
+
+.navigation-section {
+    border-radius: 12px;
+    background: rgba(246, 248, 251, 0.4);
+    padding: 8px;
+}
+
+.section-nav-header {
+    border-bottom: 2px solid var(--color-border-light, #e5e7eb) !important;
+}
+
+.section-nav-title {
+    font-size: 0.85rem;
+    letter-spacing: 0.8px;
+    font-weight: 800 !important;
+}
+
 .stat-panel {
     justify-content: center;
 }
@@ -69,9 +106,7 @@
     height: 60% !important;
 }
 
-.navigation-grid {
-    /* Bootstrap utilities được sử dụng trong JSX - responsive tự động */
-}
+/* Grid layout handled by Bootstrap Row/Col */
 
 /* Bootstrap utilities: d-flex, align-items-center, justify-content-center */
 .navigation-item {
@@ -81,10 +116,10 @@
     background: var(--color-bg-primary, white);
     color: var(--color-text-primary, #1f2937);
     font-weight: 600;
-    font-size: var(--font-size-sm, clamp(0.875rem, 0.8rem + 0.375vw, 1rem));
+    font-size: 0.8rem;
     cursor: pointer;
     transition: all 0.2s ease;
-    min-height: 40px;
+    min-height: 32px;
 }
 
 .navigation-item:hover {

@@ -1,0 +1,201 @@
+/* FormControls.css - Premium UI/UX styles for inputs */
+
+.form-control-wrapper {
+  margin-bottom: 1.25rem;
+  position: relative;
+}
+
+.form-label-custom {
+  display: block;
+  font-weight: 600;
+  font-size: 0.875rem;
+  color: #344767;
+  margin-bottom: 0.5rem;
+  transition: color 0.2s ease;
+}
+
+.form-label-custom.required::after {
+  content: " *";
+  color: #ea0606;
+}
+
+.input-container-custom {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.input-icon-custom {
+  position: absolute;
+  left: 1rem;
+  color: #8392ab;
+  font-size: 0.9rem;
+  pointer-events: none;
+  transition: color 0.2s ease;
+}
+
+.form-control-custom {
+  display: block;
+  width: 100%;
+  padding: 0.625rem 0.75rem;
+  font-size: 0.875rem;
+  font-weight: 400;
+  line-height: 1.4;
+  color: #495057;
+  background-color: #fff;
+  background-clip: padding-box;
+  border: 1px solid #d2d6da;
+  border-radius: 0.5rem;
+  transition: all 0.2s ease;
+}
+
+.form-control-custom:focus {
+  color: #495057;
+  background-color: #fff;
+  border-color: #1a73e8;
+  outline: 0;
+  box-shadow: 0 0 0 2px rgba(26, 115, 232, 0.2);
+}
+
+.form-control-custom.has-icon {
+  padding-left: 2.5rem;
+}
+
+.form-control-custom.is-invalid {
+  border-color: #fd5c70;
+  padding-right: calc(1.5em + 0.75rem);
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12' width='12' height='12' fill='none' stroke='%23fd5c70'%3e%3ccircle cx='6' cy='6' r='4.5'/%3e%3cpath stroke-linejoin='round' d='M5.8 3.6h.4L6 6.5z'/%3e%3ccircle cx='6' cy='8.2' r='.6' fill='%23fd5c70' stroke='none'/%3e%3c/svg%3e");
+  background-repeat: no-repeat;
+  background-position: right calc(0.375em + 0.1875rem) center;
+  background-size: calc(0.75em + 0.375rem) calc(0.75em + 0.375rem);
+}
+
+.form-control-custom.is-invalid:focus {
+  box-shadow: 0 0 0 2px rgba(253, 92, 112, 0.25);
+}
+
+.invalid-feedback-custom {
+  display: block;
+  width: 100%;
+  margin-top: 0.35rem;
+  font-size: 0.75rem;
+  color: #fd5c70;
+  font-weight: 500;
+}
+
+.char-counter-custom {
+  font-size: 0.75rem;
+  color: #8392ab;
+  margin-top: 0.25rem;
+  text-align: right;
+  display: block;
+}
+
+.char-counter-custom.at-limit {
+  color: #fd5c70;
+  font-weight: 600;
+}
+
+/* TextArea specific */
+.textarea-custom {
+  min-height: 100px;
+  resize: vertical;
+}
+
+/* Select specific */
+.select-custom {
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23344767' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='m2 5 6 6 6-6'/%3e%3c/svg%3e");
+  background-repeat: no-repeat;
+  background-position: right 0.75rem center;
+  background-size: 16px 12px;
+}
+
+/* -------------------------------------------------------------------------- */
+/* Markdown Editor Specific Styles (Replicated from Admin CourseFormModal) */
+/* -------------------------------------------------------------------------- */
+
+.markdown-editor-container {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+  min-height: 350px;
+  background: #fff;
+  border: 1px solid #d2d6da;
+  border-radius: 0.5rem;
+  padding: 1rem;
+  overflow: hidden;
+}
+
+.markdown-editor-left {
+  display: flex;
+  flex-direction: column;
+}
+
+.markdown-editor-left .textarea-custom {
+  flex: 1;
+  min-height: 400px;
+  border: none;
+  border-right: 1px solid #f0f0f0;
+  border-radius: 0;
+  font-family: 'Fira Code', monospace;
+  font-size: 0.9rem;
+  padding: 0.5rem;
+  outline: none;
+  background: transparent;
+}
+
+.markdown-editor-left .textarea-custom:focus {
+  box-shadow: none;
+  border-color: transparent;
+}
+
+.markdown-editor-right {
+  display: flex;
+  flex-direction: column;
+  border-left: 1px solid #f0f0f0;
+  padding-left: 1rem;
+}
+
+.markdown-editor-right .markdown-preview {
+  flex: 1;
+  padding: 0.5rem;
+  overflow-y: auto;
+  font-size: 0.95rem;
+  max-height: 500px;
+  background: #fff;
+}
+
+.markdown-preview-empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  color: #adb5bd;
+  font-style: italic;
+}
+
+.markdown-toolbar {
+  background: #f8f9fa;
+  padding: 0.5rem;
+  border-radius: 0.5rem 0.5rem 0 0;
+  border: 1px solid #d2d6da;
+  border-bottom: none;
+  display: flex;
+  gap: 0.5rem;
+}
+
+.toolbar-btn {
+  background: transparent;
+  border: none;
+  padding: 0.4rem 0.6rem;
+  border-radius: 6px;
+  color: #666;
+  transition: all 0.2s;
+  cursor: pointer;
+}
+
+.toolbar-btn:hover {
+  background: rgba(26, 115, 232, 0.1);
+  color: #1a73e8;
+}

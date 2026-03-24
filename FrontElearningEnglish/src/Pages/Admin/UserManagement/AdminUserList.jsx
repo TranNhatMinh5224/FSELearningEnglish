@@ -104,9 +104,6 @@ export default function AdminUserList() {
       const response = await adminService.getUserById(userId);
       if (response.data && response.data.success) {
         const userData = response.data.data;
-        // Debug: log để kiểm tra avatarUrl
-        console.log("User data from API:", userData);
-        console.log("AvatarUrl:", userData.avatarUrl || userData.AvatarUrl);
         setSelectedUser(userData);
         setShowDetailModal(true);
       } else {

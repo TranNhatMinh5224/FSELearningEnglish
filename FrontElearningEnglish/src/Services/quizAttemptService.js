@@ -12,6 +12,8 @@ export const quizAttemptService = {
     updateAnswer: (attemptId, data) => axiosClient.post(API_ENDPOINTS.QUIZ_ATTEMPTS.UPDATE_ANSWER(attemptId), data),
     
     resume: (attemptId) => axiosClient.get(API_ENDPOINTS.QUIZ_ATTEMPTS.RESUME(attemptId)),
+
+    result: (attemptId) => axiosClient.get(API_ENDPOINTS.QUIZ_ATTEMPTS.RESULT(attemptId)),
     
     getById: (attemptId) => axiosClient.get(API_ENDPOINTS.QUIZ_ATTEMPTS.GET_BY_ID(attemptId)),
     

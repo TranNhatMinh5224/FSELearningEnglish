@@ -4,6 +4,7 @@ import "./StudentDetailModal.css";
 import { FaUser, FaEnvelope, FaCalendarAlt, FaVenusMars, FaGraduationCap, FaCheckCircle, FaTrash } from "react-icons/fa";
 import ConfirmModal from "../../Common/ConfirmModal/ConfirmModal";
 import SuccessModal from "../../Common/SuccessModal/SuccessModal";
+import NotificationModal from "../../Common/NotificationModal/NotificationModal";
 import { teacherService } from "../../../Services/teacherService";
 import { adminService } from "../../../Services/adminService";
 import { useAuth } from "../../../Context/AuthContext";
@@ -13,6 +14,7 @@ export default function StudentDetailModal({ show, onClose, student, courseId, o
   const [showConfirmDelete, setShowConfirmDelete] = useState(false);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [notification, setNotification] = useState({ isOpen: false, type: "info", message: "" });
   if (!student) return null;
 
   const displayName = student.displayName || student.DisplayName || 
@@ -110,7 +112,7 @@ export default function StudentDetailModal({ show, onClose, student, courseId, o
       
     } catch (error) {
       console.error("Error removing student:", error);
-      alert(error.response?.data?.message || "Không thể xóa học sinh khỏi khóa học");
+      setNotification({ isOpen: true, type: "error", message: error.response?.data?.message || "Không thể xóa học sinh khỏi khóa học" });
     } finally {
       setIsDeleting(false);
     }
@@ -124,7 +126,7 @@ export default function StudentDetailModal({ show, onClose, student, courseId, o
       className="student-detail-modal modal-modern" 
       dialogClassName="student-detail-modal-dialog"
     >
-      <Modal.Header>
+      <Modal.Header closeButton>
         <Modal.Title>Thông tin học viên</Modal.Title>
       </Modal.Header>
       <Modal.Body>
@@ -280,6 +282,13 @@ export default function StudentDetailModal({ show, onClose, student, courseId, o
         onClose={() => setShowSuccessModal(false)}
         title="Thành công"
         message="Đã xóa học sinh khỏi khóa học thành công"
+      />
+
+      <NotificationModal
+        isOpen={notification.isOpen}
+        onClose={() => setNotification({ ...notification, isOpen: false })}
+        type={notification.type}
+        message={notification.message}
       />
     </Modal>
   );

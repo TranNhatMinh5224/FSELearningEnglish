@@ -9,9 +9,11 @@ import { useAssets } from "../../../Context/AssetContext";
 import CourseFormModal from "../../../Components/Admin/CourseManagement/CourseFormModal/CourseFormModal";
 import CreateLessonModal from "../../../Components/Teacher/CreateLessonModal/CreateLessonModal";
 import SuccessModal from "../../../Components/Common/SuccessModal/SuccessModal";
+import NotificationModal from "../../../Components/Common/NotificationModal/NotificationModal";
 import ConfirmModal from "../../../Components/Common/ConfirmModal/ConfirmModal";
 import CourseDescription from "../../../Components/Courses/CourseDescription/CourseDescription";
 import ActionButtons from "../../../Components/Common/ActionButtons";
+import AdminLessonCard from "../../../Components/Admin/CourseManagement/AdminLessonCard/AdminLessonCard";
 import { FaPlus } from "react-icons/fa";
 
 export default function AdminCourseDetail() {
@@ -32,6 +34,7 @@ export default function AdminCourseDetail() {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [lessonToDelete, setLessonToDelete] = useState(null);
   const [deletingLesson, setDeletingLesson] = useState(false);
+  const [notification, setNotification] = useState({ isOpen: false, type: "info", message: "" });
 
   const isAdmin = roles.some(role => ["SuperAdmin", "ContentAdmin"].includes(role));
 
@@ -142,7 +145,7 @@ export default function AdminCourseDetail() {
       }
     } catch (err) {
       console.error("Error deleting lesson:", err);
-      alert("Không thể xóa bài học. Vui lòng thử lại.");
+      setNotification({ isOpen: true, type: "error", message: "Không thể xóa bài học. Vui lòng thử lại." });
     } finally {
       setDeletingLesson(false);
       setLessonToDelete(null);
@@ -178,17 +181,16 @@ export default function AdminCourseDetail() {
 
   return (
     <div className="admin-course-detail-container">
-      <div className="breadcrumb-section">
-        <Breadcrumb
-          items={[
-            { label: "Quản lý khóa học", path: "/admin/courses" },
-            { label: courseTitle, isCurrent: true }
-          ]}
-          showHomeIcon={false}
-        />
-      </div>
-
       <Container fluid className="course-detail-content">
+        <div className="breadcrumb-section pt-0">
+          <Breadcrumb
+            items={[
+              { label: "Quản lý khóa học", path: "/admin/courses" },
+              { label: courseTitle, isCurrent: true }
+            ]}
+            showHomeIcon={false}
+          />
+        </div>
         <Row>
           {/* Left Column - Course Info */}
           <Col md={4} className="course-info-column">
@@ -251,37 +253,17 @@ export default function AdminCourseDetail() {
               </div>
 
               {lessons.length > 0 ? (
-                <div className="lessons-list">
-                  {lessons.map((lesson, index) => {
-                    const lessonId = lesson.lessonId || lesson.LessonId;
-                    const lessonTitle = lesson.title || lesson.Title || `Lesson ${index + 1}`;
-                    const lessonImage = lesson.imageUrl || lesson.ImageUrl || getDefaultLessonImage();
-                    const moduleCount = lesson.totalModules || lesson.TotalModules || 0;
-
-                    return (
-                      <div key={lessonId || index} className="lesson-item">
-                        <div className="lesson-item-content" onClick={() => handleLessonClick(lessonId)}>
-                          <img
-                            src={lessonImage}
-                            alt={lessonTitle}
-                            className="lesson-image"
-                          />
-                          <div className="lesson-info">
-                            <span className="lesson-title">{lessonTitle}</span>
-                            {moduleCount > 0 && <span className="lesson-modules">{moduleCount} modules</span>}
-                          </div>
-                        </div>
-                        <div className="lesson-actions">
-                          <ActionButtons
-                            onUpdate={(e) => handleUpdateLesson(lesson, e)}
-                            onDelete={(e) => handleDeleteLesson(lesson, e)}
-                            updateTitle="Cập nhật bài học"
-                            deleteTitle="Xóa bài học"
-                          />
-                        </div>
-                      </div>
-                    );
-                  })}
+                <div className="admin-lessons-list">
+                  {lessons.map((lesson, index) => (
+                    <AdminLessonCard
+                      key={lesson.lessonId || lesson.LessonId || index}
+                      lesson={lesson}
+                      onClick={() => handleLessonClick(lesson.lessonId || lesson.LessonId)}
+                      onUpdate={(e) => handleUpdateLesson(lesson, e)}
+                      onDelete={(e) => handleDeleteLesson(lesson, e)}
+                      getDefaultLessonImage={getDefaultLessonImage}
+                    />
+                  ))}
                 </div>
               ) : (
                 <div className="no-lessons-message">
@@ -337,6 +319,13 @@ export default function AdminCourseDetail() {
         message={successMessage}
         autoClose={true}
         autoCloseDelay={2000}
+      />
+
+      <NotificationModal
+        isOpen={notification.isOpen}
+        onClose={() => setNotification({ ...notification, isOpen: false })}
+        type={notification.type}
+        message={notification.message}
       />
       {/* Confirm Delete Lesson Modal */}
       <ConfirmModal

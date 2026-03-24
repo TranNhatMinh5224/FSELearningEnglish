@@ -203,6 +203,7 @@ export const API_ENDPOINTS = {
         SUBMIT_ANSWER: "/user/quiz-attempts/submit-answer",
         UPDATE_ANSWER: (attemptId) => `/user/quiz-attempts/update-answer/${attemptId}`,
         SUBMIT: (attemptId) => `/user/quiz-attempts/submit/${attemptId}`, // Backend: POST /api/user/quiz-attempts/submit/{attemptId}
+        RESULT: (attemptId) => `/user/quiz-attempts/result/${attemptId}`,
         GET_BY_ID: (attemptId) => `/user/quiz-attempts/${attemptId}`,
         RESUME: (attemptId) => `/user/quiz-attempts/resume/${attemptId}`,
         MY_ATTEMPTS: "/user/quiz-attempts/my-attempts",

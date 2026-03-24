@@ -17,6 +17,7 @@ import CreateLessonModal from "../../../Components/Teacher/CreateLessonModal/Cre
 import CreateModuleModal from "../../../Components/Teacher/CreateModuleModal/CreateModuleModal";
 import CreateAssessmentModal from "../../../Components/Teacher/CreateAssessmentModal/CreateAssessmentModal";
 import SuccessModal from "../../../Components/Common/SuccessModal/SuccessModal";
+import NotificationModal from "../../../Components/Common/NotificationModal/NotificationModal";
 import ConfirmModal from "../../../Components/Common/ConfirmModal/ConfirmModal";
 import ActionButtons from "../../../Components/Common/ActionButtons";
 import { FaPlus, FaEdit } from "react-icons/fa";
@@ -50,6 +51,7 @@ export default function TeacherLessonDetail() {
   const [moduleToDelete, setModuleToDelete] = useState(null);
   const [deletingModule, setDeletingModule] = useState(false);
   const [showDeleteModuleSuccessModal, setShowDeleteModuleSuccessModal] = useState(false);
+  const [notification, setNotification] = useState({ isOpen: false, type: "info", message: "" });
 
   // Module content state
   const [selectedModule, setSelectedModule] = useState(null);
@@ -253,7 +255,7 @@ export default function TeacherLessonDetail() {
 
     if (!flashcardId) {
       console.error("Flashcard ID not found. Available keys:", Object.keys(flashcard));
-      alert("Không tìm thấy ID của flashcard. Vui lòng thử lại.");
+      setNotification({ isOpen: true, type: "error", message: "Không tìm thấy ID của flashcard. Vui lòng thử lại." });
       return;
     }
 
@@ -283,7 +285,7 @@ export default function TeacherLessonDetail() {
     } catch (error) {
       console.error("Error deleting module:", error);
       const errorMessage = error.response?.data?.message || error.message || "Có lỗi xảy ra khi xóa module";
-      alert(errorMessage);
+      setNotification({ isOpen: true, type: "error", message: errorMessage });
     } finally {
       setDeletingModule(false);
     }
@@ -323,18 +325,17 @@ export default function TeacherLessonDetail() {
     <>
       <TeacherHeader />
       <div className="teacher-lesson-detail-container">
-        <div className="breadcrumb-section">
-          <Breadcrumb
-            items={[
-              { label: "Quản lý khoá học", path: ROUTE_PATHS.TEACHER_COURSE_MANAGEMENT },
-              { label: course?.title || course?.Title || courseId, path: `/teacher/course/${courseId}` },
-              { label: lessonTitle, isCurrent: true }
-            ]}
-            showHomeIcon={false}
-          />
-        </div>
-
         <Container fluid className="lesson-detail-content">
+          <div className="breadcrumb-section pt-0">
+            <Breadcrumb
+              items={[
+                { label: "Quản lý khoá học", path: ROUTE_PATHS.TEACHER_COURSE_MANAGEMENT },
+                { label: course?.title || course?.Title || courseId, path: `/teacher/course/${courseId}` },
+                { label: lessonTitle, isCurrent: true }
+              ]}
+              showHomeIcon={false}
+            />
+          </div>
           <Row>
             {/* Left Column - Lesson Info */}
             <Col md={4} className="lesson-info-column">
@@ -457,18 +458,37 @@ export default function TeacherLessonDetail() {
                                 </div>
                               );
                             } else if (isAssessment(contentTypeNum)) {
-                              // Assessment - backend returns AssessmentId (PascalCase)
-                              const assessmentId = item.assessmentId || item.AssessmentId;
-                              const title = item.title || item.Title || `Assessment ${index + 1}`;
-                              const description = item.description || item.Description || "";
-                              const timeLimit = item.timeLimit || item.TimeLimit || "";
-                              const totalPoints = item.totalPoints || item.TotalPoints || 0;
-                              const passingScore = item.passingScore || item.PassingScore || 0;
-                              const isPublished = item.isPublished || item.IsPublished || false;
-                              const moduleId = selectedModule.moduleId || selectedModule.ModuleId;
+                            // Extract assessment details
+                            const assessmentId = item.assessmentId || item.AssessmentId;
+                            const title = item.title || item.Title || "Assessment";
+                            const description = item.description || item.Description || "";
+                            const timeLimit = item.timeLimit || item.TimeLimit;
+                            const totalPoints = item.totalPoints || item.TotalPoints || 0;
+                            const passingScore = item.passingScore || item.PassingScore || 0;
+                            const isPublished = item.isPublished ?? item.IsPublished ?? true;
+                            const openAt = item.openAt || item.OpenAt;
+                            const dueAt = item.dueAt || item.DueAt;
+                            const moduleId = selectedModule.moduleId || selectedModule.ModuleId;
 
-                              // Get quiz/essay info
-                              const typeInfo = assessmentTypes[assessmentId] || { hasQuiz: false, hasEssay: false };
+                            // Format date helper
+                            const formatDateTime = (dateStr) => {
+                              if (!dateStr) return null;
+                              const date = new Date(dateStr);
+                              if (isNaN(date.getTime())) return null;
+                              return date.toLocaleString('vi-VN', {
+                                day: '2-digit',
+                                month: '2-digit',
+                                year: 'numeric',
+                                hour: '2-digit',
+                                minute: '2-digit'
+                              });
+                            };
+
+                            // Content type indicators
+                            const typeInfo = {
+                              hasQuiz: Array.isArray(item.quizzes) && item.quizzes.length > 0,
+                              hasEssay: Array.isArray(item.essays) && item.essays.length > 0
+                            };
 
                               return (
                                 <div
@@ -529,9 +549,15 @@ export default function TeacherLessonDetail() {
                                           : description}
                                       </p>
                                     )}
-                                    <div style={{ display: 'flex', gap: '16px', marginTop: '8px', fontSize: '12px', color: '#6b7280' }}>
+                                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '16px', marginTop: '8px', fontSize: '12px', color: '#6b7280' }}>
                                       {timeLimit && (
                                         <span><strong>Thời gian:</strong> {timeLimit}</span>
+                                      )}
+                                      {openAt && (
+                                        <span><strong>Bắt đầu:</strong> {formatDateTime(openAt)}</span>
+                                      )}
+                                      {dueAt && (
+                                        <span><strong>Kết thúc:</strong> {formatDateTime(dueAt)}</span>
                                       )}
                                       {totalPoints > 0 && (
                                         <span><strong>Tổng điểm:</strong> {totalPoints}</span>
@@ -767,6 +793,13 @@ export default function TeacherLessonDetail() {
         message="Bài học của bạn đã được cập nhật thành công!"
         autoClose={true}
         autoCloseDelay={1500}
+      />
+
+      <NotificationModal
+        isOpen={notification.isOpen}
+        onClose={() => setNotification({ ...notification, isOpen: false })}
+        type={notification.type}
+        message={notification.message}
       />
 
       {/* Create Module Modal */}

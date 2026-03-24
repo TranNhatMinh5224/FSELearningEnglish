@@ -47,6 +47,11 @@ export default function CreateQuizGroupModal({ show, onClose, onSuccess, quizSec
   const [submitting, setSubmitting] = useState(false);
   const [loadingGroup, setLoadingGroup] = useState(false);
   const [showConfirmClose, setShowConfirmClose] = useState(false);
+  const [touched, setTouched] = useState({});
+
+  const handleBlur = (field) => {
+    setTouched(prev => ({ ...prev, [field]: true }));
+  };
 
   // Load group data when in update mode
   useEffect(() => {
@@ -249,6 +254,7 @@ export default function CreateQuizGroupModal({ show, onClose, onSuccess, quizSec
     e.preventDefault();
 
     if (!validateForm()) {
+      setTouched({ name: true, title: true, sumScore: true });
       return;
     }
 
@@ -328,7 +334,7 @@ export default function CreateQuizGroupModal({ show, onClose, onSuccess, quizSec
           }
         }}
       >
-        <Modal.Header>
+        <Modal.Header closeButton>
           <Modal.Title>{isUpdateMode ? "Cập nhật Group" : "Tạo Group mới"}</Modal.Title>
         </Modal.Header>
         <Modal.Body>
@@ -349,56 +355,71 @@ export default function CreateQuizGroupModal({ show, onClose, onSuccess, quizSec
 
                 {/* Tên nhóm */}
                 <div className="mb-4">
-                  <label className="form-label required">Tên nhóm</label>
+                  <div className="d-flex justify-content-between align-items-center mb-1">
+                    <label className="form-label required mb-0">Tên nhóm</label>
+                    <span className={`small ${name.length > 200 ? "text-danger fw-bold" : "text-muted"}`}>
+                      {name.length}/200
+                    </span>
+                  </div>
                   <input
                     type="text"
-                    className={`form-control ${errors.name ? "is-invalid" : ""}`}
+                    className={`form-control ${touched.name && errors.name ? "is-invalid" : ""}`}
                     value={name}
                     onChange={(e) => {
                       setName(e.target.value);
-                      setErrors({ ...errors, name: null });
+                      if (touched.name) validateForm();
                     }}
+                    onBlur={() => handleBlur("name")}
                     placeholder="Nhập tên nhóm"
                     maxLength={200}
                   />
-                  {errors.name && <div className="invalid-feedback">{errors.name}</div>}
-                  <div className="form-text">*Bắt buộc (tối đa 200 ký tự)</div>
+                  {touched.name && errors.name && <div className="invalid-feedback">{errors.name}</div>}
                 </div>
 
                 {/* Tiêu đề */}
                 <div className="mb-4">
-                  <label className="form-label required">Tiêu đề</label>
+                  <div className="d-flex justify-content-between align-items-center mb-1">
+                    <label className="form-label required mb-0">Tiêu đề</label>
+                    <span className={`small ${title.length > 200 ? "text-danger fw-bold" : "text-muted"}`}>
+                      {title.length}/200
+                    </span>
+                  </div>
                   <input
                     type="text"
-                    className={`form-control ${errors.title ? "is-invalid" : ""}`}
+                    className={`form-control ${touched.title && errors.title ? "is-invalid" : ""}`}
                     value={title}
                     onChange={(e) => {
                       setTitle(e.target.value);
-                      setErrors({ ...errors, title: null });
+                      if (touched.title) validateForm();
                     }}
+                    onBlur={() => handleBlur("title")}
                     placeholder="Nhập tiêu đề"
                     maxLength={200}
                   />
-                  {errors.title && <div className="invalid-feedback">{errors.title}</div>}
-                  <div className="form-text">*Bắt buộc (tối đa 200 ký tự)</div>
+                  {touched.title && errors.title && <div className="invalid-feedback">{errors.title}</div>}
                 </div>
 
                 {/* Mô tả */}
                 <div className="mb-3">
-                  <label className="form-label">Mô tả</label>
+                  <div className="d-flex justify-content-between align-items-center mb-1">
+                    <label className="form-label mb-0">Mô tả</label>
+                    <span className={`small ${description.length > 1000 ? "text-danger fw-bold" : "text-muted"}`}>
+                      {description.length}/1000
+                    </span>
+                  </div>
                   <textarea
-                    className={`form-control ${errors.description ? "is-invalid" : ""}`}
+                    className={`form-control ${touched.description && errors.description ? "is-invalid" : ""}`}
                     value={description}
                     onChange={(e) => {
                       setDescription(e.target.value);
-                      setErrors({ ...errors, description: null });
+                      if (touched.description) validateForm();
                     }}
+                    onBlur={() => handleBlur("description")}
                     placeholder="Nhập mô tả (không bắt buộc)"
                     rows={3}
                     maxLength={1000}
                   />
-                  {errors.description && <div className="invalid-feedback">{errors.description}</div>}
-                  <div className="form-text">Không bắt buộc (tối đa 1000 ký tự)</div>
+                  {touched.description && errors.description && <div className="invalid-feedback">{errors.description}</div>}
                 </div>
               </div>
 
@@ -412,41 +433,26 @@ export default function CreateQuizGroupModal({ show, onClose, onSuccess, quizSec
                   <input
                     type="text"
                     inputMode="decimal"
-                    className={`form-control ${errors.sumScore ? "is-invalid" : ""}`}
+                    className={`form-control ${touched.sumScore && errors.sumScore ? "is-invalid" : ""}`}
                     value={sumScore}
                     onChange={(e) => {
                       let value = e.target.value.trim();
                       if (value === '') {
                         setSumScore('');
-                        setErrors({ ...errors, sumScore: null });
+                        if (touched.sumScore) validateForm();
                         return;
                       }
                       const numValue = value.replace(/[^\d.]/g, '');
                       const parts = numValue.split('.');
                       if (parts.length <= 2) {
                         setSumScore(numValue);
-                        setErrors({ ...errors, sumScore: null });
+                        if (touched.sumScore) validateForm();
                       }
                     }}
-                    onBlur={(e) => {
-                      const value = e.target.value.trim();
-                      if (value === '') {
-                        setSumScore('0');
-                        return;
-                      }
-                      const num = parseFloat(value);
-                      if (isNaN(num) || num < 0) {
-                        return;
-                      }
-                      if (num % 1 === 0) {
-                        setSumScore(num.toString());
-                      } else {
-                        setSumScore(value);
-                      }
-                    }}
+                    onBlur={() => handleBlur("sumScore")}
                     placeholder="Ví dụ: 10"
                   />
-                  {errors.sumScore && <div className="invalid-feedback">{errors.sumScore}</div>}
+                  {touched.sumScore && errors.sumScore && <div className="invalid-feedback">{errors.sumScore}</div>}
                   <div className="form-text">*Bắt buộc. Tổng điểm của nhóm câu hỏi này</div>
                 </div>
               </div>
@@ -520,14 +526,14 @@ export default function CreateQuizGroupModal({ show, onClose, onSuccess, quizSec
       </Modal>
 
       <ConfirmModal
-        show={showConfirmClose}
-        onHide={() => setShowConfirmClose(false)}
+        isOpen={showConfirmClose}
+        onClose={() => setShowConfirmClose(false)}
         onConfirm={handleConfirmClose}
         title="Xác nhận đóng"
         message="Bạn có dữ liệu chưa lưu. Bạn có chắc chắn muốn đóng không?"
         confirmText="Đóng"
         cancelText="Tiếp tục chỉnh sửa"
-        variant="warning"
+        type="warning"
       />
     </>
   );

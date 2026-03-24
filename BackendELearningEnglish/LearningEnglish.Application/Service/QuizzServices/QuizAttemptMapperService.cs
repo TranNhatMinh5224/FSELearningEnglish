@@ -76,8 +76,20 @@ public class QuizAttemptMapperService : IQuizAttemptMapper
             allItems.AddRange(groupItems);
             allItems.AddRange(standaloneQuestionItems);
 
-            // 4. Sort theo ItemIndex để xen kẽ Groups và Questions
-            sectionDto.Items = allItems.OrderBy(i => i.ItemIndex).ToList();
+            // 4. Shuffle hoặc Sort theo ItemIndex
+            if (quiz.ShuffleQuestions == true)
+            {
+                // Sử dụng seed kết hợp attemptId và sectionId để đảm bảo mỗi lần làm bài có thứ tự khác nhau nhưng nhất quán trong phiên đó
+                var seed = attemptId * 1000 + section.QuizSectionId;
+                var random = new Random(seed);
+                QuizShuffleHelper.FisherYatesShuffle(allItems, random);
+                sectionDto.Items = allItems;
+            }
+            else
+            {
+                // Sort theo ItemIndex để xen kẽ Groups và Questions theo mặc định
+                sectionDto.Items = allItems.OrderBy(i => i.ItemIndex).ToList();
+            }
 
             sections.Add(sectionDto);
         }

@@ -4,7 +4,7 @@ import "./Payment.css";
 import { paymentService } from "../../Services/paymentService";
 import { teacherPackageService } from "../../Services/teacherPackageService";
 import { courseService } from "../../Services/courseService";
-import { FaCheckCircle } from "react-icons/fa";
+import { FaCheckCircle, FaLock } from "react-icons/fa";
 import MainHeader from "../../Components/Header/MainHeader";
 import NotificationModal from "../../Components/Common/NotificationModal/NotificationModal";
 
@@ -20,6 +20,7 @@ export default function Payment() {
     const [selectedPackage, setSelectedPackage] = useState(null);
     const [selectedCourse, setSelectedCourse] = useState(null);
     const [loading, setLoading] = useState(true);
+    const [isRedirecting, setIsRedirecting] = useState(false);
     const [error, setError] = useState("");
     const [showErrorModal, setShowErrorModal] = useState(false);
     const [errorMessage, setErrorMessage] = useState("");
@@ -132,7 +133,15 @@ export default function Payment() {
                 const checkoutLink = payOsResponse.data.data.checkoutUrl;
 
                 setCheckoutUrl(checkoutLink);
-                setLoading(false);
+                setIsRedirecting(true);
+                
+                // Tự động chuyển hướng (Seamless UX) sau 1.2s để user nhận thức độ bảo mật
+                setTimeout(() => {
+                    window.location.href = checkoutLink;
+                }, 1200);
+
+                // Lưu ý: KHÔNG tắt loading ở đây để giữ lại loading screen sang xịn 
+                // cho đến khi trình duyệt nảy sang PayOS.
             } catch (error) {
                 console.error("Error processing payment:", error);
                 console.error("Error details:", {
@@ -167,6 +176,7 @@ export default function Payment() {
                 
                 setError(errorMessage);
                 setLoading(false);
+                setIsRedirecting(false);
                 
                 // Hiển thị thông báo bằng NotificationModal
                 setErrorMessage(errorMessage);
@@ -194,7 +204,7 @@ export default function Payment() {
 
     const handleOpenCheckout = () => {
         if (checkoutUrl) {
-            window.open(checkoutUrl, "_blank");
+            window.location.href = checkoutUrl;
         }
     };
 
@@ -206,13 +216,28 @@ export default function Payment() {
 
                 <div className="payment-card">
                     {loading ? (
-                        <>
-                            <h1 className="payment-title">Đang xử lý thanh toán...</h1>
-                            <div className="payment-loading">
-                                <div className="spinner"></div>
-                                <p>Vui lòng đợi trong giây lát</p>
-                            </div>
-                        </>
+                        <div className="payment-loading">
+                            {isRedirecting ? (
+                                <>
+                                    <FaCheckCircle className="secure-lock-icon redirecting" style={{color: '#3b82f6'}} />
+                                    <h2 className="loading-text-primary">Đã tạo kết nối!</h2>
+                                    <p className="loading-text-secondary">
+                                        Chuẩn bị chuyển hướng đến PayOS...
+                                    </p>
+                                </>
+                            ) : (
+                                <>
+                                    <FaLock className="secure-lock-icon" />
+                                    <h2 className="loading-text-primary">Thiết lập thanh toán bảo mật...</h2>
+                                    <p className="loading-text-secondary">
+                                        Hệ thống đang mã hóa dữ liệu và chuẩn bị cổng thanh toán an toàn cho bạn. Vui lòng chờ trong giây lát.
+                                    </p>
+                                    <div className="mt-4 payment-mini-spinner">
+                                        <div className="spinner"></div>
+                                    </div>
+                                </>
+                            )}
+                        </div>
                     ) : error ? (
                         <>
                             <h1 className="payment-title">Có lỗi xảy ra</h1>

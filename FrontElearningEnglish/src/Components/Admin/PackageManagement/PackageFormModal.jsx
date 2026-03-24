@@ -14,12 +14,8 @@ export default function PackageFormModal({ show, onClose, onSuccess, packageToEd
         maxStudents: ""
     });
     const [loading, setLoading] = useState(false);
-    const [errors, setErrors] = useState({
-        price: "",
-        maxCourses: "",
-        maxLessons: "",
-        maxStudents: ""
-    });
+    const [errors, setErrors] = useState({});
+    const [touched, setTouched] = useState({});
 
     useEffect(() => {
         if (packageToEdit) {
@@ -41,81 +37,75 @@ export default function PackageFormModal({ show, onClose, onSuccess, packageToEd
                 maxStudents: ""
             });
         }
-        setErrors({
-            price: "",
-            maxCourses: "",
-            maxLessons: "",
-            maxStudents: ""
-        });
+        setErrors({});
+        setTouched({});
     }, [packageToEdit, show]);
+
+    const validateField = (name, value) => {
+        if (name === "packageName") {
+            if (!value.trim()) return "Ten goi la bat buoc";
+            if (value.trim().length > 100) return "Ten goi khong duoc vuot qua 100 ky tu";
+        }
+        if (name === "price") {
+            if (value === "") return "";
+            const v = parseInt(value.toString().replace(/[^\d]/g, ''), 10);
+            if (isNaN(v) || v < 0) return "Gia phai la so hop le va khong duoc am";
+            if (v > 100000000) return "Gia khong duoc vuot qua 100,000,000 VND";
+        }
+        if (name === "maxCourses") {
+            const v = parseInt(value, 10);
+            if (value === "") return "Max khoa hoc la bat buoc";
+            if (isNaN(v) || v < 1 || v > 100) return "Max khoa hoc phai tu 1 den 100";
+        }
+        if (name === "maxLessons") {
+            const v = parseInt(value, 10);
+            if (value === "") return "Max bai hoc la bat buoc";
+            if (isNaN(v) || v < 1 || v > 1000) return "Max bai hoc phai tu 1 den 1,000";
+        }
+        if (name === "maxStudents") {
+            const v = parseInt(value, 10);
+            if (value === "") return "Max hoc vien la bat buoc";
+            if (isNaN(v) || v < 1 || v > 10000) return "Max hoc vien phai tu 1 den 10,000";
+        }
+        return "";
+    };
 
     const handleChange = (e) => {
         const { name, value } = e.target;
-        
-        // Đơn giản: chỉ lưu giá trị như các form khác
-        setFormData({
-            ...formData,
-            [name]: value
-        });
-        
-        // Clear error khi user đang gõ
-        if (errors[name]) {
-            setErrors({
-                ...errors,
-                [name]: ""
-            });
+        setFormData({ ...formData, [name]: value });
+        if (touched[name]) {
+            setErrors(prev => ({ ...prev, [name]: validateField(name, value) }));
         }
+    };
+
+    const handleBlur = (e) => {
+        const { name, value } = e.target;
+        setTouched(prev => ({ ...prev, [name]: true }));
+        setErrors(prev => ({ ...prev, [name]: validateField(name, value) }));
     };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
         
-        // Validate tên gói
-        if (!formData.packageName.trim()) {
-            toast.error("Vui lòng nhập tên gói");
-            return;
-        }
-        
-        // Validate và parse giá
+        const allTouched = { packageName: true, price: true, maxCourses: true, maxLessons: true, maxStudents: true };
+        const newErrors = {
+            packageName: validateField("packageName", formData.packageName),
+            price: validateField("price", formData.price === "" ? "" : formData.price),
+            maxCourses: validateField("maxCourses", formData.maxCourses),
+            maxLessons: validateField("maxLessons", formData.maxLessons),
+            maxStudents: validateField("maxStudents", formData.maxStudents),
+        };
+        setTouched(allTouched);
+        setErrors(newErrors);
+        if (Object.values(newErrors).some(err => err)) return;
+
         const price = formData.price === "" ? 0 : parseInt(formData.price.toString().replace(/[^\d]/g, ''), 10);
-        if (isNaN(price) || price < 0) {
-            setErrors({ ...errors, price: "Giá phải là số hợp lệ và không được âm" });
-            return;
-        }
-        if (price > 100000000) {
-            setErrors({ ...errors, price: "Giá không được vượt quá 100,000,000 VND" });
-            return;
-        }
-        
-        // Validate và parse các trường tài nguyên
-        const maxCourses = formData.maxCourses === "" ? 0 : parseInt(formData.maxCourses, 10);
-        if (isNaN(maxCourses) || maxCourses < 1 || maxCourses > 100) {
-            setErrors({ ...errors, maxCourses: "Max khóa học phải từ 1 đến 100" });
-            toast.error("Vui lòng kiểm tra lại các giá trị tài nguyên");
-            return;
-        }
-        
-        const maxLessons = formData.maxLessons === "" ? 0 : parseInt(formData.maxLessons, 10);
-        if (isNaN(maxLessons) || maxLessons < 1 || maxLessons > 1000) {
-            setErrors({ ...errors, maxLessons: "Max bài học phải từ 1 đến 1,000" });
-            toast.error("Vui lòng kiểm tra lại các giá trị tài nguyên");
-            return;
-        }
-        
-        const maxStudents = formData.maxStudents === "" ? 0 : parseInt(formData.maxStudents, 10);
-        if (isNaN(maxStudents) || maxStudents < 1 || maxStudents > 10000) {
-            setErrors({ ...errors, maxStudents: "Max học viên phải từ 1 đến 10,000" });
-            toast.error("Vui lòng kiểm tra lại các giá trị tài nguyên");
-            return;
-        }
+        const maxCourses = parseInt(formData.maxCourses, 10);
+        const maxLessons = parseInt(formData.maxLessons, 10);
+        const maxStudents = parseInt(formData.maxStudents, 10);
         
         setLoading(true);
-        setErrors({
-            price: "",
-            maxCourses: "",
-            maxLessons: "",
-            maxStudents: ""
-        });
+        setErrors({});
         
         try {
             // Prepare data matching backend DTO exactly
@@ -178,9 +168,14 @@ export default function PackageFormModal({ show, onClose, onSuccess, packageToEd
                                     name="packageName"
                                     value={formData.packageName}
                                     onChange={handleChange}
-                                    required
+                                    onBlur={handleBlur}
                                     placeholder="VD: Basic Plan"
+                                    isInvalid={!!errors.packageName}
+                                    maxLength={100}
                                 />
+                                {errors.packageName && (
+                                    <Form.Control.Feedback type="invalid">{errors.packageName}</Form.Control.Feedback>
+                                )}
                             </Form.Group>
                         </Col>
                         <Col md={6}>
@@ -208,10 +203,11 @@ export default function PackageFormModal({ show, onClose, onSuccess, packageToEd
                                     name="price"
                                     value={formData.price}
                                     onChange={handleChange}
+                                    onBlur={handleBlur}
                                     placeholder="VD: 1000000"
-                                    required
                                     min="0"
                                     max="100000000"
+                                    step="1000"
                                     isInvalid={!!errors.price}
                                 />
                                 {errors.price && (
@@ -231,15 +227,15 @@ export default function PackageFormModal({ show, onClose, onSuccess, packageToEd
                             <Form.Group>
                                 <Form.Label>Max Khóa học</Form.Label>
                                 <Form.Control
-                                    type="number"
-                                    name="maxCourses"
-                                    value={formData.maxCourses}
-                                    onChange={handleChange}
-                                    min="1"
-                                    max="100"
-                                    required
-                                    isInvalid={!!errors.maxCourses}
-                                />
+                                        type="number"
+                                        name="maxCourses"
+                                        value={formData.maxCourses}
+                                        onChange={handleChange}
+                                        onBlur={handleBlur}
+                                        min="1"
+                                        max="100"
+                                        isInvalid={!!errors.maxCourses}
+                                    />
                                 {errors.maxCourses && (
                                     <Form.Control.Feedback type="invalid">
                                         {errors.maxCourses}
@@ -254,15 +250,15 @@ export default function PackageFormModal({ show, onClose, onSuccess, packageToEd
                             <Form.Group>
                                 <Form.Label>Max Bài học</Form.Label>
                                 <Form.Control
-                                    type="number"
-                                    name="maxLessons"
-                                    value={formData.maxLessons}
-                                    onChange={handleChange}
-                                    min="1"
-                                    max="1000"
-                                    required
-                                    isInvalid={!!errors.maxLessons}
-                                />
+                                        type="number"
+                                        name="maxLessons"
+                                        value={formData.maxLessons}
+                                        onChange={handleChange}
+                                        onBlur={handleBlur}
+                                        min="1"
+                                        max="1000"
+                                        isInvalid={!!errors.maxLessons}
+                                    />
                                 {errors.maxLessons && (
                                     <Form.Control.Feedback type="invalid">
                                         {errors.maxLessons}
@@ -277,15 +273,15 @@ export default function PackageFormModal({ show, onClose, onSuccess, packageToEd
                             <Form.Group>
                                 <Form.Label>Max Học viên</Form.Label>
                                 <Form.Control
-                                    type="number"
-                                    name="maxStudents"
-                                    value={formData.maxStudents}
-                                    onChange={handleChange}
-                                    min="1"
-                                    max="10000"
-                                    required
-                                    isInvalid={!!errors.maxStudents}
-                                />
+                                        type="number"
+                                        name="maxStudents"
+                                        value={formData.maxStudents}
+                                        onChange={handleChange}
+                                        onBlur={handleBlur}
+                                        min="1"
+                                        max="10000"
+                                        isInvalid={!!errors.maxStudents}
+                                    />
                                 {errors.maxStudents && (
                                     <Form.Control.Feedback type="invalid">
                                         {errors.maxStudents}

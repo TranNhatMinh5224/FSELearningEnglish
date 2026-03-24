@@ -48,6 +48,15 @@ namespace LearningEnglish.API.Controller.User
             return result.Success ? Ok(result) : StatusCode(result.StatusCode, result);
         }
 
+        // GET: api/user/quiz-attempts/result/{attemptId} - lấy kết quả bài làm sau khi nộp
+        [HttpGet("result/{attemptId}")]
+        public async Task<IActionResult> GetAttemptResult(int attemptId)
+        {
+            var userId = User.GetUserId();
+            var result = await _quizAttemptService.GetAttemptResultAsync(attemptId, userId);
+            return result.Success ? Ok(result) : StatusCode(result.StatusCode, result);
+        }
+
         [HttpPost("update-answer/{attemptId}")]
         public async Task<IActionResult> UpdateAnswerAndScore(int attemptId, [FromBody] UpdateAnswerRequestDto request)
         {

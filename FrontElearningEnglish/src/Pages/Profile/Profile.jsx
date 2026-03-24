@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Row, Col } from "react-bootstrap";
+import { Container, Row, Col } from "react-bootstrap";
 import { FaUserCircle } from "react-icons/fa";
 import "./Profile.css";
 import MainHeader from "../../Components/Header/MainHeader";
@@ -78,9 +78,12 @@ export default function Profile() {
         <>
             <MainHeader />
             <div className="profile-container">
+                <Container>
+
                     <div className="profile-header">
                         <h1>Thông tin User</h1>
                     </div>
+                </Container>
 
                 <div className="profile-card">
                     {/* Avatar Section */}

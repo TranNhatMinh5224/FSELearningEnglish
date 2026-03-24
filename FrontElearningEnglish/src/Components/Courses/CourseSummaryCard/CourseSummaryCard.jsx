@@ -53,6 +53,7 @@ export default function CourseSummaryCard({ course, onEnroll, onStartLearning })
                         completed={progressData.completed}
                         total={progressData.total}
                         percentage={progressData.percentage}
+                        variant="compact"
                     />
                 </div>
             )}

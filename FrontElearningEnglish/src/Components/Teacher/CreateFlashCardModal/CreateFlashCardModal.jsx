@@ -24,6 +24,7 @@ export default function CreateFlashCardModal({ show, onClose, onSuccess, moduleI
   const [synonyms, setSynonyms] = useState("");
   const [antonyms, setAntonyms] = useState("");
   const [errors, setErrors] = useState({});
+  const [touched, setTouched] = useState({});
   const [submitting, setSubmitting] = useState(false);
 
   // Modals state
@@ -121,6 +122,7 @@ export default function CreateFlashCardModal({ show, onClose, onSuccess, moduleI
     setAudioPreview(null);
     setImageTempKey(null);
     setAudioTempKey(null);
+    setTouched({});
     setShowConfirmClose(false);
   };
 
@@ -152,6 +154,11 @@ export default function CreateFlashCardModal({ show, onClose, onSuccess, moduleI
     onClose();
   };
 
+  const handleBlur = (field) => {
+    setTouched((prev) => ({ ...prev, [field]: true }));
+    validateForm();
+  };
+
   const handleImageChange = async (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -170,7 +177,8 @@ export default function CreateFlashCardModal({ show, onClose, onSuccess, moduleI
       if (res.data?.success) {
         setImageTempKey(res.data.data.TempKey || res.data.data.tempKey);
         setImageType(res.data.data.ImageType || res.data.data.imageType || file.type);
-        setErrors({ ...errors, image: null });
+        setTouched(prev => ({ ...prev, image: true }));
+        setErrors(prev => ({ ...prev, image: null }));
       } else {
         setErrors({ ...errors, image: "Upload thất bại" });
       }
@@ -201,7 +209,8 @@ export default function CreateFlashCardModal({ show, onClose, onSuccess, moduleI
       if (res.data?.success) {
         setAudioTempKey(res.data.data.TempKey || res.data.data.tempKey);
         setAudioType(res.data.data.AudioType || res.data.data.audioType || file.type);
-        setErrors({ ...errors, audio: null });
+        setTouched(prev => ({ ...prev, audio: true }));
+        setErrors(prev => ({ ...prev, audio: null }));
       } else {
         setErrors({ ...errors, audio: "Upload thất bại" });
       }
@@ -232,19 +241,27 @@ export default function CreateFlashCardModal({ show, onClose, onSuccess, moduleI
       setImageType(data.imageType);
     }
     if (data.audioUrl || data.audioTempKey) {
-      setAudioPreview(data.audioUrl);
       setAudioTempKey(data.audioTempKey);
       setAudioType(data.audioType);
     }
+
+    // AI Gen marks everything as touched
+    setTouched({
+      word: true,
+      meaning: true,
+      pronunciation: true,
+      partOfSpeech: true,
+      example: true,
+      exampleTranslation: true,
+      image: true,
+      audio: true,
+    });
+    validateForm();
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-
-    // Clear previous errors
+  const validateForm = () => {
     const newErrors = {};
 
-    // Validate required fields
     if (!word.trim()) {
       newErrors.word = "Từ vựng là bắt buộc";
     }
@@ -264,9 +281,22 @@ export default function CreateFlashCardModal({ show, onClose, onSuccess, moduleI
       newErrors.audio = "Âm thanh là bắt buộc";
     }
 
-    // If there are errors, set them and return
-    if (Object.keys(newErrors).length > 0) {
-      setErrors(newErrors);
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    if (!validateForm()) {
+      setTouched({
+        word: true,
+        meaning: true,
+        pronunciation: true,
+        partOfSpeech: true,
+        image: true,
+        audio: true,
+      });
       return;
     }
 
@@ -317,7 +347,7 @@ export default function CreateFlashCardModal({ show, onClose, onSuccess, moduleI
   return (
     <>
       <Modal show={show} onHide={handleClose} centered size="xl" className="create-flashcard-modal modal-modern" dialogClassName="create-flashcard-modal-dialog">
-        <Modal.Header>
+        <Modal.Header closeButton>
           <Modal.Title className="modal-title-custom">
             {isEditMode ? "Cập nhật Flashcard" : "Tạo Flashcard mới"}
           </Modal.Title>
@@ -341,12 +371,13 @@ export default function CreateFlashCardModal({ show, onClose, onSuccess, moduleI
                     value={word}
                     onChange={e => {
                       setWord(e.target.value);
-                      if (errors.word) setErrors({ ...errors, word: null });
+                      if (touched.word) setErrors(prev => ({ ...prev, word: null }));
                     }}
+                    onBlur={() => handleBlur("word")}
                     placeholder="Nhập từ vựng tiếng Anh"
-                    isInvalid={!!errors.word}
+                    isInvalid={touched.word && !!errors.word}
                   />
-                  {errors.word && <Form.Control.Feedback type="invalid" className="d-block">{errors.word}</Form.Control.Feedback>}
+                  {touched.word && errors.word && <Form.Control.Feedback type="invalid" className="d-block">{errors.word}</Form.Control.Feedback>}
                 </Col>
                 <Col md={6}>
                   <Form.Label className="fw-bold">Phiên âm <span className="text-danger">*</span></Form.Label>
@@ -355,12 +386,13 @@ export default function CreateFlashCardModal({ show, onClose, onSuccess, moduleI
                     value={pronunciation}
                     onChange={e => {
                       setPronunciation(e.target.value);
-                      if (errors.pronunciation) setErrors({ ...errors, pronunciation: null });
+                      if (touched.pronunciation) setErrors(prev => ({ ...prev, pronunciation: null }));
                     }}
+                    onBlur={() => handleBlur("pronunciation")}
                     placeholder="Nhập phiên âm IPA (VD: /ˈæp.l/)"
-                    isInvalid={!!errors.pronunciation}
+                    isInvalid={touched.pronunciation && !!errors.pronunciation}
                   />
-                  {errors.pronunciation && <Form.Control.Feedback type="invalid" className="d-block">{errors.pronunciation}</Form.Control.Feedback>}
+                  {touched.pronunciation && errors.pronunciation && <Form.Control.Feedback type="invalid" className="d-block">{errors.pronunciation}</Form.Control.Feedback>}
                 </Col>
                 <Col md={12}>
                   <Form.Label className="fw-bold">Nghĩa <span className="text-danger">*</span></Form.Label>
@@ -369,12 +401,13 @@ export default function CreateFlashCardModal({ show, onClose, onSuccess, moduleI
                     value={meaning}
                     onChange={e => {
                       setMeaning(e.target.value);
-                      if (errors.meaning) setErrors({ ...errors, meaning: null });
+                      if (touched.meaning) setErrors(prev => ({ ...prev, meaning: null }));
                     }}
+                    onBlur={() => handleBlur("meaning")}
                     placeholder="Nhập nghĩa tiếng Việt"
-                    isInvalid={!!errors.meaning}
+                    isInvalid={touched.meaning && !!errors.meaning}
                   />
-                  {errors.meaning && <Form.Control.Feedback type="invalid" className="d-block">{errors.meaning}</Form.Control.Feedback>}
+                  {touched.meaning && errors.meaning && <Form.Control.Feedback type="invalid" className="d-block">{errors.meaning}</Form.Control.Feedback>}
                 </Col>
                 <Col md={12}>
                   <Form.Label className="fw-bold">Từ loại <span className="text-danger">*</span></Form.Label>
@@ -383,12 +416,13 @@ export default function CreateFlashCardModal({ show, onClose, onSuccess, moduleI
                     value={partOfSpeech}
                     onChange={e => {
                       setPartOfSpeech(e.target.value);
-                      if (errors.partOfSpeech) setErrors({ ...errors, partOfSpeech: null });
+                      if (touched.partOfSpeech) setErrors(prev => ({ ...prev, partOfSpeech: null }));
                     }}
+                    onBlur={() => handleBlur("partOfSpeech")}
                     placeholder="Nhập từ loại (VD: Noun, Verb, Adjective)"
-                    isInvalid={!!errors.partOfSpeech}
+                    isInvalid={touched.partOfSpeech && !!errors.partOfSpeech}
                   />
-                  {errors.partOfSpeech && <Form.Control.Feedback type="invalid" className="d-block">{errors.partOfSpeech}</Form.Control.Feedback>}
+                  {touched.partOfSpeech && errors.partOfSpeech && <Form.Control.Feedback type="invalid" className="d-block">{errors.partOfSpeech}</Form.Control.Feedback>}
                 </Col>
               </Row>
             </div>
@@ -413,7 +447,7 @@ export default function CreateFlashCardModal({ show, onClose, onSuccess, moduleI
                     )}
                     <input type="file" ref={imageInputRef} onChange={handleImageChange} style={{ display: 'none' }} accept="image/*" />
                   </div>
-                  {errors.image && <div className="text-danger small mt-1">{errors.image}</div>}
+                  {touched.image && errors.image && <div className="text-danger small mt-1">{errors.image}</div>}
                 </Col>
                 <Col md={6}>
                   <Form.Label className="fw-bold">Âm thanh <span className="text-danger">*</span></Form.Label>
@@ -431,7 +465,7 @@ export default function CreateFlashCardModal({ show, onClose, onSuccess, moduleI
                     )}
                     <input type="file" ref={audioInputRef} onChange={handleAudioChange} style={{ display: 'none' }} accept="audio/*" />
                   </div>
-                  {errors.audio && <div className="text-danger small mt-1">{errors.audio}</div>}
+                  {touched.audio && errors.audio && <div className="text-danger small mt-1">{errors.audio}</div>}
                 </Col>
               </Row>
             </div>

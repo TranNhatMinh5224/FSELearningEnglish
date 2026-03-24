@@ -13,17 +13,17 @@ namespace LearningEnglish.Application.Mappings
         public MappingProfile()
         {
             // ===== ENUM MAPPINGS =====
-            CreateMap<CourseStatus, EnumMappingDto>().ConvertUsing<EnumTypeConverter<CourseStatus>>();
-            CreateMap<CourseType, EnumMappingDto>().ConvertUsing<EnumTypeConverter<CourseType>>();
-            CreateMap<DifficultyLevel, EnumMappingDto>().ConvertUsing<EnumTypeConverter<DifficultyLevel>>();
-            CreateMap<QuestionType, EnumMappingDto>().ConvertUsing<EnumTypeConverter<QuestionType>>();
-            CreateMap<QuizStatus, EnumMappingDto>().ConvertUsing<EnumTypeConverter<QuizStatus>>();
-            CreateMap<PaymentStatus, EnumMappingDto>().ConvertUsing<EnumTypeConverter<PaymentStatus>>();
-            CreateMap<SubmissionStatus, EnumMappingDto>().ConvertUsing<EnumTypeConverter<SubmissionStatus>>();
-            CreateMap<QuizType, EnumMappingDto>().ConvertUsing<EnumTypeConverter<QuizType>>();
-            CreateMap<ProductType, EnumMappingDto>().ConvertUsing<EnumTypeConverter<ProductType>>();
-            CreateMap<AssetType, EnumMappingDto>().ConvertUsing<EnumTypeConverter<AssetType>>();
-            CreateMap<LectureType, EnumMappingDto>().ConvertUsing<EnumTypeConverter<LectureType>>();
+            CreateMap<CourseStatus, EnumMappingDto>().ConvertUsing(new EnumTypeConverter<CourseStatus>());
+            CreateMap<CourseType, EnumMappingDto>().ConvertUsing(new EnumTypeConverter<CourseType>());
+            CreateMap<DifficultyLevel, EnumMappingDto>().ConvertUsing(new EnumTypeConverter<DifficultyLevel>());
+            CreateMap<QuestionType, EnumMappingDto>().ConvertUsing(new EnumTypeConverter<QuestionType>());
+            CreateMap<QuizStatus, EnumMappingDto>().ConvertUsing(new EnumTypeConverter<QuizStatus>());
+            CreateMap<PaymentStatus, EnumMappingDto>().ConvertUsing(new EnumTypeConverter<PaymentStatus>());
+            CreateMap<SubmissionStatus, EnumMappingDto>().ConvertUsing(new EnumTypeConverter<SubmissionStatus>());
+            CreateMap<QuizType, EnumMappingDto>().ConvertUsing(new EnumTypeConverter<QuizType>());
+            CreateMap<ProductType, EnumMappingDto>().ConvertUsing(new EnumTypeConverter<ProductType>());
+            CreateMap<AssetType, EnumMappingDto>().ConvertUsing(new EnumTypeConverter<AssetType>());
+            CreateMap<LectureType, EnumMappingDto>().ConvertUsing(new EnumTypeConverter<LectureType>());
 
             // Essay Grading mappings
             CreateMap<EssaySubmission, EssayGradingResultDto>()
@@ -497,11 +497,14 @@ namespace LearningEnglish.Application.Mappings
 
             // QuizAttempt mappings
             CreateMap<QuizAttempt, QuizAttemptDto>()
+                .ForMember(dest => dest.QuizId, opt => opt.MapFrom(src => src.QuizId))
+                .ForMember(dest => dest.QuizTitle, opt => opt.MapFrom(src => src.Quiz != null ? src.Quiz.Title : null))
+                .ForMember(dest => dest.Duration, opt => opt.MapFrom(src => src.Quiz != null ? src.Quiz.Duration : null))
                 .ForMember(dest => dest.EndTime, opt => opt.Ignore()); // Calculated in service
 
             CreateMap<QuizAttempt, QuizAttemptWithQuestionsDto>()
-                .ForMember(dest => dest.QuizSections, opt => opt.Ignore())
-                .ForMember(dest => dest.EndTime, opt => opt.Ignore());
+                .IncludeBase<QuizAttempt, QuizAttemptDto>()
+                .ForMember(dest => dest.QuizSections, opt => opt.Ignore());
 
             CreateMap<QuizAttempt, QuizAttemptResultDto>()
                 .ForMember(dest => dest.Percentage, opt => opt.Ignore())

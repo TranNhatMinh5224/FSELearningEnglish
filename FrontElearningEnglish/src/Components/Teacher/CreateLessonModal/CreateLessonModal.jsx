@@ -19,8 +19,9 @@ export default function CreateLessonModal({ show, onClose, onSuccess, courseId, 
   const [imageType, setImageType] = useState(null);
   const [existingImageUrl, setExistingImageUrl] = useState(null);
 
-  // Validation errors
+  // Validation errors & touched state
   const [errors, setErrors] = useState({});
+  const [touched, setTouched] = useState({ title: false, description: false });
 
   // Submit state
   const [submitting, setSubmitting] = useState(false);
@@ -147,10 +148,17 @@ export default function CreateLessonModal({ show, onClose, onSuccess, courseId, 
     setErrors(newErrors);
   };
 
+  // onBlur: đánh dấu touched rồi validate
+  const handleBlur = (fieldName, value) => {
+    setTouched(prev => ({ ...prev, [fieldName]: true }));
+    validateField(fieldName, value);
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     if (!validateForm()) {
+      setTouched({ title: true, description: true });
       return;
     }
 
@@ -234,7 +242,7 @@ export default function CreateLessonModal({ show, onClose, onSuccess, courseId, 
   return (
     <>
       <Modal show={show} onHide={handleCancel} centered size="xl" className="create-lesson-modal modal-modern" dialogClassName="create-lesson-modal-dialog">
-        <Modal.Header>
+        <Modal.Header closeButton>
           <Modal.Title className="modal-title-custom">
             {isUpdateMode ? "Cập nhật bài học" : "Tạo bài học mới"}
           </Modal.Title>
@@ -250,23 +258,24 @@ export default function CreateLessonModal({ show, onClose, onSuccess, courseId, 
                   <Form.Label className="fw-bold">Tiêu đề bài học <span className="text-danger">*</span></Form.Label>
                   <Form.Control
                     type="text"
-                    isInvalid={!!errors.title}
+                    isInvalid={touched.title && !!errors.title}
                     value={title}
                     onChange={(e) => {
                       setTitle(e.target.value);
-                      validateField("title", e.target.value);
+                      if (touched.title) validateField("title", e.target.value);
                     }}
+                    onBlur={(e) => handleBlur("title", e.target.value)}
                     placeholder="Nhập tiêu đề bài học..."
                     maxLength={200}
                   />
-                  <div className="d-flex justify-content-between align-items-center mt-2">
-                    {errors.title && (
-                      <Form.Control.Feedback type="invalid" className="d-block mb-0">
+                  <div className="d-flex justify-content-between align-items-center mt-1">
+                    {touched.title && errors.title ? (
+                      <div className="invalid-feedback d-block mb-0">
                         {errors.title}
-                      </Form.Control.Feedback>
-                    )}
-                    <div className={`char-count ms-auto ${title.length > 180 ? 'text-warning' : title.length > 195 ? 'text-danger' : ''}`}>
-                      {title.length.toLocaleString('vi-VN')} / 200 ký tự
+                      </div>
+                    ) : <span />}
+                    <div className={`char-count ms-auto small ${title.length > 200 ? 'text-danger fw-bold' : 'text-muted'}`}>
+                      {title.length}/200
                     </div>
                   </div>
                 </div>
@@ -276,24 +285,25 @@ export default function CreateLessonModal({ show, onClose, onSuccess, courseId, 
                   <Form.Control
                     as="textarea"
                     rows={4}
-                    isInvalid={!!errors.description}
+                    isInvalid={touched.description && !!errors.description}
                     value={description}
                     onChange={(e) => {
                       setDescription(e.target.value);
-                      validateField("description", e.target.value);
+                      if (touched.description) validateField("description", e.target.value);
                     }}
+                    onBlur={(e) => handleBlur("description", e.target.value)}
                     placeholder="Nhập mô tả bài học (tùy chọn)..."
                     maxLength={200}
                     style={{ resize: 'vertical', minHeight: '100px' }}
                   />
-                  <div className="d-flex justify-content-between align-items-center mt-2">
-                    {errors.description && (
-                      <Form.Control.Feedback type="invalid" className="d-block mb-0">
+                  <div className="d-flex justify-content-between align-items-center mt-1">
+                    {touched.description && errors.description ? (
+                      <div className="invalid-feedback d-block mb-0">
                         {errors.description}
-                      </Form.Control.Feedback>
-                    )}
-                    <div className={`char-count ms-auto ${description.length > 180 ? 'text-warning' : description.length > 195 ? 'text-danger' : ''}`}>
-                      {description.length.toLocaleString('vi-VN')} / 200 ký tự
+                      </div>
+                    ) : <span />}
+                    <div className={`char-count ms-auto small ${description.length > 200 ? 'text-danger fw-bold' : 'text-muted'}`}>
+                      {description.length}/200
                     </div>
                   </div>
                 </div>

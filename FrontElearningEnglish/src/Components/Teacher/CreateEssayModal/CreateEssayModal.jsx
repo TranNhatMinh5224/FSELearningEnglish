@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { Modal, Button } from "react-bootstrap";
+import { FaInfoCircle } from "react-icons/fa";
 import { essayService } from "../../../Services/essayService";
 import FileUpload from "../../Common/FileUpload/FileUpload";
 import ConfirmModal from "../../Common/ConfirmModal/ConfirmModal";
@@ -7,7 +8,7 @@ import "./CreateEssayModal.css";
 
 const ESSAY_BUCKET = "essays"; // Backend uses "essays" bucket for both images and audios
 
-export default function CreateEssayModal({ show, onClose, onSuccess, assessmentId, essayToUpdate = null, isAdmin = false }) {
+export default function CreateEssayModal({ show, onClose, onSuccess, assessmentId, assessment, essayToUpdate = null, isAdmin = false }) {
   const isUpdateMode = !!essayToUpdate;
   
   // Form state
@@ -27,6 +28,7 @@ export default function CreateEssayModal({ show, onClose, onSuccess, assessmentI
 
   // Validation errors
   const [errors, setErrors] = useState({});
+  const [touched, setTouched] = useState({});
 
   // Submit state
   const [submitting, setSubmitting] = useState(false);
@@ -87,8 +89,10 @@ export default function CreateEssayModal({ show, onClose, onSuccess, assessmentI
       setImageType(null);
       setAudioUrl(null);
       setAudioTempKey(null);
+      setAudioTempKey(null);
       setAudioType(null);
       setErrors({});
+      setTouched({});
       setShowConfirmClose(false);
     }
   }, [show]);
@@ -119,6 +123,11 @@ export default function CreateEssayModal({ show, onClose, onSuccess, assessmentI
   const handleConfirmClose = () => {
     setShowConfirmClose(false);
     onClose();
+  };
+
+  const handleBlur = (field) => {
+    setTouched((prev) => ({ ...prev, [field]: true }));
+    validateForm();
   };
 
   // FileUpload callbacks for Image
@@ -176,6 +185,10 @@ export default function CreateEssayModal({ show, onClose, onSuccess, assessmentI
     e.preventDefault();
 
     if (!validateForm()) {
+      setTouched({
+        title: true,
+        totalPoints: true,
+      });
       return;
     }
 
@@ -245,7 +258,7 @@ export default function CreateEssayModal({ show, onClose, onSuccess, assessmentI
       className="create-essay-modal modal-modern" 
       dialogClassName="create-essay-modal-dialog"
     >
-      <Modal.Header>
+      <Modal.Header closeButton>
         <Modal.Title>{isUpdateMode ? "Cập nhật Essay" : "Tạo Essay mới"}</Modal.Title>
       </Modal.Header>
       <Modal.Body>
@@ -257,20 +270,42 @@ export default function CreateEssayModal({ show, onClose, onSuccess, assessmentI
           </div>
         ) : (
           <form onSubmit={handleSubmit}>
+            {/* Banner Lưu ý về thời gian */}
+            <div className="alert alert-info border-0 shadow-sm mb-4" style={{ backgroundColor: '#e8f4fd' }}>
+              <div className="d-flex">
+                <FaInfoCircle className="me-2 text-primary mt-1" />
+                <div>
+                  <strong className="text-primary">Lưu ý về thời gian tự luận:</strong>
+                  <p className="mb-0 mt-1 small text-dark">
+                    Phần thi tự luận này không đếm ngược thời gian riêng. Bài làm sẽ tự động kết thúc dựa trên tổng thời gian của Bài Kiểm Tra (Assessment). Học viên hãy phân bổ thời gian hợp lý.
+                  </p>
+                </div>
+              </div>
+            </div>
+
             {/* Tiêu đề */}
             <div className="mb-3">
-              <label className="form-label required">Tiêu đề</label>
+              <div className="d-flex justify-content-between align-items-center mb-1">
+                <label className="form-label required mb-0">Tiêu đề</label>
+                <span className={`small ${title.length > 255 ? "text-danger fw-bold" : "text-muted"}`}>
+                  {title.length}/255
+                </span>
+              </div>
               <input
                 type="text"
-                className={`form-control ${errors.title ? "is-invalid" : ""}`}
+                className={`form-control ${touched.title && errors.title ? "is-invalid" : ""}`}
                 value={title}
                 onChange={(e) => {
                   setTitle(e.target.value);
-                  setErrors({ ...errors, title: null });
+                  if (touched.title) {
+                    setErrors(prev => ({ ...prev, title: null }));
+                  }
                 }}
+                onBlur={() => handleBlur("title")}
                 placeholder="Nhập tiêu đề Essay"
+                maxLength={255}
               />
-              {errors.title && <div className="invalid-feedback">{errors.title}</div>}
+              {touched.title && errors.title && <div className="invalid-feedback">{errors.title}</div>}
               <div className="form-text">*Bắt buộc</div>
             </div>
 
@@ -296,18 +331,21 @@ export default function CreateEssayModal({ show, onClose, onSuccess, assessmentI
               <label className="form-label required">Tổng điểm</label>
               <input
                 type="number"
-                className={`form-control ${errors.totalPoints ? "is-invalid" : ""}`}
+                className={`form-control ${touched.totalPoints && errors.totalPoints ? "is-invalid" : ""}`}
                 value={totalPoints}
                 onChange={(e) => {
                   setTotalPoints(e.target.value);
-                  setErrors({ ...errors, totalPoints: null });
+                  if (touched.totalPoints) {
+                    setErrors(prev => ({ ...prev, totalPoints: null }));
+                  }
                 }}
+                onBlur={() => handleBlur("totalPoints")}
                 placeholder="Nhập tổng điểm"
                 min="0.01"
                 step="0.01"
                 disabled={isUpdateMode}
               />
-              {errors.totalPoints && <div className="invalid-feedback">{errors.totalPoints}</div>}
+              {touched.totalPoints && errors.totalPoints && <div className="invalid-feedback">{errors.totalPoints}</div>}
               <div className="form-text">*Bắt buộc{isUpdateMode ? " (không thể thay đổi khi cập nhật)" : ""}</div>
             </div>
 
@@ -369,14 +407,14 @@ export default function CreateEssayModal({ show, onClose, onSuccess, assessmentI
     </Modal>
 
     <ConfirmModal
-      show={showConfirmClose}
-      onHide={() => setShowConfirmClose(false)}
+      isOpen={showConfirmClose}
+      onClose={() => setShowConfirmClose(false)}
       onConfirm={handleConfirmClose}
       title="Xác nhận đóng"
       message="Bạn có dữ liệu chưa lưu. Bạn có chắc chắn muốn đóng không?"
       confirmText="Đóng"
       cancelText="Tiếp tục chỉnh sửa"
-      variant="warning"
+      type="warning"
     />
     </>
   );

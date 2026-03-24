@@ -20,6 +20,7 @@ export default function AssetFormModal({ show, onClose, onSuccess, assetToEdit }
     const [existingImageUrl, setExistingImageUrl] = useState(null);
     const [loading, setLoading] = useState(false);
     const [errors, setErrors] = useState({});
+    const [touched, setTouched] = useState({});
     const [uploadingImage, setUploadingImage] = useState(false);
 
     useEffect(() => {
@@ -44,20 +45,36 @@ export default function AssetFormModal({ show, onClose, onSuccess, assetToEdit }
         setImageTempKey(null);
         setImageType(null);
         setErrors({});
+        setTouched({});
     }, [assetToEdit, show]);
 
     const handleChange = (e) => {
         const { name, value, type, checked } = e.target;
+        const val = type === "checkbox" ? checked : (type === "number" ? (value === "" ? 0 : parseInt(value, 10)) : value);
+        
         setFormData({
             ...formData,
-            [name]: type === "checkbox" ? checked : (type === "number" ? (value === "" ? 0 : parseInt(value, 10)) : value)
+            [name]: val
         });
-        // Clear error khi user đang gõ
-        if (errors[name]) {
-            setErrors({
-                ...errors,
-                [name]: ""
-            });
+
+        // Real-time update only if field already touched
+        if (touched[name]) {
+            setErrors(prev => ({
+                ...prev,
+                [name]: name === "nameImage" ? (!val.trim() ? "Tên asset là bắt buộc" : "") : ""
+            }));
+        }
+    };
+
+    const handleBlur = (e) => {
+        const { name, value } = e.target;
+        setTouched(prev => ({ ...prev, [name]: true }));
+        
+        if (name === "nameImage") {
+            setErrors(prev => ({
+                ...prev,
+                nameImage: !value.trim() ? "Tên asset là bắt buộc" : ""
+            }));
         }
     };
 
@@ -96,6 +113,7 @@ export default function AssetFormModal({ show, onClose, onSuccess, assetToEdit }
         }
 
         setErrors(newErrors);
+        setTouched({ nameImage: true }); // Mark all as touched on submit
         return Object.keys(newErrors).length === 0;
     };
 
@@ -182,11 +200,12 @@ export default function AssetFormModal({ show, onClose, onSuccess, assetToEdit }
                                     name="nameImage"
                                     value={formData.nameImage}
                                     onChange={handleChange}
-                                    required
+                                    onBlur={handleBlur}
                                     placeholder="VD: Logo Catalunya English"
-                                    isInvalid={!!errors.nameImage}
+                                    isInvalid={touched.nameImage && !!errors.nameImage}
+                                    maxLength={200}
                                 />
-                                {errors.nameImage && (
+                                {touched.nameImage && errors.nameImage && (
                                     <Form.Control.Feedback type="invalid">
                                         {errors.nameImage}
                                     </Form.Control.Feedback>

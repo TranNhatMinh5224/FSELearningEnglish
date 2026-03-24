@@ -35,6 +35,10 @@ export default function Login() {
     email: "",
     password: "",
   });
+  const [touched, setTouched] = useState({
+    email: false,
+    password: false,
+  });
   const [generalError, setGeneralError] = useState("");
   const [loading, setLoading] = useState(false);
   const [socialLoading, setSocialLoading] = useState({
@@ -93,18 +97,33 @@ export default function Login() {
       [name]: value,
     }));
 
-    // Real-time validation
     setGeneralError("");
+
+    // Only validate real-time if the field has already been touched (blurred)
+    if (touched[name]) {
+      if (name === "email") {
+        setErrors((prev) => ({
+          ...prev,
+          email: validateEmail(value),
+        }));
+      } else if (name === "password") {
+        setErrors((prev) => ({
+          ...prev,
+          password: validatePassword(value),
+        }));
+      }
+    }
+  };
+
+  // Handle blur: mark field as touched and trigger first validation
+  const handleBlur = (e) => {
+    const { name, value } = e.target;
+    setTouched((prev) => ({ ...prev, [name]: true }));
+
     if (name === "email") {
-      setErrors((prev) => ({
-        ...prev,
-        email: validateEmail(value),
-      }));
+      setErrors((prev) => ({ ...prev, email: validateEmail(value) }));
     } else if (name === "password") {
-      setErrors((prev) => ({
-        ...prev,
-        password: validatePassword(value),
-      }));
+      setErrors((prev) => ({ ...prev, password: validatePassword(value) }));
     }
   };
 
@@ -178,6 +197,7 @@ export default function Login() {
                     placeholder="email@gmail.com"
                     value={formData.email}
                     onChange={handleInputChange}
+                    onBlur={handleBlur}
                     error={errors.email}
                     disabled={loading}
                   />
@@ -191,6 +211,7 @@ export default function Login() {
                     placeholder="Nhập mật khẩu của bạn"
                     value={formData.password}
                     onChange={handleInputChange}
+                    onBlur={handleBlur}
                     error={errors.password}
                     disabled={loading}
                     showPasswordToggle={true}

@@ -5,12 +5,14 @@ import { useAuth } from "../../../Context/AuthContext";
 import { authService } from "../../../Services/authService";
 import { fileService } from "../../../Services/fileService";
 import AvatarViewModal from "./AvatarViewModal";
+import NotificationModal from "../../Common/NotificationModal/NotificationModal";
 import "./AvatarMenu.css";
 
 export default function AvatarMenu({ avatarUrl, fullName, children, onAvatarUpdate, showAvatarOptions = false }) {
     const [showViewModal, setShowViewModal] = useState(false);
     const [showMenu, setShowMenu] = useState(false);
     const [uploading, setUploading] = useState(false);
+    const [notification, setNotification] = useState({ isOpen: false, type: "success", message: "" });
     const fileInputRef = useRef(null);
     const { refreshUser } = useAuth();
 
@@ -30,13 +32,13 @@ export default function AvatarMenu({ avatarUrl, fullName, children, onAvatarUpda
 
         // Validate file type
         if (!file.type.startsWith("image/")) {
-            alert("Vui lòng chọn file ảnh");
+            setNotification({ isOpen: true, type: "error", message: "Vui lòng chọn file ảnh" });
             return;
         }
 
         // Validate file size (max 2MB)
         if (file.size > 2 * 1024 * 1024) {
-            alert("Kích thước ảnh không được vượt quá 2MB");
+            setNotification({ isOpen: true, type: "error", message: "Kích thước ảnh không được vượt quá 2MB" });
             return;
         }
 
@@ -63,11 +65,15 @@ export default function AvatarMenu({ avatarUrl, fullName, children, onAvatarUpda
                 if (onAvatarUpdate) {
                     await onAvatarUpdate();
                 }
-                alert("Cập nhật ảnh đại diện thành công!");
+                setNotification({ isOpen: true, type: "success", message: "Cập nhật ảnh đại diện thành công!" });
             }
         } catch (error) {
             console.error("Error uploading avatar:", error);
-            alert(error.response?.data?.message || "Có lỗi xảy ra khi upload avatar");
+            setNotification({ 
+                isOpen: true, 
+                type: "error", 
+                message: error.response?.data?.message || "Có lỗi xảy ra khi upload avatar" 
+            });
         } finally {
             setUploading(false);
             // Reset file input
@@ -150,6 +156,13 @@ export default function AvatarMenu({ avatarUrl, fullName, children, onAvatarUpda
                 onClose={() => setShowViewModal(false)}
                 avatarUrl={avatarUrl}
                 fullName={fullName}
+            />
+
+            <NotificationModal
+                isOpen={notification.isOpen}
+                onClose={() => setNotification({ ...notification, isOpen: false })}
+                type={notification.type}
+                message={notification.message}
             />
         </>
     );

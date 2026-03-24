@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect, useCallback } from "react";
 import { Button } from "react-bootstrap";
-import { FaFileUpload, FaTimes, FaImage, FaMusic, FaVideo } from "react-icons/fa";
+import { FaFileUpload, FaTimes, FaImage, FaMusic, FaVideo, FaFileAlt } from "react-icons/fa";
 import { fileService } from "../../../Services/fileService";
 import "./FileUpload.css";
 
@@ -58,18 +58,29 @@ export default function FileUpload({
 
         // Check file type
         if (accept !== "*" && accept !== "*/*") {
-            const acceptedTypes = accept.split(",").map(t => t.trim());
+            const acceptedTypes = accept.split(",").map(t => t.trim().toLowerCase());
+            const fileExtension = `.${file.name.split('.').pop().toLowerCase()}`;
+            
             const isValidType = acceptedTypes.some(type => {
+                // Wildcard match (e.g. image/*)
                 if (type.endsWith("/*")) {
                     const baseType = type.split("/")[0];
                     return file.type.startsWith(`${baseType}/`);
                 }
-                return file.type === type;
+                // Exact MIME match (e.g. application/pdf)
+                if (type.includes("/")) {
+                    return file.type === type;
+                }
+                // Extension match (e.g. .doc, .docx, .pdf)
+                if (type.startsWith(".")) {
+                    return fileExtension === type;
+                }
+                return false;
             });
 
             if (!isValidType) {
-                const typeName = accept.includes("image") ? "ảnh" : accept.includes("audio") ? "âm thanh" : accept.includes("video") ? "video" : "file";
-                return `Vui lòng chọn file ${typeName}`;
+                const typeName = accept.includes("image") ? "ảnh" : accept.includes("audio") ? "âm thanh" : accept.includes("video") ? "video" : "file định dạng hợp lệ";
+                return `Vui lòng chọn ${typeName}`;
             }
         }
 
@@ -141,6 +152,10 @@ export default function FileUpload({
                 setPreview(previewUrl);
             } else if (showPreview && file.type.startsWith("video/")) {
                 previewUrl = URL.createObjectURL(file);
+                setPreview(previewUrl);
+            } else if (showPreview) {
+                // For documents, we don't have a blob preview, so we use a custom protocol to store the filename
+                previewUrl = `document:${file.name}`;
                 setPreview(previewUrl);
             }
 
@@ -292,17 +307,28 @@ export default function FileUpload({
         <div className="file-upload-container">
             {preview && showPreview ? (
                 <div className={`file-preview-wrapper ${previewClassName}`}>
-                    {preview.startsWith("blob:") || preview.startsWith("http") ? (
+                    {preview.startsWith("blob:") || preview.startsWith("http") || preview.startsWith("document:") ? (
                         <>
-                            {accept.includes("image") && (
+                            {accept.includes("image") && !preview.startsWith("document:") && (
                                 <img src={preview} alt="Preview" className="file-preview-image" />
                             )}
-                            {accept.includes("audio") && (
+                            {accept.includes("audio") && !preview.startsWith("document:") && (
                                 <audio src={preview} controls className="file-preview-audio" />
                             )}
-                            {accept.includes("video") && (
+                            {accept.includes("video") && !preview.startsWith("document:") && (
                                 <video src={preview} controls className="file-preview-video" />
                             )}
+                            {(!accept.includes("image") && !accept.includes("audio") && !accept.includes("video")) || preview.startsWith("document:") ? (
+                                <div className="file-preview-document success-state">
+                                    <div className="document-icon"><FaFileAlt /></div>
+                                    <div className="document-info">
+                                        <span className="document-success-text fw-bold text-success">
+                                            {preview.startsWith("document:") ? preview.replace("document:", "") : "Đã tải lên thành công"}
+                                        </span>
+                                        <span className="document-hint text-muted small">File tài liệu đã được đính kèm</span>
+                                    </div>
+                                </div>
+                            ) : null}
                         </>
                     ) : (
                         <div className="file-preview-placeholder">

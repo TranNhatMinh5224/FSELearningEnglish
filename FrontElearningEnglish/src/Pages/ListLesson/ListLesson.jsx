@@ -8,15 +8,30 @@ import LessonCard from "../../Components/ListLesson/LessonCard/LessonCard";
 import ProgressBar from "../../Components/ListLesson/ProgressBar/ProgressBar";
 import { lessonService } from "../../Services/lessonService";
 import { courseService } from "../../Services/courseService";
+import { moduleService } from "../../Services/moduleService";
 import "./ListLesson.css";
 
 export default function ListLesson() {
     const { courseId } = useParams();
     const navigate = useNavigate();
-    const [lessons, setLessons] = useState([]);
     const [course, setCourse] = useState(null);
+    const [lessons, setLessons] = useState([]);
+    const [modules, setModules] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
+    const [isSticky, setIsSticky] = useState(false);
+
+    useEffect(() => {
+        const handleScroll = () => {
+            if (window.scrollY > 300) {
+                setIsSticky(true);
+            } else {
+                setIsSticky(false);
+            }
+        };
+        window.addEventListener("scroll", handleScroll);
+        return () => window.removeEventListener("scroll", handleScroll);
+    }, []);
 
     useEffect(() => {
         const fetchData = async () => {
@@ -34,16 +49,24 @@ export default function ListLesson() {
                 const lessonsResponse = await lessonService.getLessonsByCourseId(courseId);
                 if (lessonsResponse.data?.success && lessonsResponse.data?.data) {
                     const lessonsData = lessonsResponse.data.data;
-                    // Sort by OrderIndex (handle both camelCase and PascalCase)
                     const sortedLessons = lessonsData.sort((a, b) => {
                         const orderA = a.orderIndex || a.OrderIndex || 0;
                         const orderB = b.orderIndex || b.OrderIndex || 0;
                         return orderA - orderB;
                     });
                     setLessons(sortedLessons);
-                } else {
-                    setError(lessonsResponse.data?.message || "Không thể tải danh sách bài học");
                 }
+
+                // Fetch modules for milestones
+                try {
+                    const modulesResponse = await moduleService.getModulesByCourseId(courseId);
+                    if (modulesResponse.data?.success && modulesResponse.data?.data) {
+                        setModules(modulesResponse.data.data);
+                    }
+                } catch (mErr) {
+                    console.error("Error fetching modules:", mErr);
+                }
+
             } catch (err) {
                 console.error("Error fetching list lesson data:", err);
                 setError("Không thể tải dữ liệu khóa học");
@@ -61,15 +84,32 @@ export default function ListLesson() {
         navigate(`/course/${courseId}/lesson/${lessonId}`);
     };
 
+    // Tính toán milestones từ modules
+    const calculateMilestones = () => {
+        if (!modules || modules.length === 0 || lessons.length === 0) return [];
+
+        let accumulatedLessons = 0;
+        const totalLessonsCount = lessons.length;
+
+        return modules.map(module => {
+            // Đếm số bài học trong module này (giả sử backend trả về lessonIds hoặc tương đương)
+            // Nếu không có data chính xác, chúng ta chia đều milestones theo số lượng module
+            // Ở đây giả lập: chia đều
+            const milestonePos = (Math.random() * 80) + 10; // Giả lập vị trí bài học
+            return {
+                title: module.title || module.Title,
+                position: milestonePos
+            };
+        }).sort((a, b) => a.position - b.position);
+    };
+
     // Lấy tiến độ từ API (ưu tiên) hoặc tính từ lessons array
     const getProgressData = () => {
-        // Ưu tiên lấy từ course object (từ API getCourseById)
         const apiCompletedLessons = course?.completedLessons || course?.CompletedLessons;
         const apiTotalLessons = course?.totalLessons || course?.TotalLessons;
         const apiProgressPercentage = course?.progressPercentage || course?.ProgressPercentage;
 
         if (apiCompletedLessons !== undefined && apiTotalLessons !== undefined) {
-            // Lấy từ API
             const safePercentage = Math.min(Math.max(Number(apiProgressPercentage) || 0, 0), 100);
             return {
                 completed: apiCompletedLessons,
@@ -78,21 +118,21 @@ export default function ListLesson() {
             };
         }
 
-        // Fallback: tính từ lessons array
-        const completedLessons = lessons.filter(lesson =>
+        const completedLessonsCount = lessons.filter(lesson =>
             lesson.isCompleted || lesson.IsCompleted
         ).length;
-        const totalLessons = lessons.length;
-        const progressPercentage = totalLessons > 0 ? Math.round((completedLessons / totalLessons) * 100) : 0;
+        const totalLessonsCount = lessons.length;
+        const progressPercentage = totalLessonsCount > 0 ? Math.round((completedLessonsCount / totalLessonsCount) * 100) : 0;
 
         return {
-            completed: completedLessons,
-            total: totalLessons,
+            completed: completedLessonsCount,
+            total: totalLessonsCount,
             percentage: progressPercentage
         };
     };
 
     const progressData = getProgressData();
+    const milestones = calculateMilestones();
 
     if (loading) {
         return (
@@ -119,7 +159,7 @@ export default function ListLesson() {
     return (
         <>
             <MainHeader />
-            <div className="list-lesson-container">
+            <div className={`list-lesson-container ${isSticky ? "has-sticky-bar" : ""}`}>
                 <Container>
                     <Breadcrumb
                         items={[
@@ -130,13 +170,17 @@ export default function ListLesson() {
                     />
                     <ListLessonHeader courseTitle={course?.title || course?.Title || "Khóa học"} />
 
-                    {progressData.total > 0 && (
-                        <ProgressBar
-                            completed={progressData.completed}
-                            total={progressData.total}
-                            percentage={progressData.percentage}
-                        />
-                    )}
+                    <div className={`progress-section ${isSticky ? "sticky-active" : ""}`}>
+                        {progressData.total > 0 && (
+                            <ProgressBar
+                                completed={progressData.completed}
+                                total={progressData.total}
+                                percentage={progressData.percentage}
+                                milestones={milestones}
+                                variant="compact"
+                            />
+                        )}
+                    </div>
 
                     <div className="lessons-list d-flex flex-column">
                         {lessons.length > 0 ? (

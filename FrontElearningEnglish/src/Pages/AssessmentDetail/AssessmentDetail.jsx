@@ -2,10 +2,12 @@ import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { Container, Row, Col } from "react-bootstrap";
 import MainHeader from "../../Components/Header/MainHeader";
+import Breadcrumb from "../../Components/Common/Breadcrumb/Breadcrumb";
 import { useSubmissionStatus } from "../../hooks/useSubmissionStatus";
 import QuizCard from "../../Components/Assignment/QuizCard/QuizCard";
 import EssayCard from "../../Components/Assignment/EssayCard/EssayCard";
 import AssessmentInfoModal from "../../Components/Assignment/AssessmentInfoModal/AssessmentInfoModal";
+import NotificationModal from "../../Components/Common/NotificationModal/NotificationModal";
 import StudentEssayResultModal from "../../Components/Common/StudentEssayResultModal/StudentEssayResultModal";
 import { assessmentService } from "../../Services/assessmentService";
 import { courseService } from "../../Services/courseService";
@@ -27,8 +29,8 @@ export default function AssessmentDetail() {
     const [essays, setEssays] = useState([]);
     
     // Info state
-    const [, setCourse] = useState(null);
-    const [, setLesson] = useState(null);
+    const [course, setCourse] = useState(null);
+    const [lesson, setLesson] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
     
@@ -39,6 +41,7 @@ export default function AssessmentDetail() {
     const [essaySubmissionsMap, setEssaySubmissionsMap] = useState({});
     const [showResultModal, setShowResultModal] = useState(false);
     const [selectedSubmission, setSelectedSubmission] = useState(null);
+    const [notification, setNotification] = useState({ isOpen: false, type: "info", message: "", isTerminal: false });
 
     useEffect(() => {
         const fetchData = async () => {
@@ -95,7 +98,14 @@ export default function AssessmentDetail() {
 
             } catch (err) {
                 console.error("Error fetching assessment details:", err);
-                setError("Không thể tải thông tin chi tiết bài kiểm tra");
+                const msg = "Không thể tải thông tin chi tiết bài kiểm tra";
+                setError(msg);
+                setNotification({
+                    isOpen: true,
+                    type: "error",
+                    message: msg,
+                    isTerminal: true
+                });
             } finally {
                 setLoading(false);
             }
@@ -196,12 +206,41 @@ export default function AssessmentDetail() {
         <>
             <MainHeader />
             <div className="assessment-detail-container">
-                <Container fluid>
+                <Container>
+                    <Breadcrumb 
+                        items={[
+                            { label: "Khóa học của tôi", path: "/my-courses" },
+                            { label: course?.title || "Khóa học", path: `/course/${courseId}` },
+                            { label: "Lesson", path: `/course/${courseId}/learn` },
+                            { label: lesson?.title || "Bài học", path: `/course/${courseId}/lesson/${lessonId}` },
+                            { label: "Bài tập", path: `/course/${courseId}/lesson/${lessonId}/module/${moduleId}/assignment` },
+                            { label: assessment?.title || "Kiểm tra", isCurrent: true }
+                        ]}
+                    />
                     {/* Breadcrumb & Header */}
-                    <Row className="mb-4">
-                        <Col>
-                            <h2 className="text-primary fw-bold">{assessment?.title}</h2>
-                            <p className="text-muted">{assessment?.description}</p>
+                    <Row className="mb-4 align-items-end">
+                        <Col md={8}>
+                            <h2 className="text-primary fw-bold mb-1">{assessment?.title}</h2>
+                            <p className="text-muted mb-0">{assessment?.description}</p>
+                        </Col>
+                        <Col md={4} className="text-md-end">
+                            <div className="assessment-timing-info p-2 rounded" style={{ backgroundColor: '#f8f9fa', border: '1px solid #e9ecef' }}>
+                                {assessment?.openAt && (
+                                    <div className="small mb-1">
+                                        <strong>Bắt đầu:</strong> {new Date(assessment.openAt).toLocaleString('vi-VN')}
+                                    </div>
+                                )}
+                                {assessment?.dueAt && (
+                                    <div className="small mb-1">
+                                        <strong>Kết thúc:</strong> {new Date(assessment.dueAt).toLocaleString('vi-VN')}
+                                    </div>
+                                )}
+                                {assessment?.timeLimit && (
+                                    <div className="small fw-bold text-info">
+                                        <strong>Tổng thời gian:</strong> {assessment.timeLimit}
+                                    </div>
+                                )}
+                            </div>
                         </Col>
                     </Row>
 
@@ -253,6 +292,17 @@ export default function AssessmentDetail() {
                 assessment={selectedAssessment}
                 onStartQuiz={handleStartQuiz}
                 onStartEssay={handleStartEssay}
+            />
+
+            <NotificationModal
+                isOpen={notification.isOpen}
+                onClose={() => {
+                    setNotification(prev => ({ ...prev, isOpen: false }));
+                    if (notification.isTerminal) navigate(-1);
+                }}
+                type={notification.type}
+                message={notification.message}
+                autoClose={notification.type === "success"}
             />
 
             <StudentEssayResultModal

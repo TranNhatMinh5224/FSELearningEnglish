@@ -14,6 +14,9 @@ namespace LearningEnglish.Application.Interface
         // Nộp bài quiz
         Task<ServiceResponse<QuizAttemptResultDto>> SubmitQuizAttemptAsync(int attemptId, int userId);
 
+        // Lấy kết quả bài quiz sau khi nộp 
+        Task<ServiceResponse<QuizAttemptResultDto>> GetAttemptResultAsync(int attemptId, int userId);
+
         // Tự động nộp bài hết giờ
         Task<ServiceResponse<bool>> CheckAndAutoSubmitExpiredAttemptsAsync();
 

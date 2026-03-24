@@ -6,8 +6,9 @@ import { useAuth } from "../../../Context/AuthContext";
 import { adminService } from "../../../Services/adminService";
 import { flashcardService } from "../../../Services/flashcardService";
 import CreateFlashCardModal from "../../../Components/Teacher/CreateFlashCardModal/CreateFlashCardModal";
-import ConfirmModal from "../../../Components/Common/ConfirmModal/ConfirmModal";
 import SuccessModal from "../../../Components/Common/SuccessModal/SuccessModal";
+import NotificationModal from "../../../Components/Common/NotificationModal/NotificationModal";
+import ConfirmModal from "../../../Components/Common/ConfirmModal/ConfirmModal";
 import "./AdminModuleFlashCardDetail.css";
 
 export default function AdminModuleFlashCardDetail() {
@@ -26,6 +27,7 @@ export default function AdminModuleFlashCardDetail() {
   const [flashcardToDelete, setFlashcardToDelete] = useState(null);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [successMessage, setSuccessMessage] = useState("");
+  const [notification, setNotification] = useState({ isOpen: false, type: "info", message: "" });
 
   const isAdmin = roles.some(role => ["SuperAdmin", "ContentAdmin"].includes(role));
 
@@ -80,7 +82,7 @@ export default function AdminModuleFlashCardDetail() {
       
       if (!cardId) {
         console.error("Flashcard ID not found. Available keys:", Object.keys(flashcardToDelete));
-        alert("Không tìm thấy ID của flashcard. Vui lòng thử lại.");
+        setNotification({ isOpen: true, type: "error", message: "Không tìm thấy ID của flashcard. Vui lòng thử lại." });
         return;
       }
       
@@ -91,11 +93,11 @@ export default function AdminModuleFlashCardDetail() {
         setShowDeleteModal(false);
         fetchData();
       } else {
-        alert("Xóa thất bại: " + res.data?.message);
+        setNotification({ isOpen: true, type: "error", message: "Xóa thất bại: " + res.data?.message });
       }
     } catch (err) {
       console.error("Error deleting flashcard:", err);
-      alert("Lỗi khi xóa flashcard: " + (err.response?.data?.message || err.message));
+      setNotification({ isOpen: true, type: "error", message: "Lỗi khi xóa flashcard: " + (err.response?.data?.message || err.message) });
     }
   };
 
@@ -200,6 +202,13 @@ export default function AdminModuleFlashCardDetail() {
         message={successMessage}
         autoClose={true}
         autoCloseDelay={1500}
+      />
+
+      <NotificationModal
+        isOpen={notification.isOpen}
+        onClose={() => setNotification({ ...notification, isOpen: false })}
+        type={notification.type}
+        message={notification.message}
       />
     </div>
   );

@@ -86,21 +86,28 @@ const LectureTree = ({ lectureTree, currentLectureId, onLectureClick }) => {
         const displayLabel = numberingLabel || `${lecture.orderIndex || lecture.OrderIndex || ""}`;
         const displayTitle = title;
 
-        const handleClick = (e) => {
-            if (hasChildren) {
-                // Toggle expand/collapse - only when user clicks
-                e.stopPropagation(); // Prevent any parent handlers
+        const handleNodeClick = (e) => {
+            e.stopPropagation();
+            // Load lecture content for BOTH parent and leaf nodes
+            onLectureClick(lectureId);
+            
+            // Auto-expand if clicking a collapsed parent
+            if (hasChildren && !isExpanded) {
                 const newExpanded = new Set(expandedItems);
-                if (newExpanded.has(lectureId)) {
-                    newExpanded.delete(lectureId);
-                } else {
-                    newExpanded.add(lectureId);
-                }
+                newExpanded.add(lectureId);
                 setExpandedItems(newExpanded);
-            } else {
-                // Load lecture content for leaf nodes
-                onLectureClick(lectureId);
             }
+        };
+
+        const handleExpandToggle = (e) => {
+            e.stopPropagation();
+            const newExpanded = new Set(expandedItems);
+            if (newExpanded.has(lectureId)) {
+                newExpanded.delete(lectureId);
+            } else {
+                newExpanded.add(lectureId);
+            }
+            setExpandedItems(newExpanded);
         };
 
         return (
@@ -108,7 +115,7 @@ const LectureTree = ({ lectureTree, currentLectureId, onLectureClick }) => {
                 <div
                     ref={isActive ? activeItemRef : null}
                     className={`tree-node ${isActive ? "active" : ""} ${hasChildren ? "has-children" : "leaf-node"} level-${level}`}
-                    onClick={handleClick}
+                    onClick={handleNodeClick}
                 >
                     {!hasChildren && (
                         <span className="status-icon">
@@ -119,7 +126,7 @@ const LectureTree = ({ lectureTree, currentLectureId, onLectureClick }) => {
                     <span className="tree-numbering">{displayLabel}</span>
                     <span className="tree-title" title={displayTitle}>{displayTitle}</span>
                     {hasChildren && (
-                        <span className="expand-icon">
+                        <span className="expand-icon" onClick={handleExpandToggle}>
                             {isExpanded ? <FaChevronDown /> : <FaChevronRight />}
                         </span>
                     )}

@@ -3,6 +3,7 @@ import { Card, Table, Badge, Pagination, Spinner, Button } from "react-bootstrap
 import { FaDownload } from "react-icons/fa";
 import { essaySubmissionService } from "../../../../Services/essaySubmissionService";
 import EssaySubmissionDetailModal from "../EssaySubmissionDetailModal/EssaySubmissionDetailModal";
+import NotificationModal from "../../../Common/NotificationModal/NotificationModal";
 import "./EssaySubmissionList.css";
 
 export default function EssaySubmissionList({ essayId, essayTitle, onBack, isAdmin = false }) {
@@ -15,6 +16,7 @@ export default function EssaySubmissionList({ essayId, essayTitle, onBack, isAdm
   const [, setTotalCount] = useState(0);
   const [selectedSubmission, setSelectedSubmission] = useState(null);
   const [showDetailModal, setShowDetailModal] = useState(false);
+  const [notification, setNotification] = useState({ isOpen: false, type: "info", message: "" });
 
   const fetchSubmissions = useCallback(async () => {
     try {
@@ -54,7 +56,7 @@ export default function EssaySubmissionList({ essayId, essayTitle, onBack, isAdm
       }
     } catch (err) {
       console.error("Error fetching submission detail:", err);
-      alert("Không thể tải chi tiết bài nộp");
+      setNotification({ isOpen: true, type: "error", message: "Không thể tải chi tiết bài nộp" });
     }
   };
 
@@ -133,7 +135,7 @@ export default function EssaySubmissionList({ essayId, essayTitle, onBack, isAdm
       document.body.removeChild(a);
     } catch (err) {
       console.error("Error downloading file:", err);
-      alert("Không thể tải file");
+      setNotification({ isOpen: true, type: "error", message: "Không thể tải file" });
     }
   };
 
@@ -323,6 +325,13 @@ export default function EssaySubmissionList({ essayId, essayTitle, onBack, isAdm
           }}
         />
       )}
+
+      <NotificationModal
+        isOpen={notification.isOpen}
+        onClose={() => setNotification({ ...notification, isOpen: false })}
+        type={notification.type}
+        message={notification.message}
+      />
     </div>
   );
 }

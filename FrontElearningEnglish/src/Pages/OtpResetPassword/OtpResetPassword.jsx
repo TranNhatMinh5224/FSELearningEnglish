@@ -35,8 +35,6 @@ export default function OtpResetPassword() {
     try {
       const res = await authService.forgotPassword({ email: email.trim() });
       if (res.data && res.data.success === true) {
-        setSuccessMessage("Mã OTP mới đã được gửi đến email của bạn!");
-        setShowSuccessModal(true);
         return { success: true };
       }
       return { success: false, message: res.data?.message };
@@ -53,7 +51,8 @@ export default function OtpResetPassword() {
         description={`Mã OTP đặt lại mật khẩu đã được gửi đến email ${email}`}
         verifyFn={verifyFn}
         resendFn={resendFn}
-        initialSeconds={120}
+        expirySeconds={300}
+        resendSeconds={65}
       />
 
       <SuccessModal

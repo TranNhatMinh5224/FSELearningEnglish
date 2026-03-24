@@ -24,6 +24,7 @@ export default function CreateAssessmentModal({
   const [seconds, setSeconds] = useState(0);
   const [isPublished, setIsPublished] = useState(true);
   const [errors, setErrors] = useState({});
+  const [touched, setTouched] = useState({});
   const [submitting, setSubmitting] = useState(false);
   const [loading, setLoading] = useState(false);
   const [showConfirmClose, setShowConfirmClose] = useState(false);
@@ -65,6 +66,7 @@ export default function CreateAssessmentModal({
       setSeconds(0);
       setIsPublished(true);
       setErrors({});
+      setTouched({});
       setSubmitting(false);
       setLoading(false);
       setShowConfirmClose(false);
@@ -132,8 +134,24 @@ export default function CreateAssessmentModal({
     if (!openAt) newErrors.openAt = "Thời gian mở là bắt buộc";
     if (!dueAt) newErrors.dueAt = "Thời gian đóng là bắt buộc";
     if (openAt && dueAt && openAt >= dueAt) newErrors.dueAt = "Thời gian đóng phải sau thời gian mở";
+    
     setErrors(newErrors);
+    setTouched({ title: true, description: true, openAt: true, dueAt: true });
     return Object.keys(newErrors).length === 0;
+  };
+
+  const handleBlur = (fieldName, value) => {
+    setTouched(prev => ({ ...prev, [fieldName]: true }));
+    const newErrors = { ...errors };
+    if (fieldName === "title") {
+      if (!value.trim()) newErrors.title = "Tiêu đề là bắt buộc";
+      else if (value.trim().length > 255) newErrors.title = "Tiêu đề không được vượt quá 255 ký tự";
+      else delete newErrors.title;
+    } else if (fieldName === "description") {
+      if (value && value.length > 2000) newErrors.description = "Mô tả không được vượt quá 2000 ký tự";
+      else delete newErrors.description;
+    }
+    setErrors(newErrors);
   };
 
   // manual time text input removed; use dropdown selects only
@@ -196,7 +214,7 @@ export default function CreateAssessmentModal({
         className="create-assessment-modal modal-modern"
         dialogClassName="create-assessment-modal-dialog"
       >
-        <Modal.Header>
+        <Modal.Header closeButton>
           <Modal.Title>{isUpdateMode ? "Cập nhật Assessment" : "Thêm Assessment"}</Modal.Title>
         </Modal.Header>
         <Modal.Body>
@@ -209,33 +227,56 @@ export default function CreateAssessmentModal({
                 <label className="form-label required">Tiêu đề</label>
                 <input
                   type="text"
-                  className={`form-control ${errors.title ? "is-invalid" : ""}`}
+                  className={`form-control ${touched.title && errors.title ? "is-invalid" : ""}`}
                   value={title}
                   onChange={(e) => {
                     setTitle(e.target.value);
-                    setErrors({ ...errors, title: null });
+                    if (touched.title) {
+                      const newErrors = { ...errors };
+                      if (!e.target.value.trim()) newErrors.title = "Tiêu đề là bắt buộc";
+                      else if (e.target.value.trim().length > 255) newErrors.title = "Tiêu đề không được vượt quá 255 ký tự";
+                      else delete newErrors.title;
+                      setErrors(newErrors);
+                    }
                   }}
+                  onBlur={(e) => handleBlur("title", e.target.value)}
                   placeholder="Nhập tiêu đề Assessment..."
                   maxLength={255}
                   autoFocus
                 />
-                {errors.title && <div className="invalid-feedback">{errors.title}</div>}
+                <div className="d-flex justify-content-between align-items-center mt-1">
+                  {touched.title && errors.title && <div className="invalid-feedback d-block m-0">{errors.title}</div>}
+                  <div className={`char-count ms-auto small ${title.length > 240 ? 'text-danger' : title.length > 220 ? 'text-warning' : 'text-muted'}`}>
+                    {title.length.toLocaleString('vi-VN')} / 255 ký tự
+                  </div>
+                </div>
               </div>
 
               <div className="form-group mb-0">
                 <label className="form-label">Mô tả</label>
                 <textarea
-                  className={`form-control ${errors.description ? "is-invalid" : ""}`}
+                  className={`form-control ${touched.description && errors.description ? "is-invalid" : ""}`}
                   value={description}
                   onChange={(e) => {
                     setDescription(e.target.value);
-                    setErrors({ ...errors, description: null });
+                    if (touched.description) {
+                      const newErrors = { ...errors };
+                      if (e.target.value && e.target.value.length > 2000) newErrors.description = "Mô tả không được vượt quá 2000 ký tự";
+                      else delete newErrors.description;
+                      setErrors(newErrors);
+                    }
                   }}
+                  onBlur={(e) => handleBlur("description", e.target.value)}
                   placeholder="Nhập mô tả chi tiết về bài kiểm tra này..."
                   rows={3}
                   maxLength={2000}
                 />
-                {errors.description && <div className="invalid-feedback">{errors.description}</div>}
+                <div className="d-flex justify-content-between align-items-center mt-1">
+                  {touched.description && errors.description && <div className="invalid-feedback d-block m-0">{errors.description}</div>}
+                  <div className={`char-count ms-auto small ${description.length > 1950 ? 'text-danger' : description.length > 1800 ? 'text-warning' : 'text-muted'}`}>
+                    {description.length.toLocaleString('vi-VN')} / 2,000 ký tự
+                  </div>
+                </div>
               </div>
             </div>
 
@@ -321,6 +362,10 @@ export default function CreateAssessmentModal({
                     <span className="time-label">giây</span>
                   </div>
                 </div>
+                <div className="text-primary small mt-2 d-flex align-items-start">
+                  <FaInfoCircle className="me-1 mt-1 flex-shrink-0" />
+                  <span><strong>Lưu ý:</strong> Đây là tổng thời gian đếm ngược cho toàn bộ bài thi. Học viên sẽ bị thu bài khi hết giờ này.</span>
+                </div>
                 {errors.timeLimit && <div className="text-danger small mt-1">{errors.timeLimit}</div>}
               </div>
             </div>
@@ -364,14 +409,14 @@ export default function CreateAssessmentModal({
       </Modal>
 
       <ConfirmModal
-        show={showConfirmClose}
-        onHide={() => setShowConfirmClose(false)}
+        isOpen={showConfirmClose}
+        onClose={() => setShowConfirmClose(false)}
         onConfirm={handleConfirmClose}
         title="Xác nhận đóng"
         message="Bạn có dữ liệu chưa lưu. Bạn có chắc chắn muốn đóng không?"
         confirmText="Đóng"
         cancelText="Tiếp tục chỉnh sửa"
-        variant="warning"
+        type="warning"
       />
     </>
   );

@@ -252,9 +252,14 @@ namespace LearningEnglish.Application.Service
                 bool shuffleAnswers = quizDetails.ShuffleAnswers == true;
 
                 var shuffledSections = _quizAttemptMapper.ShuffleQuizForAttempt(quizDetails, newAttempt.AttemptId);
-
+                
                 var attemptDto = _mapper.Map<QuizAttemptWithQuestionsDto>(newAttempt);
                 attemptDto.QuizSections = shuffledSections;
+
+                // Ưu tiên thời gian của Quiz
+                attemptDto.Duration = quizDetails.Duration;
+                attemptDto.QuizTitle = quizDetails.Title;   // Explicitly set Title
+                
                 response.Success = true;
                 response.Data = attemptDto;
                 response.StatusCode = 201;
@@ -401,7 +406,7 @@ namespace LearningEnglish.Application.Service
                     return response;
                 }
 
-                // ✅ Mark module as completed after quiz submission
+                // Mark module as completed after quiz submission
                 var assessment = await _assessmentRepository.GetAssessmentById(quiz.AssessmentId);
                 if (assessment?.ModuleId != null)
                 {
@@ -480,6 +485,88 @@ namespace LearningEnglish.Application.Service
                 response.StatusCode = 200;
                 response.Message = "Quiz submitted successfully";
 
+                return response;
+            }
+            catch (Exception ex)
+            {
+                response.Success = false;
+                response.Message = ex.Message;
+                response.StatusCode = 500;
+                return response;
+            }
+        }
+
+        public async Task<ServiceResponse<QuizAttemptResultDto>> GetAttemptResultAsync(int attemptId, int userId)
+        {
+            var response = new ServiceResponse<QuizAttemptResultDto>();
+
+            try
+            {
+                var attempt = await _quizAttemptRepository.GetByIdAndUserIdAsync(attemptId, userId);
+                if (attempt == null)
+                {
+                    response.Success = false;
+                    response.Message = "Attempt not found or you don't have permission";
+                    response.StatusCode = 404;
+                    return response;
+                }
+
+                if (attempt.Status == QuizAttemptStatus.InProgress)
+                {
+                    response.Success = false;
+                    response.Message = "Attempt is still in progress";
+                    response.StatusCode = 400;
+                    return response;
+                }
+
+                var quiz = await _quizRepository.GetFullQuizAsync(attempt.QuizId);
+                if (quiz == null)
+                {
+                    response.Success = false;
+                    response.Message = "Quiz not found";
+                    response.StatusCode = 404;
+                    return response;
+                }
+
+                var result = new QuizAttemptResultDto
+                {
+                    AttemptId = attempt.AttemptId,
+                    SubmittedAt = attempt.SubmittedAt ?? attempt.StartedAt,
+                    TimeSpentSeconds = attempt.TimeSpentSeconds
+                };
+
+                if (quiz.ShowScoreImmediately == true)
+                {
+                    result.TotalScore = attempt.TotalScore;
+
+                    int totalQuestions = quiz.TotalQuestions;
+                    int correctQuestions = 0;
+
+                    if (!string.IsNullOrEmpty(attempt.ScoresJson))
+                    {
+                        var scores = AnswerNormalizer.DeserializeScoresJson(attempt.ScoresJson);
+                        correctQuestions = scores.Count(s => s.Value > 0);
+                        result.ScoresByQuestion = scores;
+                    }
+
+                    result.Percentage = totalQuestions > 0
+                        ? (decimal)((double)correctQuestions / totalQuestions) * 100
+                        : 0;
+
+                    result.IsPassed = quiz.PassingScore.HasValue
+                        ? attempt.TotalScore >= quiz.PassingScore.Value
+                        : false;
+                }
+
+                if (quiz.ShowAnswersAfterSubmit == true)
+                {
+                    result.Questions = QuizReviewBuilder.BuildQuestionReviewList(quiz, attempt);
+                }
+
+                response.Success = true;
+                response.Data = result;
+                response.StatusCode = 200;
+                response.Message = "Quiz result retrieved successfully";
                 return response;
             }
             catch (Exception ex)
@@ -738,6 +825,9 @@ namespace LearningEnglish.Application.Service
 
             var attemptDto = _mapper.Map<QuizAttemptWithQuestionsDto>(attempt);
                 attemptDto.QuizSections = shuffledSections;
+                // Ưu tiên thời gian của Quiz
+                attemptDto.Duration = quizDetails.Duration;
+                attemptDto.QuizTitle = quizDetails.Title;   // Explicitly set Title
 
                 response.Success = true;
                 response.Data = attemptDto;
@@ -822,6 +912,7 @@ namespace LearningEnglish.Application.Service
                     QuizTitle = quiz?.Title,
                     StartedAt = activeAttempt.StartedAt,
                     EndTime = endTime,
+                    Duration = quiz?.Duration,
                     TimeRemainingSeconds = timeRemainingSeconds
                 };
                 response.StatusCode = 200;
@@ -902,6 +993,7 @@ namespace LearningEnglish.Application.Service
                     QuizTitle = quiz?.Title,
                     StartedAt = activeAttempt.StartedAt,
                     EndTime = endTime,
+                    Duration = quiz?.Duration,
                     TimeRemainingSeconds = timeRemainingSeconds
                 };
                 response.StatusCode = 200;

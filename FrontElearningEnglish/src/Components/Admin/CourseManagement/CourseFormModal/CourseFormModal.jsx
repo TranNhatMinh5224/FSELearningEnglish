@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
-import { Modal, Button, Form, InputGroup } from "react-bootstrap";
+import { Modal, Button, Form, InputGroup, Row, Col } from "react-bootstrap";
 import {
     FaLayerGroup, FaMarkdown,
     FaBold, FaItalic, FaHeading, FaListUl, FaCode
@@ -27,6 +27,7 @@ export default function CourseFormModal({ show, onClose, onSubmit, initialData }
     const [imageType, setImageType] = useState(null);
     const [existingImageUrl, setExistingImageUrl] = useState(null);
     const [errors, setErrors] = useState({});
+    const [touched, setTouched] = useState({});
     const [submitting, setSubmitting] = useState(false);
     const [showConfirmCancel, setShowConfirmCancel] = useState(false);
 
@@ -171,7 +172,7 @@ export default function CourseFormModal({ show, onClose, onSubmit, initialData }
         return Object.keys(newErrors).length === 0;
     };
 
-    // Real-time validation for individual fields
+    // Real-time validation for individual fields - chỉ gọi khi field đã được touched
     const validateField = (fieldName, value) => {
         const newErrors = { ...errors };
 
@@ -223,6 +224,12 @@ export default function CourseFormModal({ show, onClose, onSubmit, initialData }
         }
 
         setErrors(newErrors);
+    };
+
+    // onBlur: đánh dấu touched rồi validate
+    const handleBlur = (fieldName, value) => {
+        setTouched(prev => ({ ...prev, [fieldName]: true }));
+        validateField(fieldName, value);
     };
 
     // --- LOGIC: SUBMIT (GỐC) ---
@@ -311,9 +318,9 @@ export default function CourseFormModal({ show, onClose, onSubmit, initialData }
 
     return (
         <>
-            <Modal show={show} onHide={handleCancel} centered size="xl" className="modal-modern create-course-modal" dialogClassName="create-course-modal-dialog">
-                <Modal.Header>
-                    <Modal.Title className="modal-title-custom">
+            <Modal show={show} onHide={handleCancel} centered size="xl" className="modal-modern create-course-modal">
+                <Modal.Header closeButton>
+                    <Modal.Title>
                         {isUpdateMode ? "Cập nhật khóa học" : "Tạo khóa học mới"}
                     </Modal.Title>
                 </Modal.Header>
@@ -323,150 +330,151 @@ export default function CourseFormModal({ show, onClose, onSubmit, initialData }
                         {/* SECTION 1: CƠ BẢN */}
                         <div className="form-section">
                             <div className="section-title"><FaLayerGroup /> Thông tin chung</div>
-                            <div className="row g-3">
-                                <div className="col-12">
-                                    <Form.Label className="fw-bold">Tiêu đề khóa học <span className="text-danger">*</span></Form.Label>
-                                    <Form.Control
-                                        type="text"
-                                        isInvalid={!!errors.title}
-                                        value={title}
-                                        onChange={(e) => { setTitle(e.target.value); validateField("title", e.target.value); }}
-                                        placeholder="Nhập tiêu đề..."
-                                        maxLength={200}
+                            <Row className="g-4">
+                                <Col md={12}>
+                                    <Form.Group>
+                                        <Form.Label>Tiêu đề khóa học <span className="text-danger">*</span></Form.Label>
+                                        <Form.Control
+                                            type="text"
+                                            isInvalid={!!errors.title}
+                                            value={title}
+                                            onChange={(e) => {
+                                                setTitle(e.target.value);
+                                                if (touched.title) validateField("title", e.target.value);
+                                            }}
+                                            onBlur={(e) => handleBlur("title", e.target.value)}
+                                            placeholder="Nhập tiêu đề hấp dẫn cho khóa học..."
+                                            maxLength={200}
+                                        />
+                                        <div className="d-flex justify-content-between mt-1">
+                                            {errors.title && <div className="text-danger small">{errors.title}</div>}
+                                            <div className="char-count ms-auto text-muted small">
+                                                {title.length} / 200
+                                            </div>
+                                        </div>
+                                    </Form.Group>
+                                </Col>
+                                <Col md={4}>
+                                    <Form.Group>
+                                        <Form.Label>Giá khóa học (VND)</Form.Label>
+                                        <InputGroup>
+                                            <Form.Control
+                                                type="number"
+                                                value={price}
+                                                onChange={e => {
+                                                    setPrice(e.target.value);
+                                                    if (touched.price) validateField("price", e.target.value);
+                                                }}
+                                                onBlur={e => handleBlur("price", e.target.value)}
+                                                isInvalid={!!errors.price}
+                                                min="0"
+                                            />
+                                            <InputGroup.Text>₫</InputGroup.Text>
+                                        </InputGroup>
+                                        {errors.price && <div className="text-danger small mt-1">{errors.price}</div>}
+                                    </Form.Group>
+                                </Col>
+                                <Col md={4}>
+                                    <Form.Group>
+                                        <Form.Label>Học viên tối đa</Form.Label>
+                                        <Form.Control
+                                            type="number"
+                                            value={maxStudent}
+                                            onChange={e => {
+                                                setMaxStudent(e.target.value);
+                                                if (touched.maxStudent) validateField("maxStudent", e.target.value);
+                                            }}
+                                            onBlur={e => handleBlur("maxStudent", e.target.value)}
+                                            isInvalid={!!errors.maxStudent}
+                                            min="0"
+                                        />
+                                        <small className="text-muted">0 = Không giới hạn học viên</small>
+                                    </Form.Group>
+                                </Col>
+                                <Col md={4}>
+                                    <Form.Group>
+                                        <Form.Label>Loại quản lý</Form.Label>
+                                        <Form.Select
+                                            value={type}
+                                            onChange={e => {
+                                                setType(e.target.value);
+                                                validateField("type", e.target.value);
+                                            }}
+                                        >
+                                            <option value="1">Hệ thống (Admin)</option>
+                                            <option value="2">Giáo viên (Teacher)</option>
+                                        </Form.Select>
+                                    </Form.Group>
+                                </Col>
+                            </Row>
+                        </div>
+
+                        {/* SECTION 2: MÔ TẢ & HÌNH ẢNH */}
+                        <Row>
+                            <Col lg={8}>
+                                <div className="form-section">
+                                    <div className="section-title"><FaMarkdown /> Nội dung bài học (Markdown)</div>
+                                    <div className="markdown-toolbar">
+                                        <button type="button" className="toolbar-btn" onClick={() => insertMarkdown('bold')} title="In đậm"><FaBold /></button>
+                                        <button type="button" className="toolbar-btn" onClick={() => insertMarkdown('italic')} title="In nghiêng"><FaItalic /></button>
+                                        <button type="button" className="toolbar-btn" onClick={() => insertMarkdown('heading')} title="Tiêu đề"><FaHeading /></button>
+                                        <button type="button" className="toolbar-btn" onClick={() => insertMarkdown('list')} title="Danh sách"><FaListUl /></button>
+                                        <button type="button" className="toolbar-btn" onClick={() => insertMarkdown('code')} title="Mã code"><FaCode /></button>
+                                    </div>
+                                    <div className="markdown-editor-container">
+                                        <textarea
+                                            ref={textAreaRef}
+                                            className="markdown-textarea"
+                                            value={description}
+                                            onChange={e => {
+                                                setDescription(e.target.value);
+                                                if (touched.description) validateField("description", e.target.value);
+                                            }}
+                                            onBlur={e => handleBlur("description", e.target.value)}
+                                            placeholder="Sử dụng Markdown để viết mô tả chi tiết..."
+                                        />
+                                        <div className="markdown-preview">
+                                            {description ? <ReactMarkdown remarkPlugins={[remarkGfm]}>{description}</ReactMarkdown> : <div className="text-muted d-flex align-items-center justify-content-center h-100">Xem trước nội dung...</div>}
+                                        </div>
+                                    </div>
+                                    {errors.description && <div className="text-danger small mt-2">{errors.description}</div>}
+                                </div>
+                            </Col>
+                            <Col lg={4}>
+                                <div className="form-section">
+                                    <div className="section-title">Ảnh đại diện</div>
+                                    <FileUpload
+                                        bucket={COURSE_IMAGE_BUCKET}
+                                        accept="image/*"
+                                        maxSize={5}
+                                        existingUrl={existingImageUrl}
+                                        onUploadSuccess={handleImageUploadSuccess}
+                                        onRemove={handleImageRemove}
+                                        onError={handleImageUploadError}
+                                        label="Kéo thả ảnh vào đây"
                                     />
-                                    <div className="d-flex justify-content-between align-items-center mt-2">
-                                        {errors.title && (
-                                            <Form.Control.Feedback type="invalid" className="d-block mb-0">
-                                                {errors.title}
-                                            </Form.Control.Feedback>
-                                        )}
-                                        <div className={`char-count ms-auto ${title.length > 180 ? 'text-warning' : title.length > 195 ? 'text-danger' : ''}`}>
-                                            {title.length.toLocaleString('vi-VN')} / 200 ký tự
+                                    
+                                    <div className="featured-toggle mt-4 p-3 rounded-4 bg-light border">
+                                        <div className="d-flex justify-content-between align-items-center">
+                                            <div>
+                                                <div className="fw-bold small">Khóa học nổi bật</div>
+                                                <small className="text-muted">Ghim lên đầu trang chủ</small>
+                                            </div>
+                                            <Form.Check type="switch" checked={isFeatured} onChange={e => setIsFeatured(e.target.checked)} />
                                         </div>
                                     </div>
                                 </div>
-                                <div className="col-md-4">
-                                    <Form.Label>Giá (VND)</Form.Label>
-                                    <InputGroup>
-                                        <Form.Control
-                                            type="number"
-                                            value={price}
-                                            onChange={e => {
-                                                setPrice(e.target.value);
-                                                validateField("price", e.target.value);
-                                            }}
-                                            isInvalid={!!errors.price}
-                                            min="0"
-                                            step="0.01"
-                                        />
-                                        <InputGroup.Text>VND</InputGroup.Text>
-                                    </InputGroup>
-                                    {errors.price && <Form.Control.Feedback type="invalid" className="d-block">{errors.price}</Form.Control.Feedback>}
-                                </div>
-                                <div className="col-md-4">
-                                    <Form.Label>Học viên tối đa</Form.Label>
-                                    <Form.Control
-                                        type="number"
-                                        value={maxStudent}
-                                        onChange={e => {
-                                            setMaxStudent(e.target.value);
-                                            validateField("maxStudent", e.target.value);
-                                        }}
-                                        isInvalid={!!errors.maxStudent}
-                                        min="0"
-                                    />
-                                    {errors.maxStudent && <Form.Control.Feedback type="invalid" className="d-block">{errors.maxStudent}</Form.Control.Feedback>}
-                                    <small className="text-muted">0 = Không giới hạn</small>
-                                </div>
-                                <div className="col-md-4">
-                                    <Form.Label>Loại khóa học</Form.Label>
-                                    <Form.Select
-                                        value={type}
-                                        onChange={e => {
-                                            setType(e.target.value);
-                                            validateField("type", e.target.value);
-                                        }}
-                                        isInvalid={!!errors.type}
-                                    >
-                                        <option value="1">System Course</option>
-                                        <option value="2">Teacher Course</option>
-                                    </Form.Select>
-                                    {errors.type && <Form.Control.Feedback type="invalid" className="d-block">{errors.type}</Form.Control.Feedback>}
-                                </div>
-                            </div>
-                        </div>
-
-                        {/* SECTION 2: ẢNH */}
-                        <div className="form-section">
-                            <div className="section-title">Hình ảnh đại diện</div>
-                            <FileUpload
-                                bucket={COURSE_IMAGE_BUCKET}
-                                accept="image/*"
-                                maxSize={5}
-                                existingUrl={existingImageUrl}
-                                onUploadSuccess={handleImageUploadSuccess}
-                                onRemove={handleImageRemove}
-                                onError={handleImageUploadError}
-                                label="Chọn ảnh hoặc kéo thả vào đây"
-                                hint="Hỗ trợ Paste (Ctrl+V) từ Clipboard"
-                                enablePaste={true}
-                            />
-                        </div>
-
-                        {/* SECTION 3: MÔ TẢ */}
-                        <div className="form-section">
-                            <div className="section-title"><FaMarkdown /> Nội dung mô tả</div>
-                            <div className="markdown-toolbar">
-                                <button type="button" className="toolbar-btn" onClick={() => insertMarkdown('bold')} title="In đậm"><FaBold /></button>
-                                <button type="button" className="toolbar-btn" onClick={() => insertMarkdown('italic')} title="In nghiêng"><FaItalic /></button>
-                                <button type="button" className="toolbar-btn" onClick={() => insertMarkdown('heading')} title="Tiêu đề"><FaHeading /></button>
-                                <button type="button" className="toolbar-btn" onClick={() => insertMarkdown('list')} title="Danh sách"><FaListUl /></button>
-                                <button type="button" className="toolbar-btn" onClick={() => insertMarkdown('code')} title="Mã code"><FaCode /></button>
-                            </div>
-                            <div className="markdown-editor-container">
-                                <textarea
-                                    ref={textAreaRef}
-                                    className={`markdown-textarea ${errors.description ? "border-danger" : ""}`}
-                                    value={description}
-                                    onChange={e => {
-                                        setDescription(e.target.value);
-                                        validateField("description", e.target.value);
-                                    }}
-                                    placeholder="Viết mô tả bằng Markdown..."
-                                    maxLength={1000000}
-                                />
-                                <div className="markdown-preview">
-                                    {description ? <ReactMarkdown remarkPlugins={[remarkGfm]}>{description}</ReactMarkdown> : <div className="text-muted italic h-100 d-flex align-items-center justify-content-center">Xem trước nội dung...</div>}
-                                </div>
-                            </div>
-                            <div className="d-flex justify-content-between align-items-center mt-2">
-                                {errors.description && (
-                                    <Form.Control.Feedback type="invalid" className="d-block text-danger small mb-0">
-                                        {errors.description}
-                                    </Form.Control.Feedback>
-                                )}
-                                <div className={`char-count ms-auto ${description.length > 900000 ? 'text-warning' : description.length > 950000 ? 'text-danger' : ''}`}>
-                                    {description.length.toLocaleString('vi-VN')} / 1,000,000 ký tự
-                                </div>
-                            </div>
-                        </div>
-
-                        {/* SECTION 4: NỔI BẬT */}
-                        <div className="form-section bg-light border-start border-4 border-info">
-                            <div className="d-flex justify-content-between align-items-center">
-                                <div><div className="fw-bold">Khóa học nổi bật</div><small className="text-muted">Ưu tiên hiển thị tại trang chủ</small></div>
-                                <Form.Check type="switch" checked={isFeatured} onChange={e => setIsFeatured(e.target.checked)} />
-                            </div>
-                        </div>
+                            </Col>
+                        </Row>
 
                         {errors.submit && <div className="alert alert-danger mt-3">{errors.submit}</div>}
                     </Form>
                 </Modal.Body>
 
                 <Modal.Footer>
-                    <Button variant="link" className="text-muted text-decoration-none fw-bold" onClick={handleCancel} disabled={submitting}>Hủy bỏ</Button>
+                    <Button variant="link" className="text-muted text-decoration-none" onClick={handleCancel} disabled={submitting}>Hủy bỏ</Button>
                     <Button className="btn-primary-custom" onClick={handleSubmit} disabled={submitting}>
-                        {submitting ? "Đang lưu..." : (isUpdateMode ? "Cập nhật khóa học" : "Tạo khóa học")}
+                        {submitting ? "Đang lưu..." : (isUpdateMode ? "Lưu thay đổi" : "Tạo khóa học")}
                     </Button>
                 </Modal.Footer>
             </Modal>

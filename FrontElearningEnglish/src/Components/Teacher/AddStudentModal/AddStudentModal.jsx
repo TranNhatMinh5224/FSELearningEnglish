@@ -9,19 +9,30 @@ export default function AddStudentModal({ show, onClose, onSuccess, courseId, is
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [touched, setTouched] = useState(false);
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    
+  const handleBlur = () => {
+    setTouched(true);
+    validateEmail();
+  };
+
+  const validateEmail = () => {
     if (!email.trim()) {
       setError("Vui lòng nhập email học viên");
-      return;
+      return false;
     }
-
-    // Basic email validation
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email.trim())) {
       setError("Email không hợp lệ");
+      return false;
+    }
+    setError("");
+    return true;
+  };
+
+  const handleSubmit = async (e) => {
+    if (!validateEmail()) {
+      setTouched(true);
       return;
     }
 
@@ -59,7 +70,7 @@ export default function AddStudentModal({ show, onClose, onSuccess, courseId, is
 
   return (
     <Modal show={show} onHide={handleClose} centered className="modal-modern add-student-modal">
-      <Modal.Header>
+      <Modal.Header closeButton>
         <Modal.Title>Thêm học viên vào khóa học</Modal.Title>
       </Modal.Header>
       <Modal.Body>
@@ -75,14 +86,15 @@ export default function AddStudentModal({ show, onClose, onSuccess, courseId, is
               value={email}
               onChange={(e) => {
                 setEmail(e.target.value);
-                setError("");
+                if (touched) validateEmail();
               }}
+              onBlur={handleBlur}
               placeholder="Nhập email học viên cần thêm"
-              className={`form-input ${error ? "error" : ""}`}
+              className={`form-input ${touched && error ? "error" : ""}`}
               disabled={loading}
               autoFocus
             />
-            {error && <div className="error-message">{error}</div>}
+            {touched && error && <div className="error-message">{error}</div>}
             <div className="form-hint">
               Nhập email của học viên đã có tài khoản trong hệ thống
             </div>

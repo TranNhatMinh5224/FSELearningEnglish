@@ -173,3 +173,29 @@
 .btn-delete-essay:active {
   transform: translateY(0);
 }
+
+/* Premium Header Styles */
+.back-nav-link {
+    background: none;
+    border: none;
+    padding: 0;
+    font-size: 0.95rem;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    transition: all 0.2s ease;
+    cursor: pointer;
+}
+
+.back-nav-link:hover {
+    color: #BC69C0 !important;
+    transform: translateX(-4px);
+}
+
+.premium-gradient-text {
+    background: linear-gradient(135deg, #4A00E0 0%, #8E2DE2 50%, #BC69C0 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    display: inline-block;
+}

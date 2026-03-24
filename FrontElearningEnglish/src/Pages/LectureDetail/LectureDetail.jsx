@@ -32,40 +32,34 @@ export default function LectureDetail() {
     const isFetchingTreeRef = useRef(false);
     const isFetchingLectureRef = useRef(false);
 
-    // Helper: Flatten lecture tree to get all leaf lectures
+    // Helper: Flatten lecture tree to get all lectures
     const flattenLectureTree = useCallback((tree, result = []) => {
         for (const item of tree) {
+            result.push(item);
             const children = item.children || item.Children || [];
-            if (children.length === 0) {
-                result.push(item);
-            } else {
+            if (children.length > 0) {
                 flattenLectureTree(children, result);
             }
         }
         return result;
     }, []);
 
-    // Helper: Find first leaf lecture (memoized to prevent infinite loops)
-    const findFirstLeafLecture = useCallback((tree) => {
-        for (const item of tree) {
-            const children = item.children || item.Children || [];
-            if (children.length === 0) {
-                return item.lectureId || item.LectureId;
-            }
-            const childId = findFirstLeafLecture(children);
-            if (childId) return childId;
+    // Helper: Find first lecture
+    const findFirstLecture = useCallback((tree) => {
+        if (tree && tree.length > 0) {
+            return tree[0].lectureId || tree[0].LectureId;
         }
         return null;
     }, []);
 
-    // Get all leaf lectures for navigation
-    const getAllLeafLectures = useCallback(() => {
+    // Get all lectures for navigation
+    const getAllLectures = useCallback(() => {
         return flattenLectureTree(lectureTree);
     }, [lectureTree, flattenLectureTree]);
 
     // Get previous and next lecture
     const getNavigationLectures = useCallback(() => {
-        const allLectures = getAllLeafLectures();
+        const allLectures = getAllLectures();
         const currentId = currentLecture?.lectureId || currentLecture?.LectureId || (lectureId ? parseInt(lectureId) : null);
         
         if (!currentId || allLectures.length === 0) {
@@ -84,7 +78,7 @@ export default function LectureDetail() {
             previous: currentIndex > 0 ? allLectures[currentIndex - 1] : null,
             next: currentIndex < allLectures.length - 1 ? allLectures[currentIndex + 1] : null,
         };
-    }, [getAllLeafLectures, currentLecture, lectureId]);
+    }, [getAllLectures, currentLecture, lectureId]);
 
     // Fetch lecture detail by ID
     const fetchLectureDetail = useCallback(async (lectureIdToLoad, updateUrl = true) => {
@@ -169,16 +163,16 @@ export default function LectureDetail() {
                 if (treeResponse.data?.success && treeResponse.data?.data) {
                     setLectureTree(treeResponse.data.data);
                     
-                    // Load lecture if provided, otherwise load first leaf
+                    // Load lecture if provided, otherwise load first
                     if (lectureId) {
                         const parsedId = parseInt(lectureId);
                         setSelectedLectureId(parsedId); // Set immediately for UI feedback
                         await fetchLectureDetail(parsedId, false); // Don't update URL on initial load
                     } else {
-                        const firstLeafId = findFirstLeafLecture(treeResponse.data.data);
-                        if (firstLeafId) {
-                            setSelectedLectureId(firstLeafId); // Set immediately for UI feedback
-                            await fetchLectureDetail(firstLeafId, true); // Update URL after loading
+                        const firstId = findFirstLecture(treeResponse.data.data);
+                        if (firstId) {
+                            setSelectedLectureId(firstId); // Set immediately for UI feedback
+                            await fetchLectureDetail(firstId, true); // Update URL after loading
                         }
                     }
                 } else {

@@ -3,6 +3,7 @@ import { Modal, Button, Form, Alert, Spinner } from "react-bootstrap";
 import { FaDownload } from "react-icons/fa";
 import { essaySubmissionService } from "../../../../Services/essaySubmissionService";
 import SuccessModal from "../../../Common/SuccessModal/SuccessModal";
+import NotificationModal from "../../../Common/NotificationModal/NotificationModal";
 import "./EssaySubmissionDetailModal.css";
 
 export default function EssaySubmissionDetailModal({ show, onClose, submission, onGradeSuccess, isAdmin = false }) {
@@ -11,6 +12,7 @@ export default function EssaySubmissionDetailModal({ show, onClose, submission, 
   const [grading, setGrading] = useState(false);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [error, setError] = useState("");
+  const [notification, setNotification] = useState({ isOpen: false, type: "info", message: "" });
 
   React.useEffect(() => {
     if (submission) {
@@ -146,7 +148,7 @@ export default function EssaySubmissionDetailModal({ show, onClose, submission, 
       document.body.removeChild(a);
     } catch (err) {
       console.error("Error downloading file:", err);
-      alert("Không thể tải file");
+      setNotification({ isOpen: true, type: "error", message: "Không thể tải file" });
     }
   };
 
@@ -249,6 +251,13 @@ export default function EssaySubmissionDetailModal({ show, onClose, submission, 
             )}
           </Button>
         </Modal.Footer>
+
+        <NotificationModal
+          isOpen={notification.isOpen}
+          onClose={() => setNotification({ ...notification, isOpen: false })}
+          type={notification.type}
+          message={notification.message}
+        />
       </Modal>
 
       <SuccessModal

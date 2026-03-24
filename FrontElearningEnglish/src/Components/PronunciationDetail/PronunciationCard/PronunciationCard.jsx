@@ -3,6 +3,7 @@ import { Button } from "react-bootstrap";
 import { FaChevronLeft, FaChevronRight, FaVolumeUp } from "react-icons/fa";
 import PronunciationProgress from "../PronunciationProgress/PronunciationProgress";
 import PronunciationMic from "../PronunciationMic/PronunciationMic";
+import NotificationModal from "../../Common/NotificationModal/NotificationModal";
 import { pronunciationService } from "../../../Services/pronunciationService";
 import { fileService } from "../../../Services/fileService";
 import "./PronunciationCard.css";
@@ -25,6 +26,7 @@ export default function PronunciationCard({
     const [recordedAudioUrl, setRecordedAudioUrl] = useState(null);
     const [isPlayingRecorded, setIsPlayingRecorded] = useState(false);
     const [isPlayingReference, setIsPlayingReference] = useState(false);
+    const [notification, setNotification] = useState({ isOpen: false, type: "info", message: "" });
     const mediaRecorderRef = useRef(null);
     const audioChunksRef = useRef([]);
     const recordedAudioPlayerRef = useRef(null);
@@ -130,7 +132,7 @@ export default function PronunciationCard({
             setIsRecording(true);
         } catch (err) {
             console.error("Error starting recording:", err);
-            alert("Không thể truy cập microphone. Vui lòng kiểm tra quyền truy cập.");
+            setNotification({ isOpen: true, type: "error", message: "Không thể truy cập microphone. Vui lòng kiểm tra quyền truy cập." });
         }
     };
 
@@ -271,7 +273,7 @@ export default function PronunciationCard({
             });
 
             const errorMessage = err.response?.data?.message || err.message || "Không thể xử lý bản ghi âm. Vui lòng thử lại.";
-            alert(errorMessage);
+            setNotification({ isOpen: true, type: "error", message: errorMessage });
         } finally {
             setIsProcessing(false);
         }
@@ -296,7 +298,7 @@ export default function PronunciationCard({
         audio.onerror = () => {
             setIsPlayingRecorded(false);
             recordedAudioPlayerRef.current = null;
-            alert("Không thể phát lại bản ghi âm");
+            setNotification({ isOpen: true, type: "error", message: "Không thể phát lại bản ghi âm" });
         };
 
         audio.play().then(() => {
@@ -585,6 +587,12 @@ export default function PronunciationCard({
                     </Button>
                 )}
             </div>
+            <NotificationModal
+                isOpen={notification.isOpen}
+                onClose={() => setNotification({ ...notification, isOpen: false })}
+                type={notification.type}
+                message={notification.message}
+            />
         </div>
     );
 }

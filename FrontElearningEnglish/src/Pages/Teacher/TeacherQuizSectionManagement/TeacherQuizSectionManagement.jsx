@@ -1,13 +1,14 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { Container } from "react-bootstrap";
-import { FaEdit, FaTrash, FaPlus, FaList } from "react-icons/fa";
+import { FaEdit, FaTrash, FaPlus, FaList, FaArrowLeft } from "react-icons/fa";
 import TeacherHeader from "../../../Components/Header/TeacherHeader";
 import { useAuth } from "../../../Context/AuthContext";
 import { quizService } from "../../../Services/quizService";
 import CreateQuizSectionModal from "../../../Components/Teacher/CreateQuizSectionModal/CreateQuizSectionModal";
 import CreateQuizGroupModal from "../../../Components/Teacher/CreateQuizGroupModal/CreateQuizGroupModal";
 import SuccessModal from "../../../Components/Common/SuccessModal/SuccessModal";
+import NotificationModal from "../../../Components/Common/NotificationModal/NotificationModal";
 import ConfirmModal from "../../../Components/Common/ConfirmModal/ConfirmModal";
 import { ROUTE_PATHS } from "../../../Routes/Paths";
 import "./TeacherQuizSectionManagement.css";
@@ -21,6 +22,7 @@ export default function TeacherQuizSectionManagement() {
   const [, setSectionGroups] = useState({}); // { sectionId: [groups] }
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [notification, setNotification] = useState({ isOpen: false, type: "info", message: "" });
 
   // Section modals
   const [showCreateSectionModal, setShowCreateSectionModal] = useState(false);
@@ -160,7 +162,7 @@ export default function TeacherQuizSectionManagement() {
     } catch (error) {
       console.error("Error deleting section:", error);
       const errorMessage = error.response?.data?.message || error.message || "Có lỗi xảy ra khi xóa Section";
-      alert(errorMessage);
+      setNotification({ isOpen: true, type: "error", message: errorMessage });
     } finally {
       setDeletingSection(false);
     }
@@ -202,7 +204,7 @@ export default function TeacherQuizSectionManagement() {
     } catch (error) {
       console.error("Error deleting group:", error);
       const errorMessage = error.response?.data?.message || error.message || "Có lỗi xảy ra khi xóa Group";
-      alert(errorMessage);
+      setNotification({ isOpen: true, type: "error", message: errorMessage });
     } finally {
       setDeletingGroup(false);
     }
@@ -250,19 +252,26 @@ export default function TeacherQuizSectionManagement() {
       <div className="teacher-quiz-section-management-container">
         <Container>
           {/* Header */}
-          <div className="mb-4">
-            <h1 className="mb-0 fw-bold text-primary">Quản lý Quiz: {quizTitle}</h1>
-          </div>
-
-          {/* Create Section Button */}
-          <div className="mb-4">
-            <button
-              className="btn btn-primary px-4 py-2"
-              onClick={() => setShowCreateSectionModal(true)}
+          <div className="mb-4 question-header-section">
+            <button 
+              className="back-nav-link mb-3 text-muted" 
+              onClick={() => navigate(-1)}
             >
-              <FaPlus className="me-2" />
-              Tạo Section mới
+              <FaArrowLeft className="me-2" /> Quay lại
             </button>
+            <div className="d-flex align-items-center justify-content-between flex-wrap gap-3">
+              <div className="title-wrapper">
+                <h2 className="mb-0 fw-bold premium-gradient-text">Quản lý Quiz: {quizTitle}</h2>
+              </div>
+              <div>
+                <button
+                  className="btn premium-btn shadow-sm px-4 py-2 text-white"
+                  onClick={() => setShowCreateSectionModal(true)}
+                >
+                  <FaPlus className="me-2" /> Tạo Section mới
+                </button>
+              </div>
+            </div>
           </div>
 
           {/* Sections List */}
@@ -413,6 +422,13 @@ export default function TeacherQuizSectionManagement() {
         cancelText="Hủy"
         type="danger"
         disabled={deletingGroup}
+      />
+
+      <NotificationModal
+        isOpen={notification.isOpen}
+        onClose={() => setNotification({ ...notification, isOpen: false })}
+        type={notification.type}
+        message={notification.message}
       />
 
       {/* Success Modals */}

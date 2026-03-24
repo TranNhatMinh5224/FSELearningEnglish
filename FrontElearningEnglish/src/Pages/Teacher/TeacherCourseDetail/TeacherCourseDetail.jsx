@@ -13,6 +13,7 @@ import { useAssets } from "../../../Context/AssetContext";
 import CreateCourseModal from "../../../Components/Teacher/CreateCourseModal/CreateCourseModal";
 import CreateLessonModal from "../../../Components/Teacher/CreateLessonModal/CreateLessonModal";
 import SuccessModal from "../../../Components/Common/SuccessModal/SuccessModal";
+import NotificationModal from "../../../Components/Common/NotificationModal/NotificationModal";
 import ConfirmModal from "../../../Components/Common/ConfirmModal/ConfirmModal";
 import LessonLimitModal from "../../../Components/Common/LessonLimitModal/LessonLimitModal";
 import ClassCodeModal from "../../../Components/Teacher/ClassCodeModal/ClassCodeModal";
@@ -40,6 +41,7 @@ export default function TeacherCourseDetail() {
   const [deletingLesson, setDeletingLesson] = useState(false);
   const [showDeleteSuccessModal, setShowDeleteSuccessModal] = useState(false);
   const [showClassCodeModal, setShowClassCodeModal] = useState(false);
+  const [notification, setNotification] = useState({ isOpen: false, type: "info", message: "" });
 
   const isTeacher = roles.includes("Teacher") || user?.teacherSubscription?.isTeacher === true;
   const { getDefaultCourseImage, getDefaultLessonImage } = useAssets();
@@ -183,7 +185,7 @@ export default function TeacherCourseDetail() {
     } catch (error) {
       console.error("Error deleting lesson:", error);
       const errorMessage = error.response?.data?.message || error.message || "Có lỗi xảy ra khi xóa bài học";
-      alert(errorMessage);
+      setNotification({ isOpen: true, type: "error", message: errorMessage });
     } finally {
       setDeletingLesson(false);
     }
@@ -226,17 +228,16 @@ export default function TeacherCourseDetail() {
     <>
       <TeacherHeader />
       <div className="teacher-course-detail-container">
-        <div className="breadcrumb-section">
-          <Breadcrumb
-            items={[
-              { label: "Quản lý khoá học", path: ROUTE_PATHS.TEACHER_COURSE_MANAGEMENT },
-              { label: courseTitle, isCurrent: true }
-            ]}
-            showHomeIcon={false}
-          />
-        </div>
-
         <Container fluid className="course-detail-content">
+          <div className="breadcrumb-section pt-0">
+            <Breadcrumb
+              items={[
+                { label: "Quản lý khoá học", path: ROUTE_PATHS.TEACHER_COURSE_MANAGEMENT },
+                { label: courseTitle, isCurrent: true }
+              ]}
+              showHomeIcon={false}
+            />
+          </div>
           <Row>
             {/* Left Column - Course Info */}
             <Col md={4} className="course-info-column">
@@ -382,6 +383,13 @@ export default function TeacherCourseDetail() {
         message="Khóa học của bạn đã được cập nhật thành công!"
         autoClose={true}
         autoCloseDelay={1500}
+      />
+
+      <NotificationModal
+        isOpen={notification.isOpen}
+        onClose={() => setNotification({ ...notification, isOpen: false })}
+        type={notification.type}
+        message={notification.message}
       />
 
       {/* Create/Update Lesson Modal */}

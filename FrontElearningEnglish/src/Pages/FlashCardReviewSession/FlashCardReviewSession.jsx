@@ -4,6 +4,7 @@ import { Container } from "react-bootstrap";
 import FlashCardViewer from "../../Components/FlashCardDetail/FlashCardViewer/FlashCardViewer";
 import FlashCardProgressBar from "../../Components/FlashCardDetail/FlashCardProgressBar/FlashCardProgressBar";
 import MemoryAssessment from "../../Components/FlashCardReview/MemoryAssessment/MemoryAssessment";
+import NotificationModal from "../../Components/Common/NotificationModal/NotificationModal";
 import ReviewCompletion from "../../Components/FlashCardReview/ReviewCompletion/ReviewCompletion";
 import ExitConfirmModal from "../../Components/FlashCardReview/ExitConfirmModal/ExitConfirmModal";
 import { flashcardReviewService } from "../../Services/flashcardReviewService";
@@ -20,6 +21,7 @@ export default function FlashCardReviewSession() {
     const [showCompletion, setShowCompletion] = useState(false);
     const [reviewStats, setReviewStats] = useState(null);
     const [showExitModal, setShowExitModal] = useState(false);
+    const [notification, setNotification] = useState({ isOpen: false, type: "info", message: "" });
 
     useEffect(() => {
         const fetchDueFlashCards = async () => {
@@ -112,7 +114,7 @@ export default function FlashCardReviewSession() {
 
     const handleNext = async () => {
         if (!selectedQuality) {
-            alert("Vui lòng chọn mức độ nhớ của từ này trước khi chuyển sang từ tiếp theo");
+            setNotification({ isOpen: true, type: "info", message: "Vui lòng chọn mức độ nhớ của từ này trước khi chuyển sang từ tiếp theo" });
             return;
         }
 
@@ -141,7 +143,7 @@ export default function FlashCardReviewSession() {
             const errorMsg =
                 err.response?.data?.message ||
                 "Không thể lưu đánh giá. Vui lòng thử lại.";
-            alert(errorMsg);
+            setNotification({ isOpen: true, type: "error", message: errorMsg });
         }
     };
 
@@ -274,6 +276,12 @@ export default function FlashCardReviewSession() {
                 isOpen={showExitModal}
                 onContinue={handleContinueReview}
                 onExit={handleExit}
+            />
+            <NotificationModal
+                isOpen={notification.isOpen}
+                onClose={() => setNotification({ ...notification, isOpen: false })}
+                type={notification.type}
+                message={notification.message}
             />
         </>
     );

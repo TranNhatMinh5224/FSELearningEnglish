@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from "react";
 import { Container, Row, Col, Button, Alert, Form } from "react-bootstrap";
+import { FaSyncAlt } from "react-icons/fa";
 import "./OtpVerifier.css";
 
 /**
@@ -16,41 +17,60 @@ export default function OtpVerifier({
   email,
   title = "Xác minh OTP",
   description,
-  initialSeconds = 120,
+  expirySeconds = 300,
+  resendSeconds = 60,
   verifyFn,
   resendFn,
   onVerifySuccess,
 }) {
   const [otp, setOtp] = useState(["", "", "", "", "", ""]);
   const inputRefs = useRef([]);
-  const [errorMessage, setErrorMessage] = useState("");
+  const [message, setMessage] = useState({ text: "", type: "" }); // type: 'error' or 'success'
   const [loading, setLoading] = useState(false);
   const [maxAttemptsReached, setMaxAttemptsReached] = useState(false);
-  const [remainingSeconds, setRemainingSeconds] = useState(initialSeconds);
-  const timerRef = useRef(null);
+  const [remainingExpiry, setRemainingExpiry] = useState(expirySeconds);
+  const [remainingResend, setRemainingResend] = useState(resendSeconds);
+  const expiryTimerRef = useRef(null);
+  const resendTimerRef = useRef(null);
 
   useEffect(() => {
     inputRefs.current[0]?.focus();
   }, []);
 
   useEffect(() => {
-    // start timer on mount
-    startTimer(initialSeconds);
+    startExpiryTimer(expirySeconds);
+    startResendTimer(resendSeconds);
     return () => {
-      if (timerRef.current) clearInterval(timerRef.current);
+      if (expiryTimerRef.current) clearInterval(expiryTimerRef.current);
+      if (resendTimerRef.current) clearInterval(resendTimerRef.current);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const startTimer = (seconds) => {
-    if (timerRef.current) clearInterval(timerRef.current);
-    setRemainingSeconds(seconds);
-    timerRef.current = setInterval(() => {
-      setRemainingSeconds((prev) => {
+  const startExpiryTimer = (seconds) => {
+    if (expiryTimerRef.current) clearInterval(expiryTimerRef.current);
+    setRemainingExpiry(seconds);
+    expiryTimerRef.current = setInterval(() => {
+      setRemainingExpiry((prev) => {
         if (prev <= 1) {
-          clearInterval(timerRef.current);
-          timerRef.current = null;
-          setErrorMessage("Mã OTP đã hết hạn. Vui lòng gửi lại mã OTP.");
+          clearInterval(expiryTimerRef.current);
+          expiryTimerRef.current = null;
+          setMessage({ text: "Mã OTP đã hết hạn. Vui lòng gửi lại mã OTP.", type: "error" });
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+  };
+
+  const startResendTimer = (seconds) => {
+    if (resendTimerRef.current) clearInterval(resendTimerRef.current);
+    setRemainingResend(seconds);
+    resendTimerRef.current = setInterval(() => {
+      setRemainingResend((prev) => {
+        if (prev <= 1) {
+          clearInterval(resendTimerRef.current);
+          resendTimerRef.current = null;
           return 0;
         }
         return prev - 1;
@@ -78,7 +98,7 @@ export default function OtpVerifier({
     newOtp[index] = digit;
     setOtp(newOtp);
     const fullCode = newOtp.join("");
-    if (fullCode.length === 6) setErrorMessage("");
+    if (fullCode.length === 6) setMessage({ text: "", type: "" });
     if (digit && index < 5) setTimeout(() => inputRefs.current[index + 1]?.focus(), 0);
   };
 
@@ -101,29 +121,29 @@ export default function OtpVerifier({
     if (pastedData.length === 6) {
       setOtp(pastedData.split(""));
       inputRefs.current[5]?.focus();
-      setErrorMessage("");
+      setMessage({ text: "", type: "" });
     }
   };
 
   const clearOtp = () => {
     setOtp(["", "", "", "", "", ""]);
-    setErrorMessage("");
+    setMessage({ text: "", type: "" });
     setTimeout(() => inputRefs.current[0]?.focus(), 100);
   };
 
   const handleVerify = async () => {
     const code = otp.join("");
     if (code.length < 6) {
-      setErrorMessage("Vui lòng nhập đầy đủ mã OTP.");
+      setMessage({ text: "Vui lòng nhập đầy đủ mã OTP.", type: "error" });
       return;
     }
-    if (remainingSeconds === 0) {
-      setErrorMessage("Mã OTP đã hết hạn. Vui lòng gửi lại mã OTP.");
+    if (remainingExpiry === 0) {
+      setMessage({ text: "Mã OTP đã hết hạn. Vui lòng gửi lại mã OTP.", type: "error" });
       return;
     }
     if (!verifyFn) return;
     setLoading(true);
-    setErrorMessage("");
+    setMessage({ text: "", type: "" });
     try {
       const res = await verifyFn(code);
       if (res?.success) {
@@ -134,9 +154,9 @@ export default function OtpVerifier({
         const isMaxAttemptsReached = msg.includes("quá") && msg.includes("lần") && (msg.includes("5 lần") || msg.includes("quá 5"));
         if (isMaxAttemptsReached) {
           setMaxAttemptsReached(true);
-          setErrorMessage("Bạn đã nhập sai quá 5 lần. Vui lòng yêu cầu mã OTP mới.");
+          setMessage({ text: "Bạn đã nhập sai quá 5 lần. Vui lòng yêu cầu mã OTP mới.", type: "error" });
         } else {
-          setErrorMessage(msg);
+          setMessage({ text: msg, type: "error" });
         }
       }
     } catch (err) {
@@ -145,9 +165,9 @@ export default function OtpVerifier({
       const isMaxAttemptsReached = msg.includes("quá") && msg.includes("lần") && (msg.includes("5 lần") || msg.includes("quá 5"));
       if (isMaxAttemptsReached) {
         setMaxAttemptsReached(true);
-        setErrorMessage("Bạn đã nhập sai quá 5 lần. Vui lòng yêu cầu mã OTP mới.");
+        setMessage({ text: "Bạn đã nhập sai quá 5 lần. Vui lòng yêu cầu mã OTP mới.", type: "error" });
       } else {
-        setErrorMessage(msg);
+        setMessage({ text: msg, type: "error" });
       }
     } finally {
       setLoading(false);
@@ -155,21 +175,23 @@ export default function OtpVerifier({
   };
 
   const handleResend = async () => {
-    if (!resendFn) return;
+    if (!resendFn || remainingResend > 0) return;
     setLoading(true);
-    setErrorMessage("");
+    setMessage({ text: "", type: "" });
     setMaxAttemptsReached(false);
     try {
       const res = await resendFn();
       if (res?.success) {
         clearOtp();
-        startTimer(initialSeconds);
+        setMessage({ text: "Mã OTP mới đã được gửi đến email của bạn!", type: "success" });
+        startExpiryTimer(expirySeconds);
+        startResendTimer(resendSeconds);
       } else {
-        setErrorMessage(res?.message || "Không thể gửi lại mã OTP. Vui lòng thử lại.");
+        setMessage({ text: res?.message || "Không thể gửi lại mã OTP. Vui lòng thử lại.", type: "error" });
       }
     } catch (err) {
       const msg = err?.response?.data?.message || "Không thể gửi lại mã OTP. Vui lòng thử lại.";
-      setErrorMessage(msg);
+      setMessage({ text: msg, type: "error" });
     } finally {
       setLoading(false);
     }
@@ -207,13 +229,16 @@ export default function OtpVerifier({
                 ))}
               </div>
 
-              <div className="d-flex justify-content-center mb-2">
-                <span className="otp-timer">Thời gian còn lại: {formatTime(remainingSeconds)}</span>
+              <div className="d-flex flex-column align-items-center mb-3">
+                <span className="otp-timer">Mã có hiệu lực trong: {formatTime(remainingExpiry)}</span>
+                {remainingResend > 0 && (
+                    <span className="otp-resend-wait">Có thể gửi lại sau: {remainingResend}s</span>
+                )}
               </div>
 
-              {errorMessage && (
-                <Alert variant="danger" className={`otp-alert-error ${maxAttemptsReached ? "otp-error-max" : ""}`}>
-                  {errorMessage}
+              {message.text && (
+                <Alert variant={message.type === "success" ? "success" : "danger"} className={`otp-alert ${message.type === "error" && maxAttemptsReached ? "otp-error-max" : ""}`}>
+                  {message.text}
                 </Alert>
               )}
 
@@ -223,7 +248,7 @@ export default function OtpVerifier({
                   size="lg"
                   className="otp-btn"
                   onClick={handleVerify}
-                  disabled={loading || maxAttemptsReached || remainingSeconds === 0}
+                  disabled={loading || maxAttemptsReached || remainingExpiry === 0}
                 >
                   {loading ? "Đang xác minh..." : "Xác minh"}
                 </Button>
@@ -235,11 +260,12 @@ export default function OtpVerifier({
                   variant="link"
                   className="resend-btn"
                   onClick={handleResend}
-                  disabled={loading || maxAttemptsReached || remainingSeconds > 0}
+                  disabled={loading || maxAttemptsReached || remainingResend > 0}
                 >
-                  {loading ? "Đang gửi..." : "Gửi lại mã OTP"}
+                  <FaSyncAlt className={`resend-icon ${loading ? "spinning" : ""}`} />
+                  {loading ? "Đang gửi..." : (remainingResend > 0 ? `Gửi lại mã OTP (${remainingResend}s)` : "Gửi lại mã OTP")}
                 </Button>
-                {remainingSeconds === 0 && <span className="otp-expired"> &nbsp;Mã đã hết hạn</span>}
+                {remainingExpiry === 0 && <span className="otp-expired"> &nbsp;Mã đã hết hạn</span>}
               </div>
             </div>
           </Col>
@@ -248,3 +274,4 @@ export default function OtpVerifier({
     </div>
   );
 }
+

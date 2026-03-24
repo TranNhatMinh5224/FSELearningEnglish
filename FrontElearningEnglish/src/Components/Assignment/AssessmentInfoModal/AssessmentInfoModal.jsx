@@ -251,7 +251,7 @@ export default function AssessmentInfoModal({
                 backdrop={loading || checkingProgress ? 'static' : true}
                 keyboard={!(loading || checkingProgress)}
             >
-                <Modal.Header>
+                <Modal.Header closeButton>
                     <Modal.Title className="text-center w-100">
                         <div className="d-flex flex-column align-items-center">
                             <div className="mb-3">
