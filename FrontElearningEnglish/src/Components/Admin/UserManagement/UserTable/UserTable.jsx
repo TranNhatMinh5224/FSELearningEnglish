@@ -3,26 +3,23 @@ import { MdBlock, MdCheckCircle, MdArrowUpward, MdVisibility } from "react-icons
 import "./UserTable.css";
 
 // Component để hiển thị avatar - chỉ hiển thị nếu có avatarUrl
+// Component để hiển thị avatar - hỗ trợ fallback nếu không có ảnh hoặc ảnh lỗi
 const Avatar = ({ avatarUrl, displayName }) => {
   const [imageError, setImageError] = useState(false);
   
-  // Chỉ hiển thị avatar nếu có avatarUrl và chưa lỗi
-  if (avatarUrl && avatarUrl.trim() && !imageError) {
-    return (
-      <img 
-        src={avatarUrl} 
-        className="rounded-circle me-2" 
-        width="40" 
-        height="40" 
-        alt={displayName}
-        style={{ objectFit: 'cover', flexShrink: 0 }}
-        onError={() => setImageError(true)}
-      />
-    );
-  }
+  const fallbackUrl = `https://ui-avatars.com/api/?name=${encodeURIComponent(displayName || 'User')}&background=72D0DE&color=fff&size=128`;
   
-  // Không hiển thị gì nếu không có avatar
-  return null;
+  return (
+    <img 
+      src={avatarUrl && avatarUrl.trim() && !imageError ? avatarUrl : fallbackUrl} 
+      className="rounded-circle me-2 border shadow-sm" 
+      width="40" 
+      height="40" 
+      alt={displayName}
+      style={{ objectFit: 'cover', flexShrink: 0, backgroundColor: '#f8f9fa' }}
+      onError={() => setImageError(true)}
+    />
+  );
 };
 
 export default function UserTable({ 

@@ -169,11 +169,15 @@ export default function TeacherStudentManagement() {
                           className="student-card d-flex align-items-center"
                           onClick={() => handleStudentClick(studentId)}
                         >
-                          {avatarUrl && avatarUrl.trim() && (
-                            <div className="student-avatar d-flex align-items-center justify-content-center">
-                              <img src={avatarUrl} alt={displayName} />
-                            </div>
-                          )}
+                          <div className="student-avatar d-flex align-items-center justify-content-center shadow-sm border">
+                            <img 
+                              src={avatarUrl && avatarUrl.trim() ? avatarUrl : `https://ui-avatars.com/api/?name=${encodeURIComponent(displayName || 'User')}&background=72D0DE&color=fff&size=128`} 
+                              alt={displayName} 
+                              onError={(e) => {
+                                e.target.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(displayName || 'User')}&background=72D0DE&color=fff&size=128`;
+                              }}
+                            />
+                          </div>
                           <div className="student-info">
                             <h3 className="student-name">{displayName || "Chưa có tên"}</h3>
                             <p className="student-email">{email}</p>
