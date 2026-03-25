@@ -60,8 +60,8 @@ export const quizAttemptService = {
         return axiosClient.get(API_ENDPOINTS.TEACHER.GET_USER_QUIZ_ATTEMPTS(userId, quizId));
     },
 
-    // Get attempt detail for review
-    getAttemptDetailForReview: (attemptId) => {
+    // Get attempt detail for review (teacher/admin)
+    getTeacherAttemptDetailForReview: (attemptId) => {
         return axiosClient.get(API_ENDPOINTS.TEACHER.GET_QUIZ_ATTEMPT_DETAIL(attemptId));
     },
 

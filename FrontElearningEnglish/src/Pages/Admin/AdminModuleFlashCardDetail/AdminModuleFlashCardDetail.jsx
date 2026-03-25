@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { Container, Button, Card, Row, Col } from "react-bootstrap";
-import { FaPlus, FaEdit, FaTrash, FaVolumeUp } from "react-icons/fa";
+import { FaPlus, FaEdit, FaTrash, FaVolumeUp, FaArrowLeft } from "react-icons/fa";
 import { useAuth } from "../../../Context/AuthContext";
 import { adminService } from "../../../Services/adminService";
 import { flashcardService } from "../../../Services/flashcardService";
@@ -12,7 +12,7 @@ import ConfirmModal from "../../../Components/Common/ConfirmModal/ConfirmModal";
 import "./AdminModuleFlashCardDetail.css";
 
 export default function AdminModuleFlashCardDetail() {
-  const { moduleId } = useParams();
+  const { courseId, lessonId, moduleId } = useParams();
   const navigate = useNavigate();
   const { roles, isAuthenticated } = useAuth();
   
@@ -114,9 +114,20 @@ export default function AdminModuleFlashCardDetail() {
     <div className="admin-module-flashcard-detail-container">
       <Container>
         <div className="d-flex align-items-center justify-content-between mb-4 mt-4">
-          <div>
-              <h2 className="mb-0 fw-bold text-primary">Quản lý từ vựng</h2>
-              <div className="text-muted">{module?.name || "Module"} ({flashcards.length} từ)</div>
+          <div className="d-flex align-items-center gap-3">
+            <Button 
+                variant="outline-primary" 
+                className="back-btn rounded-circle p-2 d-flex align-items-center justify-content-center"
+                onClick={() => navigate(`/admin/courses/${courseId}/lesson/${lessonId}`)}
+                title="Quay lại Danh sách Module"
+                style={{ width: '40px', height: '40px' }}
+            >
+                <FaArrowLeft />
+            </Button>
+            <div>
+                <h2 className="mb-0 fw-bold text-primary">Quản lý từ vựng</h2>
+                <div className="text-muted">{module?.name || "Module"} ({flashcards.length} từ)</div>
+            </div>
           </div>
           <Button variant="primary" onClick={() => { setFlashcardToUpdate(null); setShowCreateModal(true); }}>
               <FaPlus className="me-2" /> Thêm Flashcard

@@ -360,8 +360,8 @@
   font-size: 16px;
 }
 
-.loading-message,
-.error-message {
+.teacher-lesson-detail-container .loading-message,
+.teacher-lesson-detail-container .error-message {
   text-align: center;
   padding: 40px;
   font-size: 18px;

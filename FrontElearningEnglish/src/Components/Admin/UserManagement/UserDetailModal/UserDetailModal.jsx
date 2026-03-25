@@ -44,28 +44,37 @@ export default function UserDetailModal({ show, onClose, user }) {
     >
       <div className="modal-content border-0 shadow-lg" style={{ borderRadius: '16px', overflow: 'hidden' }}>
           
-          {/* Header Gradient */}
-          <div className="p-4 text-white d-flex justify-content-between align-items-start" style={{ background: 'linear-gradient(135deg, #6366f1 0%, #4f46e5 100%)' }}>
+          {/* Premium Header Gradient */}
+          <div className="p-4 text-white d-flex justify-content-between align-items-start position-relative" style={{ background: '#72D0DE' }}>
             <div className="d-flex align-items-center">
               <img 
                 src={displayAvatarUrl} 
                 className="rounded-circle border border-4 border-white shadow-sm me-3" 
                 width="80" height="80" 
                 alt="Avatar"
-                style={{ objectFit: 'cover' }}
+                style={{ objectFit: 'cover', backgroundColor: 'white' }}
                 onError={(e) => {
                   // Fallback nếu ảnh lỗi
-                  e.target.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(`${firstName} ${lastName}`.trim() || 'User')}&background=6366f1&color=fff&size=128`;
+                  e.target.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(`${firstName} ${lastName}`.trim() || 'User')}&background=72D0DE&color=fff&size=128`;
                 }}
               />
               <div>
-                <h4 className="mb-1 fw-bold">{firstName} {lastName}</h4>
-                <span className="badge bg-white text-primary rounded-pill px-3 py-2 fw-bold">
+                <h4 className="mb-1 fw-bold text-white">{firstName} {lastName}</h4>
+                <span className="badge bg-white text-primary rounded-pill px-3 py-2 fw-bold" style={{ color: '#72D0DE !important' }}>
                   {roles[0] || 'Student'}
                 </span>
               </div>
             </div>
-            <button type="button" className="btn-close btn-close-white shadow-none" onClick={onClose}></button>
+            <button 
+              type="button" 
+              className="btn-close btn-close-white shadow-none premium-modal-close" 
+              onClick={onClose}
+              style={{ 
+                filter: 'brightness(0) invert(1)',
+                opacity: 0.8,
+                transition: 'all 0.3s ease'
+              }}
+            ></button>
           </div>
 
           <div className="modal-body p-4 bg-light">

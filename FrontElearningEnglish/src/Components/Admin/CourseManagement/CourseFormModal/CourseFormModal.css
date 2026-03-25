@@ -28,13 +28,11 @@
   border-radius: 10px;
 }
 
-/* Header SaaS Modern */
+/* Header SaaS Modern - Cleaned up for global premium style */
 .create-course-modal .modal-header {
-  background: linear-gradient(135deg, #74CEDE 0%, #5BB8C8 100%);
   padding: 1.5rem 2rem;
   border-bottom: none;
   justify-content: center;
-  border-radius: 20px 20px 0 0;
   position: relative;
   text-align: center;
 }

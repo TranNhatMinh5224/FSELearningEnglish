@@ -65,15 +65,12 @@ html body .admin-detail-modal > .modal-dialog > .modal-content {
   overflow: hidden !important;
 }
 
-/* Modal Header - Gradient blue */
+/* Modal Header - Gradient blue removed to allow global premium style */
 .admin-detail-modal > .modal-dialog > .modal-content > .modal-header,
 .modal.admin-detail-modal > .modal-dialog > .modal-content > .modal-header,
 html body .modal.admin-detail-modal .modal-header.admin-modal-header,
 html body .admin-detail-modal .modal-header.admin-modal-header,
 .admin-modal-header {
-  background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%) !important;
-  background-image: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%) !important;
-  color: white !important;
   border: none !important;
   border-bottom: none !important;
   border-top-left-radius: 16px !important;

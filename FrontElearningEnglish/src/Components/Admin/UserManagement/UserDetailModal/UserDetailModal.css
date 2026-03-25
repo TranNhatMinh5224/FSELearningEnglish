@@ -15,11 +15,7 @@
   max-width: none;
 }
 
-.user-detail-header {
-  background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
-  padding: 1.5rem;
-  color: white;
-}
+/* user-detail-header removed for global premium style */
 
 .user-detail-avatar {
   width: 80px;

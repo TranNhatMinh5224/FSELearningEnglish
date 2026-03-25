@@ -1,0 +1,64 @@
+/* Global Premium Modal Styles - FSE Learning English */
+
+/* Modal Content Rounding */
+.modal-content {
+    border: none !important;
+    border-radius: 1.25rem !important; /* Standardized high-end rounding */
+    overflow: hidden;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.15) !important;
+}
+
+/* Modal Header - Premium Mint Color (#72D0DE) */
+.modal-header {
+    background-color: #72D0DE !important;
+    border-bottom: none !important;
+    padding: 1.5rem 2rem !important;
+}
+
+.modal-header .modal-title {
+    color: white !important;
+    font-weight: 700 !important;
+    font-size: 1.25rem !important;
+    letter-spacing: -0.01em;
+}
+
+/* Global Premium Close Button (The "X" Mark) */
+.modal-header .btn-close {
+    filter: brightness(0) invert(1) !important;
+    opacity: 0.8 !important;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    background-size: 0.9rem !important;
+    margin-top: -0.25rem !important;
+    margin-right: -0.5rem !important;
+    padding: 1rem !important;
+}
+
+.modal-header .btn-close:hover {
+    opacity: 1 !important;
+    transform: rotate(90deg) scale(1.15);
+}
+
+.modal-header .btn-close:focus {
+    box-shadow: none !important;
+    outline: none !important;
+}
+
+/* Optional: Support for dark theme if needed */
+[data-theme='dark'] .modal-header {
+    background-color: #5bbcc9 !important; /* Slightly darker mint for dark mode */
+}
+
+/* Footer normalization for premium modals */
+.modal-footer {
+    border-top: 1px solid rgba(0, 0, 0, 0.05) !important;
+    padding: 1.25rem 2rem !important;
+    background-color: #fcfcfc;
+}
+
+/* Standardizing Buttons in Modals (Optional but recommended) */
+.modal-footer .btn {
+    border-radius: 100px !important; /* Pill shape */
+    padding: 0.6rem 2rem !important;
+    font-weight: 600 !important;
+    transition: all 0.2s ease;
+}

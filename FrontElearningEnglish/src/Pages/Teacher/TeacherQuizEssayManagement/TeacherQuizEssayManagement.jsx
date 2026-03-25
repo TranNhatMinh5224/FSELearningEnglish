@@ -231,7 +231,7 @@ export default function TeacherQuizEssayManagement() {
           <div className="mb-4 question-header-section">
             <button 
               className="back-nav-link mb-3 text-muted" 
-              onClick={() => navigate(-1)}
+              onClick={() => navigate(`/teacher/course/${courseId}/lesson/${lessonId}?moduleId=${moduleId}`)}
             >
               <FaArrowLeft className="me-2" /> Quay lại
             </button>

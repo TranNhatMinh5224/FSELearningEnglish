@@ -57,6 +57,7 @@ export default function NotificationModal({
                         {getIcon()}
                     </div>
                     <h2 className="notification-modal-title">{getTitle()}</h2>
+                    <button type="button" className="btn-close notification-modal-close" onClick={onClose} aria-label="Close"></button>
                 </div>
                 
                 <div className="notification-modal-body">

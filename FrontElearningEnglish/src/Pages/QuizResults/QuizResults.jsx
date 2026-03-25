@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { Container, Row, Col, Button, Card, Badge } from "react-bootstrap";
+import { Container, Row, Col, Button } from "react-bootstrap";
 import MainHeader from "../../Components/Header/MainHeader";
 import Breadcrumb from "../../Components/Common/Breadcrumb/Breadcrumb";
 import { quizAttemptService } from "../../Services/quizAttemptService";
@@ -8,12 +8,18 @@ import { quizService } from "../../Services/quizService";
 import { courseService } from "../../Services/courseService";
 import { lessonService } from "../../Services/lessonService";
 import { moduleService } from "../../Services/moduleService";
+import { useQuestionTypes } from "../../hooks/useQuestionTypes";
 import { FaCheckCircle, FaTimesCircle, FaClock, FaTrophy } from "react-icons/fa";
+import { Badge, Card } from "react-bootstrap";
+import QuizAttemptSidebar from "../../Components/Teacher/SubmissionManagement/QuizAttemptDetailModal/QuizAttemptSidebar";
+import QuizAttemptQuestion from "../../Components/Teacher/SubmissionManagement/QuizAttemptDetailModal/QuizAttemptQuestion";
+import "../../Components/Teacher/SubmissionManagement/QuizAttemptDetailModal/QuizAttemptDetailModal.css";
 import "./QuizResults.css";
 
 export default function QuizResults() {
     const { courseId, lessonId, moduleId, attemptId } = useParams();
     const navigate = useNavigate();
+    const { getQuestionTypeLabel } = useQuestionTypes();
 
     const [result, setResult] = useState(null);
     const [loading, setLoading] = useState(true);
@@ -23,87 +29,47 @@ export default function QuizResults() {
     const [error, setError] = useState("");
     const [assessmentId, setAssessmentId] = useState(null);
 
+    const [showDetails, setShowDetails] = useState(false);
+
     useEffect(() => {
         const fetchResults = async () => {
             try {
                 setLoading(true);
                 setError("");
-
-                let attemptData = null;
-
-                // ƯU TIÊN 1: Lấy từ localStorage (Dữ liệu này được QuizDetail lưu ngay khi nộp thành công)
-                const savedResult = localStorage.getItem(`quiz_result_${attemptId}`);
-                if (savedResult) {
-                    attemptData = JSON.parse(savedResult);
-                } else {
-                    const response = await quizAttemptService.result(attemptId);
-
-                    if (response.data?.success && response.data?.data) {
-                        attemptData = response.data.data;
-                        localStorage.setItem(`quiz_result_${attemptId}`, JSON.stringify(attemptData));
-                    } else {
-                        setError("Không tìm thấy kết quả bài thi này.");
-                    }
-                }
-
-                // Fetch extra info for breadcrumbs
-                try {
-                    const [courseRes, lessonRes, moduleRes] = await Promise.all([
-                        courseService.getCourseById(courseId),
-                        lessonService.getLessonById(lessonId),
-                        moduleService.getModuleById(moduleId)
-                    ]);
-                    if (courseRes.data?.success) setCourse(courseRes.data.data);
-                    if (lessonRes.data?.success) setLesson(lessonRes.data.data);
-                    if (moduleRes.data?.success) setModule(moduleRes.data.data);
-                } catch (err) {
-                    console.error("Error fetching breadcrumb info:", err);
-                }
-
-                if (attemptData) {
-                    setResult(attemptData);
-                    // Extract quizId from result
-                    const qId = attemptData.quizId || attemptData.QuizId;
+                const response = await quizAttemptService.result(attemptId);
+                if (response.data?.success && response.data?.data) {
+                    setResult(response.data.data);
+                    const qId = response.data.data.quizId || response.data.data.QuizId;
                     if (qId) {
-                        // Fetch quiz info to get assessmentId
-                        try {
-                            const quizRes = await quizService.getById(qId);
-                            if (quizRes.data?.success && quizRes.data?.data) {
-                                const quizData = Array.isArray(quizRes.data.data) ? quizRes.data.data[0] : quizRes.data.data;
-                                const aId = quizData.assessmentId || quizData.AssessmentId;
-
-                                if (aId) {
-                                    setAssessmentId(aId);
-                                }
-                            }
-                        } catch (qErr) {
-                            console.error("Error fetching quiz info:", qErr);
+                        const quizRes = await quizService.getById(qId);
+                        if (quizRes.data?.success && quizRes.data?.data) {
+                            const quizData = Array.isArray(quizRes.data.data) ? quizRes.data.data[0] : quizRes.data.data;
+                            setAssessmentId(quizData.assessmentId || quizData.AssessmentId);
                         }
                     }
+                } else {
+                    setError("Không tìm thấy kết quả bài thi này.");
                 }
+
+                const [courseRes, lessonRes, moduleRes] = await Promise.all([
+                    courseService.getCourseById(courseId),
+                    lessonService.getLessonById(lessonId),
+                    moduleService.getModuleById(moduleId)
+                ]);
+                if (courseRes.data?.success) setCourse(courseRes.data.data);
+                if (lessonRes.data?.success) setLesson(lessonRes.data.data);
+                if (moduleRes.data?.success) setModule(moduleRes.data.data);
+
             } catch (err) {
                 console.error("Error fetching results:", err);
-                setError("Không thể tải kết quả quiz. Có thể bài thi không tồn tại hoặc đã hết hạn.");
+                setError("Không thể tải kết quả quiz.");
             } finally {
                 setLoading(false);
             }
         };
 
-        if (attemptId) {
-            fetchResults();
-        }
-    }, [attemptId]);
-
-    // Get result from location state (passed from QuizDetail after submit)
-    useEffect(() => {
-        const locationState = window.history.state;
-        if (locationState?.result) {
-            setResult(locationState.result);
-            setLoading(false);
-            // Save to localStorage as backup
-            localStorage.setItem(`quiz_result_${attemptId}`, JSON.stringify(locationState.result));
-        }
-    }, [attemptId]);
+        if (attemptId) fetchResults();
+    }, [attemptId, courseId, lessonId, moduleId]);
 
     const formatTime = (seconds) => {
         const minutes = Math.floor(seconds / 60);
@@ -123,67 +89,74 @@ export default function QuizResults() {
         });
     };
 
-    const handleBack = () => {
-        if (assessmentId) {
-            navigate(`/course/${courseId}/lesson/${lessonId}/module/${moduleId}/assignment/${assessmentId}`);
-        } else {
-            navigate(`/course/${courseId}/lesson/${lessonId}/module/${moduleId}/assignment`);
+    const scrollToQuestion = (index) => {
+        const element = document.getElementById(`q-${index}`);
+        if (element) {
+            element.scrollIntoView({ behavior: "smooth", block: "start" });
         }
     };
 
-    if (loading) {
-        return (
-            <>
-                <MainHeader />
-                <div className="quiz-results-container">
-                    <div className="loading-message">Đang tải kết quả...</div>
-                </div>
-            </>
-        );
-    }
+    const effectiveSections = useMemo(() => {
+        if (!result) return [];
+        const sections = result.sections || result.Sections || [];
+        const questions = result.questions || result.Questions || [];
+        
+        if (sections.length > 0) return sections;
+        if (questions.length > 0) {
+            return [{
+                title: "Chi tiết bài làm",
+                items: questions.map((q, idx) => ({
+                    itemType: "Question",
+                    displayOrder: idx,
+                    question: q
+                }))
+            }];
+        }
+        return [];
+    }, [result]);
 
-    if (error && !result) {
-        return (
-            <>
-                <MainHeader />
-                <div className="quiz-results-container">
-                    <div className="error-message">{error}</div>
-                    <Button
-                        variant="primary"
-                        onClick={handleBack}
-                        style={{ marginTop: "20px" }}
-                    >
-                        Quay lại
-                    </Button>
-                </div>
-            </>
-        );
-    }
+    const handleBack = () => {
+        const path = assessmentId 
+            ? `/course/${courseId}/lesson/${lessonId}/module/${moduleId}/assignment/${assessmentId}`
+            : `/course/${courseId}/lesson/${lessonId}/module/${moduleId}/assignment`;
+        navigate(path);
+    };
 
-    if (!result) {
-        return (
-            <>
-                <MainHeader />
-                <div className="quiz-results-container">
-                    <div className="error-message">Không tìm thấy kết quả</div>
-                </div>
-            </>
-        );
-    }
-
-    const { totalScore, percentage, isPassed, questions, submittedAt, timeSpentSeconds } = result;
-    const hasScore = typeof totalScore === "number" && typeof percentage === "number";
-    const safeTotalScore = typeof totalScore === "number" ? totalScore : 0;
-    const safePercentage = typeof percentage === "number" ? percentage : 0;
-
-    // Tính toán tổng điểm tối đa dựa trên điểm đạt được và tỷ lệ %
-    // MaxScore = (totalScore * 100) / percentage
-    const maxScore = (safePercentage > 0) ? (safeTotalScore * 100) / safePercentage : (safeTotalScore > 0 ? safeTotalScore : 0);
-
-    return (
+    if (loading) return (
         <>
             <MainHeader />
-            <div className="quiz-results-container">
+            <div className="quiz-results-container-v3 d-flex flex-column align-items-center justify-content-center" style={{minHeight: '60vh'}}>
+                <div className="spinner-border text-primary" role="status"></div>
+                <div className="mt-3 text-muted fw-bold">Đang tải kết quả...</div>
+            </div>
+        </>
+    );
+
+    if (error || !result) return (
+        <>
+            <MainHeader />
+            <div className="quiz-results-container-v3 p-5 text-center">
+                <div className="alert alert-danger">{error || "Không tìm thấy kết quả"}</div>
+                <Button variant="primary" onClick={handleBack} className="rounded-pill px-4">Quay lại</Button>
+            </div>
+        </>
+    );
+
+    const questions = result.questions || result.Questions || [];
+    const totalScore = result.totalScore !== undefined ? result.totalScore : (result.TotalScore || 0);
+    const percentage = result.percentage !== undefined ? result.percentage : (result.Percentage || 0);
+    
+    const safeTotalScore = typeof totalScore === "number" ? totalScore : 0;
+    const safePercentage = typeof percentage === "number" ? percentage : 0;
+    const maxScore = (safePercentage > 0) ? (safeTotalScore * 100) / safePercentage : (safeTotalScore > 0 ? safeTotalScore : 0);
+    
+    const { isPassed, submittedAt, timeSpentSeconds } = result;
+    const hasScore = typeof totalScore === "number" && typeof percentage === "number";
+
+    return (
+        <div className="quiz-results-page-v3">
+            <MainHeader />
+            <div className="quiz-results-content-v3 mt-4">
                 <Container>
                     <Breadcrumb 
                         items={[
@@ -195,20 +168,21 @@ export default function QuizResults() {
                             { label: "Kết quả Quiz", isCurrent: true }
                         ]}
                     />
-                    <Row className="justify-content-center">
-                        <Col lg={10}>
-                            <Card className="results-card">
-                                <Card.Body>
-                                    {/* Header */}
-                                    <div className="results-header">
-                                        <div className={`result-icon ${isPassed ? "passed" : "failed"}`}>
+
+                    <div className="quiz-results-layout-v3 mt-4 d-flex flex-column gap-4">
+                        <main className="quiz-results-main-v3 w-100">
+                            {/* Original Results Card UI */}
+                            <Card className="results-card border-0 shadow-sm rounded-4 overflow-hidden mb-4">
+                                <Card.Body className="p-0">
+                                    <div className="results-header p-5 text-center" style={{ background: 'linear-gradient(135deg, rgba(114, 208, 222, 0.1) 0%, rgba(114, 208, 222, 0.05) 100%)' }}>
+                                        <div className={`result-icon mb-4 ${isPassed ? "text-success" : "text-danger"}`}>
                                             {isPassed ? (
-                                                <FaTrophy className="trophy-icon" />
+                                                <FaTrophy style={{ fontSize: '80px' }} />
                                             ) : (
-                                                <FaTimesCircle className="failed-icon" />
+                                                <FaTimesCircle style={{ fontSize: '80px' }} />
                                             )}
                                         </div>
-                                        <h2 className="results-title">
+                                        <h2 className="results-title fw-800 mb-4" style={{ fontSize: '2rem', color: 'var(--slate-900)' }}>
                                             {hasScore
                                                 ? (isPassed ? "Chúc mừng! Bạn đã hoàn thành bài thi" : "Kết quả làm bài của bạn")
                                                 : "Bài làm đã được nộp"}
@@ -216,159 +190,171 @@ export default function QuizResults() {
                                         <div className="results-score d-flex flex-column align-items-center">
                                             {hasScore ? (
                                                 <>
-                                                    <div className="score-display">
-                                                        <span className="score-current">{safeTotalScore.toFixed(1)}</span>
-                                                        <span className="score-separator">/</span>
-                                                        <span className="score-total">{Math.round(maxScore)}</span>
+                                                    <div className="score-display mb-2" style={{ fontSize: '3.5rem', fontWeight: '800' }}>
+                                                        <span className="text-primary">{totalScore.toFixed(1)}</span>
+                                                        <span className="text-muted mx-2" style={{ fontWeight: '300' }}>/</span>
+                                                        <span className="text-secondary">{maxScore}</span>
                                                     </div>
                                                     <div className="score-percentage-badge">
-                                                        <Badge bg={isPassed ? "success" : "danger"}>
-                                                            {safePercentage.toFixed(1)}%
+                                                        <Badge bg={isPassed ? "success" : "danger"} className="rounded-pill px-4 py-2" style={{ fontSize: '1.2rem' }}>
+                                                            {percentage.toFixed(1)}%
                                                         </Badge>
                                                     </div>
                                                 </>
                                             ) : (
-                                                <div className="text-muted small">Điểm sẽ được công bố sau</div>
+                                                <div className="text-muted">Điểm sẽ được công bố sau</div>
                                             )}
                                         </div>
                                     </div>
 
-                                    {/* Summary Stats */}
-                                    <div className="results-summary">
-                                        <Row className="g-3">
+                                    <div className="results-summary p-4 border-top">
+                                        <Row className="g-4">
                                             <Col md={4}>
-                                                <div className="summary-item border rounded p-3 h-100 bg-white shadow-sm d-flex align-items-center">
-                                                    <FaClock className="summary-icon text-primary mb-2" size={24} />
-                                                    <div className="summary-content">
-                                                        <div className="summary-label text-muted small">Thời gian làm bài</div>
-                                                        <div className="summary-value fw-bold">{formatTime(timeSpentSeconds)}</div>
+                                                <div className="summary-item d-flex align-items-center p-4 bg-light rounded-4 border-0">
+                                                    <FaClock className="text-primary me-3" size={32} />
+                                                    <div>
+                                                        <div className="text-muted small fw-600 text-uppercase">Thời gian</div>
+                                                        <div className="fw-800" style={{ fontSize: '1.1rem' }}>{formatTime(timeSpentSeconds)}</div>
                                                     </div>
                                                 </div>
                                             </Col>
                                             <Col md={4}>
-                                                <div className="summary-item border rounded p-3 h-100 bg-white shadow-sm d-flex align-items-center">
-                                                    <FaCheckCircle className="summary-icon text-success mb-2" size={24} />
-                                                    <div className="summary-content">
-                                                        <div className="summary-label text-muted small">Điểm số đạt được</div>
-                                                        <div className="summary-value fw-bold text-success">
-                                                            {hasScore ? `${safeTotalScore.toFixed(1)} điểm` : "Chưa công bố"}
+                                                <div className="summary-item d-flex align-items-center p-4 bg-light rounded-4 border-0">
+                                                    <FaCheckCircle className="text-success me-3" size={32} />
+                                                    <div>
+                                                        <div className="text-muted small fw-600 text-uppercase">Điểm số</div>
+                                                        <div className="fw-800 text-success" style={{ fontSize: '1.1rem' }}>
+                                                            {hasScore ? `${totalScore.toFixed(1)} điểm` : "Chưa công bố"}
                                                         </div>
                                                     </div>
                                                 </div>
                                             </Col>
                                             <Col md={4}>
-                                                <div className="summary-item border rounded p-3 h-100 bg-white shadow-sm d-flex align-items-center">
-                                                    <FaTrophy className="summary-icon text-warning mb-2" size={24} />
-                                                    <div className="summary-content">
-                                                        <div className="summary-label text-muted small">Nộp bài lúc</div>
-                                                        <div className="summary-value fw-bold">{formatDate(submittedAt)}</div>
+                                                <div className="summary-item d-flex align-items-center p-4 bg-light rounded-4 border-0">
+                                                    <FaTrophy className="text-warning me-3" size={32} />
+                                                    <div>
+                                                        <div className="text-muted small fw-600 text-uppercase">Nộp bài lúc</div>
+                                                        <div className="fw-800" style={{ fontSize: '1.1rem' }}>{formatDate(submittedAt)}</div>
                                                     </div>
                                                 </div>
                                             </Col>
                                         </Row>
                                     </div>
-
-                                    {/* Correct Answers */}
-                                    {questions && questions.length > 0 && (
-                                        <div className="correct-answers-section">
-                                            <h3 className="section-title">Đáp án đúng</h3>
-                                            <div className="answers-list d-flex flex-column">
-                                                {questions.map((question, index) => {
-                                                    // Parse correct answer
-                                                    const correctAnswer = question.correctAnswer || question.CorrectAnswer;
-                                                    const correctAnswerText = question.correctAnswerText || question.CorrectAnswerText;
-                                                    const userAnswer = question.userAnswer || question.UserAnswer;
-                                                    const isCorrect = question.isCorrect ?? question.IsCorrect ?? false;
-                                                    const questionText = question.questionText || question.QuestionText;
-
-                                                    return (
-                                                        <Card key={question.questionId || index} className="answer-card">
-                                                            <Card.Body>
-                                                                <div className="answer-header">
-                                                                    <Badge bg="primary" className="question-badge">
-                                                                        Câu {index + 1}
-                                                                    </Badge>
-                                                                    <Badge bg={isCorrect ? "success" : "danger"} className="ms-2">
-                                                                        {isCorrect ? "Đúng" : "Sai"}
-                                                                    </Badge>
-                                                                </div>
-                                                                <div className="question-text">
-                                                                    {questionText}
-                                                                </div>
-
-                                                                {/* User Answer */}
-                                                                {userAnswer !== null && userAnswer !== undefined && (
-                                                                    <div className="user-answer mb-2">
-                                                                        <span className="answer-label">Câu trả lời của bạn:</span>
-                                                                        <div className="answer-content">
-                                                                            <Badge bg={isCorrect ? "success" : "danger"} className="answer-badge">
-                                                                                {typeof userAnswer === 'object' ? JSON.stringify(userAnswer) : String(userAnswer)}
-                                                                            </Badge>
-                                                                        </div>
-                                                                    </div>
-                                                                )}
-
-                                                                {/* Correct Answer */}
-                                                                <div className="correct-answer">
-                                                                    <span className="answer-label">Đáp án đúng:</span>
-                                                                    <div className="answer-content">
-                                                                        {correctAnswerText ? (
-                                                                            <Badge bg="success" className="answer-badge">
-                                                                                {correctAnswerText}
-                                                                            </Badge>
-                                                                        ) : correctAnswer ? (
-                                                                            Array.isArray(correctAnswer) ? (
-                                                                                <div className="answer-list d-flex flex-wrap">
-                                                                                    {correctAnswer.map((opt, idx) => (
-                                                                                        <Badge key={idx} bg="success" className="answer-badge">
-                                                                                            {typeof opt === 'object' ? JSON.stringify(opt) : String(opt)}
-                                                                                        </Badge>
-                                                                                    ))}
-                                                                                </div>
-                                                                            ) : typeof correctAnswer === 'object' ? (
-                                                                                <div className="answer-object d-flex flex-column">
-                                                                                    {Object.entries(correctAnswer).map(([key, value], idx) => (
-                                                                                        <div key={idx} className="answer-pair d-flex align-items-center">
-                                                                                            <Badge bg="info">{key}</Badge>
-                                                                                            <span className="arrow">→</span>
-                                                                                            <Badge bg="success">{String(value)}</Badge>
-                                                                                        </div>
-                                                                                    ))}
-                                                                                </div>
-                                                                            ) : (
-                                                                                <Badge bg="success" className="answer-badge">
-                                                                                    {String(correctAnswer)}
-                                                                                </Badge>
-                                                                            )
-                                                                        ) : (
-                                                                            <span className="text-muted">Không có thông tin</span>
-                                                                        )}
-                                                                    </div>
-                                                                </div>
-                                                            </Card.Body>
-                                                        </Card>
-                                                    );
-                                                })}
-                                            </div>
-                                        </div>
-                                    )}
-
-                                    {/* Actions */}
-                                    <div className="results-actions d-flex justify-content-center flex-column flex-md-row">
-                                        <Button
-                                            variant="outline-secondary"
-                                            onClick={handleBack}
-                                        >
-                                            Quay lại
-                                        </Button>
-                                    </div>
                                 </Card.Body>
                             </Card>
-                        </Col>
-                    </Row>
+
+                            {/* View Details Toggle Button */}
+                            {questions.length > 0 && (
+                                <div className="d-flex justify-content-center my-4">
+                                    <Button 
+                                        variant={showDetails ? "outline-primary" : "primary"} 
+                                        onClick={() => setShowDetails(!showDetails)}
+                                        className="rounded-pill px-5 py-3 fw-bold shadow-lg transition-all"
+                                        style={{ fontSize: '1.1rem' }}
+                                    >
+                                        {showDetails ? "Ẩn chi tiết bài làm" : "Xem chi tiết kết quả bài làm"}
+                                    </Button>
+                                </div>
+                            )}
+
+                            {!showDetails && questions.length === 0 && (
+                                <div className="text-center p-4 bg-white rounded-4 border border-warning-subtle shadow-sm">
+                                    <div className="text-warning fw-bold mb-2">Thông báo</div>
+                                    <div className="text-muted">Giáo viên chưa cho phép xem chi tiết đáp án của bài thi này.</div>
+                                </div>
+                            )}
+
+                            {showDetails && (
+                                <div className="d-flex gap-4 quiz-review-animate-fade-in">
+                                    <div className="flex-grow-1">
+                                        <div className="questions-list-v3">
+                                            {effectiveSections.map((section, sIdx) => {
+                                                const items = section.items || section.Items || [];
+                                                let globalQuestionIndex = 0;
+                                                
+                                                return (
+                                                    <section key={sIdx} className="section-block-v3 mb-5">
+                                                        {section.title && <h4 className="section-title-v3 mb-4">{section.title}</h4>}
+                                                        <div className="section-items-v3">
+                                                            {items.map((item, itemIdx) => {
+                                                                const itemType = item.itemType || item.ItemType;
+                                                                const group = item.group || item.Group;
+                                                                const q = item.question || item.Question;
+
+                                                                if (itemType === "Group" && group) {
+                                                                    return (
+                                                                        <div key={itemIdx} className="question-group-v3 mb-4">
+                                                                            <div className="group-info-v3 p-3 bg-white rounded border border-primary-subtle mb-3">
+                                                                                {group.title && <h5 className="fw-bold text-primary mb-2">{group.title}</h5>}
+                                                                                {group.description && <div className="small text-dark" dangerouslySetInnerHTML={{ __html: group.description }} />}
+                                                                            </div>
+                                                                            <div className="group-questions-v3 ms-3">
+                                                                                {(group.questions || []).map((gq, gqIdx) => (
+                                                                                    <QuizAttemptQuestion
+                                                                                        key={gq.questionId || gqIdx}
+                                                                                        question={gq}
+                                                                                        index={globalQuestionIndex++}
+                                                                                        getQuestionTypeLabel={getQuestionTypeLabel}
+                                                                                    />
+                                                                                ))}
+                                                                            </div>
+                                                                        </div>
+                                                                    );
+                                                                } else if (itemType === "Question" && q) {
+                                                                    return (
+                                                                        <QuizAttemptQuestion
+                                                                            key={q.questionId || itemIdx}
+                                                                            question={q}
+                                                                            index={globalQuestionIndex++}
+                                                                            getQuestionTypeLabel={getQuestionTypeLabel}
+                                                                        />
+                                                                    );
+                                                                }
+                                                                return null;
+                                                            })}
+                                                        </div>
+                                                    </section>
+                                                );
+                                            })}
+                                        </div>
+                                    </div>
+
+                                    <aside className="quiz-results-sidebar-v3" style={{ width: '320px', flexShrink: 0 }}>
+                                        <div className="sticky-sidebar-v3" style={{ position: 'sticky', top: '24px' }}>
+                                            <QuizAttemptSidebar
+                                                effectiveSections={effectiveSections}
+                                                totalScore={totalScore}
+                                                maxScore={maxScore}
+                                                questionsCount={questions.length}
+                                                scrollToQuestion={scrollToQuestion}
+                                            />
+                                        </div>
+                                    </aside>
+                                </div>
+                            )}
+                            {showDetails && (
+                                <div className="d-flex justify-content-center mt-5 mb-5">
+                                    <Button variant="outline-secondary" onClick={() => setShowDetails(false)} className="rounded-pill px-5 py-2 fw-bold shadow-sm me-3">
+                                        Thu gọn bài làm
+                                    </Button>
+                                    <Button variant="secondary" onClick={handleBack} className="rounded-pill px-5 py-2 fw-bold shadow-sm">
+                                        Quay lại khóa học
+                                    </Button>
+                                </div>
+                            )}
+
+                            {!showDetails && (
+                                <div className="d-flex justify-content-center mt-4 mb-5">
+                                    <Button variant="secondary" onClick={handleBack} className="rounded-pill px-5 py-2 fw-bold shadow-sm">
+                                        Quay lại khóa học
+                                    </Button>
+                                </div>
+                            )}
+                        </main>
+                    </div>
                 </Container>
             </div>
-        </>
+        </div>
     );
 }
 

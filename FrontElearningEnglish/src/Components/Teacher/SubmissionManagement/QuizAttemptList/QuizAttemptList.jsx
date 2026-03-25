@@ -46,7 +46,7 @@ export default function QuizAttemptList({ quizId, quizTitle, onBack, isAdmin = f
       const attemptId = attempt.attemptId || attempt.AttemptId;
       const response = isAdmin
         ? await quizAttemptService.getAdminAttemptDetailForReview(attemptId)
-        : await quizAttemptService.getAttemptDetailForReview(attemptId);
+        : await quizAttemptService.getTeacherAttemptDetailForReview(attemptId);
       if (response.data?.success) {
         setSelectedAttempt(response.data.data);
         setShowDetailModal(true);
@@ -201,6 +201,7 @@ export default function QuizAttemptList({ quizId, quizTitle, onBack, isAdmin = f
           }}
           attempt={selectedAttempt}
           quizId={quizId}
+          isAdmin={isAdmin}
         />
       )}
 

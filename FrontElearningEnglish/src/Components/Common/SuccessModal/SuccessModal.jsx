@@ -37,6 +37,7 @@ export default function SuccessModal({
                         <FaCheckCircle className="success-icon" />
                     </div>
                     <h2 className="success-modal-title">{title}</h2>
+                    <button type="button" className="btn-close success-modal-close" onClick={onClose} aria-label="Close"></button>
                 </div>
                 
                 <div className="success-modal-body">

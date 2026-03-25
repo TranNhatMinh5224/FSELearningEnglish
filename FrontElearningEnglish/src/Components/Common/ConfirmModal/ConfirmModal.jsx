@@ -29,8 +29,11 @@ export default function ConfirmModal({
         <div className="modal-overlay confirm-modal-overlay" onClick={onClose}>
             <div className="modal-content confirm-modal-content" onClick={(e) => e.stopPropagation()}>
                 <div className="confirm-modal-header">
-                    {getIcon()}
-                    <h2 className="confirm-modal-title">{title}</h2>
+                    <div className="confirm-header-content">
+                        {getIcon()}
+                        <h2 className="confirm-modal-title">{title}</h2>
+                    </div>
+                    <button type="button" className="btn-close confirm-modal-close" onClick={onClose} aria-label="Close"></button>
                 </div>
                 
                 <div className="confirm-modal-body">

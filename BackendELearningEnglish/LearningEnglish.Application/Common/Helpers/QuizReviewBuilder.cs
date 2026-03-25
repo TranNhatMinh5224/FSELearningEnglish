@@ -11,13 +11,9 @@ namespace LearningEnglish.Application.Common.Helpers
         
         public static List<QuestionReviewDto> BuildQuestionReviewList(Quiz quiz, QuizAttempt attempt)
         {
-            var questionReviews = new List<QuestionReviewDto>();
-
-            // Parse user answers và scores
             var userAnswers = AnswerNormalizer.DeserializeAnswersJson(attempt.AnswersJson);
             var scores = AnswerNormalizer.DeserializeScoresJson(attempt.ScoresJson);
 
-            // Collect all questions từ sections
             var allQuestions = new List<Question>();
             foreach (var section in quiz.QuizSections)
             {
@@ -28,64 +24,146 @@ namespace LearningEnglish.Application.Common.Helpers
                 allQuestions.AddRange(section.Questions.Where(q => q.QuizGroupId == null));
             }
 
-            // Build QuestionReviewDto cho từng câu
-            foreach (var question in allQuestions.OrderBy(q => q.QuestionId))
+            return allQuestions.OrderBy(q => q.QuestionId)
+                .Select(q => BuildQuestionReviewDto(q, userAnswers, scores))
+                .ToList();
+        }
+
+        public static List<QuizAttemptSectionReviewDto> BuildStructuredQuestionReview(Quiz quiz, QuizAttempt attempt)
+        {
+            var sectionReviews = new List<QuizAttemptSectionReviewDto>();
+            var userAnswers = AnswerNormalizer.DeserializeAnswersJson(attempt.AnswersJson);
+            var scores = AnswerNormalizer.DeserializeScoresJson(attempt.ScoresJson);
+
+            if (quiz.QuizSections == null) return sectionReviews;
+
+            foreach (var section in quiz.QuizSections.OrderBy(s => s.DisplayOrder))
             {
-                var questionReview = new QuestionReviewDto
+                var sectionReview = new QuizAttemptSectionReviewDto
                 {
-                    QuestionId = question.QuestionId,
-                    QuestionText = question.StemText,
-                    MediaUrl = question.MediaKey,
-                    Type = question.Type,
-                    Points = question.Points,
-                    Score = scores.ContainsKey(question.QuestionId) ? scores[question.QuestionId] : 0,
-                    IsCorrect = scores.ContainsKey(question.QuestionId) && scores[question.QuestionId] >= question.Points,
-                    UserAnswer = userAnswers.ContainsKey(question.QuestionId) ? userAnswers[question.QuestionId] : null,
-                    CorrectAnswer = ParseCorrectAnswer(question),
-                    Options = new List<AnswerOptionReviewDto>()
+                    SectionId = section.SectionId,
+                    Title = section.Title,
+                    Description = section.Description,
+                    DisplayOrder = section.DisplayOrder,
+                    Items = new List<QuizReviewItemDto>()
                 };
 
-                questionReview.UserAnswerText = BuildAnswerText(question, questionReview.UserAnswer);
-                questionReview.CorrectAnswerText = BuildAnswerText(question, questionReview.CorrectAnswer);
-
-                // Build options nếu có
-                if (question.Options != null && question.Options.Any())
+                // Add groups
+                if (section.QuizGroups != null)
                 {
-                    var userAnswerIds = ParseUserAnswerAsOptionIds(questionReview.UserAnswer);
-
-                    foreach (var option in question.Options.OrderBy(o => o.AnswerOptionId))
+                    foreach (var group in section.QuizGroups.OrderBy(g => g.DisplayOrder))
                     {
-                        questionReview.Options.Add(new AnswerOptionReviewDto
+                    var groupReview = new QuizReviewGroupDto
+                    {
+                        GroupId = group.QuizGroupId,
+                        Title = group.Title,
+                        Description = group.Description,
+                        MediaUrl = group.MediaKey,
+                        Questions = group.Questions.OrderBy(q => q.QuestionId)
+                            .Select(q => BuildQuestionReviewDto(q, userAnswers, scores))
+                            .ToList()
+                    };
+
+                    sectionReview.Items.Add(new QuizReviewItemDto
+                    {
+                        ItemType = "Group",
+                        DisplayOrder = group.DisplayOrder,
+                        Group = groupReview
+                    });
+                }
+
+                // Add standalone questions
+                if (section.Questions != null)
+                {
+                    foreach (var question in section.Questions.Where(q => q.QuizGroupId == null).OrderBy(q => q.QuestionId))
+                    {
+                        sectionReview.Items.Add(new QuizReviewItemDto
                         {
-                            OptionId = option.AnswerOptionId,
-                            OptionText = option.Text ?? string.Empty,
-                            MediaUrl = option.MediaKey,
-                            IsCorrect = option.IsCorrect,
-                            IsSelected = userAnswerIds.Contains(option.AnswerOptionId)
+                            ItemType = "Question",
+                            DisplayOrder = question.QuestionId, // Using ID as order fallback
+                            Question = BuildQuestionReviewDto(question, userAnswers, scores)
                         });
                     }
                 }
 
-                questionReviews.Add(questionReview);
+                sectionReview.Items = sectionReview.Items.OrderBy(i => i.DisplayOrder).ToList();
+                sectionReviews.Add(sectionReview);
             }
 
-            return questionReviews;
+            return sectionReviews;
+        }
+
+        private static QuestionReviewDto BuildQuestionReviewDto(Question question, Dictionary<int, object?> userAnswers, Dictionary<int, decimal> scores)
+        {
+            var questionReview = new QuestionReviewDto
+            {
+                QuestionId = question.QuestionId,
+                QuestionText = question.StemText,
+                MediaUrl = question.MediaKey,
+                Type = question.Type,
+                Points = question.Points,
+                Score = scores.ContainsKey(question.QuestionId) ? scores[question.QuestionId] : 0,
+                IsCorrect = scores.ContainsKey(question.QuestionId) && scores[question.QuestionId] >= question.Points,
+                UserAnswer = userAnswers.ContainsKey(question.QuestionId) ? userAnswers[question.QuestionId] : null,
+                CorrectAnswer = ParseCorrectAnswer(question),
+                Options = new List<AnswerOptionReviewDto>()
+            };
+
+            questionReview.UserAnswerText = BuildAnswerText(question, questionReview.UserAnswer);
+            questionReview.CorrectAnswerText = BuildAnswerText(question, questionReview.CorrectAnswer);
+
+            if (question.Options != null && question.Options.Any())
+            {
+                var userAnswerIds = ParseUserAnswerAsOptionIds(questionReview.UserAnswer);
+
+                foreach (var option in question.Options.OrderBy(o => o.AnswerOptionId))
+                {
+                    questionReview.Options.Add(new AnswerOptionReviewDto
+                    {
+                        OptionId = option.AnswerOptionId,
+                        OptionText = option.Text ?? string.Empty,
+                        MediaUrl = option.MediaKey,
+                        IsCorrect = option.IsCorrect,
+                        IsSelected = userAnswerIds.Contains(option.AnswerOptionId)
+                    });
+                }
+            }
+
+            return questionReview;
         }
 
        
         public static object? ParseCorrectAnswer(Question question)
         {
-            if (string.IsNullOrEmpty(question.CorrectAnswersJson))
-                return null;
+            // Nếu có CorrectAnswersJson thì ưu tiên dùng (FillBlank, Matching, Ordering...)
+            if (!string.IsNullOrEmpty(question.CorrectAnswersJson))
+            {
+                try
+                {
+                    return JsonSerializer.Deserialize<object>(question.CorrectAnswersJson);
+                }
+                catch
+                {
+                    return question.CorrectAnswersJson;
+                }
+            }
 
-            try
+            // Nếu không có Json, check trong Options (MultipleChoice, MultipleAnswers, TrueFalse)
+            if (question.Options != null && question.Options.Any())
             {
-                return JsonSerializer.Deserialize<object>(question.CorrectAnswersJson);
+                var correctOptionIds = question.Options
+                    .Where(o => o.IsCorrect)
+                    .Select(o => o.AnswerOptionId)
+                    .ToList();
+
+                if (correctOptionIds.Any())
+                {
+                    // Nếu chỉ có 1, trả về 1 số. Nếu nhiều, trả về array.
+                    return correctOptionIds.Count == 1 ? (object)correctOptionIds[0] : correctOptionIds;
+                }
             }
-            catch
-            {
-                return question.CorrectAnswersJson;
-            }
+
+            return null;
         }
 
        

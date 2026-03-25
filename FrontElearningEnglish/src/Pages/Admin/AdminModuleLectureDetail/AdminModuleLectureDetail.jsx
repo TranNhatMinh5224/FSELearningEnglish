@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { Container, Button, Badge } from "react-bootstrap";
-import { FaPlus } from "react-icons/fa";
+import { FaPlus, FaArrowLeft } from "react-icons/fa";
 import { useAuth } from "../../../Context/AuthContext";
 import { adminService } from "../../../Services/adminService";
 import { lectureService } from "../../../Services/lectureService";
@@ -14,7 +14,7 @@ import NotificationModal from "../../../Components/Common/NotificationModal/Noti
 import "./AdminModuleLectureDetail.css";
 
 export default function AdminModuleLectureDetail() {
-  const { moduleId } = useParams();
+  const { courseId, lessonId, moduleId } = useParams();
   const navigate = useNavigate();
   const { roles, isAuthenticated } = useAuth();
 
@@ -138,15 +138,26 @@ export default function AdminModuleLectureDetail() {
       <Container>
         <div className="lecture-management-header mb-4 mt-4">
           <div className="d-flex align-items-center justify-content-between">
-            <div className="header-content">
-              <h2 className="mb-1 fw-bold text-primary">Quản lý bài giảng</h2>
-              <div className="text-muted d-flex align-items-center gap-2">
-                <span className="module-name">{module?.name || "Module"}</span>
-                {lectures.length > 0 && (
-                  <Badge bg="secondary" className="px-2 py-1">
-                    {lectures.length} {lectures.length === 1 ? 'bài giảng' : 'bài giảng'}
-                  </Badge>
-                )}
+            <div className="header-content d-flex align-items-center gap-3">
+              <Button 
+                variant="outline-primary" 
+                className="back-btn rounded-circle p-2 d-flex align-items-center justify-content-center"
+                onClick={() => navigate(`/admin/courses/${courseId}/lesson/${lessonId}`)}
+                title="Quay lại Danh sách Module"
+                style={{ width: '40px', height: '40px' }}
+              >
+                <FaArrowLeft />
+              </Button>
+              <div>
+                <h2 className="mb-0 fw-bold text-primary">Quản lý bài giảng</h2>
+                <div className="text-muted d-flex align-items-center gap-2">
+                  <span className="module-name">{module?.name || "Module"}</span>
+                  {lectures.length > 0 && (
+                    <Badge bg="secondary" className="px-2 py-1">
+                      {lectures.length} bài giảng
+                    </Badge>
+                  )}
+                </div>
               </div>
             </div>
             <Button

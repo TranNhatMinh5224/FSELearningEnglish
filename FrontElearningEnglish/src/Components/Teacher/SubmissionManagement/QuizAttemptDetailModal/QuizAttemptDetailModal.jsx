@@ -2,9 +2,12 @@ import React, { useState, useEffect, useCallback } from "react";
 import { Modal, Spinner } from "react-bootstrap";
 import { quizAttemptService } from "../../../../Services/quizAttemptService";
 import { useQuestionTypes } from "../../../../hooks/useQuestionTypes";
+import QuizAttemptSidebar from "./QuizAttemptSidebar";
+import QuizAttemptSummary from "./QuizAttemptSummary";
+import QuizAttemptQuestion from "./QuizAttemptQuestion";
 import "./QuizAttemptDetailModal.css";
 
-export default function QuizAttemptDetailModal({ show, onClose, attempt, quizId }) {
+export default function QuizAttemptDetailModal({ show, onClose, attempt, quizId, isAdmin = false }) {
   const { getQuestionTypeLabel } = useQuestionTypes();
   const [attemptDetail, setAttemptDetail] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -12,7 +15,9 @@ export default function QuizAttemptDetailModal({ show, onClose, attempt, quizId 
 
   const fetchFromScoresAPI = useCallback(async (targetQuizId, attemptId) => {
     try {
-      const response = await quizAttemptService.getQuizScoresPaged(targetQuizId, 1, 100);
+      const response = isAdmin
+        ? await quizAttemptService.getAdminQuizScoresPaged(targetQuizId, 1, 100)
+        : await quizAttemptService.getQuizScoresPaged(targetQuizId, 1, 100);
       if (response.data?.success && response.data?.data) {
         const data = response.data.data;
         const items = data.items || data.data || [];
@@ -38,55 +43,51 @@ export default function QuizAttemptDetailModal({ show, onClose, attempt, quizId 
       console.error("Error fetching from scores API:", err);
       setAttemptDetail(attempt);
     }
-  }, [attempt]);
+  }, [attempt, isAdmin]);
 
-  const fetchAttemptDetail = useCallback(async () => {
-    if (!attempt) return;
+  const attemptId = attempt?.attemptId || attempt?.AttemptId;
 
-    try {
+  useEffect(() => {
+    const fetchAttemptDetailData = async () => {
+      if (!attemptId) return;
       setLoading(true);
-      setError("");
+      setError(null);
+      try {
+        const fetchFunc = isAdmin
+          ? quizAttemptService.getAdminAttemptDetailForReview
+          : quizAttemptService.getTeacherAttemptDetailForReview;
 
-      const attemptId = attempt.attemptId || attempt.AttemptId;
-      const response = await quizAttemptService.getAttemptDetailForReview(attemptId);
-
-      if (response.data?.success && response.data?.data) {
-        setAttemptDetail(response.data.data);
-      } else {
-        // If detail API doesn't have user info, try to get from scores API
-        const currentQuizId = quizId || attempt.quizId || attempt.QuizId;
+        const response = await fetchFunc(attemptId);
+        if (response.data?.success && response.data?.data) {
+          setAttemptDetail(response.data.data);
+        } else {
+          const currentQuizId = quizId || attempt?.quizId || attempt?.QuizId;
+          if (currentQuizId) {
+            await fetchFromScoresAPI(currentQuizId, attemptId);
+          } else {
+            setError(response.data?.message || "Không thể tải chi tiết bài làm");
+          }
+        }
+      } catch (err) {
+        console.error("Error in fetchAttemptDetailData:", err);
+        const currentQuizId = quizId || attempt?.quizId || attempt?.QuizId;
         if (currentQuizId) {
           await fetchFromScoresAPI(currentQuizId, attemptId);
         } else {
-          setError("Không thể tải chi tiết bài làm");
+          setError("Giao diện không thể tải dữ liệu từ máy chủ");
         }
+      } finally {
+        setLoading(false);
       }
-    } catch (err) {
-      console.error("Error fetching attempt detail:", err);
-      // Try to get from scores API as fallback
-      const currentQuizId = quizId || attempt?.quizId || attempt?.QuizId;
-      if (currentQuizId) {
-        await fetchFromScoresAPI(currentQuizId, attempt?.attemptId || attempt?.AttemptId);
-      } else {
-        setError("Không thể tải chi tiết bài làm");
-      }
-    } finally {
-      setLoading(false);
-    }
-  }, [attempt, quizId, fetchFromScoresAPI]);
+    };
 
-  useEffect(() => {
-    if (show && attempt) {
-      fetchAttemptDetail();
-    } else {
-      setAttemptDetail(null);
-      setError("");
+    if (show && attemptId) {
+      fetchAttemptDetailData();
     }
-  }, [show, attempt, fetchAttemptDetail]);
+  }, [show, attemptId, isAdmin, quizId, fetchFromScoresAPI]);
 
   if (!attempt) return null;
 
-  // Use attemptDetail if available, otherwise use attempt
   const displayData = attemptDetail || attempt;
 
   const userName = displayData.firstName || displayData.FirstName || displayData.userName || displayData.UserName || "";
@@ -98,124 +99,135 @@ export default function QuizAttemptDetailModal({ show, onClose, attempt, quizId 
   const percentage = displayData.percentage !== undefined ? displayData.percentage : (displayData.Percentage !== undefined ? displayData.Percentage : null);
   const timeSpentSeconds = displayData.timeSpentSeconds !== undefined ? displayData.timeSpentSeconds : (displayData.TimeSpentSeconds !== undefined ? displayData.TimeSpentSeconds : 0);
   const questions = displayData.questions || displayData.Questions || [];
+  const sections = displayData.sections || displayData.Sections || (displayData.data && (displayData.data.sections || displayData.data.Sections)) || [];
+
+  const effectiveSections = (sections && sections.length > 0) ? sections :
+    (questions && questions.length > 0 ? [{
+      title: "Chi tiết bài làm",
+      items: questions.map((q, idx) => ({
+        itemType: "Question",
+        displayOrder: idx,
+        question: q
+      }))
+    }] : []);
+
+  const scrollToQuestion = (id) => {
+    const element = document.getElementById(`q-${id}`);
+    if (element) {
+      element.scrollIntoView({ behavior: "smooth", block: "center" });
+    }
+  };
+
+  let globalQuestionIndex = 0;
 
   return (
-    <Modal 
-      show={show} 
-      onHide={onClose} 
-      centered 
-      className="quiz-attempt-detail-modal modal-modern" 
-      dialogClassName="quiz-attempt-detail-modal-dialog"
+    <Modal
+      show={show}
+      onHide={onClose}
+      centered
+      fullscreen="lg-down"
+      size="xl"
+      className="quiz-review-modal-v3"
     >
-      <Modal.Header closeButton>
-        <Modal.Title>Chi tiết bài làm Quiz</Modal.Title>
+      <Modal.Header closeButton className="quiz-header-custom border-0 px-4 py-3">
+        <Modal.Title className="fw-bold text-white">
+          Chi tiết kết quả bài làm: <span>{fullName}</span>
+        </Modal.Title>
       </Modal.Header>
-      <Modal.Body>
+
+      <Modal.Body className="p-0">
         {loading ? (
-          <div className="text-center py-4">
+          <div className="p-5 text-center">
             <Spinner animation="border" variant="primary" />
-            <p className="mt-2 text-muted">Đang tải...</p>
+            <p className="mt-3">Đang chuẩn bị dữ liệu review...</p>
           </div>
         ) : error ? (
-          <div className="alert alert-danger">{error}</div>
+          <div className="m-4 alert alert-danger">{error}</div>
         ) : (
-          <>
-            <div className="mb-3">
-              <strong>Học sinh:</strong> {fullName} ({email})
-            </div>
-            <div className="mb-3">
-              <strong>Điểm số:</strong> {totalScore !== "N/A" && maxScore !== null ? `${totalScore} / ${maxScore}` : totalScore}
-            </div>
-            {percentage !== null && percentage !== undefined && (
-              <div className="mb-3">
-                <strong>Phần trăm:</strong> {percentage}%
-              </div>
-            )}
-            <div className="mb-3">
-              <strong>Thời gian làm bài:</strong> {timeSpentSeconds > 0 ? `${Math.floor(timeSpentSeconds / 60)} phút ${timeSpentSeconds % 60} giây` : "N/A"}
-            </div>
+          <div className="review-layout-container">
+            <main className="review-content-main">
+              <QuizAttemptSummary
+                fullName={fullName}
+                email={email}
+                percentage={percentage}
+                timeSpentSeconds={timeSpentSeconds}
+              />
 
-            {questions.length > 0 && (
-              <div className="questions-review-section">
-                <h5>Chi tiết câu hỏi</h5>
-                {questions.map((question, index) => {
-                  const questionId = question.questionId || question.QuestionId;
-                  const questionText = question.questionText || question.QuestionText || "";
-                  const questionType = question.type || question.Type;
-                  const points = question.points || question.Points || 0;
-                  const score = question.score || question.Score || 0;
-                  const isCorrect = question.isCorrect !== undefined ? question.isCorrect : (question.IsCorrect || false);
-                  const userAnswerText = question.userAnswerText || question.UserAnswerText || "Chưa trả lời";
-                  const correctAnswerText = question.correctAnswerText || question.CorrectAnswerText || "";
-                  const options = question.options || question.Options || [];
+              {effectiveSections.map((section, sIdx) => {
+                const sectionId = section.sectionId || section.SectionId || sIdx;
+                const sectionTitle = section.title || section.Title || `PART ${sIdx + 1}`;
+                const sectionItems = section.items || section.Items || [];
 
-                  return (
-                    <div key={questionId || index} className={`question-review-item ${isCorrect ? 'correct-answer' : 'incorrect-answer'}`}>
-                      <div className="question-header">
-                        <span className="question-badge number">Câu {index + 1}</span>
-                        <span className="question-badge type">{getQuestionTypeLabel(questionType)}</span>
-                        <span className={`question-badge ${isCorrect ? 'correct' : 'incorrect'}`}>
-                          {isCorrect ? '✓ Đúng' : '✗ Sai'}
-                        </span>
-                        <span className="question-score ms-auto">
-                          {score}/{points} điểm
-                        </span>
-                      </div>
-                      
-                      <div className="question-text">
-                        <strong>Câu hỏi:</strong> {questionText}
-                      </div>
-Label
-                      {options.length > 0 && (
-                        <div className="options-section">
-                          <strong>Các lựa chọn:</strong>
-                          <ul className="question-options">
-                            {options.map((option, optIdx) => {
-                              const optionId = option.optionId || option.OptionId;
-                              const optionText = option.optionText || option.OptionText || "";
-                              const isOptionCorrect = option.isCorrect !== undefined ? option.isCorrect : (option.IsCorrect || false);
-                              const isSelected = option.isSelected !== undefined ? option.isSelected : (option.IsSelected || false);
-                              
-                              let className = '';
-                              if (isSelected && isOptionCorrect) {
-                                className = 'selected correct-option';
-                              } else if (isSelected) {
-                                className = 'selected';
-                              } else if (isOptionCorrect) {
-                                className = 'correct-option';
-                              }
-                              
-                              return (
-                                <li key={optionId || optIdx} className={className}>
-                                  {isSelected && <span className="selected-indicator">[Đã chọn]</span>}
-                                  {isOptionCorrect && <span className="correct-indicator">✓</span>}
-                                  {optionText}
-                                </li>
-                              );
-                            })}
-                          </ul>
-                        </div>
-                      )}
-
-                      <div className="answer-section">
-                        <div className="user-answer">
-                          <strong>Câu trả lời:</strong> {userAnswerText}
-                        </div>
-
-                        {!isCorrect && correctAnswerText && (
-                          <div className="correct-answer-text">
-                            <strong>Đáp án đúng:</strong> {correctAnswerText}
-                          </div>
-                        )}
-                      </div>
+                return (
+                  <section key={sectionId} className="content-section-block">
+                    <div className="content-section-header">
+                      <h2>{sectionTitle}</h2>
                     </div>
-                  );
-                })}
-              </div>
-            )}
-          </>
+                    <div className="section-content">
+                      {sectionItems.map((item, itemIdx) => {
+                        const itemType = item.itemType || item.ItemType;
+                        const group = item.group || item.Group;
+                        const q = item.question || item.Question;
+
+                        if (itemType === "Group" && group) {
+                          return (
+                            <div key={group.groupId || group.QuizGroupId || itemIdx} className="question-group-exam mb-4">
+                              <div className="group-info-exam mb-3 p-3 bg-white rounded border border-primary-subtle">
+                                {group.title && <h5 className="fw-bold text-primary mb-2">{group.title}</h5>}
+                                {group.description && (
+                                  <div className="small text-dark" dangerouslySetInnerHTML={{ __html: group.description || group.Description }} />
+                                )}
+                                {(group.mediaUrl || group.MediaUrl) && (
+                                  <div className="mt-2">
+                                    <audio src={group.mediaUrl || group.MediaUrl} controls />
+                                  </div>
+                                )}
+                              </div>
+                              <div className="group-questions ms-3">
+                                {(group.questions || group.Questions || []).map((gq) => (
+                                  <QuizAttemptQuestion
+                                    key={gq.questionId || gq.QuestionId || globalQuestionIndex}
+                                    question={gq}
+                                    index={globalQuestionIndex++}
+                                    getQuestionTypeLabel={getQuestionTypeLabel}
+                                  />
+                                ))}
+                              </div>
+                            </div>
+                          );
+                        } else if (itemType === "Question" && q) {
+                          return (
+                            <QuizAttemptQuestion
+                              key={q.questionId || q.QuestionId || globalQuestionIndex}
+                              question={q}
+                              index={globalQuestionIndex++}
+                              getQuestionTypeLabel={getQuestionTypeLabel}
+                            />
+                          );
+                        }
+                        return null;
+                      })}
+                    </div>
+                  </section>
+                );
+              })}
+            </main>
+
+            <QuizAttemptSidebar
+              effectiveSections={effectiveSections}
+              totalScore={totalScore}
+              maxScore={maxScore}
+              questionsCount={questions.length}
+              scrollToQuestion={scrollToQuestion}
+            />
+          </div>
         )}
       </Modal.Body>
+      <Modal.Footer className="border-0 bg-white px-4 py-3 shadow-lg" style={{ zIndex: 20 }}>
+        <button className="btn btn-secondary px-4 py-2 rounded-pill fw-bold" onClick={onClose}>
+          Đóng cửa sổ
+        </button>
+      </Modal.Footer>
     </Modal>
   );
 }

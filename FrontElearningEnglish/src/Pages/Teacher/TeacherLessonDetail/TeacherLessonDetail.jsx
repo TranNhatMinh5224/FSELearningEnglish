@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, useSearchParams } from "react-router-dom";
 import { Container, Row, Col } from "react-bootstrap";
 import "./TeacherLessonDetail.css";
 import TeacherHeader from "../../../Components/Header/TeacherHeader";
@@ -26,6 +26,7 @@ import { ROUTE_PATHS } from "../../../Routes/Paths";
 export default function TeacherLessonDetail() {
   const { courseId, lessonId } = useParams();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const { user, roles, isAuthenticated } = useAuth();
   const { isLecture, isFlashCard, isAssessment, isClickable, getModuleTypePath } = useModuleTypes();
   const { getDefaultLessonImage } = useAssets();
@@ -60,7 +61,19 @@ export default function TeacherLessonDetail() {
   const [contentError, setContentError] = useState("");
   const [assessmentTypes, setAssessmentTypes] = useState({}); // { assessmentId: { hasQuiz: boolean, hasEssay: boolean } }
 
-  const isTeacher = roles.includes("Teacher") || user?.teacherSubscription?.isTeacher === true;
+  const isTeacher = roles.some(role => ["Admin", "Teacher"].includes(role));
+  
+  const handleUpdateSuccess = () => {
+    setShowUpdateModal(false);
+    setShowSuccessModal(true);
+    fetchLessonDetail(); // Refresh lesson data
+  };
+
+  const handleCreateModuleSuccess = () => {
+    setShowCreateModuleModal(false);
+    setShowModuleSuccessModal(true);
+    fetchModules(); // Refresh modules list
+  };
 
   const fetchCourseDetail = useCallback(async () => {
     try {
@@ -134,31 +147,8 @@ export default function TeacherLessonDetail() {
     }
   }, [lessonId]);
 
-  useEffect(() => {
-    if (!isAuthenticated || !isTeacher) {
-      navigate("/home");
-      return;
-    }
-
-    fetchCourseDetail();
-    fetchLessonDetail();
-    fetchModules();
-  }, [isAuthenticated, isTeacher, navigate, fetchCourseDetail, fetchLessonDetail, fetchModules]);
-
-  const handleUpdateSuccess = () => {
-    setShowUpdateModal(false);
-    setShowSuccessModal(true);
-    fetchLessonDetail(); // Refresh lesson data
-  };
-
-  const handleCreateModuleSuccess = () => {
-    setShowCreateModuleModal(false);
-    setShowModuleSuccessModal(true);
-    fetchModules(); // Refresh modules list
-  };
-
   // Handle module click - fetch content based on module type
-  const handleModuleClick = async (module) => {
+  const handleModuleClick = useCallback(async (module) => {
     const contentTypeValue = module.contentType || module.ContentType;
     const contentTypeNum = typeof contentTypeValue === 'number' ? contentTypeValue : parseInt(contentTypeValue);
 
@@ -238,7 +228,31 @@ export default function TeacherLessonDetail() {
     } finally {
       setLoadingContent(false);
     }
-  };
+  }, [courseId, lessonId, isLecture, isFlashCard, isAssessment]);
+
+  useEffect(() => {
+    if (!isAuthenticated || !isTeacher) {
+      navigate("/home");
+      return;
+    }
+
+    fetchCourseDetail();
+    fetchLessonDetail();
+    fetchModules();
+  }, [isAuthenticated, isTeacher, navigate, fetchCourseDetail, fetchLessonDetail, fetchModules]);
+
+  // Handle auto-selecting module from query param
+  useEffect(() => {
+    const moduleIdParam = searchParams.get("moduleId");
+    if (moduleIdParam && modules.length > 0 && !selectedModule) {
+      const targetModule = modules.find(
+        (m) => (m.moduleId || m.ModuleId).toString() === moduleIdParam
+      );
+      if (targetModule) {
+        handleModuleClick(targetModule);
+      }
+    }
+  }, [searchParams, modules, selectedModule, handleModuleClick]);
 
   // Handle edit lecture
   const handleEditLecture = (lecture) => {

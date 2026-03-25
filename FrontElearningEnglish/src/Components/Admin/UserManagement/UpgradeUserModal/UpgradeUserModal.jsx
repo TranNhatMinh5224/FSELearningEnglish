@@ -18,12 +18,10 @@ export default function UpgradeUserModal({
           <h5 className="modal-title">Upgrade to Teacher</h5>
           <button 
             type="button" 
-            className="btn-close" 
+            className="btn-close premium-modal-close" 
             onClick={onClose}
             aria-label="Close"
-          >
-            ×
-          </button>
+          ></button>
         </div>
         
         <div className="modal-body">

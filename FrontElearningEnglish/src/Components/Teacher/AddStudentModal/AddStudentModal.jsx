@@ -76,8 +76,7 @@ export default function AddStudentModal({ show, onClose, onSuccess, courseId, is
       <Modal.Body>
         <form onSubmit={handleSubmit} className="add-student-form">
           <div className="form-group">
-            <label htmlFor="student-email">
-              <FaEnvelope className="label-icon" />
+            <label htmlFor="student-email" className="fw-600 mb-2">
               Email học viên
             </label>
             <input
@@ -89,15 +88,12 @@ export default function AddStudentModal({ show, onClose, onSuccess, courseId, is
                 if (touched) validateEmail();
               }}
               onBlur={handleBlur}
-              placeholder="Nhập email học viên cần thêm"
+              placeholder="Nhập email học viên..."
               className={`form-input ${touched && error ? "error" : ""}`}
               disabled={loading}
               autoFocus
             />
-            {touched && error && <div className="error-message">{error}</div>}
-            <div className="form-hint">
-              Nhập email của học viên đã có tài khoản trong hệ thống
-            </div>
+            {touched && error && <div className="asm-error-msg">{error}</div>}
           </div>
 
           <div className="form-actions">

@@ -146,10 +146,11 @@ namespace LearningEnglish.Application.Service
                     Status = attempt.Status,
                     TimeSpentSeconds = attempt.TimeSpentSeconds,
                     TotalScore = attempt.TotalScore,
-                    MaxScore = quiz.TotalQuestions > 0 ? quiz.TotalQuestions : 0,
-                    Percentage = CalculatePercentageScore(attempt.TotalScore, quiz.TotalQuestions),
+                    MaxScore = quiz.TotalPossibleScore,
+                    Percentage = CalculatePercentageScore(attempt.TotalScore, (int)quiz.TotalPossibleScore),
                     IsPassed = quiz.PassingScore.HasValue ? attempt.TotalScore >= quiz.PassingScore.Value : false,
-                    Questions = QuizReviewBuilder.BuildQuestionReviewList(quiz, attempt)
+                    Questions = QuizReviewBuilder.BuildQuestionReviewList(quiz, attempt),
+                    Sections = QuizReviewBuilder.BuildStructuredQuestionReview(quiz, attempt)
                 };
 
                 response.Success = true;

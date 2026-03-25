@@ -47,10 +47,28 @@
 }
 
 .success-modal-header {
-    background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
-    padding: 32px 32px 24px 32px;
+    background: #72D0DE;
+    padding: 40px 32px 24px 32px;
     text-align: center;
     position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.success-modal-close {
+    position: absolute;
+    top: 1.25rem;
+    right: 1.25rem;
+    filter: brightness(0) invert(1);
+    opacity: 0.8;
+    background-size: 0.8rem;
+    transition: all 0.3s ease;
+}
+
+.success-modal-close:hover {
+    opacity: 1;
+    transform: rotate(90deg);
 }
 
 .success-icon-wrapper {

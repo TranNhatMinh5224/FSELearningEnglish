@@ -3,6 +3,7 @@
 @import './Theme/responsive-typography.css';
 @import './Theme/z-index.css';
 @import './Theme/dark-theme-overrides.css';
+@import './Theme/modal-premium.css';
 
 body {
   margin: 0;

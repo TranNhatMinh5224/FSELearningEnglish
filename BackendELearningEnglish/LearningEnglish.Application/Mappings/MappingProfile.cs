@@ -500,6 +500,7 @@ namespace LearningEnglish.Application.Mappings
                 .ForMember(dest => dest.QuizId, opt => opt.MapFrom(src => src.QuizId))
                 .ForMember(dest => dest.QuizTitle, opt => opt.MapFrom(src => src.Quiz != null ? src.Quiz.Title : null))
                 .ForMember(dest => dest.Duration, opt => opt.MapFrom(src => src.Quiz != null ? src.Quiz.Duration : null))
+                .ForMember(dest => dest.UserName, opt => opt.MapFrom(src => src.User != null ? src.User.FullName : "N/A"))
                 .ForMember(dest => dest.EndTime, opt => opt.Ignore()); // Calculated in service
 
             CreateMap<QuizAttempt, QuizAttemptWithQuestionsDto>()

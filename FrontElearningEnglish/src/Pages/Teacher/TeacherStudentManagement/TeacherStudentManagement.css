@@ -195,8 +195,8 @@
   grid-column: 1 / -1;
 }
 
-.loading-message,
-.error-message {
+.teacher-student-management-container .loading-message,
+.teacher-student-management-container .error-message {
   text-align: center;
   padding: 40px;
   font-size: 18px;
@@ -225,4 +225,3 @@
     width: 100%;
   }
 }
-

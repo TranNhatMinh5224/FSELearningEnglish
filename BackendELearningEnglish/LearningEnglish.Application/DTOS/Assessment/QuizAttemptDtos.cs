@@ -9,6 +9,7 @@ namespace LearningEnglish.Application.DTOs
         public string? QuizTitle { get; set; }  // Tiêu đề quiz
         public int? Duration { get; set; }      // Thời gian làm bài (phút) - Lấy từ Quiz
         public int UserId { get; set; }
+        public string? UserName { get; set; }  // Họ tên học sinh
         public int AttemptNumber { get; set; }  // Lần làm thứ mấy
 
         public DateTime StartedAt { get; set; }
@@ -142,30 +143,46 @@ namespace LearningEnglish.Application.DTOs
         int? TotalQuestions { get; set; }
         decimal Percentage { get; set; }
     }
-
-    // DTO cho teacher xem chi tiết bài làm của học sinh
-    public class QuizAttemptDetailDto
+    public class QuizAttemptDetailDto : QuizAttemptDto
     {
-        public int AttemptId { get; set; }
-        public int QuizId { get; set; }
-        public string QuizTitle { get; set; } = string.Empty;
-        public int UserId { get; set; }
-        public string? Email { get; set; }
-        public string? FirstName { get; set; }
-        public string? LastName { get; set; }
-        public int AttemptNumber { get; set; }
-        
-        public DateTime StartedAt { get; set; }
-        public DateTime? SubmittedAt { get; set; }
-        public QuizAttemptStatus Status { get; set; }
-        
-        public int TimeSpentSeconds { get; set; }
-        public decimal TotalScore { get; set; }
         public decimal MaxScore { get; set; }
         public decimal Percentage { get; set; }
         public bool IsPassed { get; set; }
-        
-        // Chi tiết từng câu hỏi với đáp án
+
+        // Chi tiết từng câu hỏi (Danh sách phẳng để tương thích ngược)
+        [System.Text.Json.Serialization.JsonPropertyName("Questions")]
+        public List<QuestionReviewDto> Questions { get; set; } = new();
+
+        // Cấu trúc phân cấp Section -> Group -> Question (Cho hiện đại UI)
+        [System.Text.Json.Serialization.JsonPropertyName("Sections")]
+        public List<QuizAttemptSectionReviewDto> Sections { get; set; } = new();
+    }
+
+    public class QuizAttemptSectionReviewDto
+    {
+        public int SectionId { get; set; }
+        public string Title { get; set; } = string.Empty;
+        public string? Description { get; set; }
+        public int DisplayOrder { get; set; }
+        public List<QuizReviewItemDto> Items { get; set; } = new();
+    }
+
+    public class QuizReviewItemDto
+    {
+        public string ItemType { get; set; } = string.Empty; // "Group" hoặc "Question"
+        public int DisplayOrder { get; set; }
+
+        public QuizReviewGroupDto? Group { get; set; }
+        public QuestionReviewDto? Question { get; set; }
+    }
+
+    public class QuizReviewGroupDto
+    {
+        public int GroupId { get; set; }
+        public string? Title { get; set; }
+        public string? Description { get; set; }
+        public string? MediaUrl { get; set; }
+        public string? MediaType { get; set; }
         public List<QuestionReviewDto> Questions { get; set; } = new();
     }
 

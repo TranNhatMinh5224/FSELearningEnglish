@@ -30,49 +30,13 @@
   border-radius: 10px;
 }
 
-/* Header SaaS Modern */
+/* Header SaaS Modern - Cleaned up for global premium style */
 .create-quiz-section-modal .modal-header {
-  background: linear-gradient(135deg, #74CEDE 0%, #5BB8C8 100%);
   padding: 1.5rem 2rem;
   border-bottom: none;
   justify-content: center;
-  border-radius: 20px 20px 0 0;
   position: relative;
   text-align: center;
-}
-
-.create-quiz-section-modal .modal-header .btn-close {
-  position: absolute;
-  right: 1.5rem;
-  top: 50%;
-  transform: translateY(-50%);
-  filter: brightness(0) invert(1);
-  opacity: 1 !important;
-  z-index: 1050;
-  width: 2.5rem;
-  height: 2.5rem;
-  padding: 0;
-  display: flex !important;
-  align-items: center;
-  justify-content: center;
-  background: rgba(255, 255, 255, 0.25) !important;
-  border-radius: 50%;
-  border: 2px solid rgba(255, 255, 255, 0.5) !important;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
-  transition: all 0.2s ease;
-}
-
-.create-quiz-section-modal .modal-header .btn-close:hover {
-  opacity: 1 !important;
-  background: rgba(255, 255, 255, 0.4) !important;
-  border-color: rgba(255, 255, 255, 0.8) !important;
-  transform: translateY(-50%) scale(1.15);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
-}
-
-.create-quiz-section-modal .modal-header .btn-close:focus {
-  box-shadow: 0 0 0 0.25rem rgba(255, 255, 255, 0.5) !important;
-  outline: none;
 }
 
 .create-quiz-section-modal .modal-header .modal-title,

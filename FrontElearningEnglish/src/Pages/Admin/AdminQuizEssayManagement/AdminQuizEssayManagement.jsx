@@ -221,7 +221,7 @@ export default function AdminQuizEssayManagement() {
         <div className="mb-4 question-header-section">
           <button 
             className="back-nav-link mb-3 text-muted" 
-            onClick={() => navigate(-1)}
+            onClick={() => navigate(`/admin/courses/${courseId}/lesson/${lessonId}?moduleId=${moduleId}`)}
           >
             <FaArrowLeft className="me-2" /> Quay lại
           </button>

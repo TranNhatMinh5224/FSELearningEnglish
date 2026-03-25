@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, useSearchParams } from "react-router-dom";
 import { Container, Row, Col } from "react-bootstrap";
 import "./AdminLessonDetail.css";
 import Breadcrumb from "../../../Components/Common/Breadcrumb/Breadcrumb";
@@ -24,6 +24,7 @@ import { FaPlus, FaEdit } from "react-icons/fa";
 export default function AdminLessonDetail() {
   const { courseId, lessonId } = useParams();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const { roles, isAuthenticated } = useAuth();
   const { isLecture, isFlashCard, isAssessment, isClickable, getModuleTypePath } = useModuleTypes();
   const { getDefaultLessonImage } = useAssets();
@@ -59,6 +60,22 @@ export default function AdminLessonDetail() {
   const [assessmentTypes, setAssessmentTypes] = useState({}); // { assessmentId: { hasQuiz: boolean, hasEssay: boolean } }
 
   const isAdmin = roles.some(role => ["SuperAdmin", "ContentAdmin"].includes(role));
+
+  const handleUpdateSuccess = () => {
+    setShowUpdateModal(false);
+    setShowSuccessModal(true);
+    fetchLessonDetail(); // Refresh lesson data
+  };
+
+  const handleModuleNotificationClose = () => {
+    setNotification({ ...notification, isOpen: false });
+  };
+
+  const handleCreateModuleSuccess = () => {
+    setShowCreateModuleModal(false);
+    setShowModuleSuccessModal(true);
+    fetchModules(); // Refresh modules list
+  };
 
   const fetchCourseDetail = useCallback(async () => {
     try {
@@ -132,35 +149,8 @@ export default function AdminLessonDetail() {
     }
   }, [lessonId]);
 
-  useEffect(() => {
-    if (!isAuthenticated || !isAdmin) {
-      navigate("/home");
-      return;
-    }
-
-    fetchCourseDetail();
-    fetchLessonDetail();
-    fetchModules();
-  }, [isAuthenticated, isAdmin, navigate, fetchCourseDetail, fetchLessonDetail, fetchModules]);
-
-  const handleUpdateSuccess = () => {
-    setShowUpdateModal(false);
-    setShowSuccessModal(true);
-    fetchLessonDetail(); // Refresh lesson data
-  };
-
-  const handleModuleNotificationClose = () => {
-    setNotification({ ...notification, isOpen: false });
-  };
-
-  const handleCreateModuleSuccess = () => {
-    setShowCreateModuleModal(false);
-    setShowModuleSuccessModal(true);
-    fetchModules(); // Refresh modules list
-  };
-
   // Handle module click - fetch content based on module type
-  const handleModuleClick = async (module) => {
+  const handleModuleClick = useCallback(async (module) => {
     const contentTypeValue = module.contentType || module.ContentType;
     const contentTypeNum = typeof contentTypeValue === 'number' ? contentTypeValue : parseInt(contentTypeValue);
 
@@ -240,7 +230,31 @@ export default function AdminLessonDetail() {
     } finally {
       setLoadingContent(false);
     }
-  };
+  }, [courseId, lessonId, isLecture, isFlashCard, isAssessment]);
+
+  useEffect(() => {
+    if (!isAuthenticated || !isAdmin) {
+      navigate("/home");
+      return;
+    }
+
+    fetchCourseDetail();
+    fetchLessonDetail();
+    fetchModules();
+  }, [isAuthenticated, isAdmin, navigate, fetchCourseDetail, fetchLessonDetail, fetchModules]);
+
+  // Handle auto-selecting module from query param
+  useEffect(() => {
+    const moduleIdParam = searchParams.get("moduleId");
+    if (moduleIdParam && modules.length > 0 && !selectedModule) {
+      const targetModule = modules.find(
+        (m) => (m.moduleId || m.ModuleId).toString() === moduleIdParam
+      );
+      if (targetModule) {
+        handleModuleClick(targetModule);
+      }
+    }
+  }, [searchParams, modules, selectedModule, handleModuleClick]);
 
   // Handle edit lecture
   const handleEditLecture = (lecture) => {

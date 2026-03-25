@@ -7,8 +7,6 @@
 }
 
 .asset-form-modal .modal-header {
-    background: linear-gradient(135deg, var(--color-secondary-cyan, #41d6e3) 0%, var(--color-secondary-pink, #d946ef) 100%);
-    color: white;
     border-bottom: none;
     padding: 20px 30px;
 }
@@ -17,16 +15,6 @@
     color: white;
     font-weight: 700;
     font-size: clamp(1.25rem, 1rem + 1.25vw, 1.75rem);
-}
-
-.asset-form-modal .btn-close {
-    filter: invert(1) grayscale(100%) brightness(200%);
-    opacity: 0.8;
-    transition: opacity 0.2s ease;
-}
-
-.asset-form-modal .btn-close:hover {
-    opacity: 1;
 }
 
 .asset-form-modal .modal-body {
