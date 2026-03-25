@@ -149,6 +149,11 @@ namespace LearningEnglish.Application.DTOs
         public decimal Percentage { get; set; }
         public bool IsPassed { get; set; }
 
+        // Thông tin người làm bài
+        public string? Email { get; set; }
+        public string? FirstName { get; set; }
+        public string? LastName { get; set; }
+
         // Chi tiết từng câu hỏi (Danh sách phẳng để tương thích ngược)
         [System.Text.Json.Serialization.JsonPropertyName("Questions")]
         public List<QuestionReviewDto> Questions { get; set; } = new();

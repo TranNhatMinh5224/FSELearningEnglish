@@ -241,20 +241,20 @@ namespace LearningEnglish.Application.Common.Helpers
         }
 
         // Deserialize Dictionary<int, object> từ JSON string (cho AnswersJson)
-        public static Dictionary<int, object> DeserializeAnswersJson(string? json)
+        public static Dictionary<int, object?> DeserializeAnswersJson(string? json)
         {
             if (string.IsNullOrEmpty(json))
-                return new Dictionary<int, object>();
+            return new Dictionary<int, object?>();
 
             try
             {
                 // Deserialize về Dictionary<string, JsonElement> trước
                 var stringDict = JsonSerializer.Deserialize<Dictionary<string, JsonElement>>(json);
                 if (stringDict == null)
-                    return new Dictionary<int, object>();
+                    return new Dictionary<int, object?>();
 
                 // Convert sang Dictionary<int, object>
-                var result = new Dictionary<int, object>();
+                var result = new Dictionary<int, object?>();
                 foreach (var kvp in stringDict)
                 {
                     var key = int.Parse(kvp.Key);
@@ -265,7 +265,7 @@ namespace LearningEnglish.Application.Common.Helpers
             }
             catch
             {
-                return new Dictionary<int, object>();
+                return new Dictionary<int, object?>();
             }
         }
     }

@@ -37,14 +37,14 @@ namespace LearningEnglish.Application.Common.Helpers
 
             if (quiz.QuizSections == null) return sectionReviews;
 
-            foreach (var section in quiz.QuizSections.OrderBy(s => s.DisplayOrder))
+            foreach (var section in quiz.QuizSections.OrderBy(s => s.QuizSectionId))
             {
                 var sectionReview = new QuizAttemptSectionReviewDto
                 {
-                    SectionId = section.SectionId,
+                    SectionId = section.QuizSectionId,
                     Title = section.Title,
                     Description = section.Description,
-                    DisplayOrder = section.DisplayOrder,
+                    DisplayOrder = section.QuizSectionId,
                     Items = new List<QuizReviewItemDto>()
                 };
 
@@ -53,23 +53,24 @@ namespace LearningEnglish.Application.Common.Helpers
                 {
                     foreach (var group in section.QuizGroups.OrderBy(g => g.DisplayOrder))
                     {
-                    var groupReview = new QuizReviewGroupDto
-                    {
-                        GroupId = group.QuizGroupId,
-                        Title = group.Title,
-                        Description = group.Description,
-                        MediaUrl = group.MediaKey,
-                        Questions = group.Questions.OrderBy(q => q.QuestionId)
-                            .Select(q => BuildQuestionReviewDto(q, userAnswers, scores))
-                            .ToList()
-                    };
+                        var groupReview = new QuizReviewGroupDto
+                        {
+                            GroupId = group.QuizGroupId,
+                            Title = group.Title,
+                            Description = group.Description,
+                            MediaUrl = group.ImgKey ?? group.VideoKey,
+                            Questions = group.Questions.OrderBy(q => q.QuestionId)
+                                .Select(q => BuildQuestionReviewDto(q, userAnswers, scores))
+                                .ToList()
+                        };
 
-                    sectionReview.Items.Add(new QuizReviewItemDto
-                    {
-                        ItemType = "Group",
-                        DisplayOrder = group.DisplayOrder,
-                        Group = groupReview
-                    });
+                        sectionReview.Items.Add(new QuizReviewItemDto
+                        {
+                            ItemType = "Group",
+                            DisplayOrder = group.DisplayOrder,
+                            Group = groupReview
+                        });
+                    }
                 }
 
                 // Add standalone questions
