@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Container, Nav, Tab } from "react-bootstrap";
+import { Button, Col, Container, Form, InputGroup, Nav, Row, Tab } from "react-bootstrap";
 import { FaFileAlt, FaClipboardList } from "react-icons/fa";
 import { useAuth } from "../../../Context/AuthContext";
 import { adminService } from "../../../Services/adminService";
@@ -13,6 +13,9 @@ export default function AdminSubmissionManagement() {
   const [courses, setCourses] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [courseType, setCourseType] = useState("");
+  const [searchTerm, setSearchTerm] = useState("");
+  const [isSearching, setIsSearching] = useState(false);
 
   const isAdmin = roles.some((role) => {
     const roleName = typeof role === 'string' ? role : role?.name || role;
@@ -30,15 +33,30 @@ export default function AdminSubmissionManagement() {
     fetchCourses();
   }, [isAuthenticated, isAdmin]);
 
-  const fetchCourses = async () => {
+  useEffect(() => {
+    if (!isAuthenticated || !isAdmin) {
+      return;
+    }
+
+    setIsSearching(true);
+    fetchCourses();
+  }, [courseType, isAuthenticated, isAdmin]);
+
+  const fetchCourses = async (override = {}) => {
     try {
       setLoading(true);
       setError("");
 
-      const response = await adminService.getAllCourses({
+      const trimmedSearch = (override.searchTerm ?? searchTerm).trim();
+      const selectedType = override.courseType ?? courseType;
+      const params = {
         pageNumber: 1,
         pageSize: 100, // Get all courses
-      });
+        ...(trimmedSearch ? { searchTerm: trimmedSearch } : {}),
+        ...(selectedType ? { type: Number(selectedType) } : {})
+      };
+
+      const response = await adminService.getAllCourses(params);
 
       if (response.data?.success && response.data?.data) {
         const data = response.data.data;
@@ -53,7 +71,21 @@ export default function AdminSubmissionManagement() {
       setCourses([]);
     } finally {
       setLoading(false);
+      setIsSearching(false);
     }
+  };
+
+  const handleSearch = (event) => {
+    event.preventDefault();
+    setIsSearching(true);
+    fetchCourses();
+  };
+
+  const handleResetFilters = () => {
+    setCourseType("");
+    setSearchTerm("");
+    setIsSearching(true);
+    fetchCourses({ courseType: "", searchTerm: "" });
   };
 
   if (!isAuthenticated || !isAdmin) {
@@ -91,6 +123,69 @@ export default function AdminSubmissionManagement() {
           <h1 className="mb-0 fw-bold text-primary">Quản lý bài nộp</h1>
           <p className="text-muted mt-2">Xem và chấm bài nộp của học sinh</p>
         </div>
+
+        <Form onSubmit={handleSearch} className="mb-4">
+          <Row className="g-3 align-items-end">
+            <Col xs={12} lg={5}>
+              <Form.Label className="fw-semibold">Loại khóa học</Form.Label>
+              <div className="admin-course-type-toggle">
+                <Button
+                  type="button"
+                  variant={courseType === "" ? "dark" : "outline-secondary"}
+                  className="admin-course-type-btn"
+                  onClick={() => setCourseType("")}
+                >
+                  All Courses
+                </Button>
+                <Button
+                  type="button"
+                  variant={courseType === "1" ? "dark" : "outline-secondary"}
+                  className="admin-course-type-btn"
+                  onClick={() => setCourseType("1")}
+                >
+                  System Courses
+                </Button>
+                <Button
+                  type="button"
+                  variant={courseType === "2" ? "dark" : "outline-secondary"}
+                  className="admin-course-type-btn"
+                  onClick={() => setCourseType("2")}
+                >
+                  Teacher Courses
+                </Button>
+              </div>
+            </Col>
+            <Col xs={12} lg={5}>
+              <Form.Label className="fw-semibold">Tìm kiếm khóa học</Form.Label>
+              <InputGroup>
+                <Form.Control
+                  type="text"
+                  placeholder="Nhập tên khóa học, mã lớp hoặc tên giáo viên..."
+                  value={searchTerm}
+                  onChange={(event) => setSearchTerm(event.target.value)}
+                />
+                <Button
+                  type="submit"
+                  variant="primary"
+                  disabled={loading || isSearching}
+                >
+                  {isSearching ? "Đang tìm..." : "Tìm"}
+                </Button>
+              </InputGroup>
+            </Col>
+            <Col xs={12} lg={2} className="d-flex">
+              <Button
+                type="button"
+                variant="outline-secondary"
+                className="w-100"
+                onClick={handleResetFilters}
+                disabled={loading || isSearching}
+              >
+                Xóa bộ lọc
+              </Button>
+            </Col>
+          </Row>
+        </Form>
 
         <Tab.Container activeKey={activeTab} onSelect={(k) => setActiveTab(k || "essay")}>
           <Nav variant="tabs" className="mb-4 border-0">

@@ -32,3 +32,46 @@
   background-color: transparent;
   border-bottom-color: #3b82f6;
 }
+
+.admin-course-type-toggle {
+  display: inline-flex;
+  border: 1px solid #d1d5db;
+  border-radius: 10px;
+  overflow: hidden;
+  background: #f8fafc;
+}
+
+.admin-course-type-btn {
+  border: none !important;
+  border-radius: 0 !important;
+  padding: 8px 18px;
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+.admin-course-type-btn.btn-dark {
+  background: #1e3a8a;
+  border-color: #1e3a8a;
+  color: #ffffff;
+}
+
+.admin-course-type-toggle .admin-course-type-btn.btn-dark:nth-child(2) {
+  background: #70D4E0;
+  border-color: #70D4E0;
+  color: #0f172a;
+}
+
+.admin-course-type-toggle .admin-course-type-btn.btn-dark:nth-child(3) {
+  background: #D04DB8;
+  border-color: #D04DB8;
+  color: #ffffff;
+}
+
+.admin-course-type-btn.btn-outline-secondary {
+  color: #475569;
+  border-color: transparent !important;
+}
+
+.admin-course-type-btn + .admin-course-type-btn {
+  border-left: 1px solid #d1d5db !important;
+}
