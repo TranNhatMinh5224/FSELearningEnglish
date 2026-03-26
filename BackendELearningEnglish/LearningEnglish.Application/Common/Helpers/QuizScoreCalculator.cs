@@ -14,29 +14,39 @@ namespace LearningEnglish.Application.Common.Helpers
         /// <returns>Tổng điểm tối đa</returns>
         public static decimal CalculateTotalPossibleScore(Quiz quiz)
         {
-            if (quiz == null)
-                throw new ArgumentNullException(nameof(quiz));
+            if (quiz == null) return 0m;
 
-            decimal maxScore = 0;
+            decimal maxScore = 0m;
 
-            foreach (var section in quiz.QuizSections)
+            // 1. Sum scores from all groups in all sections
+            if (quiz.QuizSections != null)
             {
-                // Tính điểm từ questions trong groups
-                foreach (var group in section.QuizGroups)
+                foreach (var section in quiz.QuizSections)
                 {
-                    maxScore += group.Questions.Sum(q => q.Points);
-                }
+                    if (section.QuizGroups != null)
+                    {
+                        foreach (var group in section.QuizGroups)
+                        {
+                            if (group.Questions != null)
+                            {
+                                maxScore += group.Questions.Sum(q => q.Points);
+                            }
+                        }
+                    }
 
-                // Tính điểm từ standalone questions (không thuộc group)
-                if (section.Questions != null)
-                {
-                    maxScore += section.Questions
-                        .Where(q => q.QuizGroupId == null)
-                        .Sum(q => q.Points);
+                    // 2. Sum scores from standalone questions (not in any group)
+                    // We check QuizGroupId == null or QuizGroupId == 0 to be safe
+                    if (section.Questions != null)
+                    {
+                        maxScore += section.Questions
+                            .Where(q => q.QuizGroupId == null || q.QuizGroupId == 0)
+                            .Sum(q => q.Points);
+                    }
                 }
             }
 
             return maxScore;
         }
+
     }
 }

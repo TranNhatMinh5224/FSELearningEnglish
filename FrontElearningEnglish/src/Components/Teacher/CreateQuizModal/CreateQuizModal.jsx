@@ -26,6 +26,7 @@ export default function CreateQuizModal({ show, onClose, onSuccess, assessmentId
     maxDurationMinutes,
     quizTypeOptions,
     quizStatusOptions,
+    computedScore,
   } = useQuizForm(show, assessmentId, assessment, quizToUpdate, isAdmin, onSuccess, onClose);
 
   const hasFormData = () => {
@@ -147,7 +148,7 @@ export default function CreateQuizModal({ show, onClose, onSuccess, assessmentId
                   <FaListOl className="me-2" /> Điểm số & Câu hỏi
                 </div>
                 <Row className="g-3">
-                  <Col md={4}>
+                  <Col md={6}>
                     <FormInput
                       label="Tổng số câu hỏi"
                       name="totalQuestions"
@@ -160,20 +161,7 @@ export default function CreateQuizModal({ show, onClose, onSuccess, assessmentId
                       required
                     />
                   </Col>
-                  <Col md={4}>
-                    <FormInput
-                      label="Thang điểm tối đa"
-                      name="totalPossibleScore"
-                      type="number"
-                      value={formData.totalPossibleScore}
-                      onChange={handleChange}
-                      onBlur={handleBlur}
-                      error={errors.totalPossibleScore}
-                      touched={touched.totalPossibleScore}
-                      required
-                    />
-                  </Col>
-                  <Col md={4}>
+                  <Col md={6}>
                     <FormInput
                       label="Điểm đạt (Passing)"
                       name="passingScore"
@@ -183,10 +171,14 @@ export default function CreateQuizModal({ show, onClose, onSuccess, assessmentId
                       onBlur={handleBlur}
                       error={errors.passingScore}
                       touched={touched.passingScore}
-                      hint="Không bắt buộc"
+                      hint="Không bắt buộc. Tính theo thang điểm tự tính của Quiz. Ví dụ: 7 = đạt từ 7 điểm trở lên."
+                      hintClassName="text-danger fst-italic"
                     />
                   </Col>
                 </Row>
+                <div className="text-muted small mt-2">
+                  Thang điểm (tự tính theo tổng điểm câu hỏi): <strong>{computedScore ?? 0}</strong>
+                </div>
               </div>
 
               {/* SECTION 4: TIME & SETTINGS */}

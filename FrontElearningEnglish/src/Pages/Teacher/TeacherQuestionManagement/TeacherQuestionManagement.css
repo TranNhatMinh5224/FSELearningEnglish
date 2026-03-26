@@ -93,3 +93,23 @@
     box-shadow: 0 6px 15px rgba(142, 45, 226, 0.3) !important;
     background: linear-gradient(135deg, #9b44e8 0%, #5608ea 100%);
 }
+
+/* Budget Card Styles */
+.budget-card {
+    background: #ffffff;
+    border: 1px solid rgba(142, 45, 226, 0.1) !important;
+}
+
+.budget-card .progress {
+    background-color: #e9ecef;
+    box-shadow: inset 0 1px 2px rgba(0,0,0,.1);
+}
+
+.budget-card .progress-bar {
+    border-radius: 6px;
+    font-weight: 600;
+}
+
+.budget-card .badge {
+    font-weight: 600;
+}

@@ -16,7 +16,7 @@ export const useQuestionForm = (show, questionToUpdate) => {
   const [qFormData, setQFormData] = useState({
     stemText: "",
     explanation: "",
-    points: 10,
+    points: 0,
     type: null,
     options: [],
     matchingPairs: [],
@@ -61,7 +61,7 @@ export const useQuestionForm = (show, questionToUpdate) => {
     setQFormData({
       stemText: "",
       explanation: "",
-      points: 10,
+      points: 0,
       type: type,
       options: defaultOptions,
       matchingPairs: defaultPairs,
@@ -101,7 +101,7 @@ export const useQuestionForm = (show, questionToUpdate) => {
       setQFormData({
         stemText: questionToUpdate.stemText || questionToUpdate.StemText || "",
         explanation: questionToUpdate.explanation || questionToUpdate.Explanation || "",
-        points: questionToUpdate.points !== undefined ? questionToUpdate.points : (questionToUpdate.Points || 10),
+        points: questionToUpdate.points !== undefined ? questionToUpdate.points : (questionToUpdate.Points || 0),
         type: normalizedType || QUESTION_TYPES.MultipleChoice,
         options: initialOptions,
         matchingPairs: initialPairs.length > 0 ? initialPairs : [{ key: "", value: "" }],
@@ -120,7 +120,7 @@ export const useQuestionForm = (show, questionToUpdate) => {
         setQFormData({
             stemText: "",
             explanation: "",
-            points: 10,
+            points: 0,
             type: null,
             options: [],
             matchingPairs: [],
@@ -145,7 +145,7 @@ export const useQuestionForm = (show, questionToUpdate) => {
     }
 
     const pointsValue = typeof qFormData.points === 'string'
-      ? (qFormData.points.trim() === '' ? 10 : parseFloat(qFormData.points))
+      ? (qFormData.points.trim() === '' ? 0 : parseFloat(qFormData.points))
       : qFormData.points;
 
     if (isNaN(pointsValue) || pointsValue <= 0) {
@@ -256,13 +256,13 @@ export const useQuestionForm = (show, questionToUpdate) => {
 
   const buildQuestionPayload = useCallback((sectionId, internalGroupId) => {
     const pointsValue = typeof qFormData.points === 'string'
-      ? (qFormData.points.trim() === '' ? 10 : parseFloat(qFormData.points))
+      ? (qFormData.points.trim() === '' ? 0 : parseFloat(qFormData.points))
       : qFormData.points;
 
     const payload = {
       stemText: qFormData.stemText.trim(),
       explanation: qFormData.explanation || "",
-      points: pointsValue || 10,
+      points: pointsValue || 0,
       type: qFormData.type,
       quizSectionId: sectionId || null,
       quizGroupId: internalGroupId || null,

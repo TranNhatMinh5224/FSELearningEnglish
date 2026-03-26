@@ -60,7 +60,12 @@ namespace LearningEnglish.Application.Service
             try
             {
                 var quizzes = await _quizRepository.GetQuizzesByAssessmentIdAsync(assessmentId);
-                var quizDtos = _mapper.Map<List<QuizDto>>(quizzes);
+                var quizDtos = new List<QuizDto>();
+                foreach (var q in quizzes)
+                {
+                    var dto = _mapper.Map<QuizDto>(q);
+                    quizDtos.Add(dto);
+                }
                 response.Data = quizDtos;
                 response.StatusCode = 200;
                 response.Success = true;
@@ -90,7 +95,8 @@ namespace LearningEnglish.Application.Service
                 }
 
                 var quiz = _mapper.Map<Quiz>(quizDto);
-                // TotalPossibleScore được nhập từ DTO, không tự động tính
+                // TotalPossibleScore được tính tự động từ câu hỏi
+                quiz.TotalPossibleScore = 0m;
                 await _quizRepository.AddQuizAsync(quiz);
 
                 response.Data = _mapper.Map<QuizDto>(quiz);
@@ -122,7 +128,6 @@ namespace LearningEnglish.Application.Service
                 }
 
                 _mapper.Map(quizDto, existingQuiz);
-                // TotalPossibleScore được cập nhật từ DTO, không tự động tính
                 await _quizRepository.UpdateQuizAsync(existingQuiz);
 
                 response.Data = _mapper.Map<QuizDto>(existingQuiz);

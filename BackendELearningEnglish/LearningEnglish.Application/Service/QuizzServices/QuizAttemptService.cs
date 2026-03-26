@@ -416,32 +416,28 @@ namespace LearningEnglish.Application.Service
                 // Tạo result object
                 var result = new QuizAttemptResultDto
                 {
+                    QuizId = attempt.QuizId,
                     AttemptId = attempt.AttemptId,
                     SubmittedAt = attempt.SubmittedAt.Value,
                     TimeSpentSeconds = attempt.TimeSpentSeconds
                 };
 
-                // Tính toán điểm số và thông tin khác dựa trên quyền teacher cho phép
+                // 8. Dùng thang điểm mới nhất từ quiz
+                decimal realMaxScore = quiz.TotalPossibleScore > 0 ? quiz.TotalPossibleScore : 100;
+                result.TotalPossibleScore = realMaxScore;
+
+                // Tính toán điểm số và thông tin cá nhân hóa kết quả
                 if (quiz.ShowScoreImmediately == true)
                 {
                     result.TotalScore = attempt.TotalScore;
 
-                    // Tính percentage dựa trên số câu đúng / tổng số câu hỏi
-                    int totalQuestions = quiz.TotalQuestions;
-                    int correctQuestions = 0;
+                    // Tính tỷ lệ phần trăm dựa trên điểm thực tế / điểm tối đa thực tế
+                    result.Percentage = Math.Round((attempt.TotalScore / realMaxScore) * 100, 2);
 
-                    if (!string.IsNullOrEmpty(attempt.ScoresJson))
-                    {
-                        var scores = AnswerNormalizer.DeserializeScoresJson(attempt.ScoresJson);
-                        correctQuestions = scores.Count(s => s.Value > 0); // Đếm câu có điểm > 0 (đúng)
-                    }
-
-                    result.Percentage = totalQuestions > 0 ? (decimal)((double)correctQuestions / totalQuestions) * 100 : 0;
-
-                    // Kiểm tra pass/fail
+                    // Kiểm tra đạt/không đạt
                     result.IsPassed = quiz.PassingScore.HasValue ? attempt.TotalScore >= quiz.PassingScore.Value : false;
 
-                    // Parse ScoresJson để điền ScoresByQuestion
+                    // Parse ScoresJson để điền điểm từng câu
                     if (!string.IsNullOrEmpty(attempt.ScoresJson))
                     {
                         var scores = AnswerNormalizer.DeserializeScoresJson(attempt.ScoresJson);
@@ -464,7 +460,7 @@ namespace LearningEnglish.Application.Service
                         UserId = attempt.UserId,
                         Title = " Nộp bài quiz thành công",
                         Message = quiz.ShowScoreImmediately == true 
-                            ? $"Bạn đã nộp bài quiz '{quiz.Title}' thành công. Điểm: {attempt.TotalScore}/{quiz.TotalQuestions * 10}" 
+                            ? $"Bạn đã nộp bài quiz '{quiz.Title}' thành công. Điểm: {attempt.TotalScore}/{realMaxScore}" 
                             : $"Bạn đã nộp bài quiz '{quiz.Title}' thành công. Giáo viên sẽ công bố kết quả sau.",
                         Type = NotificationType.AssessmentGraded,
                         RelatedEntityType = "Quiz",
@@ -530,28 +526,27 @@ namespace LearningEnglish.Application.Service
 
                 var result = new QuizAttemptResultDto
                 {
+                    QuizId = attempt.QuizId,
                     AttemptId = attempt.AttemptId,
                     SubmittedAt = attempt.SubmittedAt ?? attempt.StartedAt,
                     TimeSpentSeconds = attempt.TimeSpentSeconds
                 };
 
+                // Dùng thang điểm mới nhất từ quiz
+                decimal realMaxScore = quiz.TotalPossibleScore > 0 ? quiz.TotalPossibleScore : 100;
+                result.TotalPossibleScore = realMaxScore;
+
                 if (quiz.ShowScoreImmediately == true)
                 {
                     result.TotalScore = attempt.TotalScore;
 
-                    int totalQuestions = quiz.TotalQuestions;
-                    int correctQuestions = 0;
-
                     if (!string.IsNullOrEmpty(attempt.ScoresJson))
                     {
                         var scores = AnswerNormalizer.DeserializeScoresJson(attempt.ScoresJson);
-                        correctQuestions = scores.Count(s => s.Value > 0);
                         result.ScoresByQuestion = scores;
                     }
 
-                    result.Percentage = totalQuestions > 0
-                        ? (decimal)((double)correctQuestions / totalQuestions) * 100
-                        : 0;
+                    result.Percentage = Math.Round((attempt.TotalScore / realMaxScore) * 100, 2);
 
                     result.IsPassed = quiz.PassingScore.HasValue
                         ? attempt.TotalScore >= quiz.PassingScore.Value
@@ -711,6 +706,26 @@ namespace LearningEnglish.Application.Service
                 response.StatusCode = 500;
                 return response;
             }
+        }
+
+        private async Task<decimal> EnsureQuizTotalScoreAsync(Quiz quiz)
+        {
+            if (quiz.TotalPossibleScore > 0) return quiz.TotalPossibleScore;
+
+            var fullQuiz = await _quizRepository.GetFullQuizAsync(quiz.QuizId);
+            if (fullQuiz == null) return quiz.TotalPossibleScore;
+
+            var totalScore = QuizScoreCalculator.CalculateTotalPossibleScore(fullQuiz);
+            if (totalScore <= 0) return quiz.TotalPossibleScore;
+
+            var quizToUpdate = await _quizRepository.GetQuizByIdAsync(quiz.QuizId);
+            if (quizToUpdate == null) return totalScore;
+
+            quizToUpdate.TotalPossibleScore = totalScore;
+            quizToUpdate.UpdatedAt = DateTime.UtcNow;
+            await _quizRepository.UpdateQuizAsync(quizToUpdate);
+
+            return totalScore;
         }
 
         public async Task<ServiceResponse<QuizAttemptWithQuestionsDto>> ResumeQuizAttemptAsync(int attemptId, int userId)

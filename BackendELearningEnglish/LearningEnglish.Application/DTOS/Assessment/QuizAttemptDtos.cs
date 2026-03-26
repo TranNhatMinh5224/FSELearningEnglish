@@ -29,8 +29,10 @@ namespace LearningEnglish.Application.DTOs
     // DTO cho kết quả chi tiết sau submit (điểm, đáp án đúng)
     public class QuizAttemptResultDto
     {
+        public int QuizId { get; set; }
         public int AttemptId { get; set; }
         public decimal TotalScore { get; set; }
+        public decimal TotalPossibleScore { get; set; }
         public decimal Percentage { get; set; }  // % điểm so với max possible
         public bool IsPassed { get; set; }       // TotalScore >= PassingScore
 
@@ -145,7 +147,7 @@ namespace LearningEnglish.Application.DTOs
     }
     public class QuizAttemptDetailDto : QuizAttemptDto
     {
-        public decimal MaxScore { get; set; }
+        public decimal TotalPossibleScore { get; set; }
         public decimal Percentage { get; set; }
         public bool IsPassed { get; set; }
 

@@ -66,7 +66,10 @@ export default function CreateQuestionModal({
       const res = isAdmin
         ? await quizService.getAdminQuizGroupById(id)
         : await quizService.getQuizGroupById(id);
-      if (res.data?.success) setGroupInfo(res.data.data);
+      if (res.data?.success) {
+        const gData = res.data.data;
+        setGroupInfo(gData);
+      }
     } catch (e) { console.error(e); }
   }, [isAdmin]);
 
@@ -75,7 +78,9 @@ export default function CreateQuestionModal({
       const res = isAdmin
         ? await quizService.getAdminQuizSectionById(id)
         : await quizService.getQuizSectionById(id);
-      if (res.data?.success) setSectionInfo(res.data.data);
+      if (res.data?.success) {
+        setSectionInfo(res.data.data);
+      }
     } catch (e) { console.error(e); }
   }, [isAdmin]);
 

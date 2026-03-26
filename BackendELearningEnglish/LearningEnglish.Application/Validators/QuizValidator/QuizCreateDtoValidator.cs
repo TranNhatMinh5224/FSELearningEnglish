@@ -45,11 +45,6 @@ namespace LearningEnglish.Application.Validators.QuizValidator
                 .When(x => x.PassingScore.HasValue)
                 .WithMessage("Điểm đạt phải lớn hơn 0");
 
-            // TotalPossibleScore phải > 0
-            RuleFor(x => x.TotalPossibleScore)
-                .GreaterThan(0)
-                .WithMessage("Tổng điểm tối đa phải lớn hơn 0");
-
             // Duration phải > 0 nếu được set
             RuleFor(x => x.Duration)
                 .GreaterThan(0)

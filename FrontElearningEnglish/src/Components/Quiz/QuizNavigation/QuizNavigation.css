@@ -111,15 +111,15 @@
 /* Bootstrap utilities: d-flex, align-items-center, justify-content-center */
 .navigation-item {
     aspect-ratio: 1;
-    border: 2px solid var(--color-border-light, #e5e7eb);
-    border-radius: 8px;
+    border: 1.5px solid var(--color-border-light, #e5e7eb);
+    border-radius: 6px;
     background: var(--color-bg-primary, white);
     color: var(--color-text-primary, #1f2937);
     font-weight: 600;
-    font-size: 0.8rem;
+    font-size: 0.7rem;
     cursor: pointer;
     transition: all 0.2s ease;
-    min-height: 32px;
+    min-height: 26px;
 }
 
 .navigation-item:hover {

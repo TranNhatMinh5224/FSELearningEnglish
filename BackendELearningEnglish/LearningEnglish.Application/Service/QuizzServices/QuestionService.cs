@@ -1,6 +1,7 @@
 using LearningEnglish.Application.Interface;
 using LearningEnglish.Application.DTOs;
 using LearningEnglish.Application.Common;
+using LearningEnglish.Application.Common.Helpers;
 using LearningEnglish.Application.Interface.Infrastructure.MediaService;
 using LearningEnglish.Domain.Entities;
 using AutoMapper;
@@ -160,6 +161,8 @@ namespace LearningEnglish.Application.Service
             try
             {
                 // Validate QuizGroup exists if provided
+                int? quizId = null;
+                int? quizSectionIdFromGroup = null;
                 if (questionCreateDto.QuizGroupId.HasValue)
                 {
                     var quizGroup = await _quizGroupRepository.GetQuizGroupByIdAsync(questionCreateDto.QuizGroupId.Value);
@@ -170,6 +173,9 @@ namespace LearningEnglish.Application.Service
                         response.StatusCode = 404;
                         return response;
                     }
+
+                    quizSectionIdFromGroup = quizGroup.QuizSectionId;
+                    quizId = quizGroup.QuizSection?.QuizId;
                 }
 
                 // Validate QuizSection exists if provided
@@ -182,6 +188,24 @@ namespace LearningEnglish.Application.Service
                         response.Message = "Quiz section không tồn tại.";
                         response.StatusCode = 404;
                         return response;
+                    }
+
+                    if (quizSectionIdFromGroup.HasValue && quizSectionIdFromGroup.Value != quizSection.QuizSectionId)
+                    {
+                        response.Success = false;
+                        response.Message = "QuizGroup và QuizSection không thuộc cùng một Quiz.";
+                        response.StatusCode = 400;
+                        return response;
+                    }
+
+                    quizId = quizSection.QuizId;
+                }
+                else if (quizId == null && quizSectionIdFromGroup.HasValue)
+                {
+                    var quizSection = await _quizSectionRepository.GetQuizSectionByIdAsync(quizSectionIdFromGroup.Value);
+                    if (quizSection != null)
+                    {
+                        quizId = quizSection.QuizId;
                     }
                 }
 
@@ -278,6 +302,11 @@ namespace LearningEnglish.Application.Service
 
                 // Generate URLs using helper
                 BuildQuestionMediaUrls(questionDto);
+
+                if (quizId.HasValue)
+                {
+                    await UpdateQuizTotalScoreAsync(quizId.Value);
+                }
 
                 response.Data = questionDto;
                 response.Success = true;
@@ -456,6 +485,16 @@ namespace LearningEnglish.Application.Service
 
                 var questionDto = _mapper.Map<QuestionReadDto>(existingQuestion);
 
+                var updateSectionId = questionUpdateDto.QuizSectionId ?? existingQuestion.QuizSectionId;
+                if (updateSectionId.HasValue)
+                {
+                    var quizSection = await _quizSectionRepository.GetQuizSectionByIdAsync(updateSectionId.Value);
+                    if (quizSection != null)
+                    {
+                        await UpdateQuizTotalScoreAsync(quizSection.QuizId);
+                    }
+                }
+
                 // Generate URLs using helper
                 BuildQuestionMediaUrls(questionDto);
 
@@ -507,6 +546,15 @@ namespace LearningEnglish.Application.Service
 
                 await _questionRepository.DeleteQuestionAsync(questionId);
 
+                if (question.QuizSectionId.HasValue)
+                {
+                    var quizSection = await _quizSectionRepository.GetQuizSectionByIdAsync(question.QuizSectionId.Value);
+                    if (quizSection != null)
+                    {
+                        await UpdateQuizTotalScoreAsync(quizSection.QuizId);
+                    }
+                }
+
                 response.Data = true;
                 response.Success = true;
                 response.Message = "Xóa câu hỏi thành công.";
@@ -552,6 +600,9 @@ namespace LearningEnglish.Application.Service
                     .Distinct()
                     .ToList();
 
+                var quizSectionMap = new Dictionary<int, int>();
+                var quizGroupMap = new Dictionary<int, int>();
+
                 foreach (var groupId in quizGroupIds)
                 {
                     var quizGroup = await _quizGroupRepository.GetQuizGroupByIdAsync(groupId);
@@ -561,6 +612,18 @@ namespace LearningEnglish.Application.Service
                         response.Message = $"Quiz group với ID {groupId} không tồn tại.";
                         response.StatusCode = 404;
                         return response;
+                    }
+
+                    var quizIdFromGroup = quizGroup.QuizSection?.QuizId;
+                    if (!quizIdFromGroup.HasValue)
+                    {
+                        var quizSection = await _quizSectionRepository.GetQuizSectionByIdAsync(quizGroup.QuizSectionId);
+                        quizIdFromGroup = quizSection?.QuizId;
+                    }
+
+                    if (quizIdFromGroup.HasValue)
+                    {
+                        quizGroupMap[groupId] = quizIdFromGroup.Value;
                     }
                 }
 
@@ -574,6 +637,8 @@ namespace LearningEnglish.Application.Service
                         response.StatusCode = 404;
                         return response;
                     }
+
+                    quizSectionMap[sectionId] = quizSection.QuizId;
                 }
 
                 // Map all DTOs to entities
@@ -589,6 +654,24 @@ namespace LearningEnglish.Application.Service
 
                 // Bulk insert với transaction
                 var createdQuestionIds = await _questionRepository.AddBulkQuestionsWithTransactionAsync(questions);
+
+                var quizIdsToUpdate = new HashSet<int>();
+                foreach (var questionDto in questionBulkCreateDto.Questions)
+                {
+                    if (questionDto.QuizSectionId.HasValue && quizSectionMap.TryGetValue(questionDto.QuizSectionId.Value, out var quizIdFromSection))
+                    {
+                        quizIdsToUpdate.Add(quizIdFromSection);
+                    }
+                    else if (questionDto.QuizGroupId.HasValue && quizGroupMap.TryGetValue(questionDto.QuizGroupId.Value, out var quizIdFromGroup))
+                    {
+                        quizIdsToUpdate.Add(quizIdFromGroup);
+                    }
+                }
+
+                foreach (var quizIdToUpdate in quizIdsToUpdate)
+                {
+                    await UpdateQuizTotalScoreAsync(quizIdToUpdate);
+                }
 
                 response.Data = new QuestionBulkResponseDto
                 {
@@ -741,6 +824,8 @@ namespace LearningEnglish.Application.Service
                     }
                 }
 
+                await UpdateQuizTotalScoreAsync(sectionBulkCreateDto.QuizId);
+
                 // 6. Return created section
                 var createdSection = await _quizSectionRepository.GetQuizSectionByIdAsync(quizSection.QuizSectionId);
                 var sectionDto = _mapper.Map<QuizSectionDto>(createdSection);
@@ -763,6 +848,20 @@ namespace LearningEnglish.Application.Service
             }
 
             return response;
+        }
+
+        private async Task UpdateQuizTotalScoreAsync(int quizId)
+        {
+            var fullQuiz = await _quizRepository.GetFullQuizAsync(quizId);
+            if (fullQuiz == null) return;
+
+            var totalScore = QuizScoreCalculator.CalculateTotalPossibleScore(fullQuiz);
+            var quiz = await _quizRepository.GetQuizByIdAsync(quizId);
+            if (quiz == null) return;
+
+            quiz.TotalPossibleScore = totalScore;
+            quiz.UpdatedAt = DateTime.UtcNow;
+            await _quizRepository.UpdateQuizAsync(quiz);
         }
     }
 }

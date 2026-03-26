@@ -23,7 +23,6 @@ export const useQuizForm = (show, assessmentId, assessment, quizToUpdate, isAdmi
     type: 1,
     status: 1,
     totalQuestions: "",
-    totalPossibleScore: "",
     passingScore: "",
     duration: "",
     availableFrom: null,
@@ -46,18 +45,10 @@ export const useQuizForm = (show, assessmentId, assessment, quizToUpdate, isAdmi
       errors.totalQuestions = "Số câu hỏi là bắt buộc";
     }
 
-    if (!values.totalPossibleScore || isNaN(parseFloat(values.totalPossibleScore))) {
-      errors.totalPossibleScore = "Thang điểm tối đa là bắt buộc";
-    }
-
     if (!values.duration || isNaN(parseInt(values.duration))) {
       errors.duration = "Thời gian làm bài là bắt buộc";
     } else if (maxDurationMinutes > 0 && parseInt(values.duration) > maxDurationMinutes) {
       errors.duration = `Vượt quá giới hạn (${maxDurationMinutes} phút của Assessment)`;
-    }
-
-    if (values.passingScore && parseFloat(values.passingScore) > parseFloat(values.totalPossibleScore)) {
-      errors.passingScore = "Điểm đạt không được vượt quá thang điểm tối đa";
     }
 
     return errors;
@@ -70,7 +61,6 @@ export const useQuizForm = (show, assessmentId, assessment, quizToUpdate, isAdmi
       type: parseInt(values.type),
       status: parseInt(values.status),
       totalQuestions: parseInt(values.totalQuestions),
-      totalPossibleScore: parseFloat(values.totalPossibleScore),
       passingScore: values.passingScore ? parseFloat(values.passingScore) : null,
       duration: parseInt(values.duration),
       availableFrom: values.availableFrom ? values.availableFrom.toISOString() : null,
@@ -99,6 +89,7 @@ export const useQuizForm = (show, assessmentId, assessment, quizToUpdate, isAdmi
 
   const form = useEntityForm(initialValues, validate, onSubmit);
   const [loadingQuiz, setLoadingQuiz] = useState(false);
+  const [computedScore, setComputedScore] = useState(null);
 
   // Load quiz data
   useEffect(() => {
@@ -114,6 +105,8 @@ export const useQuizForm = (show, assessmentId, assessment, quizToUpdate, isAdmi
 
         if (response.data?.success && response.data?.data) {
           const quiz = response.data.data;
+          const totalScore = quiz.totalPossibleScore ?? quiz.TotalPossibleScore ?? 0;
+          setComputedScore(totalScore);
           form.setFormData({
             title: quiz.title || quiz.Title || "",
             description: quiz.description || quiz.Description || "",
@@ -121,7 +114,6 @@ export const useQuizForm = (show, assessmentId, assessment, quizToUpdate, isAdmi
             type: quiz.type ?? quiz.Type ?? 1,
             status: quiz.status ?? quiz.Status ?? 1,
             totalQuestions: (quiz.totalQuestions ?? quiz.TotalQuestions ?? "").toString(),
-            totalPossibleScore: (quiz.totalPossibleScore ?? quiz.TotalPossibleScore ?? "").toString(),
             passingScore: (quiz.passingScore ?? quiz.PassingScore ?? "").toString(),
             duration: (quiz.duration ?? quiz.Duration ?? "").toString(),
             availableFrom: quiz.availableFrom ? new Date(quiz.availableFrom) : null,
@@ -147,6 +139,7 @@ export const useQuizForm = (show, assessmentId, assessment, quizToUpdate, isAdmi
     loadingQuiz,
     enumsLoading,
     maxDurationMinutes,
+    computedScore,
     quizTypeOptions: getEnumOptions('QuizType'),
     quizStatusOptions: getEnumOptions('QuizStatus'),
   };

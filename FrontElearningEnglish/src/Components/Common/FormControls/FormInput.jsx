@@ -18,6 +18,7 @@ const FormInput = ({
   readOnly = false,
   className = "",
   hint,
+  hintClassName,
 }) => {
   const hasError = touched && error;
 
@@ -49,7 +50,9 @@ const FormInput = ({
       <div className="d-flex justify-content-between align-items-start mt-1">
         <div className="flex-grow-1">
           {hasError && <div className="invalid-feedback-custom">{error}</div>}
-          {hint && !hasError && <small className="text-muted small">{hint}</small>}
+          {hint && !hasError && (
+            <small className={`${hintClassName || "text-muted"} small`}>{hint}</small>
+          )}
         </div>
         
         {maxLength && (

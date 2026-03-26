@@ -38,13 +38,18 @@ export default function QuizResults() {
                 setError("");
                 const response = await quizAttemptService.result(attemptId);
                 if (response.data?.success && response.data?.data) {
-                    setResult(response.data.data);
-                    const qId = response.data.data.quizId || response.data.data.QuizId;
+                    const resultData = response.data.data;
+                    setResult(resultData);
+                    const qId = resultData.quizId || resultData.QuizId;
                     if (qId) {
                         const quizRes = await quizService.getById(qId);
                         if (quizRes.data?.success && quizRes.data?.data) {
                             const quizData = Array.isArray(quizRes.data.data) ? quizRes.data.data[0] : quizRes.data.data;
                             setAssessmentId(quizData.assessmentId || quizData.AssessmentId);
+                            setResult(prev => ({
+                                ...prev,
+                                totalPossibleScore: quizData.totalPossibleScore ?? quizData.TotalPossibleScore ?? prev?.totalPossibleScore ?? prev?.TotalPossibleScore
+                            }));
                         }
                     }
                 } else {
@@ -143,12 +148,14 @@ export default function QuizResults() {
     );
 
     const questions = result.questions || result.Questions || [];
-    const totalScore = result.totalScore !== undefined ? result.totalScore : (result.TotalScore || 0);
-    const percentage = result.percentage !== undefined ? result.percentage : (result.Percentage || 0);
+    const totalScore = result.totalScore ?? result.TotalScore ?? 0;
+    const percentage = result.percentage ?? result.Percentage ?? 0;
+    const totalPossibleScore = result.totalPossibleScore ?? result.TotalPossibleScore ?? 0;
     
-    const safeTotalScore = typeof totalScore === "number" ? totalScore : 0;
-    const safePercentage = typeof percentage === "number" ? percentage : 0;
-    const maxScore = (safePercentage > 0) ? (safeTotalScore * 100) / safePercentage : (safeTotalScore > 0 ? safeTotalScore : 0);
+    const formatScore = (value) => {
+        const numericValue = Number(value);
+        return Number.isFinite(numericValue) ? numericValue.toFixed(1) : "0.0";
+    };
     
     const { isPassed, submittedAt, timeSpentSeconds } = result;
     const hasScore = typeof totalScore === "number" && typeof percentage === "number";
@@ -191,14 +198,17 @@ export default function QuizResults() {
                                             {hasScore ? (
                                                 <>
                                                     <div className="score-display mb-2" style={{ fontSize: '3.5rem', fontWeight: '800' }}>
-                                                        <span className="text-primary">{totalScore.toFixed(1)}</span>
+                                                        <span className="text-primary">{formatScore(totalScore)}</span>
                                                         <span className="text-muted mx-2" style={{ fontWeight: '300' }}>/</span>
-                                                        <span className="text-secondary">{maxScore}</span>
+                                                        <span className="text-secondary">{formatScore(totalPossibleScore)}</span>
                                                     </div>
                                                     <div className="score-percentage-badge">
                                                         <Badge bg={isPassed ? "success" : "danger"} className="rounded-pill px-4 py-2" style={{ fontSize: '1.2rem' }}>
-                                                            {percentage.toFixed(1)}%
+                                                            {formatScore(percentage)}%
                                                         </Badge>
+                                                    </div>
+                                                    <div className={`mt-3 fw-bold ${isPassed ? "text-success" : "text-danger"}`}>
+                                                        {isPassed ? "Trạng thái: Đạt" : "Trạng thái: Chưa đạt"}
                                                     </div>
                                                 </>
                                             ) : (
@@ -224,7 +234,7 @@ export default function QuizResults() {
                                                     <div>
                                                         <div className="text-muted small fw-600 text-uppercase">Điểm số</div>
                                                         <div className="fw-800 text-success" style={{ fontSize: '1.1rem' }}>
-                                                            {hasScore ? `${totalScore.toFixed(1)} điểm` : "Chưa công bố"}
+                                                            {hasScore ? `${formatScore(totalScore)} điểm` : "Chưa công bố"}
                                                         </div>
                                                     </div>
                                                 </div>
@@ -324,7 +334,7 @@ export default function QuizResults() {
                                             <QuizAttemptSidebar
                                                 effectiveSections={effectiveSections}
                                                 totalScore={totalScore}
-                                                maxScore={maxScore}
+                                                totalPossibleScore={totalPossibleScore}
                                                 questionsCount={questions.length}
                                                 scrollToQuestion={scrollToQuestion}
                                             />

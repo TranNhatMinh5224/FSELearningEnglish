@@ -8,9 +8,15 @@ export default function QuizAttemptSummary({
   timeSpentSeconds, 
   title, 
   isPassed,
-  showStatusIcon = false 
+  showStatusIcon = false,
+  totalScore,
+  totalPossibleScore 
 }) {
   const displayTitle = title || fullName;
+  const formatScore = (value) => {
+    const numericValue = Number(value);
+    return Number.isFinite(numericValue) ? numericValue.toFixed(1) : "0.0";
+  };
   
   return (
     <div className="content-intro mb-4 p-4 bg-white rounded-4 shadow-sm border border-light">
@@ -33,6 +39,12 @@ export default function QuizAttemptSummary({
             <div className="stat-label-v3 text-muted small fw-bold text-uppercase">Kết quả</div>
             <div className={`stat-value-v3 fw-800 ${isPassed !== false ? 'text-success' : 'text-danger'}`} style={{ fontSize: '1.25rem' }}>
               {percentage !== null ? `${percentage}%` : "100%"}
+            </div>
+          </div>
+          <div className="stat-item-v3 text-center border-start ps-4">
+            <div className="stat-label-v3 text-muted small fw-bold text-uppercase">Điểm</div>
+            <div className="stat-value-v3 fw-800 text-primary" style={{ fontSize: '1.25rem' }}>
+              {`${formatScore(totalScore)}/${formatScore(totalPossibleScore)}`}
             </div>
           </div>
           <div className="stat-item-v3 text-center border-start ps-4">

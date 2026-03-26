@@ -31,7 +31,11 @@ export default function QuizAttemptDetailModal({ show, onClose, attempt, quizId,
             email: scoreData.email || scoreData.Email,
             firstName: scoreData.firstName || scoreData.FirstName,
             lastName: scoreData.lastName || scoreData.LastName,
-            percentage: scoreData.percentage !== undefined ? scoreData.percentage : (scoreData.Percentage !== undefined ? scoreData.Percentage : null),
+            percentage: scoreData.percentage !== undefined ? scoreData.percentage : (scoreData.Percentage !== undefined ? scoreData.Percentage : prevAttempt?.percentage ?? prevAttempt?.Percentage ?? null),
+            totalScore: scoreData.totalScore !== undefined ? scoreData.totalScore : (scoreData.TotalScore !== undefined ? scoreData.TotalScore : prevAttempt?.totalScore ?? prevAttempt?.TotalScore),
+            timeSpentSeconds: scoreData.timeSpentSeconds !== undefined ? scoreData.timeSpentSeconds : (scoreData.TimeSpentSeconds !== undefined ? scoreData.TimeSpentSeconds : prevAttempt?.timeSpentSeconds ?? prevAttempt?.TimeSpentSeconds),
+            isPassed: scoreData.isPassed !== undefined ? scoreData.isPassed : (scoreData.IsPassed !== undefined ? scoreData.IsPassed : prevAttempt?.isPassed ?? prevAttempt?.IsPassed),
+            totalPossibleScore: scoreData.totalPossibleScore !== undefined ? scoreData.totalPossibleScore : (scoreData.TotalPossibleScore !== undefined ? scoreData.TotalPossibleScore : prevAttempt?.totalPossibleScore ?? prevAttempt?.TotalPossibleScore),
           }));
         } else {
           setAttemptDetail(attempt);
@@ -95,7 +99,7 @@ export default function QuizAttemptDetailModal({ show, onClose, attempt, quizId,
   const fullName = userName && lastName ? `${userName} ${lastName}` : (userName || lastName || "N/A");
   const email = displayData.email || displayData.Email || "N/A";
   const totalScore = displayData.totalScore !== undefined ? displayData.totalScore : (displayData.TotalScore !== undefined ? displayData.TotalScore : "N/A");
-  const maxScore = displayData.maxScore !== undefined ? displayData.maxScore : (displayData.MaxScore !== undefined ? displayData.MaxScore : null);
+  const totalPossibleScore = displayData.totalPossibleScore !== undefined ? displayData.totalPossibleScore : (displayData.TotalPossibleScore !== undefined ? displayData.TotalPossibleScore : null);
   const percentage = displayData.percentage !== undefined ? displayData.percentage : (displayData.Percentage !== undefined ? displayData.Percentage : null);
   const timeSpentSeconds = displayData.timeSpentSeconds !== undefined ? displayData.timeSpentSeconds : (displayData.TimeSpentSeconds !== undefined ? displayData.TimeSpentSeconds : 0);
   const questions = displayData.questions || displayData.Questions || [];
@@ -151,6 +155,8 @@ export default function QuizAttemptDetailModal({ show, onClose, attempt, quizId,
                 email={email}
                 percentage={percentage}
                 timeSpentSeconds={timeSpentSeconds}
+                totalScore={totalScore}
+                totalPossibleScore={totalPossibleScore}
               />
 
               {effectiveSections.map((section, sIdx) => {
@@ -216,7 +222,7 @@ export default function QuizAttemptDetailModal({ show, onClose, attempt, quizId,
             <QuizAttemptSidebar
               effectiveSections={effectiveSections}
               totalScore={totalScore}
-              maxScore={maxScore}
+              totalPossibleScore={totalPossibleScore}
               questionsCount={questions.length}
               scrollToQuestion={scrollToQuestion}
             />

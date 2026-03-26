@@ -9,6 +9,7 @@ namespace LearningEnglish.Application.DTOs
         public string? LastName { get; set; }
         public int AttemptNumber { get; set; }
         public decimal TotalScore { get; set; }
+        public decimal TotalPossibleScore { get; set; }
         public decimal Percentage { get; set; }
         public bool IsPassed { get; set; }
         public DateTime? SubmittedAt { get; set; }

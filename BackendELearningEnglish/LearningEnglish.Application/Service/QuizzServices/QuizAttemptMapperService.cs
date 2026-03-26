@@ -26,7 +26,7 @@ public class QuizAttemptMapperService : IQuizAttemptMapper
         _quizGroupMediaService = quizGroupMediaService;
     }
 
-    /// <inheritdoc/>
+  
     public List<AttemptQuizSectionDto> ShuffleQuizForAttempt(Quiz quiz, int attemptId)
     {
         var sections = new List<AttemptQuizSectionDto>();
@@ -97,7 +97,7 @@ public class QuizAttemptMapperService : IQuizAttemptMapper
         return sections;
     }
 
-    /// <inheritdoc/>
+   
     public QuestionDto MapToQuestionDto(Question q, int attemptId, bool shuffleAnswers)
     {
         return new QuestionDto
@@ -116,7 +116,7 @@ public class QuizAttemptMapperService : IQuizAttemptMapper
         };
     }
 
-    /// <inheritdoc/>
+
     public QuizItemDto MapToStandaloneQuestionItemDto(Question q, int attemptId, bool shuffleAnswers)
     {
         return new QuizItemDto
@@ -137,7 +137,7 @@ public class QuizAttemptMapperService : IQuizAttemptMapper
         };
     }
 
-    /// <inheritdoc/>
+  
     public List<AnswerOptionDto> MapToOptionDtos(Question question, int attemptId, bool shuffleAnswers)
     {
         var options = question.Options.Select(o => new AnswerOptionDto

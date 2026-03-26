@@ -430,6 +430,7 @@ namespace LearningEnglish.Application.Mappings
 
             CreateMap<QuizUpdateDto, Quiz>()
                 .ForMember(dest => dest.UpdatedAt, opt => opt.MapFrom(src => DateTime.UtcNow))
+                .ForMember(dest => dest.TotalPossibleScore, opt => opt.Ignore())
                 .ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
 
             // QuizSection mappings
@@ -517,6 +518,7 @@ namespace LearningEnglish.Application.Mappings
                 .ForMember(dest => dest.Email, opt => opt.MapFrom(src => src.User.Email))
                 .ForMember(dest => dest.FirstName, opt => opt.MapFrom(src => src.User.FirstName))
                 .ForMember(dest => dest.LastName, opt => opt.MapFrom(src => src.User.LastName))
+                .ForMember(dest => dest.TotalPossibleScore, opt => opt.MapFrom(src => src.Quiz != null ? src.Quiz.TotalPossibleScore : 0))
                 .ForMember(dest => dest.Percentage, opt => opt.Ignore())
                 .ForMember(dest => dest.IsPassed, opt => opt.Ignore());
 

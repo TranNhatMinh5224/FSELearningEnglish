@@ -294,6 +294,7 @@ namespace LearningEnglish.Application.Service
                 foreach (var item in mappedItems)
                 {
                     var attempt = attempts.First(a => a.AttemptId == item.AttemptId);
+                    item.TotalPossibleScore = attempt.Quiz?.TotalPossibleScore ?? 0;
                     item.Percentage = (decimal)CalculatePercentage(attempt, attempt.Quiz);
                     item.IsPassed = attempt.Quiz?.PassingScore.HasValue == true ? attempt.TotalScore >= attempt.Quiz.PassingScore.Value : false;
                 }
@@ -345,6 +346,7 @@ namespace LearningEnglish.Application.Service
                 foreach (var item in mappedItems)
                 {
                     var attempt = pagedResult.Items.First(a => a.AttemptId == item.AttemptId);
+                    item.TotalPossibleScore = attempt.Quiz?.TotalPossibleScore ?? 0;
                     item.Percentage = (decimal)CalculatePercentage(attempt, attempt.Quiz);
                     item.IsPassed = attempt.Quiz?.PassingScore.HasValue == true ? attempt.TotalScore >= attempt.Quiz.PassingScore.Value : false;
                 }
@@ -461,12 +463,16 @@ namespace LearningEnglish.Application.Service
                     Status = attempt.Status,
                     TimeSpentSeconds = attempt.TimeSpentSeconds,
                     TotalScore = attempt.TotalScore,
-                    MaxScore = quiz.TotalPossibleScore,
-                    Percentage = CalculatePercentageScore(attempt.TotalScore, (int)quiz.TotalPossibleScore),
+                    TotalPossibleScore = quiz.TotalPossibleScore,
+                    Percentage = 0, // Sẽ tính bên dưới
                     IsPassed = quiz.PassingScore.HasValue ? attempt.TotalScore >= quiz.PassingScore.Value : false,
                     Questions = QuizReviewBuilder.BuildQuestionReviewList(quiz, attempt),
                     Sections = QuizReviewBuilder.BuildStructuredQuestionReview(quiz, attempt)
                 };
+
+                // Tính toán lại Percentage dựa trên MaxScore
+                if (detailDto.TotalPossibleScore == 0) detailDto.TotalPossibleScore = quiz.TotalPossibleScore > 0 ? quiz.TotalPossibleScore : 100;
+                detailDto.Percentage = Math.Round((detailDto.TotalScore / detailDto.TotalPossibleScore) * 100, 2);
 
                 response.Success = true;
                 response.Data = detailDto;
@@ -484,27 +490,16 @@ namespace LearningEnglish.Application.Service
             return response;
         }
 
-        // Helper: Calculate percentage score
-        private static decimal CalculatePercentageScore(decimal totalScore, int totalQuestions)
-        {
-            if (totalQuestions <= 0)
-                return 0;
-
-            return Math.Round((totalScore / totalQuestions) * 100, 2);
-        }
 
         private static double CalculatePercentage(QuizAttempt attempt, Quiz? quiz)
         {
-            if (quiz == null || quiz.TotalQuestions <= 0) return 0;
-
-            if (!string.IsNullOrEmpty(attempt.ScoresJson))
-            {
-                var scores = AnswerNormalizer.DeserializeScoresJson(attempt.ScoresJson);
-                int correctQuestions = scores.Count(s => s.Value > 0);
-                return ((double)correctQuestions / quiz.TotalQuestions) * 100;
-            }
-
-            return 0;
+            if (quiz == null) return 0;
+            
+            decimal maxScore = quiz.TotalPossibleScore;
+            // Note: Ở đây quiz có thể chưa include full questions, dùng TotalPossibleScore là fallback tốt nhất
+            
+            if (maxScore <= 0) return 0;
+            return (double)(attempt.TotalScore / maxScore) * 100;
         }
 
         // Force submit attempt (for when student violates rules, forgets to submit, or has technical issues)
@@ -578,26 +573,26 @@ namespace LearningEnglish.Application.Service
                 // 8. Calculate score if teacher allows showing immediately
                 if (quiz.ShowScoreImmediately == true)
                 {
-                    result.TotalScore = attempt.TotalScore;
+                    // Dùng thang điểm đã đồng bộ trên quiz
+                    decimal realMaxScore = quiz.TotalPossibleScore > 0 ? quiz.TotalPossibleScore : 100;
 
-                    // Calculate percentage
-                    int totalQuestions = quiz.TotalQuestions;
-                    int correctQuestions = 0;
+                    result.TotalScore = attempt.TotalScore;
+                    result.TotalPossibleScore = realMaxScore;
 
                     if (!string.IsNullOrEmpty(attempt.ScoresJson))
                     {
                         var scores = AnswerNormalizer.DeserializeScoresJson(attempt.ScoresJson);
-                        correctQuestions = scores.Count(s => s.Value > 0);
                         result.ScoresByQuestion = scores;
                     }
 
-                    result.Percentage = totalQuestions > 0 
-                        ? (decimal)((double)correctQuestions / totalQuestions) * 100 
-                        : 0;
+                    result.Percentage = Math.Round((attempt.TotalScore / realMaxScore) * 100, 2);
 
                     result.IsPassed = quiz.PassingScore.HasValue 
                         ? attempt.TotalScore >= quiz.PassingScore.Value 
                         : false;
+
+                    // Update notification message logic
+                    result.TotalPossibleScore = realMaxScore; // Ensure result.TotalPossibleScore is realMaxScore
                 }
 
                 // 9. Get correct answers if teacher allows
@@ -615,7 +610,7 @@ namespace LearningEnglish.Application.Service
                         Title = "⏰ Bài quiz đã được nộp",
                         Message = $"Giáo viên đã nộp bài quiz '{quiz.Title}' hộ bạn." + 
                                   (quiz.ShowScoreImmediately == true 
-                                      ? $" Điểm: {attempt.TotalScore}/{quiz.TotalQuestions}" 
+                                      ? $" Điểm: {attempt.TotalScore}/{result.TotalPossibleScore}" 
                                       : " Kết quả sẽ được công bố sau."),
                         Type = NotificationType.AssessmentGraded,
                         RelatedEntityType = "Quiz",

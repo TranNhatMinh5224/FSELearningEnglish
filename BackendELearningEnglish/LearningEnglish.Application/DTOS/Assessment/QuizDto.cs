@@ -56,7 +56,7 @@ namespace LearningEnglish.Application.DTOs
         public QuizStatus Status { get; set; } = QuizStatus.Open;
         public int TotalQuestions { get; set; }
         public int? PassingScore { get; set; }
-        public decimal TotalPossibleScore { get; set; } // Tổng điểm tối đa của bài quiz (giáo viên nhập)
+        public decimal TotalPossibleScore { get; set; } // Tổng điểm tối đa của bài quiz (tự động tính)
 
         // Thời gian làm bài
         public int? Duration { get; set; }

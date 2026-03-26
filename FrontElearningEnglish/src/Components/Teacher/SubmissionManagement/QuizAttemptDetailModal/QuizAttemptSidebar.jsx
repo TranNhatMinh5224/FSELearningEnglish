@@ -3,11 +3,31 @@ import React from "react";
 export default function QuizAttemptSidebar({ 
   effectiveSections, 
   totalScore, 
-  maxScore, 
+  totalPossibleScore, 
   questionsCount, 
   scrollToQuestion 
 }) {
   let sidebarQuestionIndex = 0;
+  let correctCount = 0;
+
+  effectiveSections.forEach(section => {
+    const sectionItems = section.items || section.Items || [];
+    sectionItems.forEach(item => {
+      const itemType = item.itemType || item.ItemType;
+      const group = item.group || item.Group;
+      const q = item.question || item.Question;
+
+      if (itemType === "Group" && group) {
+        (group.questions || group.Questions || []).forEach(gq => {
+          const isCorrectStatus = gq.isCorrect || gq.IsCorrect;
+          if (isCorrectStatus) correctCount += 1;
+        });
+      } else if (itemType === "Question" && q) {
+        const isCorrectStatus = q.isCorrect || q.IsCorrect;
+        if (isCorrectStatus) correctCount += 1;
+      }
+    });
+  });
 
   return (
     <div className="review-sidebar-v3">
@@ -18,7 +38,7 @@ export default function QuizAttemptSidebar({
             <span className="check-mark-v3">✓</span>
           </div>
           <div className="score-value-v3">
-            {totalScore !== "N/A" ? `${totalScore}/${maxScore || questionsCount}` : "N/A"}
+            {`${correctCount}/${questionsCount}`}
           </div>
         </div>
       </div>

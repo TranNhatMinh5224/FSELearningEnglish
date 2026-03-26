@@ -34,6 +34,7 @@ export default function TeacherQuestionManagement() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [notification, setNotification] = useState({ isOpen: false, type: "info", message: "" });
+  
 
 
   // Question Modal states
@@ -69,8 +70,10 @@ export default function TeacherQuestionManagement() {
           ? await quizService.getAdminQuizGroupById(groupId)
           : await quizService.getQuizGroupById(groupId);
         if (groupRes.data?.success) {
-           title = `Group: ${groupRes.data.data.name || "Untitled Group"}`;
-           subtitle = groupRes.data.data.title;
+           const gData = groupRes.data.data;
+           title = `Group: ${gData.name || gData.Name || "Untitled Group"}`;
+           subtitle = gData.title || gData.Title;
+           
         }
         questionsRes = await questionService.getQuestionsByGroup(groupId);
       } else if (sectionId) {
@@ -78,8 +81,11 @@ export default function TeacherQuestionManagement() {
         const sectionRes = isAdmin
           ? await quizService.getAdminQuizSectionById(sectionId)
           : await quizService.getQuizSectionById(sectionId);
+          
         if (sectionRes.data?.success) {
-            title = `Section: ${sectionRes.data.data.title || "Untitled Section"}`;
+            const sData = sectionRes.data.data;
+            title = `Section: ${sData.title || sData.Title || "Untitled Section"}`;
+            
         }
         
         // Parallel fetch
@@ -94,6 +100,7 @@ export default function TeacherQuestionManagement() {
         if (gRes.data?.success) {
             setGroups(gRes.data.data || []);
         }
+
       }
 
       if (questionsRes?.data?.success) {
