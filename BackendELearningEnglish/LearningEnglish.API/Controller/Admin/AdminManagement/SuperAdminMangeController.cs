@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
+using LearningEnglish.API.Authorization;
 using LearningEnglish.Application.Interface.AdminManagement;
 using LearningEnglish.Application.DTOs.Admin;
 using LearningEnglish.Application.Common.Pagination;
@@ -10,6 +11,7 @@ namespace LearningEnglish.API.Controller.Admin
     [ApiController]
     [Route("api/superadmin")]
     [Authorize(Roles = "SuperAdmin")]
+    [RequirePermission("Admin.System.FullAccess")]
     public class SuperAdminController : ControllerBase
     {
         private readonly IAdminManagementService _adminManagementService;

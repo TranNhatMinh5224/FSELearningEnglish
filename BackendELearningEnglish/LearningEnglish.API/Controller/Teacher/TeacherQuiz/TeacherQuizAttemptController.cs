@@ -3,12 +3,14 @@ using Microsoft.AspNetCore.Mvc;
 using LearningEnglish.Application.Interface;
 using LearningEnglish.Application.Common.Pagination;
 using LearningEnglish.API.Extensions;
+using LearningEnglish.API.Authorization;
 
 namespace LearningEnglish.API.Controller.Teacher
 {
     [ApiController]
     [Route("api/teacher/quiz-attempts")]
     [Authorize(Roles = "Teacher")]
+    [RequireTeacherRole]
     public class TeacherQuizAttemptController : ControllerBase
     {
         private readonly IQuizAttemptTeacherService _quizAttemptTeacherService;
