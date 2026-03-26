@@ -13,13 +13,7 @@ export default function StudentEssayResultModal({ show, onClose, submission }) {
   const status = submission.status || submission.Status || "";
   const submittedAt = submission.submittedAt || submission.SubmittedAt;
 
-  // AI grading info (if available)
-  const aiScore = submission.aiScore !== undefined ? submission.aiScore : (submission.AiScore !== undefined ? submission.AiScore : null);
-  const aiFeedback = submission.aiFeedback || submission.AiFeedback || "";
-  const aiGradedAt = submission.aiGradedAt || submission.AiGradedAt;
-
   const hasTeacherGrade = score !== null && score !== undefined;
-  const hasAiGrade = aiScore !== null && aiScore !== undefined;
 
   const getScoreColor = (score, max) => {
     const percentage = (score / max) * 100;
@@ -107,47 +101,6 @@ export default function StudentEssayResultModal({ show, onClose, submission }) {
                 <small>
                   <FaCalendarAlt className="me-2" />
                   Chấm điểm lúc: {formatDate(gradedAt)}
-                </small>
-              </div>
-            )}
-          </div>
-        )}
-
-        {/* AI Grade (Optional) */}
-        {hasAiGrade && (
-          <div className="ai-score-section mb-4 p-4 rounded" style={{ backgroundColor: "#f0f9ff" }}>
-            <h6 className="fw-bold mb-3">
-              <FaStar className="me-2 text-info" />
-              Điểm AI (Tham khảo)
-            </h6>
-            <div className="d-flex align-items-center gap-3">
-              <div>
-                <span className="fw-bold" style={{ fontSize: "24px", color: "#3b82f6" }}>
-                  {aiScore}
-                </span>
-                <span style={{ fontSize: "16px", color: "#6b7280" }}>/{maxScore}</span>
-              </div>
-              <div className="flex-grow-1">
-                <div className="progress" style={{ height: "8px" }}>
-                  <div 
-                    className="progress-bar bg-info" 
-                    style={{ width: `${(aiScore / maxScore) * 100}%` }}
-                  ></div>
-                </div>
-              </div>
-            </div>
-            {aiFeedback && (
-              <div className="mt-3">
-                <small className="text-muted" style={{ whiteSpace: "pre-wrap" }}>
-                  {aiFeedback}
-                </small>
-              </div>
-            )}
-            {aiGradedAt && (
-              <div className="mt-2">
-                <small className="text-muted">
-                  <FaCalendarAlt className="me-1" />
-                  {formatDate(aiGradedAt)}
                 </small>
               </div>
             )}

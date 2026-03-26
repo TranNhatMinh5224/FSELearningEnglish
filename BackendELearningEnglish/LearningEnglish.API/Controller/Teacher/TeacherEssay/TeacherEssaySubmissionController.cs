@@ -61,14 +61,6 @@ namespace LearningEnglish.API.Controller.Teacher
             return File(fileStream, contentType, fileName);
         }
 
-        // POST: api/teacher/essay-submissions/{submissionId}/grade-ai
-        [HttpPost("{submissionId}/grade-ai")]
-        public async Task<IActionResult> GradeWithAI(int submissionId)
-        {
-            var teacherId = User.GetUserId();
-            var result = await _gradingService.GradeEssayWithAIAsync(submissionId, teacherId);
-            return result.Success ? Ok(result) : StatusCode(result.StatusCode, result);
-        }
 
         // POST: api/teacher/essay-submissions/{submissionId}/grade - Teacher chấm thủ công (lần đầu hoặc cập nhật)
         [HttpPost("{submissionId}/grade")]
@@ -88,14 +80,6 @@ namespace LearningEnglish.API.Controller.Teacher
             return result.Success ? Ok(result) : StatusCode(result.StatusCode, result);
         }
 
-        // POST: api/teacher/essay-submissions/essay/{essayId}/batch-grade-ai - Chấm hàng loạt bằng AI
-        [HttpPost("essay/{essayId}/batch-grade-ai")]
-        public async Task<IActionResult> BatchGradeByAi(int essayId)
-        {
-            var teacherId = User.GetUserId();
-            var result = await _essaySubmissionService.BatchGradeByAiAsync(essayId, teacherId);
-            return result.Success ? Ok(result) : StatusCode(result.StatusCode, result);
-        }
 
         // GET: api/teacher/essay-submissions/essay/{essayId}/statistics - Thống kê essay
         [HttpGet("essay/{essayId}/statistics")]

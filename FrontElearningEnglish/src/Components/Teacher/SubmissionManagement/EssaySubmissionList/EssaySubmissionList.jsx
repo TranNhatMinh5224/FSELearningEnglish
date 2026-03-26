@@ -213,13 +213,10 @@ export default function EssaySubmissionList({ essayId, essayTitle, onBack, isAdm
                     const userName = submission.userName || submission.UserName || "N/A";
                     const submittedAt = submission.submittedAt || submission.SubmittedAt;
                     const status = submission.status !== undefined ? submission.status : (submission.Status !== undefined ? submission.Status : null);
-                    // Score: TeacherScore takes priority over AiScore
                     const score = submission.teacherScore !== undefined ? submission.teacherScore : 
                                   (submission.TeacherScore !== undefined ? submission.TeacherScore :
-                                  (submission.aiScore !== undefined ? submission.aiScore :
-                                  (submission.AiScore !== undefined ? submission.AiScore :
                                   (submission.score !== undefined ? submission.score :
-                                  (submission.Score !== undefined ? submission.Score : null)))));
+                                  (submission.Score !== undefined ? submission.Score : null)));
                     const hasAttachment = submission.attachmentUrl || submission.AttachmentUrl || submission.attachmentKey || submission.AttachmentKey;
 
                     return (

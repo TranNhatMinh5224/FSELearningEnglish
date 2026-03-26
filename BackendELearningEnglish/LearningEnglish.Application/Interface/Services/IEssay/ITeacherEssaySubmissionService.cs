@@ -18,9 +18,6 @@ namespace LearningEnglish.Application.Interface
         // Teacher chấm điểm thủ công (override AI score)
         Task<ServiceResponse<EssaySubmissionDto>> GradeSubmissionAsync(int submissionId, int teacherId, decimal score, string? feedback);
         
-        // Teacher yêu cầu AI chấm hàng loạt tất cả bài nộp của essay
-        Task<ServiceResponse<BatchGradingResultDto>> BatchGradeByAiAsync(int essayId, int teacherId);
-        
         // Teacher lấy thống kê essay
         Task<ServiceResponse<EssayStatisticsDto>> GetEssayStatisticsAsync(int essayId, int teacherId);
     }

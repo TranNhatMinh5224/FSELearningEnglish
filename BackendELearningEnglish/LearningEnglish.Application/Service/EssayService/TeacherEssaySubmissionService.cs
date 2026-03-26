@@ -3,7 +3,6 @@ using LearningEnglish.Application.Common;
 using LearningEnglish.Application.Common.Constants;
 using LearningEnglish.Application.Common.Helpers;
 using LearningEnglish.Application.Common.Pagination;
-using LearningEnglish.Application.Common.Prompts;
 using LearningEnglish.Application.DTOs;
 using LearningEnglish.Application.Interface;
 using LearningEnglish.Application.Interface.Infrastructure.MediaService;
@@ -17,8 +16,6 @@ namespace LearningEnglish.Application.Service
         private readonly IEssaySubmissionRepository _essaySubmissionRepository;
         private readonly IEssayRepository _essayRepository;
         private readonly IAssessmentRepository _assessmentRepository;
-        private readonly IGeminiService _geminiService;
-        private readonly IAiResponseParser _responseParser;
         private readonly IEssayAttachmentService _attachmentService;
         private readonly IAvatarService _avatarService;
         private readonly IMapper _mapper;
@@ -29,8 +26,6 @@ namespace LearningEnglish.Application.Service
             IEssaySubmissionRepository essaySubmissionRepository,
             IEssayRepository essayRepository,
             IAssessmentRepository assessmentRepository,
-            IGeminiService geminiService,
-            IAiResponseParser responseParser,
             IEssayAttachmentService attachmentService,
             IAvatarService avatarService,
             IMapper mapper,
@@ -39,8 +34,6 @@ namespace LearningEnglish.Application.Service
             _essaySubmissionRepository = essaySubmissionRepository;
             _essayRepository = essayRepository;
             _assessmentRepository = assessmentRepository;
-            _geminiService = geminiService;
-            _responseParser = responseParser;
             _attachmentService = attachmentService;
             _avatarService = avatarService;
             _mapper = mapper;
@@ -307,150 +300,6 @@ namespace LearningEnglish.Application.Service
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error grading submission {SubmissionId}", submissionId);
-                response.Success = false;
-                response.Message = $"Lỗi: {ex.Message}";
-                response.StatusCode = 500;
-            }
-
-            return response;
-        }
-
-        public async Task<ServiceResponse<BatchGradingResultDto>> BatchGradeByAiAsync(int essayId, int teacherId)
-        {
-            var response = new ServiceResponse<BatchGradingResultDto>();
-
-            try
-            {
-                _logger.LogInformation("👨‍🏫 Teacher {TeacherId} requesting batch AI grading for essay {EssayId}", teacherId, essayId);
-
-                // Validate ownership
-                if (!await ValidateEssayOwnershipAsync(essayId, teacherId))
-                {
-                    response.Success = false;
-                    response.StatusCode = 403;
-                    response.Message = "Bạn không có quyền chấm bài essay này";
-                    return response;
-                }
-
-                // Get essay and assessment
-                var essay = await _essayRepository.GetEssayByIdAsync(essayId);
-                if (essay == null)
-                {
-                    response.Success = false;
-                    response.StatusCode = 404;
-                    response.Message = "Không tìm thấy bài essay";
-                    return response;
-                }
-
-                var assessment = await _assessmentRepository.GetAssessmentById(essay.AssessmentId);
-                if (assessment == null)
-                {
-                    response.Success = false;
-                    response.StatusCode = 404;
-                    response.Message = "Không tìm thấy assessment";
-                    return response;
-                }
-
-                var maxScore = essay.TotalPoints;
-
-                // Get all submissions chưa chấm (hoặc chỉ có AI score, chưa có teacher score)
-                var allSubmissions = await _essaySubmissionRepository.GetSubmissionsByEssayIdAsync(essayId);
-                var pendingSubmissions = allSubmissions
-                    .Where(s => s.Status != SubmissionStatus.Graded || s.Score == null)
-                    .Where(s => !string.IsNullOrWhiteSpace(s.TextContent)) // Only grade submissions with text
-                    .ToList();
-
-                _logger.LogInformation("Found {Count} submissions to grade", pendingSubmissions.Count);
-
-                var results = new List<GradingResult>();
-                int successCount = 0;
-                int failCount = 0;
-
-                foreach (var submission in pendingSubmissions)
-                {
-                    try
-                    {
-                        // Use centralized prompt builder
-                        var prompt = EssayGradingPrompt.BuildPrompt(
-                            essay.Title,
-                            essay.Description ?? string.Empty,
-                            submission.TextContent ?? string.Empty,
-                            maxScore
-                        );
-
-                        // Call Gemini
-                        var geminiResponse = await _geminiService.GenerateContentAsync(prompt);
-
-                        if (!geminiResponse.Success)
-                        {
-                            failCount++;
-                            results.Add(new GradingResult
-                            {
-                                SubmissionId = submission.SubmissionId,
-                                UserName = submission.User?.FullName ?? "Unknown",
-                                Success = false,
-                                Error = geminiResponse.ErrorMessage
-                            });
-                            continue;
-                        }
-
-                        // Use centralized response parser (fixes parsing bug)
-                        var aiResult = _responseParser.ParseGradingResponse(geminiResponse.Content);
-
-                        if (aiResult.Score > maxScore)
-                        {
-                            aiResult.Score = maxScore;
-                        }
-
-                        // Save result (AI score, NOT teacher score)
-                        submission.Score = aiResult.Score;
-                        submission.Feedback = aiResult.Feedback;
-                        submission.GradedAt = DateTime.UtcNow;
-                        submission.Status = SubmissionStatus.Graded;
-
-                        await _essaySubmissionRepository.UpdateSubmissionAsync(submission);
-
-                        successCount++;
-                        results.Add(new GradingResult
-                        {
-                            SubmissionId = submission.SubmissionId,
-                            UserName = submission.User?.FullName ?? "Unknown",
-                            Score = aiResult.Score,
-                            Success = true
-                        });
-
-                        _logger.LogInformation("✅ Graded submission {SubmissionId}: {Score}/{MaxScore}", submission.SubmissionId, aiResult.Score, maxScore);
-                    }
-                    catch (Exception ex)
-                    {
-                        failCount++;
-                        results.Add(new GradingResult
-                        {
-                            SubmissionId = submission.SubmissionId,
-                            UserName = submission.User?.FullName ?? "Unknown",
-                            Success = false,
-                            Error = ex.Message
-                        });
-                        _logger.LogError(ex, "Failed to grade submission {SubmissionId}", submission.SubmissionId);
-                    }
-                }
-
-                response.Data = new BatchGradingResultDto
-                {
-                    TotalProcessed = pendingSubmissions.Count,
-                    SuccessCount = successCount,
-                    FailCount = failCount,
-                    Results = results
-                };
-                response.Success = true;
-                response.Message = $"Đã chấm {successCount}/{pendingSubmissions.Count} bài";
-                response.StatusCode = 200;
-
-                _logger.LogInformation("🎯 Batch grading completed. Success: {Success}, Failed: {Failed}", successCount, failCount);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error in batch grading for essay {EssayId}", essayId);
                 response.Success = false;
                 response.Message = $"Lỗi: {ex.Message}";
                 response.StatusCode = 500;

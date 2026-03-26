@@ -20,7 +20,5 @@ namespace LearningEnglish.Application.Interface
         // Xóa bài nộp của chính mình
         Task<ServiceResponse<bool>> DeleteSubmissionAsync(int submissionId, int userId);
         
-        // Yêu cầu AI chấm điểm (System Course only)
-        Task<ServiceResponse<EssayGradingResultDto>> RequestAiGradingAsync(int submissionId, int userId);
     }
 }

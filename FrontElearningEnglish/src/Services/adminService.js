@@ -117,9 +117,6 @@ export const adminService = {
   deleteEssaySubmission: (submissionId) => {
     return axiosClient.delete(API_ENDPOINTS.ADMIN.ESSAY_SUBMISSIONS.DELETE(submissionId));
   },
-  gradeEssayWithAI: (submissionId) => {
-    return axiosClient.post(API_ENDPOINTS.ADMIN.ESSAY_SUBMISSIONS.GRADE_AI(submissionId));
-  },
   gradeEssay: (submissionId, data) => {
     return axiosClient.post(API_ENDPOINTS.ADMIN.ESSAY_SUBMISSIONS.GRADE(submissionId), data);
   },

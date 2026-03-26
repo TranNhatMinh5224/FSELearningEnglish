@@ -37,7 +37,7 @@ export default function QuizCard({ assessment, onClick }) {
                         )}
                         <div className="quiz-meta">
                             {assessment.timeLimit && (
-                                <span className="quiz-meta-item me-3">
+                                <span className="quiz-meta-item">
                                     Thời gian: {formatTimeLimit(assessment.timeLimit)}
                                 </span>
                             )}

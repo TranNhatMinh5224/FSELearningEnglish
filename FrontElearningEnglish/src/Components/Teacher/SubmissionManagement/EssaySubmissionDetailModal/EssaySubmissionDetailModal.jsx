@@ -16,16 +16,12 @@ export default function EssaySubmissionDetailModal({ show, onClose, submission, 
 
   React.useEffect(() => {
     if (submission) {
-      // Score: TeacherScore takes priority over AiScore
       const currentScore = submission.teacherScore !== undefined ? submission.teacherScore : 
                           (submission.TeacherScore !== undefined ? submission.TeacherScore :
-                          (submission.aiScore !== undefined ? submission.aiScore :
-                          (submission.AiScore !== undefined ? submission.AiScore :
                           (submission.score !== undefined ? submission.score :
-                          (submission.Score !== undefined ? submission.Score : "")))));
+                          (submission.Score !== undefined ? submission.Score : "")));
       const currentFeedback = submission.teacherFeedback || submission.TeacherFeedback || 
-                              (submission.aiFeedback || submission.AiFeedback || 
-                              (submission.feedback || submission.Feedback || ""));
+                              (submission.feedback || submission.Feedback || "");
       setScore(currentScore !== null && currentScore !== undefined ? currentScore.toString() : "");
       setFeedback(currentFeedback);
     }

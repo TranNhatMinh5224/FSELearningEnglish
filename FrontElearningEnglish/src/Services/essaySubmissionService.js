@@ -33,11 +33,6 @@ export const essaySubmissionService = {
         return axiosClient.get(API_ENDPOINTS.ESSAY_SUBMISSIONS.MY_SUBMISSIONS);
     },
 
-    // Request AI grading
-    requestAiGrading: (submissionId) => {
-        return axiosClient.post(API_ENDPOINTS.ESSAY_SUBMISSIONS.REQUEST_AI_GRADING(submissionId));
-    },
-
     // Teacher methods
     // Get submissions by essay ID with pagination
     getSubmissionsByEssay: (essayId, page = 1, pageSize = 10) => {
@@ -61,11 +56,6 @@ export const essaySubmissionService = {
         });
     },
 
-    // Grade essay with AI
-    gradeWithAI: (submissionId) => {
-        return axiosClient.post(API_ENDPOINTS.TEACHER.GRADE_ESSAY_WITH_AI(submissionId));
-    },
-
     // Grade essay manually (create)
     gradeManually: (submissionId, data) => {
         return axiosClient.post(API_ENDPOINTS.TEACHER.GRADE_ESSAY_MANUALLY(submissionId), data);
@@ -74,11 +64,6 @@ export const essaySubmissionService = {
     // Update essay grade
     updateGrade: (submissionId, data) => {
         return axiosClient.put(API_ENDPOINTS.TEACHER.UPDATE_ESSAY_GRADE(submissionId), data);
-    },
-
-    // Batch grade essays with AI
-    batchGradeByAI: (essayId) => {
-        return axiosClient.post(API_ENDPOINTS.TEACHER.BATCH_GRADE_ESSAY_AI(essayId));
     },
 
     // Get essay statistics
@@ -104,10 +89,6 @@ export const essaySubmissionService = {
                 'Accept': '*/*'
             }
         });
-    },
-
-    gradeAdminWithAI: (submissionId) => {
-        return axiosClient.post(API_ENDPOINTS.ADMIN.ESSAY_SUBMISSIONS.GRADE_AI(submissionId));
     },
 
     gradeAdminManually: (submissionId, data) => {

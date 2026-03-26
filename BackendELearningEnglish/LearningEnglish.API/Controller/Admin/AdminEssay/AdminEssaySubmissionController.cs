@@ -65,13 +65,6 @@ namespace LearningEnglish.API.Controller.Admin
             return result.Success ? Ok(result) : StatusCode(result.StatusCode, result);
         }
 
-        // POST: api/admin/essay-submissions/{submissionId}/grade-ai
-        [HttpPost("{submissionId}/grade-ai")]
-        public async Task<IActionResult> GradeWithAI(int submissionId)
-        {
-            var result = await _gradingService.GradeEssayWithAIAsync(submissionId);
-            return result.Success ? Ok(result) : StatusCode(result.StatusCode, result);
-        }
 
         // POST: api/admin/essay-submissions/{submissionId}/grade
         [HttpPost("{submissionId}/grade")]
@@ -81,12 +74,5 @@ namespace LearningEnglish.API.Controller.Admin
             return result.Success ? Ok(result) : StatusCode(result.StatusCode, result);
         }
 
-        // POST: api/admin/essay-submissions/essay/{essayId}/batch-grade-ai - Admin chấm hàng loạt bằng AI
-        [HttpPost("essay/{essayId}/batch-grade-ai")]
-        public async Task<IActionResult> BatchGradeByAi(int essayId)
-        {
-            var result = await _gradingService.BatchGradeByAiAsync(essayId);
-            return result.Success ? Ok(result) : StatusCode(result.StatusCode, result);
-        }
     }
 }

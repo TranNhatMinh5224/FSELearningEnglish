@@ -333,9 +333,6 @@ builder.Services.Configure<FacebookAuthOptions>(builder.Configuration.GetSection
 // PayOS Configuration
 builder.Services.Configure<PayOSOptions>(builder.Configuration.GetSection("PayOS"));
 
-// Gemini AI Configuration for Essay Grading
-builder.Services.Configure<GeminiOptions>(builder.Configuration.GetSection("Gemini"));
-
 // PayOS HttpClient
 builder.Services.AddHttpClient("PayOS", client =>
 {
@@ -345,10 +342,6 @@ builder.Services.AddHttpClient("PayOS", client =>
 
 // PayOS Service
 builder.Services.AddScoped<IPayOSService, PayOSService>();
-
-// Gemini AI Service for Essay Grading
-builder.Services.AddHttpClient<IGeminiService, GeminiService>()
-    .SetHandlerLifetime(TimeSpan.FromMinutes(5));
 
 // Essay Grading Services (refactored by role)
 builder.Services.AddScoped<IAdminEssayGradingService, AdminEssayGradingService>();
@@ -387,9 +380,6 @@ builder.Services.AddScoped<IPronunciationMediaService, PronunciationMediaService
 
 // Storage Configuration Provider (Clean Architecture - bucket names in Infrastructure only)
 builder.Services.AddSingleton<IStorageConfigProvider, StorageConfigProvider>();
-
-// AI Response Parser
-builder.Services.AddScoped<IAiResponseParser, AiResponseParser>();
 
 // Background Jobs
 builder.Services.AddScoped<TempFileCleanupJob>();

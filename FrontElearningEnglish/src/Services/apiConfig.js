@@ -129,7 +129,6 @@ export const API_ENDPOINTS = {
             GET_BY_ID: (submissionId) => `/admin/essay-submissions/${submissionId}`,
             DOWNLOAD: (submissionId) => `/admin/essay-submissions/${submissionId}/download`,
             DELETE: (submissionId) => `/admin/essay-submissions/${submissionId}`,
-            GRADE_AI: (submissionId) => `/admin/essay-submissions/${submissionId}/grade-ai`,
             GRADE: (submissionId) => `/admin/essay-submissions/${submissionId}/grade`,
         },
         QUIZ_ATTEMPTS: {
@@ -239,7 +238,6 @@ export const API_ENDPOINTS = {
         GET_SUBMISSION_STATUS: (essayId) => `/user/essay-submissions/submission-status/essay/${essayId}`,
         UPDATE: (submissionId) => `/user/essay-submissions/update/${submissionId}`,
         DELETE: (submissionId) => `/user/essay-submissions/delete/${submissionId}`,
-        REQUEST_AI_GRADING: (submissionId) => `/user/essay-submissions/${submissionId}/request-ai-grading`,
     },
     // Pronunciation Assessments
     PRONUNCIATION_ASSESSMENTS: {
@@ -347,10 +345,8 @@ export const API_ENDPOINTS = {
         GET_ESSAY_SUBMISSIONS_BY_ESSAY: (essayId) => `/teacher/essay-submissions/essay/${essayId}`,
         GET_ESSAY_SUBMISSION_DETAIL: (submissionId) => `/teacher/essay-submissions/${submissionId}`,
         DOWNLOAD_ESSAY_SUBMISSION: (submissionId) => `/teacher/essay-submissions/${submissionId}/download`,
-        GRADE_ESSAY_WITH_AI: (submissionId) => `/teacher/essay-submissions/${submissionId}/grade-ai`,
         GRADE_ESSAY_MANUALLY: (submissionId) => `/teacher/essay-submissions/${submissionId}/grade`,
         UPDATE_ESSAY_GRADE: (submissionId) => `/teacher/essay-submissions/${submissionId}/grade`,
-        BATCH_GRADE_ESSAY_AI: (essayId) => `/teacher/essay-submissions/essay/${essayId}/batch-grade-ai`,
         GET_ESSAY_STATISTICS: (essayId) => `/teacher/essay-submissions/essay/${essayId}/statistics`,
         // Quiz Attempt endpoints
         GET_QUIZ_ATTEMPTS_PAGED: (quizId) => `/teacher/quiz-attempts/quiz/${quizId}/paged`,
