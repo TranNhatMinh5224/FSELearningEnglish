@@ -16,7 +16,8 @@ import {
   MdInventory,
   MdAdminPanelSettings,
   MdImage,
-  MdHome
+  MdHome,
+  MdLock
 } from "react-icons/md";
 import { useAuth } from "../../Context/AuthContext";
 
@@ -71,6 +72,12 @@ export default function AdminLayout() {
   const toggleSidebar = () => setIsSidebarOpen(!isSidebarOpen);
   const closeSidebar = () => setIsSidebarOpen(false);
 
+  // Helper to check if a feature is allowed for the current user
+  const isAllowed = (requiredRoles) => {
+    if (!requiredRoles) return true;
+    return hasAnyRole(roles, requiredRoles);
+  };
+
   // Check permissions before navigation
   const handleNavClick = (e, path, requiredRoles, featureName) => {
     // Close sidebar on mobile when navigating
@@ -115,50 +122,80 @@ export default function AdminLayout() {
 
           <NavLink
             to={ROUTE_PATHS.ADMIN.COURSES}
-            className={({ isActive }) => isActive ? "menu-item active" : "menu-item"}
+            className={({ isActive }) => {
+              const baseClass = isActive ? "menu-item active" : "menu-item";
+              return !isAllowed(["SuperAdmin", "ContentAdmin"]) ? `${baseClass} restricted` : baseClass;
+            }}
             onClick={(e) => handleNavClick(e, ROUTE_PATHS.ADMIN.COURSES, ["SuperAdmin", "ContentAdmin"], "Quản lý khóa học")}
+            title={!isAllowed(["SuperAdmin", "ContentAdmin"]) ? "Yêu cầu quyền Content Admin hoặc Super Admin" : ""}
           >
             <MdClass /> Course Management
+            {!isAllowed(["SuperAdmin", "ContentAdmin"]) && <MdLock className="lock-icon" />}
           </NavLink>
 
           <NavLink
             to={ROUTE_PATHS.ADMIN.USERS}
-            className={({ isActive }) => isActive ? "menu-item active" : "menu-item"}
+            className={({ isActive }) => {
+              const baseClass = isActive ? "menu-item active" : "menu-item";
+              return !isAllowed(["SuperAdmin", "FinanceAdmin"]) ? `${baseClass} restricted` : baseClass;
+            }}
             onClick={(e) => handleNavClick(e, ROUTE_PATHS.ADMIN.USERS, ["SuperAdmin", "FinanceAdmin"], "Quản lý người dùng")}
+            title={!isAllowed(["SuperAdmin", "FinanceAdmin"]) ? "Yêu cầu quyền Finance Admin hoặc Super Admin" : ""}
           >
             <MdPeople /> User Management
+            {!isAllowed(["SuperAdmin", "FinanceAdmin"]) && <MdLock className="lock-icon" />}
           </NavLink>
 
           <NavLink
             to="/admin/packages"
-            className={({ isActive }) => isActive ? "menu-item active" : "menu-item"}
+            className={({ isActive }) => {
+              const baseClass = isActive ? "menu-item active" : "menu-item";
+              return !isAllowed(["SuperAdmin", "FinanceAdmin"]) ? `${baseClass} restricted` : baseClass;
+            }}
             onClick={(e) => handleNavClick(e, "/admin/packages", ["SuperAdmin", "FinanceAdmin"], "Quản lý gói dịch vụ")}
+            title={!isAllowed(["SuperAdmin", "FinanceAdmin"]) ? "Yêu cầu quyền Finance Admin hoặc Super Admin" : ""}
           >
             <MdInventory /> Package Management
+            {!isAllowed(["SuperAdmin", "FinanceAdmin"]) && <MdLock className="lock-icon" />}
           </NavLink>
 
           <NavLink
             to="/admin/admin-management"
-            className={({ isActive }) => isActive ? "menu-item active" : "menu-item"}
+            className={({ isActive }) => {
+              const baseClass = isActive ? "menu-item active" : "menu-item";
+              return !isAllowed(["SuperAdmin"]) ? `${baseClass} restricted` : baseClass;
+            }}
             onClick={(e) => handleNavClick(e, "/admin/admin-management", ["SuperAdmin"], "Admin Management")}
+            title={!isAllowed(["SuperAdmin"]) ? "Yêu cầu quyền Super Admin" : ""}
           >
             <MdAdminPanelSettings /> Admin Management
+            {!isAllowed(["SuperAdmin"]) && <MdLock className="lock-icon" />}
           </NavLink>
 
           <NavLink
             to={ROUTE_PATHS.ADMIN.ASSET_MANAGEMENT}
-            className={({ isActive }) => isActive ? "menu-item active" : "menu-item"}
+            className={({ isActive }) => {
+              const baseClass = isActive ? "menu-item active" : "menu-item";
+              return !isAllowed(["SuperAdmin", "ContentAdmin"]) ? `${baseClass} restricted` : baseClass;
+            }}
             onClick={(e) => handleNavClick(e, ROUTE_PATHS.ADMIN.ASSET_MANAGEMENT, ["SuperAdmin", "ContentAdmin"], "Quản lý Assets")}
+            title={!isAllowed(["SuperAdmin", "ContentAdmin"]) ? "Yêu cầu quyền Content Admin hoặc Super Admin" : ""}
           >
             <MdImage /> Asset Management
+            {!isAllowed(["SuperAdmin", "ContentAdmin"]) && <MdLock className="lock-icon" />}
           </NavLink>
 
           <NavLink
             to={ROUTE_PATHS.ADMIN.SUBMISSION_MANAGEMENT}
-            className={({ isActive }) => isActive ? "menu-item active" : "menu-item"}
+            className={({ isActive }) => {
+              const baseClass = isActive ? "menu-item active" : "menu-item";
+              return !isAllowed(["SuperAdmin", "ContentAdmin"]) ? `${baseClass} restricted` : baseClass;
+            }}
             onClick={(e) => handleNavClick(e, ROUTE_PATHS.ADMIN.SUBMISSION_MANAGEMENT, ["SuperAdmin", "ContentAdmin"], "Quản lý bài nộp")}
+            title={!isAllowed(["SuperAdmin", "ContentAdmin"]) ? "Yêu cầu quyền Content Admin hoặc Super Admin" : ""}
           >
             <MdAssignment /> Quản lý bài nộp
+            {!isAllowed(["SuperAdmin", "ContentAdmin"]) && <MdLock className="lock-icon" />}
           </NavLink>
 
           <div style={{ marginTop: 'auto', borderTop: '1px solid rgba(255,255,255,0.1)' }}>

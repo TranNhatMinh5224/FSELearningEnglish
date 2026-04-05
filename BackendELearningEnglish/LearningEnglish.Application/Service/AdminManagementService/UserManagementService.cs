@@ -91,12 +91,12 @@ namespace LearningEnglish.Application.Service
                     return response;
                 }
 
-                var isAdmin = await _userRepository.GetUserRolesAsync(userId);
-                if (isAdmin)
+                var isSuperAdmin = await _userRepository.IsSuperAdminAsync(userId);
+                if (isSuperAdmin)
                 {
                     response.Success = false;
                     response.StatusCode = 403;
-                    response.Message = "Không thể block tài khoản Admin";
+                    response.Message = "Không thể block tài khoản Super Admin";
                     return response;
                 }
 

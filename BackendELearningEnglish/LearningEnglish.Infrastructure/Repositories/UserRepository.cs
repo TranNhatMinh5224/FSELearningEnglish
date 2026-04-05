@@ -141,6 +141,20 @@ namespace LearningEnglish.Infrastructure.Repositories
             return user.Roles.Any(r => RoleConstants.IsAdminRole(r.Name));
         }
 
+        public async Task<bool> IsSuperAdminAsync(int userId)
+        {
+            var user = await _context.Users
+                .Include(u => u.Roles)
+                .FirstOrDefaultAsync(u => u.UserId == userId);
+
+            if (user == null)
+            {
+                return false;
+            }
+
+            return user.Roles.Any(r => r.Name == RoleConstants.SuperAdmin);
+        }
+
         // Kiểm tra user có role Teacher trong database
         public async Task<bool> HasTeacherRoleAsync(int userId)
         {

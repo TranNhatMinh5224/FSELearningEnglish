@@ -133,6 +133,25 @@
   font-size: 1.2rem;
 }
 
+.menu-item.restricted {
+  opacity: 0.5;
+  background-color: rgba(239, 68, 68, 0.05); /* Soft desaturated red hint */
+  cursor: default;
+  font-size: 0.95rem;
+}
+
+.menu-item.restricted:hover {
+  background-color: rgba(239, 68, 68, 0.08);
+  color: var(--admin-sidebar-text);
+}
+
+.lock-icon {
+  margin-left: auto;
+  font-size: 0.85rem !important;
+  color: #f87171; /* Desaturated red lock icon */
+  opacity: 0.7;
+}
+
 /* MAIN CONTENT */
 .admin-main {
   flex: 1;
