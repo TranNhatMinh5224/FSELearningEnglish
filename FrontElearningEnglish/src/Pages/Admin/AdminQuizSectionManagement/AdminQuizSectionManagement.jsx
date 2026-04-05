@@ -128,7 +128,7 @@ export default function AdminQuizSectionManagement() {
   if (loading) {
     return (
       <div className="admin-quiz-section-management-container">
-        <Container>
+        <Container fluid className="p-0">
           <div className="text-center py-5">
             <div className="spinner-border text-primary" role="status">
               <span className="visually-hidden">Đang tải...</span>
@@ -142,7 +142,7 @@ export default function AdminQuizSectionManagement() {
   if (error) {
     return (
       <div className="admin-quiz-section-management-container">
-        <Container>
+        <Container fluid className="p-0">
           <div className="alert alert-danger text-center">{error}</div>
         </Container>
       </div>
@@ -153,7 +153,7 @@ export default function AdminQuizSectionManagement() {
 
   return (
     <div className="admin-quiz-section-management-container">
-      <Container>
+      <Container fluid className="p-0">
         {/* Header */}
         <div className="mb-4 question-header-section">
           <button 

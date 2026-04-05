@@ -1,8 +1,8 @@
 .flashcard-detail-container {
-    padding: clamp(1.5rem, 1rem + 2.5vw, 2rem) clamp(1rem, 0.75rem + 1.25vw, 15.625rem);
+    padding: clamp(1.5rem, 1rem + 2.5vw, 2rem) var(--padding-container-side, 1rem);
     padding-top: calc(70px + clamp(1.5rem, 1rem + 2.5vw, 2rem));
     background: var(--color-bg-secondary, #f6f8fb);
-    min-height: calc(100vh - 70px);
+    min-height: calc(125vh - 70px);
     transition: background-color 0.3s ease;
 }
 

@@ -89,7 +89,7 @@ export default function AssetManagement() {
     };
 
     return (
-        <Container fluid className="py-4">
+        <Container fluid className="p-0">
             <div className="d-flex justify-content-between align-items-center mb-4">
                 <div>
                     <h2 className="fw-bold text-primary m-0">Quản lý Assets Frontend</h2>

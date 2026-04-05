@@ -376,7 +376,7 @@ export default function AssessmentInfoModal({
                                             <Card.Body>
                                                 <div className="text-muted small mb-1">Số lần làm tối đa</div>
                                                 <div className="fw-bold">
-                                                    {quiz.allowUnlimitedAttempts ? "Không giới hạn" : `${quiz.maxAttempts} lần`}
+                                                    {quiz.allowUnlimitedAttempts || quiz.maxAttempts === null ? "Không giới hạn" : `${quiz.maxAttempts} lần`}
                                                 </div>
                                             </Card.Body>
                                         </Card>

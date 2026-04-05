@@ -19,11 +19,14 @@
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
     <PackageReference Include="Microsoft.Extensions.Http.Polly" Version="8.0.0" />
+    <PackageReference Include="Microsoft.SemanticKernel" Version="1.30.0" />
+    <PackageReference Include="Microsoft.SemanticKernel.Connectors.Google" Version="1.30.0-alpha" />
     <PackageReference Include="Minio" Version="7.0.0" />
     <PackageReference Include="NAudio" Version="2.2.1" />
     <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="8.0.10" />
     <PackageReference Include="BCrypt.Net-Next" Version="4.0.3" />
     <PackageReference Include="AutoMapper" Version="16.1.1" />
+    <PackageReference Include="Pgvector.EntityFrameworkCore" Version="0.2.1" />
   </ItemGroup>
 
 </Project>

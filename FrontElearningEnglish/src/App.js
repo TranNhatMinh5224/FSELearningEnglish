@@ -4,6 +4,7 @@ import { EnumProvider } from "./Context/EnumContext";
 import { ThemeProvider } from "./Context/ThemeContext";
 import { AssetProvider } from "./Context/AssetContext";
 import { ToastContainer } from "react-toastify";
+import ChatBotWidget from "./Components/Common/ChatBotWidget/ChatBotWidget";
 import "react-toastify/dist/ReactToastify.css";
 import "./Components/Common/ModalFix/ModalFix.css";
 import "./Components/Common/Modal/BaseModal.css";
@@ -33,6 +34,7 @@ function App() {
             <AssetProvider>
               <AppRoutes />
               <ToastContainer position="top-right" autoClose={3000} />
+              <ChatBotWidget />
             </AssetProvider>
           </EnumProvider>
         </ThemeProvider>

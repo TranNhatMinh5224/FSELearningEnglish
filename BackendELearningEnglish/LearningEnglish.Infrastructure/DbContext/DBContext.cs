@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using LearningEnglish.Domain.Entities;
 using LearningEnglish.Domain.Enums;
 using LearningEnglish.Infrastructure.Data;
+using Pgvector;
 
 namespace LearningEnglish.Infrastructure.Data
 {
@@ -46,7 +47,11 @@ namespace LearningEnglish.Infrastructure.Data
         public DbSet<TeacherPackage> TeacherPackages => Set<TeacherPackage>();
         public DbSet<TeacherSubscription> TeacherSubscriptions => Set<TeacherSubscription>();
         public DbSet<ExternalLogin> ExternalLogins => Set<ExternalLogin>();
-        
+
+        // AI & Embedding Support
+        public DbSet<CourseEmbedding> CourseEmbeddings => Set<CourseEmbedding>();
+        public DbSet<TeacherPackageEmbedding> TeacherPackageEmbeddings => Set<TeacherPackageEmbedding>();
+
         // Frontend Management
         public DbSet<AssetFrontend> AssetsFrontend => Set<AssetFrontend>();
 
@@ -54,9 +59,10 @@ namespace LearningEnglish.Infrastructure.Data
         {
             base.OnModelCreating(modelBuilder);
 
-            // Register PostgreSQL Extensions (MANDATORY for Full-Text Search and UUIDs)
+            // Register PostgreSQL Extensions (MANDATORY for Full-Text Search and Vector Search)
             modelBuilder.HasPostgresExtension("uuid-ossp");
             modelBuilder.HasPostgresExtension("pg_trgm");
+            modelBuilder.HasPostgresExtension("vector");
 
             // ===== User =====
             modelBuilder.Entity<User>(e =>
@@ -260,9 +266,9 @@ namespace LearningEnglish.Infrastructure.Data
                  .HasForeignKey(c => c.TeacherId)
                  .IsRequired(false)
                  .OnDelete(DeleteBehavior.SetNull);
-            });
 
-            // Lesson
+            });
+  
             modelBuilder.Entity<Lesson>(e =>
             {
                 e.ToTable("Lessons");
@@ -1150,8 +1156,67 @@ namespace LearningEnglish.Infrastructure.Data
                 e.HasIndex(w => new { w.Status, w.NextRetryAt }); // Composite for retry queries
                 e.HasIndex(w => w.CreatedAt);
             });
+        
+         // ===== SEED   DATA =====
 
 
+
+            // CourseEmbedding
+            modelBuilder.Entity<CourseEmbedding>(e =>
+            {
+                e.ToTable("CourseEmbeddings");
+                e.HasKey(ce => ce.CourseEmbeddingId);
+
+                e.Property(ce => ce.Title).HasMaxLength(255);
+                e.Property(ce => ce.EmbeddingModel).IsRequired().HasMaxLength(100);
+                e.Property(ce => ce.ContentHash).HasMaxLength(100);
+                
+                     // pgvector: map float[] to vector(dimension)
+                     // Current standard dimension for configured embedding model: 3072
+                e.Property(ce => ce.EmbeddingVector)
+                      .HasColumnType("vector(3072)")
+                 .HasConversion(
+                    v => new Vector(v),
+                    v => v.ToArray()
+                 ); 
+
+                e.HasOne(ce => ce.Course)
+                 .WithMany(c => c.CourseEmbeddings)
+                 .HasForeignKey(ce => ce.CourseId)
+                 .OnDelete(DeleteBehavior.Cascade);
+
+                // HNSW Index for fast vector search
+                e.HasIndex(ce => ce.EmbeddingVector)
+                 .HasMethod("hnsw")
+                 .HasOperators("vector_cosine_ops");
+            });
+
+            // TeacherPackageEmbedding
+            modelBuilder.Entity<TeacherPackageEmbedding>(e =>
+            {
+                e.ToTable("TeacherPackageEmbeddings");
+                e.HasKey(tpe => tpe.TeacherPackageEmbeddingId);
+
+                e.Property(tpe => tpe.PackageName).HasMaxLength(100);
+                e.Property(tpe => tpe.EmbeddingModel).IsRequired().HasMaxLength(100);
+                e.Property(tpe => tpe.ContentHash).HasMaxLength(100);
+
+                e.Property(tpe => tpe.EmbeddingVector)
+                      .HasColumnType("vector(3072)")
+                 .HasConversion(
+                    v => new Vector(v),
+                    v => v.ToArray()
+                 );
+
+                e.HasOne(tpe => tpe.TeacherPackage)
+                 .WithMany(tp => tp.TeacherPackageEmbeddings)
+                 .HasForeignKey(tpe => tpe.TeacherPackageId)
+                 .OnDelete(DeleteBehavior.Cascade);
+
+                e.HasIndex(tpe => tpe.EmbeddingVector)
+                 .HasMethod("hnsw")
+                 .HasOperators("vector_cosine_ops");
+            });
 
             SeedData(modelBuilder);
         }

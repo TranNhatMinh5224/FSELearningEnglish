@@ -9,7 +9,6 @@ import QuestionCard from "../../Components/Quiz/QuestionCard/QuestionCard";
 import ConfirmModal from "../../Components/Common/ConfirmModal/ConfirmModal";
 import NotificationModal from "../../Components/Common/NotificationModal/NotificationModal";
 import { quizAttemptService } from "../../Services/quizAttemptService";
-import { quizService } from "../../Services/quizService";
 import { courseService } from "../../Services/courseService";
 import { lessonService } from "../../Services/lessonService";
 import "./QuizDetail.css";
@@ -214,8 +213,6 @@ export default function QuizDetail() {
 
                     try {
                         localStorage.setItem(progressKey, JSON.stringify(progressData));
-                        // Verify immediately
-                        const verify = localStorage.getItem(progressKey);
                     } catch (e) {
                         console.error("💾 [AutoSave] Write Failed:", e);
                     }
@@ -318,8 +315,6 @@ export default function QuizDetail() {
             }
 
             const sections = attempt.QuizSections || attempt.quizSections || [];
-            let totalQuestions = 0;
-
             // Logic count questions + flatten items
             const allQuestions = [];
 
@@ -329,11 +324,9 @@ export default function QuizDetail() {
                     items.forEach(item => {
                         const type = item.ItemType || item.itemType;
                         if (type === "Question") {
-                            totalQuestions++;
                             if (item.QuestionId || item.questionId) allQuestions.push(item);
                         } else if (type === "Group") {
                             const gq = item.Questions || item.questions || [];
-                            totalQuestions += gq.length;
                             const gInfo = {
                                 groupName: item.Name || item.name,
                                 groupTitle: item.Title || item.title,
@@ -350,7 +343,6 @@ export default function QuizDetail() {
                     const gs = section.QuizGroups || section.quizGroups || [];
 
                     if (qs.length > 0) allQuestions.push(...qs);
-                    totalQuestions += qs.length;
 
                     if (gs.length > 0) {
                         gs.forEach(g => {
@@ -363,21 +355,16 @@ export default function QuizDetail() {
                                 groupVideoUrl: g.VideoUrl || g.videoUrl
                             };
                             gq.forEach(q => allQuestions.push({ ...q, _groupInfo: gInfo }));
-                            totalQuestions += gq.length;
                         });
                     }
                 }
             });
 
-            if (totalQuestions === 0) console.warn("No questions found.");
 
             setQuizAttempt(attempt);
 
             const existingAnswers = {};
-            // Simplified loading answers from flattened list as logic is redundant with flattening
-            // But we need to check section structures again if we want to be safe or rely on allQuestions?
-            // Actually reusing logic above is better for consistency.
-            // Let's iterate allQuestions to get UserAnswer
+
             allQuestions.forEach(q => {
                 const qId = q.QuestionId || q.questionId;
                 const ua = q.UserAnswer ?? q.userAnswer;
@@ -388,7 +375,7 @@ export default function QuizDetail() {
             const attemptDuration = attempt.Duration !== undefined ? attempt.Duration : attempt.duration;
             const attemptTitle = attempt.QuizTitle || attempt.quizTitle;
             const attemptQuizInfo = attempt.Quiz || attempt.quiz;
-            
+
             if (attemptQuizInfo) {
                 const qDuration = attemptQuizInfo.Duration !== undefined ? attemptQuizInfo.Duration : attemptQuizInfo.duration;
                 setQuiz({
@@ -512,9 +499,6 @@ export default function QuizDetail() {
                 setSubmitting(false);
                 return;
             }
-
-            // Log API endpoint
-            const submitEndpoint = `/user/quiz-attempts/${currentAttemptId}/submit`;
 
             try {
                 const response = await quizAttemptService.submit(currentAttemptId);
@@ -642,19 +626,19 @@ export default function QuizDetail() {
         }
 
         // Get quiz duration (in minutes) - try all possible sources and cases
-        const quizDuration = 
-            quiz?.Duration || 
-            quiz?.duration || 
-            quizAttempt?.Duration || 
-            quizAttempt?.duration || 
-            quizAttempt?.Quiz?.Duration || 
-            quizAttempt?.Quiz?.duration || 
-            quizAttempt?.quiz?.Duration || 
+        const quizDuration =
+            quiz?.Duration ||
+            quiz?.duration ||
+            quizAttempt?.Duration ||
+            quizAttempt?.duration ||
+            quizAttempt?.Quiz?.Duration ||
+            quizAttempt?.Quiz?.duration ||
+            quizAttempt?.quiz?.Duration ||
             quizAttempt?.quiz?.duration || 0;
 
         if (quizDuration === null || quizDuration === undefined || isNaN(Number(quizDuration)) || Number(quizDuration) <= 0) {
             endTimeRef.current = null; // No time limit
-            console.log("⏰ [Timer] No valid duration found, setting to unlimited");
+            // console.log("⏰ [Timer] No valid duration found, setting to unlimited");
             return;
         }
 
@@ -911,20 +895,20 @@ export default function QuizDetail() {
     }
 
     // Tính thời gian làm bài (Cần cực kỳ cẩn thận với kiểu dữ liệu)
-    const rawDuration = 
-        quiz?.Duration || 
-        quiz?.duration || 
-        quizAttempt?.Duration || 
-        quizAttempt?.duration || 
-        quizAttempt?.Quiz?.Duration || 
-        quizAttempt?.Quiz?.duration || 
-        quizAttempt?.quiz?.Duration || 
+    const rawDuration =
+        quiz?.Duration ||
+        quiz?.duration ||
+        quizAttempt?.Duration ||
+        quizAttempt?.duration ||
+        quizAttempt?.Quiz?.Duration ||
+        quizAttempt?.Quiz?.duration ||
+        quizAttempt?.quiz?.Duration ||
         quizAttempt?.quiz?.duration || 0;
-        
+
     const quizDuration = Number(rawDuration);
-    const timeLimit = (!isNaN(quizDuration) && quizDuration > 0) ? (quizDuration * 60) : null; 
-    
-    // Add debug log to verify on each render
+    const timeLimit = (!isNaN(quizDuration) && quizDuration > 0) ? (quizDuration * 60) : null;
+
+    /* 
     if (quiz || quizAttempt) {
         console.log("🕒 [Timer Debug] rawDuration:", rawDuration, "timeLimit:", timeLimit);
     }
@@ -939,13 +923,14 @@ export default function QuizDetail() {
     console.log("quizAttempt:", quizAttempt);
     console.log("remainingTime state:", remainingTime);
     console.log("===================");
+    */
 
     return (
         <>
             <MainHeader />
             <div className="quiz-detail-page">
                 <Container>
-                    <Breadcrumb 
+                    <Breadcrumb
                         items={[
                             { label: "Khóa học của tôi", path: "/my-courses" },
                             { label: course?.title || "Khóa học", path: `/course/${courseId}` },

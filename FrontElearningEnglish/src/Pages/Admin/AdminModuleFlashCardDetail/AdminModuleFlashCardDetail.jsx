@@ -112,7 +112,7 @@ export default function AdminModuleFlashCardDetail() {
 
   return (
     <div className="admin-module-flashcard-detail-container">
-      <Container>
+      <Container fluid className="p-0">
         <div className="d-flex align-items-center justify-content-between mb-4 mt-4">
           <div className="d-flex align-items-center gap-3">
             <Button 

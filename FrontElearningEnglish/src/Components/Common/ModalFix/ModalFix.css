@@ -16,7 +16,7 @@ body.modal-open {
 
 /* Modal dialog - căn giữa và giới hạn trong viewport */
 .modal-dialog {
-  max-height: calc(100vh - 2rem) !important;
+  max-height: calc(125vh - 2rem) !important;
   margin: 1rem auto !important;
   display: flex !important;
   align-items: center !important;
@@ -29,7 +29,7 @@ body.modal-open {
 
 /* Modal content - giới hạn chiều cao */
 .modal-content {
-  max-height: calc(100vh - 2rem) !important;
+  max-height: calc(125vh - 2rem) !important;
   display: flex !important;
   flex-direction: column !important;
   overflow: hidden !important;
@@ -44,7 +44,7 @@ body.modal-open {
 .modal-body {
   flex: 1 1 auto !important;
   overflow-y: auto !important;
-  max-height: calc(100vh - 200px) !important;
+  max-height: calc(125vh - 200px) !important;
 }
 
 /* Modal footer - cố định */
@@ -78,181 +78,181 @@ body.modal-open {
 /* CreateCourseModal */
 .create-course-modal .modal-dialog,
 .create-course-modal-dialog {
-  max-height: calc(100vh - 2rem) !important;
+  max-height: calc(125vh - 2rem) !important;
 }
 
 .create-course-modal .modal-content {
-  max-height: calc(100vh - 2rem) !important;
+  max-height: calc(125vh - 2rem) !important;
 }
 
 .create-course-modal .modal-body {
-  max-height: calc(100vh - 180px) !important;
+  max-height: calc(125vh - 180px) !important;
   overflow-y: auto !important;
 }
 
 /* CreateLessonModal */
 .create-lesson-modal .modal-dialog,
 .create-lesson-modal-dialog {
-  max-height: calc(100vh - 2rem) !important;
+  max-height: calc(125vh - 2rem) !important;
 }
 
 .create-lesson-modal .modal-content {
-  max-height: calc(100vh - 2rem) !important;
+  max-height: calc(125vh - 2rem) !important;
 }
 
 .create-lesson-modal .modal-body {
-  max-height: calc(100vh - 180px) !important;
+  max-height: calc(125vh - 180px) !important;
   overflow-y: auto !important;
 }
 
 /* CreateModuleModal */
 .create-module-modal .modal-dialog,
 .create-module-modal-dialog {
-  max-height: calc(100vh - 2rem) !important;
+  max-height: calc(125vh - 2rem) !important;
 }
 
 .create-module-modal .modal-content {
-  max-height: calc(100vh - 2rem) !important;
+  max-height: calc(125vh - 2rem) !important;
 }
 
 .create-module-modal .modal-body {
-  max-height: calc(100vh - 180px) !important;
+  max-height: calc(125vh - 180px) !important;
   overflow-y: auto !important;
 }
 
 /* CreateLectureModal (clm prefix) */
 .clm-modal .modal-dialog,
 .clm-modal-dialog {
-  max-height: calc(100vh - 2rem) !important;
+  max-height: calc(125vh - 2rem) !important;
 }
 
 .clm-modal .modal-content {
-  max-height: calc(100vh - 2rem) !important;
+  max-height: calc(125vh - 2rem) !important;
 }
 
 .clm-modal .modal-body,
 .clm-body {
-  max-height: calc(100vh - 200px) !important;
+  max-height: calc(125vh - 200px) !important;
   overflow-y: auto !important;
 }
 
 /* CreateQuizModal */
 .create-quiz-modal .modal-dialog,
 .create-quiz-modal-dialog {
-  max-height: calc(100vh - 2rem) !important;
+  max-height: calc(125vh - 2rem) !important;
 }
 
 .create-quiz-modal .modal-content {
-  max-height: calc(100vh - 2rem) !important;
+  max-height: calc(125vh - 2rem) !important;
 }
 
 .create-quiz-modal .modal-body {
-  max-height: calc(100vh - 180px) !important;
+  max-height: calc(125vh - 180px) !important;
   overflow-y: auto !important;
 }
 
 /* CreateEssayModal */
 .create-essay-modal .modal-dialog,
 .create-essay-modal-dialog {
-  max-height: calc(100vh - 2rem) !important;
+  max-height: calc(125vh - 2rem) !important;
 }
 
 .create-essay-modal .modal-content {
-  max-height: calc(100vh - 2rem) !important;
+  max-height: calc(125vh - 2rem) !important;
 }
 
 .create-essay-modal .modal-body {
-  max-height: calc(100vh - 180px) !important;
+  max-height: calc(125vh - 180px) !important;
   overflow-y: auto !important;
 }
 
 /* CreateAssessmentModal */
 .create-assessment-modal .modal-dialog,
 .create-assessment-modal-dialog {
-  max-height: calc(100vh - 2rem) !important;
+  max-height: calc(125vh - 2rem) !important;
 }
 
 .create-assessment-modal .modal-content {
-  max-height: calc(100vh - 2rem) !important;
+  max-height: calc(125vh - 2rem) !important;
 }
 
 .create-assessment-modal .modal-body {
-  max-height: calc(100vh - 180px) !important;
+  max-height: calc(125vh - 180px) !important;
   overflow-y: auto !important;
 }
 
 /* CreateQuizSectionModal */
 .create-quiz-section-modal .modal-dialog,
 .create-quiz-section-modal-dialog {
-  max-height: calc(100vh - 2rem) !important;
+  max-height: calc(125vh - 2rem) !important;
 }
 
 .create-quiz-section-modal .modal-content {
-  max-height: calc(100vh - 2rem) !important;
+  max-height: calc(125vh - 2rem) !important;
 }
 
 .create-quiz-section-modal .modal-body {
-  max-height: calc(100vh - 180px) !important;
+  max-height: calc(125vh - 180px) !important;
   overflow-y: auto !important;
 }
 
 /* CreateQuizGroupModal */
 .create-quiz-group-modal .modal-dialog,
 .create-quiz-group-modal-dialog {
-  max-height: calc(100vh - 2rem) !important;
+  max-height: calc(125vh - 2rem) !important;
 }
 
 .create-quiz-group-modal .modal-content {
-  max-height: calc(100vh - 2rem) !important;
+  max-height: calc(125vh - 2rem) !important;
 }
 
 .create-quiz-group-modal .modal-body {
-  max-height: calc(100vh - 180px) !important;
+  max-height: calc(125vh - 180px) !important;
   overflow-y: auto !important;
 }
 
 /* CreateQuestionModal */
 .create-question-modal .modal-dialog,
 .create-question-modal-dialog {
-  max-height: calc(100vh - 2rem) !important;
+  max-height: calc(125vh - 2rem) !important;
 }
 
 .create-question-modal .modal-content {
-  max-height: calc(100vh - 2rem) !important;
+  max-height: calc(125vh - 2rem) !important;
 }
 
 .create-question-modal .modal-body {
-  max-height: calc(100vh - 180px) !important;
+  max-height: calc(125vh - 180px) !important;
   overflow-y: auto !important;
 }
 
 /* CreateFlashCardModal */
 .create-flashcard-modal .modal-dialog,
 .create-flashcard-modal-dialog {
-  max-height: calc(100vh - 2rem) !important;
+  max-height: calc(125vh - 2rem) !important;
 }
 
 .create-flashcard-modal .modal-content {
-  max-height: calc(100vh - 2rem) !important;
+  max-height: calc(125vh - 2rem) !important;
 }
 
 .create-flashcard-modal .modal-body {
-  max-height: calc(100vh - 180px) !important;
+  max-height: calc(125vh - 180px) !important;
   overflow-y: auto !important;
 }
 
 /* PackageFormModal */
 .package-form-modal .modal-dialog,
 .package-form-modal-dialog {
-  max-height: calc(100vh - 2rem) !important;
+  max-height: calc(125vh - 2rem) !important;
 }
 
 .package-form-modal .modal-content {
-  max-height: calc(100vh - 2rem) !important;
+  max-height: calc(125vh - 2rem) !important;
 }
 
 .package-form-modal .modal-body {
-  max-height: calc(100vh - 180px) !important;
+  max-height: calc(125vh - 180px) !important;
   overflow-y: auto !important;
 }
 
@@ -261,12 +261,12 @@ body.modal-open {
    ===================================================== */
 @media (max-height: 700px) {
   .modal-body {
-    max-height: calc(100vh - 160px) !important;
+    max-height: calc(125vh - 160px) !important;
   }
 }
 
 @media (max-height: 500px) {
   .modal-body {
-    max-height: calc(100vh - 140px) !important;
+    max-height: calc(125vh - 140px) !important;
   }
 }

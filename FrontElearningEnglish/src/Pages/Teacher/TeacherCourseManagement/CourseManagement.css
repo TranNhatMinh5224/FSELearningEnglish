@@ -2,7 +2,7 @@
   padding: 40px 80px 20px 80px;
   padding-top: 120px !important;
   background: var(--color-bg-secondary, #f6f8fb);
-  min-height: calc(100vh - 70px);
+  min-height: calc(125vh - 70px);
   max-width: 1400px;
   margin: 0 auto;
 }

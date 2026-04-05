@@ -1,7 +1,7 @@
 /* Quiz Results Page V3 - Modern E-learning Style */
 .quiz-results-page-v3 {
     background-color: var(--quiz-bg-color, #f8fafc);
-    min-height: 100vh;
+    min-height: 125vh;
 }
 
 .quiz-results-content-v3 {

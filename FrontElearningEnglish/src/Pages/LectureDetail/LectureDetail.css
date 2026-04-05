@@ -12,7 +12,7 @@
     right: 0;
     bottom: 0;
     width: 100%;
-    height: calc(100vh - 70px);
+    height: calc(125vh - 70px);
     overflow: hidden;
     background-color: #f8f9fa;
     margin: 0;

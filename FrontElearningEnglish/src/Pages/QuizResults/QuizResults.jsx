@@ -25,7 +25,6 @@ export default function QuizResults() {
     const [loading, setLoading] = useState(true);
     const [course, setCourse] = useState(null);
     const [lesson, setLesson] = useState(null);
-    const [module, setModule] = useState(null);
     const [error, setError] = useState("");
     const [assessmentId, setAssessmentId] = useState(null);
 
@@ -63,7 +62,6 @@ export default function QuizResults() {
                 ]);
                 if (courseRes.data?.success) setCourse(courseRes.data.data);
                 if (lessonRes.data?.success) setLesson(lessonRes.data.data);
-                if (moduleRes.data?.success) setModule(moduleRes.data.data);
 
             } catch (err) {
                 console.error("Error fetching results:", err);

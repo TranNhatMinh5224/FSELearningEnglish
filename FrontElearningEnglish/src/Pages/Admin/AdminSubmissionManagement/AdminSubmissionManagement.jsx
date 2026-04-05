@@ -95,7 +95,7 @@ export default function AdminSubmissionManagement() {
   if (loading) {
     return (
       <div className="admin-submission-management-container">
-        <Container>
+        <Container fluid className="p-0">
           <div className="text-center py-5">
             <div className="spinner-border text-primary" role="status">
               <span className="visually-hidden">Đang tải...</span>
@@ -109,7 +109,7 @@ export default function AdminSubmissionManagement() {
   if (error) {
     return (
       <div className="admin-submission-management-container">
-        <Container>
+        <Container fluid className="p-0">
           <div className="alert alert-danger text-center">{error}</div>
         </Container>
       </div>
@@ -118,7 +118,7 @@ export default function AdminSubmissionManagement() {
 
   return (
     <div className="admin-submission-management-container">
-      <Container>
+      <Container fluid className="p-0">
         <div className="mb-4">
           <h1 className="mb-0 fw-bold text-primary">Quản lý bài nộp</h1>
           <p className="text-muted mt-2">Xem và chấm bài nộp của học sinh</p>

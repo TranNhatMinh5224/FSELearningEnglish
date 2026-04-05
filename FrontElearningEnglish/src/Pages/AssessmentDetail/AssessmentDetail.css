@@ -2,7 +2,7 @@
     padding: 30px 250px;
     padding-top: calc(70px + 50px);
     background: var(--color-bg-secondary, #f6f8fb);
-    min-height: calc(100vh - 70px);
+    min-height: calc(125vh - 70px);
 }
 
 @media (max-width: 1600px) {

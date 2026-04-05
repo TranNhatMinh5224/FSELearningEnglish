@@ -123,7 +123,7 @@ export default function AdminStudentManagement() {
   return (
     <>
       <div className="admin-student-management-container">
-        <Container fluid className="student-management-content">
+        <Container fluid className="student-management-content p-0">
           <div className="breadcrumb-section pt-0">
             <Breadcrumb
               items={[

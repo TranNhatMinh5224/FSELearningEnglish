@@ -1,5 +1,5 @@
 .asset-management-page {
-    min-height: 100vh;
+    min-height: 125vh;
     background: var(--color-bg-secondary, #f6f8fb);
     padding: 20px 0;
 }

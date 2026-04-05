@@ -1,6 +1,5 @@
 .admin-submission-management-container {
-  padding: 24px;
-  min-height: calc(100vh - 80px);
+  min-height: calc(125vh - 80px);
   background-color: #f8f9fa;
 }
 

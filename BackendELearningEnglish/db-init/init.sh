@@ -16,6 +16,9 @@ psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname "$POSTGRES_DB" <<-E
     
     -- Enable pg_trgm for full-text search
     CREATE EXTENSION IF NOT EXISTS "pg_trgm";
+
+    -- Enable pgvector for vector similarity search
+    CREATE EXTENSION IF NOT EXISTS vector;
     
     -- Set timezone
     SET timezone = 'UTC';

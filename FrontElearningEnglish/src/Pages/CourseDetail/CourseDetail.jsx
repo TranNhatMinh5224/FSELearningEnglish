@@ -158,6 +158,43 @@ export default function CourseDetail() {
     const courseDescription = course?.description || course?.descriptionMarkdown || "Khóa học tiếng Anh chất lượng tại Catalunya English";
     const courseImage = course?.imageUrl || course?.ImageUrl || getDefaultCourseImage() || "/logo512.png";
 
+    // Generate Schema.org data
+    const breadcrumbSchema = {
+        "@type": "BreadcrumbList",
+        "itemListElement": [
+            {
+                "@type": "ListItem",
+                "position": 1,
+                "name": "Trang chủ",
+                "item": window.location.origin + "/home"
+            },
+            {
+                "@type": "ListItem",
+                "position": 2,
+                "name": "Khóa học của tôi",
+                "item": window.location.origin + "/my-courses"
+            },
+            {
+                "@type": "ListItem",
+                "position": 3,
+                "name": courseTitle,
+                "item": window.location.href
+            }
+        ]
+    };
+
+    const courseSchema = {
+        "@type": "Course",
+        "name": courseTitle,
+        "description": courseDescription,
+        "image": courseImage,
+        "provider": {
+            "@type": "Organization",
+            "name": "Catalunya English",
+            "sameAs": "https://catalunya-english.com/"
+        }
+    };
+
     return (
         <>
             <SEO
@@ -166,10 +203,11 @@ export default function CourseDetail() {
                 keywords={`${courseTitle}, học tiếng anh, khóa học tiếng anh online, Catalunya English`}
                 image={courseImage}
                 url={typeof window !== "undefined" ? `${window.location.origin}/course/${courseId}` : ""}
+                schema={[breadcrumbSchema, courseSchema]}
             />
             <MainHeader />
             <div className="course-detail-container">
-                <Container fluid>
+                <Container>
                     <Row>
                         <Col>
                             <Breadcrumb

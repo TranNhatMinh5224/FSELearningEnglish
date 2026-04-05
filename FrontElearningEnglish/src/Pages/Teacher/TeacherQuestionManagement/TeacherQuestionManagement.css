@@ -1,6 +1,6 @@
 .teacher-question-management-container {
     background-color: #f5f7fa;
-    min-height: 100vh;
+    min-height: 125vh;
     padding-top: 80px; /* Adjust based on your header height */
     padding-bottom: 50px;
 }

@@ -1,6 +1,5 @@
 .admin-course-management-container {
-  max-width: 1400px;
-  margin: 0 auto;
+  width: 100%;
 }
 
 /* Bootstrap utilities: d-flex, justify-content-between, align-items-center */

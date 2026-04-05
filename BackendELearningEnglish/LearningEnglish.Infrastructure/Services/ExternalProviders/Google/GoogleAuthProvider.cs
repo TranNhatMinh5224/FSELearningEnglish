@@ -1,12 +1,12 @@
 using Google.Apis.Auth;
 using LearningEnglish.Application.Cofigurations;
 using LearningEnglish.Application.Interface;
+using LearningEnglish.Infrastructure.Services.ExternalProviders.Google.Models;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using System.Text.Json;
-using System.Text.Json.Serialization;
 
-namespace LearningEnglish.Infrastructure.Services
+namespace LearningEnglish.Infrastructure.Services.ExternalProviders.Google
 {
     // Google OAuth2 provider - xử lý token exchange và lấy thông tin user từ Google API
     public class GoogleAuthProvider : IGoogleAuthProvider
@@ -113,28 +113,6 @@ namespace LearningEnglish.Infrastructure.Services
                 _logger.LogError(ex, "Error exchanging authorization code for token");
                 return null;
             }
-        }
-
-        // Model nhận token response từ Google
-        private class GoogleTokenResponse
-        {
-            [JsonPropertyName("access_token")]
-            public string AccessToken { get; set; } = string.Empty;
-
-            [JsonPropertyName("expires_in")]
-            public int ExpiresIn { get; set; }
-
-            [JsonPropertyName("token_type")]
-            public string TokenType { get; set; } = string.Empty;
-
-            [JsonPropertyName("scope")]
-            public string Scope { get; set; } = string.Empty;
-
-            [JsonPropertyName("id_token")]
-            public string IdToken { get; set; } = string.Empty;
-
-            [JsonPropertyName("refresh_token")]
-            public string? RefreshToken { get; set; }
         }
     }
 }

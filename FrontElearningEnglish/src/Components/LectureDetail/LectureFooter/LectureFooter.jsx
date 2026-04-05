@@ -5,22 +5,24 @@ import "./LectureFooter.css";
 const LectureFooter = ({ onPrevious, onNext, hasPrevious, hasNext }) => {
     return (
         <footer className="lecture-footer">
-            <button
-                className="nav-btn nav-btn-prev"
-                onClick={onPrevious}
-                disabled={!hasPrevious}
-            >
-                <FaChevronLeft />
-                <span>Mục trước</span>
-            </button>
-            <button
-                className="nav-btn nav-btn-next"
-                onClick={onNext}
-                disabled={!hasNext}
-            >
-                <span>Mục tiếp</span>
-                <FaChevronRight />
-            </button>
+            <div className="lecture-footer-container">
+                <button
+                    className="nav-btn nav-btn-prev"
+                    onClick={onPrevious}
+                    disabled={!hasPrevious}
+                >
+                    <FaChevronLeft />
+                    <span>Mục trước</span>
+                </button>
+                <button
+                    className="nav-btn nav-btn-next"
+                    onClick={onNext}
+                    disabled={!hasNext}
+                >
+                    <span>Mục tiếp</span>
+                    <FaChevronRight />
+                </button>
+            </div>
         </footer>
     );
 };

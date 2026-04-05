@@ -16,7 +16,7 @@
 .video-player-container.fullscreen {
     border-radius: 0;
     max-width: none;
-    height: 100vh;
+    height: 125vh;
 }
 
 /* Video Element */
@@ -30,7 +30,7 @@
 }
 
 .video-player-container.fullscreen .video-element {
-    height: 100vh;
+    height: 125vh;
     aspect-ratio: unset;
 }
 

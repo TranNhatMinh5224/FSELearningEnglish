@@ -1,5 +1,6 @@
 namespace LearningEnglish.Application.Interface;
 
+[Obsolete("Use IChatBotAIService in Interface/Infrastructure/ChatBotAI instead of provider-specific interfaces.")]
 public interface IGeminiService
 {
     Task<GeminiResponse> GenerateContentAsync(string prompt, CancellationToken cancellationToken = default);

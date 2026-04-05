@@ -6,6 +6,7 @@ using LearningEnglish.Application.Common;
 using LearningEnglish.Application.Common.Constants;
 using LearningEnglish.Application.Common.Helpers;
 using LearningEnglish.Application.Common.Pagination;
+using LearningEnglish.Application.Interface.Infrastructure.ChatBotAI;
 using LearningEnglish.Application.Interface.Infrastructure.MediaService;
 using AutoMapper;
 using Microsoft.Extensions.Logging;
@@ -19,17 +20,20 @@ namespace LearningEnglish.Application.Service
         private readonly IMapper _mapper;
         private readonly ILogger<AdminCourseService> _logger;
         private readonly ICourseImageService _courseImageService;
+        private readonly IEmbeddingIngestionService _embeddingIngestionService;
 
         public AdminCourseService(
             ICourseRepository courseRepository,
             IMapper mapper,
             ILogger<AdminCourseService> logger,
-            ICourseImageService courseImageService)
+            ICourseImageService courseImageService,
+            IEmbeddingIngestionService embeddingIngestionService)
         {
             _courseRepository = courseRepository;
             _mapper = mapper;
             _logger = logger;
             _courseImageService = courseImageService;
+            _embeddingIngestionService = embeddingIngestionService;
         }
 
         // Lấy danh sách loại khóa học (System/Teacher) 
@@ -154,6 +158,7 @@ namespace LearningEnglish.Application.Service
                 try
                 {
                     await _courseRepository.AddCourse(course);
+                    await _embeddingIngestionService.UpsertCourseEmbeddingAsync(course);
                 }
                 catch (Exception dbEx)
                 {
@@ -262,6 +267,7 @@ namespace LearningEnglish.Application.Service
                 try
                 {
                     await _courseRepository.UpdateCourse(course);
+                    await _embeddingIngestionService.UpsertCourseEmbeddingAsync(course);
                 }
                 catch (Exception dbEx)
                 {
@@ -341,6 +347,7 @@ namespace LearningEnglish.Application.Service
                 }
 
                 await _courseRepository.DeleteCourse(courseId);
+                await _embeddingIngestionService.DeleteCourseEmbeddingsAsync(courseId);
 
                 response.Success = true;
                 response.StatusCode = 200;

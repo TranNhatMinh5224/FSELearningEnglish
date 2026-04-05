@@ -193,7 +193,7 @@ export default function AdminQuizEssayManagement() {
   if (loading) {
     return (
       <div className="admin-quiz-essay-management-container">
-        <Container>
+        <Container fluid className="p-0">
           <div className="text-center py-5">
             <div className="spinner-border text-primary" role="status">
               <span className="visually-hidden">Đang tải...</span>
@@ -207,7 +207,7 @@ export default function AdminQuizEssayManagement() {
   if (error) {
     return (
       <div className="admin-quiz-essay-management-container">
-        <Container>
+        <Container fluid className="p-0">
           <div className="alert alert-danger text-center">{error}</div>
         </Container>
       </div>
@@ -216,7 +216,7 @@ export default function AdminQuizEssayManagement() {
 
   return (
     <div className="admin-quiz-essay-management-container">
-      <Container>
+      <Container fluid className="p-0">
         {/* Header */}
         <div className="mb-4 question-header-section">
           <button 

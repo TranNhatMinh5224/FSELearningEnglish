@@ -79,84 +79,83 @@ export default function Profile() {
             <MainHeader />
             <div className="profile-container">
                 <Container>
-
                     <div className="profile-header">
                         <h1>Thông tin User</h1>
                     </div>
-                </Container>
 
-                <div className="profile-card">
-                    {/* Avatar Section */}
-                    <div className="avatar-section d-flex justify-content-center">
-                        <div className="avatar-wrapper">
-                            <AvatarMenu
-                                avatarUrl={user.avatarUrl}
-                                fullName={user.fullName}
-                                onAvatarUpdate={handleAvatarUpdate}
-                                showAvatarOptions={true}
-                            >
-                                <div className="avatar-inner">
-                                    {user.avatarUrl ? (
-                                        <img src={user.avatarUrl} alt="Avatar" className="avatar-image" />
-                                    ) : (
-                                        <div className="avatar-placeholder d-flex align-items-center justify-content-center">
-                                            <FaUserCircle className="avatar-default-icon-large" />
-                                        </div>
-                                    )}
-                                </div>
-                            </AvatarMenu>
+                    <div className="profile-card">
+                        {/* Avatar Section */}
+                        <div className="avatar-section d-flex justify-content-center">
+                            <div className="avatar-wrapper">
+                                <AvatarMenu
+                                    avatarUrl={user.avatarUrl}
+                                    fullName={user.fullName}
+                                    onAvatarUpdate={handleAvatarUpdate}
+                                    showAvatarOptions={true}
+                                >
+                                    <div className="avatar-inner">
+                                        {user.avatarUrl ? (
+                                            <img src={user.avatarUrl} alt="Avatar" className="avatar-image" />
+                                        ) : (
+                                            <div className="avatar-placeholder d-flex align-items-center justify-content-center">
+                                                <FaUserCircle className="avatar-default-icon-large" />
+                                            </div>
+                                        )}
+                                    </div>
+                                </AvatarMenu>
+                            </div>
+                        </div>
+
+                        {/* User Information */}
+                        <div className="profile-info">
+                            <Row className="info-row g-0">
+                                <Col xs={12} md={4} className="mb-2 mb-md-0">
+                                    <label className="d-flex align-items-center">Last name:</label>
+                                </Col>
+                                <Col xs={12} md={8}>
+                                    <div className="info-value d-flex align-items-center">{user.lastName || "-"}</div>
+                                </Col>
+                            </Row>
+
+                            <Row className="info-row g-0">
+                                <Col xs={12} md={4} className="mb-2 mb-md-0">
+                                    <label>First name:</label>
+                                </Col>
+                                <Col xs={12} md={8}>
+                                    <div className="info-value">{user.firstName || "-"}</div>
+                                </Col>
+                            </Row>
+
+                            <Row className="info-row g-0">
+                                <Col xs={12} md={4} className="mb-2 mb-md-0">
+                                    <label>Email:</label>
+                                </Col>
+                                <Col xs={12} md={8}>
+                                    <div className="info-value">{user.email || "-"}</div>
+                                </Col>
+                            </Row>
+
+                            <Row className="info-row g-0">
+                                <Col xs={12} md={4} className="mb-2 mb-md-0">
+                                    <label>Số điện thoại:</label>
+                                </Col>
+                                <Col xs={12} md={8}>
+                                    <div className="info-value">{user.phoneNumber || "-"}</div>
+                                </Col>
+                            </Row>
+                        </div>
+
+                        {/* Action Buttons */}
+                        <div className="profile-actions d-flex justify-content-end flex-column flex-md-row">
+                            <button className="btn-change-password" onClick={handleChangePassword}>
+                                Đổi mật khẩu
+                            </button>
+                            <button className="btn-edit-profile" onClick={handleEditProfile}>
+                                Thay đổi thông tin
+                            </button>
                         </div>
                     </div>
-
-                    {/* User Information */}
-                    <div className="profile-info">
-                        <Row className="info-row g-0">
-                            <Col xs={12} md={4} className="mb-2 mb-md-0">
-                                <label className="d-flex align-items-center">Last name:</label>
-                            </Col>
-                            <Col xs={12} md={8}>
-                                <div className="info-value d-flex align-items-center">{user.lastName || "-"}</div>
-                            </Col>
-                        </Row>
-
-                        <Row className="info-row g-0">
-                            <Col xs={12} md={4} className="mb-2 mb-md-0">
-                                <label>First name:</label>
-                            </Col>
-                            <Col xs={12} md={8}>
-                                <div className="info-value">{user.firstName || "-"}</div>
-                            </Col>
-                        </Row>
-
-                        <Row className="info-row g-0">
-                            <Col xs={12} md={4} className="mb-2 mb-md-0">
-                                <label>Email:</label>
-                            </Col>
-                            <Col xs={12} md={8}>
-                                <div className="info-value">{user.email || "-"}</div>
-                            </Col>
-                        </Row>
-
-                        <Row className="info-row g-0">
-                            <Col xs={12} md={4} className="mb-2 mb-md-0">
-                                <label>Số điện thoại:</label>
-                            </Col>
-                            <Col xs={12} md={8}>
-                                <div className="info-value">{user.phoneNumber || "-"}</div>
-                            </Col>
-                        </Row>
-                    </div>
-
-                    {/* Action Buttons */}
-                    <div className="profile-actions d-flex justify-content-end flex-column flex-md-row">
-                        <button className="btn-change-password" onClick={handleChangePassword}>
-                            Đổi mật khẩu
-                        </button>
-                        <button className="btn-edit-profile" onClick={handleEditProfile}>
-                            Thay đổi thông tin
-                        </button>
-                    </div>
-                </div>
+                </Container>
             </div>
         </>
     );

@@ -20,4 +20,5 @@ public class TeacherPackage
 
     // Navigation (optional reverse)
     public List<TeacherSubscription> Subscriptions { get; set; } = new();
+    public List<TeacherPackageEmbedding> TeacherPackageEmbeddings { get; set; } = new();
 }

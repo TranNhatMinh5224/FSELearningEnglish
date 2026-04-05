@@ -6,6 +6,7 @@ import KPICard from "../../../Components/Admin/Dashboard/KPICard/KPICard";
 import RevenueChart from "../../../Components/Admin/Dashboard/RevenueChart/RevenueChart";
 import UserDistributionChart from "../../../Components/Admin/Dashboard/UserDistributionChart/UserDistributionChart";
 import RevenueBreakdown from "../../../Components/Admin/Dashboard/RevenueBreakdown/RevenueBreakdown";
+import { Container } from "react-bootstrap";
 import "./AdminDashboard.css";
 
 export default function AdminDashboard() {
@@ -108,7 +109,7 @@ export default function AdminDashboard() {
   const formatNumber = (val) => new Intl.NumberFormat('en-US').format(val || 0);
 
   return (
-    <div className="dashboard-container">
+    <Container fluid className="dashboard-container p-0">
       {/* HEADER & FILTER */}
       <DashboardHeader
         timeRange={timeRange}
@@ -179,6 +180,6 @@ export default function AdminDashboard() {
           />
         </div>
       </div>
-    </div>
+    </Container>
   );
 }

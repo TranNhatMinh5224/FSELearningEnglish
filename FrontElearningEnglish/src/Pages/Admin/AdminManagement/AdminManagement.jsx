@@ -189,7 +189,7 @@ export default function AdminManagement() {
   };
 
   return (
-    <Container fluid className="admin-management-container py-4">
+    <Container fluid className="admin-management-container p-0">
       <div className="d-flex justify-content-between align-items-center mb-4">
         <div>
           <h2 className="fw-bold text-primary m-0">

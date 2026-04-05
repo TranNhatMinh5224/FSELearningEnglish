@@ -3,7 +3,7 @@
 =========================== */
 
 .auth-container {
-  min-height: 100vh;
+  min-height: 125vh;
   background: linear-gradient(135deg, #932da3 0%, #d447b6 50%, #ffffff 100%);
   padding: var(--padding-container-lg, clamp(1.5rem, 1rem + 2.5vw, 3rem)) var(--padding-container-md, clamp(1rem, 0.75rem + 1.25vw, 2rem));
   box-sizing: border-box;

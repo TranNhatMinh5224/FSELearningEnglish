@@ -3,6 +3,7 @@ using System.IO;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Design;
 using Microsoft.Extensions.Configuration;
+using Pgvector;
 
 namespace LearningEnglish.Infrastructure.Data
 {
@@ -104,7 +105,7 @@ namespace LearningEnglish.Infrastructure.Data
             }
 
             var optionsBuilder = new DbContextOptionsBuilder<AppDbContext>();
-            optionsBuilder.UseNpgsql(connectionString);
+            optionsBuilder.UseNpgsql(connectionString, o => o.UseVector());
 
             return optionsBuilder.Options;
         }

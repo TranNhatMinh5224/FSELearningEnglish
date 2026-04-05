@@ -330,7 +330,6 @@ namespace LearningEnglish.Application.Service
                     EssayId = essayId,
                     TotalSubmissions = submissions.Count,
                     Pending = submissions.Count(s => s.Status != SubmissionStatus.Graded),
-                    GradedByAi = submissions.Count(s => s.Status == SubmissionStatus.Graded && s.GradedByTeacherId == null),
                     GradedByTeacher = submissions.Count(s => s.GradedByTeacherId != null),
                     NoTextContent = submissions.Count(s => string.IsNullOrWhiteSpace(s.TextContent))
                 };

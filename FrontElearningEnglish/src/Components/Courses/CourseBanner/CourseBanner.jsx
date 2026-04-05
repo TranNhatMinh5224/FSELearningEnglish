@@ -10,7 +10,12 @@ export default function CourseBanner({ title, description, imageUrl }) {
 
     return (
         <div className="course-banner">
-            <div className="course-banner-background d-flex align-items-center justify-content-center" style={{ backgroundImage: `url(${bannerImage})` }}>
+            <div className="course-banner-background">
+                <img 
+                    src={bannerImage} 
+                    alt={title} 
+                    className="course-banner-img" 
+                />
                 <div className="course-banner-overlay"></div>
                 <div className="course-banner-content">
                     <h1 className="course-banner-title">{title}</h1>

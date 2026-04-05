@@ -2,14 +2,11 @@
     padding: var(--padding-container-lg, clamp(1.5rem, 1rem + 2.5vw, 3rem)) 0;
     padding-top: calc(var(--padding-container-lg, clamp(1.5rem, 1rem + 2.5vw, 3rem)) + 70px);
     background: var(--color-bg-secondary, #f6f8fb);
-    min-height: calc(100vh - 70px);
+    min-height: calc(125vh - 70px);
 }
 
-.course-detail-container .container-fluid {
-    max-width: 1400px;
+.course-detail-container .container {
     margin: 0 auto;
-    padding-left: var(--padding-container-xl, clamp(2rem, 1.5rem + 2.5vw, 4rem));
-    padding-right: var(--padding-container-xl, clamp(2rem, 1.5rem + 2.5vw, 4rem));
 }
 
 .course-breadcrumb {

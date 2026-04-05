@@ -254,7 +254,7 @@ export default function AdminQuestionManagement() {
 
   return (
     <div className="admin-question-management-container">
-      <Container className="py-4">
+      <Container fluid className="py-4 p-0">
         <div className="d-flex justify-content-between align-items-center mb-4">
           <div>
             <Button variant="outline-secondary" size="sm" onClick={() => navigate(`/admin/courses/${courseId}/lesson/${lessonId}/module/${moduleId}/assessment/${assessmentId}/quiz/${quizId}/sections`)} className="mb-2">

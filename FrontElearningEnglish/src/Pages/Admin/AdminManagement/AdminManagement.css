@@ -1,6 +1,6 @@
 .admin-management-container {
   background-color: #f8f9fa;
-  min-height: calc(100vh - 80px);
+  min-height: calc(125vh - 80px);
 }
 
 .avatar-circle {

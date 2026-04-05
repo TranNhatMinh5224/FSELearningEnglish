@@ -7,6 +7,8 @@ export default function PublicCourseCard({ course, onStart }) {
         imageUrl = "https://images.unsplash.com/photo-1507525428034-b723cf961d3e",
     } = course || {};
 
+    const displayImageUrl = imageUrl;
+
     return (
         <div className="public-course-card">
             <img src={displayImageUrl} alt={title} />

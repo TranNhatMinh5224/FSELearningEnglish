@@ -1,5 +1,5 @@
 .teacher-module-lecture-detail-container {
-  min-height: 100vh;
+  min-height: 125vh;
   background: linear-gradient(to bottom, #f8f9fa 0%, #ffffff 100%);
   padding: 2rem;
   padding-top: calc(2rem + 70px);

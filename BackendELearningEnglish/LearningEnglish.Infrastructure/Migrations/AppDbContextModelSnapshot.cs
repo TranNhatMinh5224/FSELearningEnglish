@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
+using Pgvector;
 
 #nullable disable
 
@@ -22,6 +23,7 @@ namespace LearningEnglish.Infrastructure.Migrations
 
             NpgsqlModelBuilderExtensions.HasPostgresExtension(modelBuilder, "pg_trgm");
             NpgsqlModelBuilderExtensions.HasPostgresExtension(modelBuilder, "uuid-ossp");
+            NpgsqlModelBuilderExtensions.HasPostgresExtension(modelBuilder, "vector");
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
             modelBuilder.Entity("LearningEnglish.Domain.Entities.ActivityLog", b =>
@@ -232,6 +234,57 @@ namespace LearningEnglish.Infrastructure.Migrations
                     b.HasIndex("Type");
 
                     b.ToTable("Courses", (string)null);
+                });
+
+            modelBuilder.Entity("LearningEnglish.Domain.Entities.CourseEmbedding", b =>
+                {
+                    b.Property<int>("CourseEmbeddingId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("CourseEmbeddingId"));
+
+                    b.Property<string>("ContentHash")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<int>("CourseId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("EmbeddingDimension")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("EmbeddingModel")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<Vector>("EmbeddingVector")
+                        .IsRequired()
+                        .HasColumnType("vector(3072)");
+
+                    b.Property<DateTime?>("LastUpdatedEmbeddingAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("PartType")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)");
+
+                    b.HasKey("CourseEmbeddingId");
+
+                    b.HasIndex("CourseId");
+
+                    b.HasIndex("EmbeddingVector");
+
+                    NpgsqlIndexBuilderExtensions.HasMethod(b.HasIndex("EmbeddingVector"), "hnsw");
+                    NpgsqlIndexBuilderExtensions.HasOperators(b.HasIndex("EmbeddingVector"), new[] { "vector_cosine_ops" });
+
+                    b.ToTable("CourseEmbeddings", (string)null);
                 });
 
             modelBuilder.Entity("LearningEnglish.Domain.Entities.CourseProgress", b =>
@@ -1897,6 +1950,61 @@ namespace LearningEnglish.Infrastructure.Migrations
                     b.ToTable("TeacherPackages", (string)null);
                 });
 
+            modelBuilder.Entity("LearningEnglish.Domain.Entities.TeacherPackageEmbedding", b =>
+                {
+                    b.Property<int>("TeacherPackageEmbeddingId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("TeacherPackageEmbeddingId"));
+
+                    b.Property<string>("ContentHash")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<int>("EmbeddingDimension")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("EmbeddingModel")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<Vector>("EmbeddingVector")
+                        .IsRequired()
+                        .HasColumnType("vector(3072)");
+
+                    b.Property<DateTime?>("LastUpdatedEmbeddingAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("PackageName")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<int>("PartType")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("SourceData")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<int>("TeacherPackageId")
+                        .HasColumnType("integer");
+
+                    b.HasKey("TeacherPackageEmbeddingId");
+
+                    b.HasIndex("EmbeddingVector");
+
+                    NpgsqlIndexBuilderExtensions.HasMethod(b.HasIndex("EmbeddingVector"), "hnsw");
+                    NpgsqlIndexBuilderExtensions.HasOperators(b.HasIndex("EmbeddingVector"), new[] { "vector_cosine_ops" });
+
+                    b.HasIndex("TeacherPackageId");
+
+                    b.ToTable("TeacherPackageEmbeddings", (string)null);
+                });
+
             modelBuilder.Entity("LearningEnglish.Domain.Entities.TeacherSubscription", b =>
                 {
                     b.Property<int>("TeacherSubscriptionId")
@@ -2046,7 +2154,7 @@ namespace LearningEnglish.Infrastructure.Migrations
                             IsMale = true,
                             LastName = "System",
                             NormalizedEmail = "MINHXOANDEV@GMAIL.COM",
-                            PasswordHash = "$2a$11$rqGuRRtMqyJwUEzok/jGGuCqk57XpiBk2mEXAP6k9JumxAfiSvlEu",
+                            PasswordHash = "$2a$11$y9lCK/4XbdkxhZGIwYUebezTiPX43qIfDOoW7/.wi26.syCDwjISW",
                             PhoneNumber = "0257554479",
                             Status = 1,
                             UpdatedAt = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc)
@@ -2148,6 +2256,17 @@ namespace LearningEnglish.Infrastructure.Migrations
                         .OnDelete(DeleteBehavior.SetNull);
 
                     b.Navigation("Teacher");
+                });
+
+            modelBuilder.Entity("LearningEnglish.Domain.Entities.CourseEmbedding", b =>
+                {
+                    b.HasOne("LearningEnglish.Domain.Entities.Course", "Course")
+                        .WithMany("CourseEmbeddings")
+                        .HasForeignKey("CourseId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Course");
                 });
 
             modelBuilder.Entity("LearningEnglish.Domain.Entities.CourseProgress", b =>
@@ -2507,6 +2626,17 @@ namespace LearningEnglish.Infrastructure.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("LearningEnglish.Domain.Entities.TeacherPackageEmbedding", b =>
+                {
+                    b.HasOne("LearningEnglish.Domain.Entities.TeacherPackage", "TeacherPackage")
+                        .WithMany("TeacherPackageEmbeddings")
+                        .HasForeignKey("TeacherPackageId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("TeacherPackage");
+                });
+
             modelBuilder.Entity("LearningEnglish.Domain.Entities.TeacherSubscription", b =>
                 {
                     b.HasOne("LearningEnglish.Domain.Entities.Payment", "Payment")
@@ -2593,6 +2723,8 @@ namespace LearningEnglish.Infrastructure.Migrations
 
             modelBuilder.Entity("LearningEnglish.Domain.Entities.Course", b =>
                 {
+                    b.Navigation("CourseEmbeddings");
+
                     b.Navigation("CourseProgresses");
 
                     b.Navigation("Lessons");
@@ -2672,6 +2804,8 @@ namespace LearningEnglish.Infrastructure.Migrations
             modelBuilder.Entity("LearningEnglish.Domain.Entities.TeacherPackage", b =>
                 {
                     b.Navigation("Subscriptions");
+
+                    b.Navigation("TeacherPackageEmbeddings");
                 });
 
             modelBuilder.Entity("LearningEnglish.Domain.Entities.User", b =>

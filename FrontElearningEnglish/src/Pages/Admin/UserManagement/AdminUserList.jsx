@@ -139,7 +139,6 @@ export default function AdminUserList() {
         await adminService.blockUser(userToBlock.userId || userToBlock.id);
       }
       
-      setShowConfirmBlockModal(false);
       setNotification({
         isOpen: true,
         type: "success",
@@ -148,7 +147,6 @@ export default function AdminUserList() {
       
       fetchUsers(); 
       fetchUserStats();
-      setUserToBlock(null);
     } catch (error) {
       setNotification({
         isOpen: true,
@@ -158,6 +156,8 @@ export default function AdminUserList() {
       console.error(`Failed to ${action} user:`, error);
     } finally {
       setIsBlocking(false);
+      setShowConfirmBlockModal(false);
+      setUserToBlock(null);
     }
   };
 

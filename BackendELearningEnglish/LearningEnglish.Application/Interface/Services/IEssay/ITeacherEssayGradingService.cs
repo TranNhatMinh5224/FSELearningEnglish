@@ -8,7 +8,7 @@ namespace LearningEnglish.Application.Interface
         // Teacher grade thủ công (validate essay ownership) - Có thể dùng cho cả chấm lần đầu và cập nhật
         Task<ServiceResponse<EssayGradingResultDto>> GradeEssayAsync(int submissionId, TeacherGradingDto dto, int teacherId, CancellationToken cancellationToken = default);
         
-        // Teacher cập nhật lại điểm đã chấm (chỉ update TeacherScore, không ảnh hưởng AiScore)
+        // Teacher cập nhật lại điểm đã chấm
         Task<ServiceResponse<EssayGradingResultDto>> UpdateGradeAsync(int submissionId, TeacherGradingDto dto, int teacherId, CancellationToken cancellationToken = default);
     }
 }

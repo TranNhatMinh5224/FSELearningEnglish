@@ -21,7 +21,6 @@ export default function CreateCourseModal({ show, onClose, onSuccess, courseData
     handleChange,
     handleBlur,
     handleSubmit,
-    resetForm,
     textAreaRef,
     insertMarkdown,
     maxStudent,

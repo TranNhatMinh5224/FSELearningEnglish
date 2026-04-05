@@ -17,6 +17,7 @@ export default function SEO({
   image = "/logo512.png",
   url = typeof window !== "undefined" ? window.location.href : "",
   type = "website",
+  schema = null,
 }) {
   useEffect(() => {
     // Set document title
@@ -59,7 +60,26 @@ export default function SEO({
       document.head.appendChild(canonical);
     }
     canonical.setAttribute("href", url);
-  }, [title, description, keywords, image, url, type]);
+
+    // Schema.org JSON-LD
+    let script = document.querySelector("script[type='application/ld+json']");
+    if (schema) {
+      if (!script) {
+        script = document.createElement("script");
+        script.setAttribute("type", "application/ld+json");
+        document.head.appendChild(script);
+      }
+      
+      // If schema is an array, wrap it in @graph for better SEO
+      const schemaData = Array.isArray(schema) 
+        ? { "@context": "https://schema.org", "@graph": schema }
+        : schema;
+        
+      script.textContent = JSON.stringify(schemaData);
+    } else if (script) {
+      script.remove();
+    }
+  }, [title, description, keywords, image, url, type, schema]);
 
   return null;
 }

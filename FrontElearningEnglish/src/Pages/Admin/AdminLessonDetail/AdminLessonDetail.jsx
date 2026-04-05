@@ -335,7 +335,7 @@ export default function AdminLessonDetail() {
   return (
     <>
       <div className="admin-lesson-detail-container">
-        <Container fluid className="lesson-detail-content">
+        <Container fluid className="lesson-detail-content p-0">
           <div className="breadcrumb-section pt-0">
             <Breadcrumb
               items={[

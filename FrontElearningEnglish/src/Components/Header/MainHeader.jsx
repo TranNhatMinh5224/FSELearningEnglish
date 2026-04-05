@@ -19,7 +19,7 @@ export default function MainHeader() {
   const { isAuthenticated } = useAuth();
   const { getLogo } = useAssets();
   const [showLoginModal, setShowLoginModal] = useState(false);
-  
+
   const logo = getLogo();
 
   const isActive = (path) => {

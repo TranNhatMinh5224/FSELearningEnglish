@@ -1,6 +1,7 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
-import { FaBars, FaHome, FaComments } from "react-icons/fa";
+import { FaBars, FaComments } from "react-icons/fa";
+import Breadcrumb from "../../Common/Breadcrumb/Breadcrumb";
 import "./LectureHeader.css";
 
 const LectureHeader = ({ 
@@ -24,38 +25,17 @@ const LectureHeader = ({
                 >
                     <FaBars />
                 </button>
-                <nav className="lecture-breadcrumb d-flex align-items-center flex-grow-1">
-                    <button 
-                        onClick={() => navigate("/my-courses")} 
-                        className="breadcrumb-item breadcrumb-link btn btn-link p-0 border-0 text-decoration-none"
-                    >
-                        <FaHome className="breadcrumb-icon" />
-                        <span className="small">Khóa học của tôi</span>
-                    </button>
-                    <span className="breadcrumb-separator">/</span>
-                    <button 
-                        onClick={() => navigate(`/course/${courseId}`)} 
-                        className="breadcrumb-item breadcrumb-link btn btn-link p-0 border-0 text-decoration-none"
-                    >
-                        <span className="small">{courseTitle}</span>
-                    </button>
-                    <span className="breadcrumb-separator">/</span>
-                    <button 
-                        onClick={() => navigate(`/course/${courseId}/learn`)} 
-                        className="breadcrumb-item breadcrumb-link btn btn-link p-0 border-0 text-decoration-none d-none d-sm-inline-flex"
-                    >
-                        <span className="small">Lesson</span>
-                    </button>
-                    <span className="breadcrumb-separator d-none d-sm-inline">/</span>
-                    <button 
-                        onClick={() => navigate(`/course/${courseId}/lesson/${lessonId}`)} 
-                        className="breadcrumb-item breadcrumb-link btn btn-link p-0 border-0 text-decoration-none d-none d-md-inline-flex"
-                    >
-                        <span className="small">{lessonTitle}</span>
-                    </button>
-                    <span className="breadcrumb-separator d-none d-md-inline">/</span>
-                    <span className="breadcrumb-item breadcrumb-current small d-none d-lg-inline">{moduleName}</span>
-                </nav>
+                <div className="lecture-breadcrumb-wrapper flex-grow-1">
+                    <Breadcrumb 
+                        items={[
+                            { label: "Khóa học của tôi", path: "/my-courses" },
+                            { label: courseTitle, path: `/course/${courseId}` },
+                            { label: "Lesson", path: `/course/${courseId}/learn` },
+                            { label: lessonTitle, path: `/course/${courseId}/lesson/${lessonId}` },
+                            { label: moduleName, isCurrent: true }
+                        ]}
+                    />
+                </div>
             </div>
             <div className="lecture-header-right d-flex align-items-center">
                 <button className="discussion-btn btn btn-primary btn-sm">

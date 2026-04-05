@@ -5,13 +5,19 @@
 .lecture-footer {
     flex-shrink: 0;
     height: 70px;
+    background-color: #ffffff;
+    border-top: 1px solid #e5e7eb;
+    z-index: 10;
+}
+
+.lecture-footer-container {
+    max-width: 800px;
+    width: 100%;
+    margin: 0 auto;
     display: flex;
     align-items: center;
     justify-content: space-between;
     padding: 0 24px;
-    background-color: #ffffff;
-    border-top: 1px solid #e5e7eb;
-    z-index: 10;
 }
 
 [data-theme="dark"] .lecture-footer {
@@ -70,8 +76,10 @@
 
 /* Responsive */
 @media (max-width: 768px) {
-    .lecture-footer {
+    .lecture-footer-container {
         padding: 0 16px;
+    }
+    .lecture-footer {
         height: 64px;
     }
 

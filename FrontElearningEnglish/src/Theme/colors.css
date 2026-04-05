@@ -20,14 +20,14 @@
 
     /* Background Colors */
     --color-bg-primary: #ffffff;
-    --color-bg-secondary: #f6f8fb;
+    --color-bg-secondary: #f9fafc; /* Cleaner, more premium off-white */
     --color-bg-auth: #f8dede;
-    --color-bg-light: #e0f7fa;
+    --color-bg-light: #f0f4f8; /* Soft blue-gray */
     --color-bg-white: #ffffff;
 
     /* Text Colors */
-    --color-text-primary: #1f2937;
-    --color-text-secondary: #6b7280;
+    --color-text-primary: #111827; /* Darker, sharper text (Charcoal) */
+    --color-text-secondary: #4b5563; /* Accessible gray */
     --color-text-tertiary: #9ca3af;
     --color-text-white: #ffffff;
     --color-text-dark: #4d3b00;

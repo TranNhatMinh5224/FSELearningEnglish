@@ -27,6 +27,7 @@ namespace LearningEnglish.Domain.Entities
         public List<Lesson> Lessons { get; set; } = new();
         public List<UserCourse> UserCourses { get; set; } = new();
         public List<CourseProgress> CourseProgresses { get; set; } = new();
+        public List<CourseEmbedding> CourseEmbeddings { get; set; } = new(); // Navigation property for CourseEmbeddings (1-N)
 
 
 

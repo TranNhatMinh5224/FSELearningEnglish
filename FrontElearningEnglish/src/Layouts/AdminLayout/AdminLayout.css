@@ -15,7 +15,7 @@
 
 .admin-layout {
   display: flex;
-  min-height: 100vh;
+  min-height: 125vh;
   background-color: var(--color-bg-secondary, #f8fafc);
   font-family: 'Inter', system-ui, -apple-system, sans-serif;
 }
@@ -202,13 +202,9 @@
 
 /* PAGE CONTENT */
 .admin-content {
-  padding: 24px;
+  padding: 2rem;
   flex: 1;
   width: 100%;
-  max-width: 1600px;
-  /* Limit width on ultra-wide screens */
-  margin: 0 auto;
-  /* Center content if it hits max-width */
 }
 
 /* On smaller screens, reduce padding */

@@ -8,7 +8,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using System.Text.Json;
 
-namespace LearningEnglish.Infrastructure.Services
+namespace LearningEnglish.Infrastructure.Services.ExternalProviders.AzureSpeech
 {
     public class AzureSpeechService : IAzureSpeechService
     {

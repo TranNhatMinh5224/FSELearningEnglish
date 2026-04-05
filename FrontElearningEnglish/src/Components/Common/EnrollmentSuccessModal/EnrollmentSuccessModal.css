@@ -544,7 +544,7 @@
     }
 
     .esm-content {
-        max-height: calc(100vh - 0.5rem);
+        max-height: calc(125vh - 0.5rem);
         overflow-y: auto;
     }
 

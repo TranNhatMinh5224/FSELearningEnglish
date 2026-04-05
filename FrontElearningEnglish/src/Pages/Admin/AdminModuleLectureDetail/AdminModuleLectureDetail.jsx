@@ -135,7 +135,7 @@ export default function AdminModuleLectureDetail() {
 
   return (
     <div className="admin-module-lecture-detail-container">
-      <Container>
+      <Container fluid className="p-0">
         <div className="lecture-management-header mb-4 mt-4">
           <div className="d-flex align-items-center justify-content-between">
             <div className="header-content d-flex align-items-center gap-3">

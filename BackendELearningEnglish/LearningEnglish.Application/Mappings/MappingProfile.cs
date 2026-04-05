@@ -28,14 +28,11 @@ namespace LearningEnglish.Application.Mappings
             // Essay Grading mappings
             CreateMap<EssaySubmission, EssayGradingResultDto>()
                 .ForMember(dest => dest.SubmissionId, opt => opt.MapFrom(src => src.SubmissionId))
-                .ForMember(dest => dest.Score, opt => opt.MapFrom(src => src.TeacherScore ?? src.Score ?? 0))
+                .ForMember(dest => dest.Score, opt => opt.MapFrom(src => src.TeacherScore ?? 0))
                 .ForMember(dest => dest.MaxScore, opt => opt.MapFrom(src => src.Essay != null ? src.Essay.TotalPoints : 0))
-                .ForMember(dest => dest.Feedback, opt => opt.MapFrom(src => src.TeacherFeedback ?? src.Feedback ?? string.Empty))
-                .ForMember(dest => dest.GradedAt, opt => opt.MapFrom(src => src.TeacherGradedAt ?? src.GradedAt ?? DateTime.UtcNow))
-                .ForMember(dest => dest.GradedByTeacher, opt => opt.MapFrom(src => src.TeacherScore.HasValue))
-                .ForMember(dest => dest.Breakdown, opt => opt.Ignore()) // Only from AI
-                .ForMember(dest => dest.Strengths, opt => opt.Ignore()) // Only from AI
-                .ForMember(dest => dest.Improvements, opt => opt.Ignore()); // Only from AI
+                .ForMember(dest => dest.Feedback, opt => opt.MapFrom(src => src.TeacherFeedback ?? string.Empty))
+                .ForMember(dest => dest.GradedAt, opt => opt.MapFrom(src => src.TeacherGradedAt ?? DateTime.UtcNow))
+                .ForMember(dest => dest.GradedByTeacher, opt => opt.MapFrom(src => src.TeacherScore.HasValue));
 
             // Pronunciation mappings
             CreateMap<FlashCard, FlashCardWithPronunciationDto>()
@@ -365,20 +362,15 @@ namespace LearningEnglish.Application.Mappings
                 .ForMember(dest => dest.AttachmentUrl, opt => opt.MapFrom(src => src.AttachmentKey)) // Will be replaced with URL in service
                 .ForMember(dest => dest.UserName, opt => opt.MapFrom(src => src.User != null ? src.User.FullName : null))
                 .ForMember(dest => dest.UserEmail, opt => opt.MapFrom(src => src.User != null ? src.User.Email : null))
-                // AI Grading fields (có thể null)
-                .ForMember(dest => dest.AiScore, opt => opt.MapFrom(src => src.Score))
-                .ForMember(dest => dest.AiFeedback, opt => opt.MapFrom(src => src.Feedback))
-                .ForMember(dest => dest.AiGradedAt, opt => opt.MapFrom(src => src.GradedAt))
                 // Teacher/Admin Grading fields (có thể null)
                 .ForMember(dest => dest.TeacherScore, opt => opt.MapFrom(src => src.TeacherScore))
                 .ForMember(dest => dest.TeacherFeedback, opt => opt.MapFrom(src => src.TeacherFeedback))
                 .ForMember(dest => dest.TeacherGradedAt, opt => opt.MapFrom(src => src.TeacherGradedAt))
                 .ForMember(dest => dest.GradedByTeacherId, opt => opt.MapFrom(src => src.GradedByTeacherId))
                 .ForMember(dest => dest.GradedByTeacherName, opt => opt.MapFrom(src => src.GradedByTeacher != null ? src.GradedByTeacher.FullName : null))
-                // Final Score (ưu tiên Teacher, nếu không có thì AI)
-                .ForMember(dest => dest.Score, opt => opt.MapFrom(src => src.FinalScore))
-                .ForMember(dest => dest.Feedback, opt => opt.MapFrom(src => src.TeacherFeedback ?? src.Feedback))
-                .ForMember(dest => dest.GradedAt, opt => opt.MapFrom(src => src.TeacherGradedAt ?? src.GradedAt))
+                .ForMember(dest => dest.Score, opt => opt.MapFrom(src => src.TeacherScore))
+                .ForMember(dest => dest.Feedback, opt => opt.MapFrom(src => src.TeacherFeedback))
+                .ForMember(dest => dest.GradedAt, opt => opt.MapFrom(src => src.TeacherGradedAt))
         // Max score từ assessment
         .ForMember(dest => dest.MaxScore, opt => opt.MapFrom(src => src.Essay != null ? src.Essay.TotalPoints : (decimal?)null))
 
@@ -392,20 +384,16 @@ namespace LearningEnglish.Application.Mappings
                 .ForMember(dest => dest.UserName, opt => opt.MapFrom(src => src.User.FullName))
                 .ForMember(dest => dest.UserAvatarUrl, opt => opt.Ignore()) // Will be built in service
                 .ForMember(dest => dest.HasAttachment, opt => opt.MapFrom(src => !string.IsNullOrWhiteSpace(src.AttachmentKey)))
-                // AI Grading fields
-                .ForMember(dest => dest.AiScore, opt => opt.MapFrom(src => src.Score))
-                .ForMember(dest => dest.AiGradedAt, opt => opt.MapFrom(src => src.GradedAt))
                 // Teacher/Admin Grading fields
                 .ForMember(dest => dest.TeacherScore, opt => opt.MapFrom(src => src.TeacherScore))
                 .ForMember(dest => dest.TeacherGradedAt, opt => opt.MapFrom(src => src.TeacherGradedAt))
                 .ForMember(dest => dest.GradedByTeacherId, opt => opt.MapFrom(src => src.GradedByTeacherId))
-                // Final Score (ưu tiên Teacher)
-                .ForMember(dest => dest.Score, opt => opt.MapFrom(src => src.FinalScore))
-                .ForMember(dest => dest.GradedAt, opt => opt.MapFrom(src => src.TeacherGradedAt ?? src.GradedAt))
+                .ForMember(dest => dest.Score, opt => opt.MapFrom(src => src.TeacherScore))
+                .ForMember(dest => dest.GradedAt, opt => opt.MapFrom(src => src.TeacherGradedAt))
                 .ForMember(dest => dest.FeedbackPreview, opt => opt.MapFrom(src => 
-                    (src.TeacherFeedback ?? src.Feedback) != null && (src.TeacherFeedback ?? src.Feedback)!.Length > 100 
-                        ? (src.TeacherFeedback ?? src.Feedback)!.Substring(0, 100) + "..." 
-                        : (src.TeacherFeedback ?? src.Feedback)));
+                    src.TeacherFeedback != null && src.TeacherFeedback.Length > 100 
+                        ? src.TeacherFeedback.Substring(0, 100) + "..." 
+                        : src.TeacherFeedback));
 
             CreateMap<CreateEssaySubmissionDto, EssaySubmission>()
                 .ForMember(dest => dest.SubmissionId, opt => opt.Ignore())

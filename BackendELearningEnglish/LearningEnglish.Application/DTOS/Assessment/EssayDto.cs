@@ -79,26 +79,14 @@ namespace LearningEnglish.Application.DTOs
         public DateTime SubmittedAt { get; set; }
         public string Status { get; set; } = string.Empty;
 
-        // � Grading Information (1 điểm duy nhất - AI hoặc Teacher ghi đè)
-        // ═══════════════════════════════════════════════
-        // AI GRADING (có thể null nếu chưa dùng AI)
-        // ═══════════════════════════════════════════════
-        public decimal? AiScore { get; set; }
-        public string? AiFeedback { get; set; }
-        public DateTime? AiGradedAt { get; set; }
-
-        // ═══════════════════════════════════════════════
-        // TEACHER/ADMIN GRADING (có thể null nếu chưa chấm)
-        // ═══════════════════════════════════════════════
+        // Teacher/Admin grading
         public decimal? TeacherScore { get; set; }
         public string? TeacherFeedback { get; set; }
         public DateTime? TeacherGradedAt { get; set; }
         public int? GradedByTeacherId { get; set; }
         public string? GradedByTeacherName { get; set; }
 
-        // ═══════════════════════════════════════════════
-        // FINAL SCORE (ưu tiên Teacher, nếu không có thì AI)
-        // ═══════════════════════════════════════════════
+        // Final score from teacher/admin grading
         public decimal? Score { get; set; }
         public string? Feedback { get; set; }
         public DateTime? GradedAt { get; set; }

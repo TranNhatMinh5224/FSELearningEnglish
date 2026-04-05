@@ -1,8 +1,8 @@
 .list-lesson-container {
-    padding: var(--padding-container-lg, clamp(1.5rem, 1rem + 2.5vw, 3rem)) clamp(10rem, 8rem + 10vw, 15.625rem);
+    padding: var(--padding-container-lg, clamp(1.5rem, 1rem + 2.5vw, 3rem)) 0;
     padding-top: calc(70px + clamp(2rem, 1.5rem + 2.5vw, 3.125rem));
     background: var(--color-bg-secondary, #f6f8fb);
-    min-height: calc(100vh - 70px);
+    min-height: calc(125vh - 70px);
 }
 
 .list-lesson-breadcrumb {
@@ -80,42 +80,18 @@
    RESPONSIVE
 =========================== */
 
-/* Large Desktop: 1600px and below */
-@media (max-width: 1600px) {
-    .list-lesson-container {
-        padding-left: clamp(8rem, 6rem + 10vw, 13.75rem);
-        padding-right: clamp(8rem, 6rem + 10vw, 13.75rem);
-    }
-}
-
-/* Desktop: 1400px and below */
-@media (max-width: 1400px) {
-    .list-lesson-container {
-        padding-left: clamp(6rem, 4.5rem + 7.5vw, 11.25rem);
-        padding-right: clamp(6rem, 4.5rem + 7.5vw, 11.25rem);
-    }
-}
-
-/* Desktop: 1200px and below */
-@media (max-width: 1200px) {
-    .list-lesson-container {
-        padding-left: clamp(5rem, 3.75rem + 6.25vw, 9.375rem);
-        padding-right: clamp(5rem, 3.75rem + 6.25vw, 9.375rem);
-    }
-}
-
 /* Tablet: 992px and below */
 @media (max-width: 992px) {
     .list-lesson-container {
-        padding-left: var(--padding-container-xl, clamp(2rem, 1.5rem + 2.5vw, 4rem));
-        padding-right: var(--padding-container-xl, clamp(2rem, 1.5rem + 2.5vw, 4rem));
+        padding-left: 0;
+        padding-right: 0;
     }
 }
 
 /* Tablet: 768px and below */
 @media (max-width: 768px) {
     .list-lesson-container {
-        padding: var(--padding-container-md, clamp(1rem, 0.75rem + 1.25vw, 2rem)) var(--padding-container-lg, clamp(1.5rem, 1rem + 2.5vw, 3rem));
+        padding: var(--padding-container-md, clamp(1rem, 0.75rem + 1.25vw, 2rem)) 0;
         padding-top: calc(70px + var(--padding-container-md, clamp(1rem, 0.75rem + 1.25vw, 2rem)));
     }
 
@@ -132,7 +108,7 @@
 /* Mobile: 576px and below */
 @media (max-width: 576px) {
     .list-lesson-container {
-        padding: var(--padding-container-sm, clamp(0.75rem, 0.5rem + 1.25vw, 1.5rem)) var(--padding-container-md, clamp(1rem, 0.75rem + 1.25vw, 2rem));
+        padding: var(--padding-container-sm, clamp(0.75rem, 0.5rem + 1.25vw, 1.5rem)) 0;
         padding-top: calc(70px + var(--padding-container-sm, clamp(0.75rem, 0.5rem + 1.25vw, 1.5rem)));
     }
 

@@ -8,7 +8,7 @@ using LearningEnglish.Application.DTOs;
 using Microsoft.Extensions.Options;
 using Microsoft.Extensions.Logging;
 
-namespace LearningEnglish.Infrastructure.Services
+namespace LearningEnglish.Infrastructure.Services.ExternalProviders.PayOS
 {
     public class PayOSService : IPayOSService
     {
@@ -17,8 +17,8 @@ namespace LearningEnglish.Infrastructure.Services
         private readonly HttpClient _httpClient;
 
         public PayOSService(
-            IOptions<PayOSOptions> options, 
-            ILogger<PayOSService> logger, 
+            IOptions<PayOSOptions> options,
+            ILogger<PayOSService> logger,
             IHttpClientFactory httpClientFactory)
         {
             _options = options.Value;
@@ -30,9 +30,9 @@ namespace LearningEnglish.Infrastructure.Services
         }
 
         public async Task<ServiceResponse<PayOSLinkResponse>> CreatePaymentLinkAsync(
-            CreatePayOSLinkRequest request, 
-            decimal amount, 
-            string productName, 
+            CreatePayOSLinkRequest request,
+            decimal amount,
+            string productName,
             string description,
             long orderCode)
         {
@@ -42,7 +42,7 @@ namespace LearningEnglish.Infrastructure.Services
                 _logger.LogInformation("Creating PayOS payment link for Payment {PaymentId}, OrderCode: {OrderCode}, Amount: {Amount}",
                     request.PaymentId, orderCode, amount);
 
-                if (amount <= 0 || amount > 100000000) // Max 100 triệu VND
+                if (amount <= 0 || amount > 100000000)
                 {
                     _logger.LogError("Invalid amount: {Amount}", amount);
                     response.Success = false;
@@ -52,7 +52,6 @@ namespace LearningEnglish.Infrastructure.Services
 
                 var amountInt = (int)Math.Round(amount, MidpointRounding.AwayFromZero);
 
-                // Description: dùng tên dịch vụ đang định mua (PayOS giới hạn <= 9 ký tự)
                 var safeDescription = (description ?? "THANHTOAN").Trim();
                 if (safeDescription.Length > 9)
                 {
@@ -61,15 +60,14 @@ namespace LearningEnglish.Infrastructure.Services
 
                 var baseReturnUrl = _options.ReturnUrl?.Trim() ?? "";
                 var baseCancelUrl = _options.CancelUrl?.Trim() ?? "";
-                
-                var returnUrl = string.IsNullOrEmpty(baseReturnUrl) 
-                    ? baseReturnUrl 
+
+                var returnUrl = string.IsNullOrEmpty(baseReturnUrl)
+                    ? baseReturnUrl
                     : $"{baseReturnUrl}{(baseReturnUrl.Contains("?") ? "&" : "?")}orderCode={orderCode}";
-                var cancelUrl = string.IsNullOrEmpty(baseCancelUrl) 
-                    ? baseCancelUrl 
+                var cancelUrl = string.IsNullOrEmpty(baseCancelUrl)
+                    ? baseCancelUrl
                     : $"{baseCancelUrl}{(baseCancelUrl.Contains("?") ? "&" : "?")}orderCode={orderCode}";
 
-                
                 var signData = $"amount={amountInt}&cancelUrl={cancelUrl}&description={safeDescription}&orderCode={orderCode}&returnUrl={returnUrl}";
                 var signature = HmacSha256(signData, _options.ChecksumKey);
 
@@ -90,12 +88,10 @@ namespace LearningEnglish.Infrastructure.Services
                 _logger.LogInformation("PayOS signData: {SignData}", signData);
                 _logger.LogInformation("PayOS signature: {Signature}", signature);
 
-                // Gọi PayOS API
                 var httpResponse = await _httpClient.PostAsync("/v2/payment-requests", content);
                 var responseContent = await httpResponse.Content.ReadAsStringAsync();
 
-              
-                _logger.LogInformation("PayOS API response: StatusCode={StatusCode}, Response={Response}", 
+                _logger.LogInformation("PayOS API response: StatusCode={StatusCode}, Response={Response}",
                     httpResponse.StatusCode, responseContent);
 
                 if (!httpResponse.IsSuccessStatusCode)
@@ -108,8 +104,7 @@ namespace LearningEnglish.Infrastructure.Services
                 }
 
                 var payosResponse = JsonSerializer.Deserialize<JsonElement>(responseContent);
-                
-                
+
                 if (payosResponse.TryGetProperty("code", out var codeElement))
                 {
                     var code = codeElement.GetString();
@@ -119,7 +114,7 @@ namespace LearningEnglish.Infrastructure.Services
                             ? descElement.GetString()
                             : "Unknown PayOS error";
 
-                        _logger.LogError("PayOS error: Code={Code}, Desc={Desc}, Response={Response}", 
+                        _logger.LogError("PayOS error: Code={Code}, Desc={Desc}, Response={Response}",
                             code, desc, responseContent);
                         response.Success = false;
                         response.Message = $"PayOS error: {desc}";
@@ -127,8 +122,7 @@ namespace LearningEnglish.Infrastructure.Services
                     }
                 }
 
-               
-                if (!payosResponse.TryGetProperty("data", out var dataElement) || 
+                if (!payosResponse.TryGetProperty("data", out var dataElement) ||
                     dataElement.ValueKind == JsonValueKind.Null)
                 {
                     _logger.LogError("PayOS response missing or null 'data' property. Response: {Response}", responseContent);
@@ -137,7 +131,6 @@ namespace LearningEnglish.Infrastructure.Services
                     return response;
                 }
 
-                
                 if (!dataElement.TryGetProperty("checkoutUrl", out var checkoutUrlElement))
                 {
                     _logger.LogError("PayOS response missing 'checkoutUrl' property. Response: {Response}", responseContent);
@@ -148,7 +141,6 @@ namespace LearningEnglish.Infrastructure.Services
 
                 var checkoutUrl = checkoutUrlElement.GetString();
 
-            
                 if (string.IsNullOrWhiteSpace(checkoutUrl))
                 {
                     _logger.LogError("PayOS returned empty checkoutUrl. Response: {Response}", responseContent);
@@ -200,8 +192,8 @@ namespace LearningEnglish.Infrastructure.Services
                 var code = payosData.GetProperty("code").GetString() ?? "";
                 var data = payosData.GetProperty("data");
 
-                var status = data.TryGetProperty("status", out var statusElement) 
-                    ? statusElement.GetString() ?? "" 
+                var status = data.TryGetProperty("status", out var statusElement)
+                    ? statusElement.GetString() ?? ""
                     : "";
 
                 response.Data = new PayOSWebhookDto
@@ -228,12 +220,11 @@ namespace LearningEnglish.Infrastructure.Services
             return response;
         }
 
-        // ✅ Helper method để tạo HMAC SHA256
         private string HmacSha256(string data, string key)
         {
             var keyBytes = Encoding.UTF8.GetBytes(key);
             var dataBytes = Encoding.UTF8.GetBytes(data);
-            
+
             using var hmac = new HMACSHA256(keyBytes);
             var hashBytes = hmac.ComputeHash(dataBytes);
             return Convert.ToHexString(hashBytes).ToLower();
@@ -243,16 +234,15 @@ namespace LearningEnglish.Infrastructure.Services
         {
             try
             {
-                // PayOS sử dụng HMAC SHA256 để verify signature
                 var computedSignature = HmacSha256(data, _options.ChecksumKey);
                 var isValid = computedSignature == signature.ToLower();
-                
+
                 if (!isValid)
                 {
                     _logger.LogWarning("Invalid PayOS webhook signature. Expected: {Expected}, Received: {Received}",
                         computedSignature, signature);
                 }
-                
+
                 return Task.FromResult(isValid);
             }
             catch (Exception ex)
