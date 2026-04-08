@@ -33,6 +33,8 @@ namespace LearningEnglish.Application.DTOs
         public DateTime? LastReviewedAt { get; set; }
         public DateTime? NextReviewAt { get; set; }
         public int CurrentLevel { get; set; } // SRS level (0-6)
+
+        public FlashCardDto ShallowCopy() => (FlashCardDto)this.MemberwiseClone();
     }
 
     // dto danh sách flashcard
@@ -57,6 +59,8 @@ namespace LearningEnglish.Application.DTOs
         public int ReviewCount { get; set; }
         public decimal SuccessRate { get; set; }
         public int CurrentLevel { get; set; }
+
+        public ListFlashCardDto ShallowCopy() => (ListFlashCardDto)this.MemberwiseClone();
     }
 
     // DTO tạo 1 thẻ mới

@@ -175,6 +175,9 @@ public static class ServiceRegistrationExtensions
 
     public static IServiceCollection AddInfrastructureServices(this IServiceCollection services, IConfiguration configuration)
     {
+        services.AddMemoryCache();
+        services.AddScoped<ICacheService, MemoryCacheService>();
+        
         services.AddRepositories();
         services.AddExternalIntegrations(configuration);
 

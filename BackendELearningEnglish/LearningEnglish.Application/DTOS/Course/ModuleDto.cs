@@ -73,6 +73,8 @@ namespace LearningEnglish.Application.DTOs
         public decimal ProgressPercentage { get; set; }
         public DateTime? StartedAt { get; set; }
         public DateTime? CompletedAt { get; set; }
+
+        public ModuleWithProgressDto ShallowCopy() => (ModuleWithProgressDto)MemberwiseClone();
     }
 
     // DTO for reordering modules

@@ -1,11 +1,13 @@
-using AutoMapper;
 using LearningEnglish.Application.Common;
+using LearningEnglish.Application.Common.Constants;
 using LearningEnglish.Application.DTOs;
 using LearningEnglish.Application.Interface;
+using LearningEnglish.Application.Interface.Infrastructure;
 using LearningEnglish.Application.Interface.Services.Module;
 using LearningEnglish.Application.Interface.Infrastructure.MediaService;
 using LearningEnglish.Domain.Entities;
 using Microsoft.Extensions.Logging;
+using AutoMapper;
 
 namespace LearningEnglish.Application.Service
 {
@@ -17,19 +19,22 @@ namespace LearningEnglish.Application.Service
         private readonly ILogger<AdminModuleService> _logger;
         private readonly ILessonRepository _lessonRepository;
         private readonly IModuleImageService _moduleImageService;
+        private readonly ICacheService _cache;
 
         public AdminModuleService(
             IModuleRepository moduleRepository,
             IMapper mapper,
             ILogger<AdminModuleService> logger,
             ILessonRepository lessonRepository,
-            IModuleImageService moduleImageService)
+            IModuleImageService moduleImageService,
+            ICacheService cache)
         {
             _moduleRepository = moduleRepository;
             _mapper = mapper;
             _logger = logger;
             _lessonRepository = lessonRepository;
             _moduleImageService = moduleImageService;
+            _cache = cache;
         }
 
         // Admin tạo module
@@ -77,6 +82,7 @@ namespace LearningEnglish.Application.Service
                 try
                 {
                     created = await _moduleRepository.CreateAsync(module);
+                    _cache.RemoveByPrefix(CacheKeys.ModulesPrefix); // Invalidate modules cache
                 }
                 catch
                 {
@@ -207,6 +213,7 @@ namespace LearningEnglish.Application.Service
 
                 _mapper.Map(dto, module);
                 var updated = await _moduleRepository.UpdateAsync(module);
+                _cache.RemoveByPrefix(CacheKeys.ModulesPrefix);
 
                 if (!string.IsNullOrWhiteSpace(oldImageKey) && newImageKey != null)
                 {
@@ -256,6 +263,7 @@ namespace LearningEnglish.Application.Service
                 }
 
                 response.Data = await _moduleRepository.DeleteAsync(moduleId);
+                _cache.RemoveByPrefix(CacheKeys.ModulesPrefix);
                 response.Message = "Xóa module thành công";
                 return response;
             }

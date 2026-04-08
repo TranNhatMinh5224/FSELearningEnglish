@@ -7,31 +7,32 @@ using LearningEnglish.Application.Interface;
 using LearningEnglish.Application.Interface.Services.FlashCard;
 using LearningEnglish.Application.Interface.Infrastructure.MediaService;
 using LearningEnglish.Domain.Entities;
+using LearningEnglish.Application.Interface.Infrastructure;
 using Microsoft.Extensions.Logging;
 
 namespace LearningEnglish.Application.Service
 {
-    /// <summary>
-    /// Admin flashcard service following SOLID principles
-    /// Uses shared media service to reduce code duplication (DRY)
-    /// </summary>
+   
     public class AdminFlashCardService : IAdminFlashCardService
     {
         private readonly IFlashCardRepository _flashCardRepository;
         private readonly IMapper _mapper;
         private readonly ILogger<AdminFlashCardService> _logger;
         private readonly IFlashCardMediaService _flashCardMediaService;
+        private readonly ICacheService _cache;
 
         public AdminFlashCardService(
             IFlashCardRepository flashCardRepository,
             IMapper mapper,
             ILogger<AdminFlashCardService> logger,
-            IFlashCardMediaService flashCardMediaService)
+            IFlashCardMediaService flashCardMediaService,
+            ICacheService cache)
         {
             _flashCardRepository = flashCardRepository;
             _mapper = mapper;
             _logger = logger;
             _flashCardMediaService = flashCardMediaService;
+            _cache = cache;
         }
 
         // Admin tạo flashcard
@@ -90,6 +91,8 @@ namespace LearningEnglish.Application.Service
                 }
 
                 var created = await _flashCardRepository.CreateAsync(flashCard);
+
+                _cache.RemoveByPrefix(CacheKeys.FlashCardsPrefix);
 
                 // Map DTO inline
                 var result = _mapper.Map<FlashCardDto>(created);
@@ -194,6 +197,8 @@ namespace LearningEnglish.Application.Service
 
                 var created = await _flashCardRepository.CreateBulkAsync(flashCards);
                 
+                _cache.RemoveByPrefix(CacheKeys.FlashCardsPrefix);
+
                 // Map DTO inline
                 var result = created.Select(fc =>
                 {
@@ -291,6 +296,8 @@ namespace LearningEnglish.Application.Service
 
                 var updated = await _flashCardRepository.UpdateAsync(flashCard);
 
+                _cache.RemoveByPrefix(CacheKeys.FlashCardsPrefix);
+
                 // Xóa file cũ sau khi update DB thành công
                 if (oldImageKey != null && newImageKey != null)
                 {
@@ -343,6 +350,8 @@ namespace LearningEnglish.Application.Service
                 }
 
                 await _flashCardRepository.DeleteAsync(flashCardId);
+
+                _cache.RemoveByPrefix(CacheKeys.FlashCardsPrefix);
 
                 // Best-effort cleanup của files
                 if (!string.IsNullOrWhiteSpace(flashCard.ImageKey))

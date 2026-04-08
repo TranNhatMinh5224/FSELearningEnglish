@@ -45,5 +45,8 @@ namespace LearningEnglish.Application.Interface
         
         // Lấy flashcard theo module với chi tiết cho Teacher (kiểm tra ownership)
         Task<List<FlashCard>> GetByModuleIdWithDetailsForTeacherAsync(int moduleId, int teacherId);
+
+        // Lấy flashcard kèm thông tin Module/Lesson/Course để check enrollment
+        Task<FlashCard?> GetFlashCardWithModuleCourseAsync(int flashCardId);
     }
 }

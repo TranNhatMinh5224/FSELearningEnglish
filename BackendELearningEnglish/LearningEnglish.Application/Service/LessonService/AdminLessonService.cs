@@ -5,7 +5,8 @@ using LearningEnglish.Application.Interface.Infrastructure.MediaService;
 using LearningEnglish.Domain.Entities;
 using LearningEnglish.Domain.Enums;
 using LearningEnglish.Application.Common;
-
+using LearningEnglish.Application.Common.Constants;
+using LearningEnglish.Application.Interface.Infrastructure;
 using AutoMapper;
 using Microsoft.Extensions.Logging;
 
@@ -19,19 +20,22 @@ namespace LearningEnglish.Application.Service
         private readonly ICourseRepository _courseRepository;
         private readonly ILogger<AdminLessonService> _logger;
         private readonly ILessonImageService _lessonImageService;
+        private readonly ICacheService _cache;
 
         public AdminLessonService(
             ILessonRepository lessonRepository,
             IMapper mapper,
             ILogger<AdminLessonService> logger,
             ICourseRepository courseRepository,
-            ILessonImageService lessonImageService)
+            ILessonImageService lessonImageService,
+            ICacheService cache)
         {
             _lessonRepository = lessonRepository;
             _mapper = mapper;
             _logger = logger;
             _courseRepository = courseRepository;
             _lessonImageService = lessonImageService;
+            _cache = cache;
         }
 
         // Admin thêm Lesson vào Course
@@ -100,6 +104,7 @@ namespace LearningEnglish.Application.Service
 
                 // Admin có full quyền quản lý lessons
                 await _lessonRepository.AddLesson(lesson);
+                _cache.RemoveByPrefix(CacheKeys.LessonsPrefix);
 
                 var lessonDto = _mapper.Map<LessonDto>(lesson);
 
@@ -170,6 +175,7 @@ namespace LearningEnglish.Application.Service
 
                 // Admin có full quyền cập nhật lessons
                 await _lessonRepository.UpdateLesson(lesson);
+                _cache.RemoveByPrefix(CacheKeys.LessonsPrefix);
 
                 // Xóa ảnh cũ nếu có ảnh mới
                 if (!string.IsNullOrWhiteSpace(oldImageKey) && !string.IsNullOrWhiteSpace(newImageKey))
@@ -224,6 +230,8 @@ namespace LearningEnglish.Application.Service
                 }
 
                 await _lessonRepository.DeleteLesson(lessonId);
+                _cache.RemoveByPrefix(CacheKeys.LessonsPrefix);
+                _cache.RemoveByPrefix(CacheKeys.ModulesPrefix);
                 response.StatusCode = 200;
                 response.Message = "Xóa bài học thành công";
                 response.Data = true;

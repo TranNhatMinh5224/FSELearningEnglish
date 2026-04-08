@@ -1,68 +1,77 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { FaDownload, FaExternalLinkAlt, FaFilePdf, FaFileWord, FaFileAlt, FaEye } from "react-icons/fa";
 import { Spinner } from "react-bootstrap";
+import * as docx from "docx-preview";
 import "./DocumentViewer.css";
 
-/**
- * DocumentViewer Component
- * Displays PDF/DOCX documents with Google Docs viewer iframe
- */
 export default function DocumentViewer({
     mediaUrl,
     title,
     mediaType
 }) {
     const [isLoading, setIsLoading] = useState(true);
-    const [progress, setProgress] = useState(0);
+    const containerRef = useRef(null);
 
-    // Simulate progress since iframe doesn't give us real progress events
+    // Determine extension
+    let isPdf = false;
+    let isDocx = false;
+    if (mediaType?.toLowerCase().includes('pdf') || mediaUrl?.toLowerCase().includes('.pdf')) isPdf = true;
+    else if (mediaType?.toLowerCase().includes('word') || mediaType?.toLowerCase().includes('doc') || mediaUrl?.toLowerCase().includes('.doc')) isDocx = true;
+
+    // Load Docx explicitly
     useEffect(() => {
-        if (!isLoading) return;
+        if (!mediaUrl) return;
+        if (!isDocx) return; // Only run this effect for DOCX files
 
-        // Start progress quickly, then slow down as it gets closer to 100
-        const interval = setInterval(() => {
-            setProgress(prev => {
-                if (prev < 50) return prev + Math.floor(Math.random() * 10) + 5; // Fast to 50%
-                if (prev < 80) return prev + Math.floor(Math.random() * 5) + 2;  // Medium to 80%
-                if (prev < 90) return prev + 1; // Slow to 90%
-                if (prev < 98) return prev + 0.5; // Very slow to 98%
-                return prev; // Stop at 98% until actually loaded
-            });
-        }, 500);
+        let isMounted = true;
+        setIsLoading(true);
+        
+        const loadDocxData = async () => {
+            try {
+                const response = await fetch(mediaUrl);
+                if (!response.ok) throw new Error("Lỗi tải file");
+                
+                const blob = await response.blob();
 
-        return () => clearInterval(interval);
-    }, [isLoading]);
+                if (isMounted && containerRef.current) {
+                    containerRef.current.innerHTML = "";
+                    
+                    await docx.renderAsync(blob, containerRef.current, null, {
+                        className: "docx-inner-view",
+                        inWrapper: true,
+                        ignoreLastRenderedPageBreak: true,
+                        useBase64: true, // Faster for local files
+                        debug: false
+                    });
+                    
+                    if (isMounted) setIsLoading(false);
+                }
+            } catch (error) {
+                console.error("Lỗi khi dựng file DOCX:", error);
+                if (isMounted) setIsLoading(false);
+            }
+        };
 
-    const handleLoad = () => {
-        setProgress(100);
-        setTimeout(() => {
-            setIsLoading(false);
-        }, 500); // Wait half a second at 100% before hiding
+        loadDocxData();
+        return () => { isMounted = false; };
+    }, [mediaUrl, isDocx]);
+
+    const handlePdfLoad = () => {
+        if (!isPdf) return;
+        setIsLoading(false);
     };
 
-    // Get file icon based on type
     const getFileIcon = () => {
-        if (!mediaType) return <FaFileAlt />;
-        const type = mediaType.toLowerCase();
-        if (type.includes('pdf')) return <FaFilePdf />;
-        if (type.includes('word') || type.includes('doc')) return <FaFileWord />;
+        if (isPdf) return <FaFilePdf />;
+        if (isDocx) return <FaFileWord />;
         return <FaFileAlt />;
     };
 
-    // Get file type label
     const getFileTypeLabel = () => {
-        if (!mediaType) return "Tài liệu";
-        const type = mediaType.toLowerCase();
-        if (type.includes('pdf')) return "PDF Document";
-        if (type.includes('word') || type.includes('doc')) return "Word Document";
-        if (type.includes('text')) return "Text File";
+        if (isPdf) return "PDF Document";
+        if (isDocx) return "Word Document";
         return "Tài liệu";
     };
-
-    // Google Docs viewer URL
-    const viewerUrl = mediaUrl
-        ? `https://docs.google.com/viewer?url=${encodeURIComponent(mediaUrl)}&embedded=true`
-        : null;
 
     if (!mediaUrl) {
         return (
@@ -86,22 +95,11 @@ export default function DocumentViewer({
                 </div>
 
                 <div className="document-actions">
-                    <a
-                        href={mediaUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        download
-                        className="document-btn document-btn--download"
-                    >
+                    <a href={mediaUrl} target="_blank" rel="noopener noreferrer" download className="document-btn document-btn--download">
                         <FaDownload />
                         <span>Tải xuống</span>
                     </a>
-                    <a
-                        href={viewerUrl.replace('&embedded=true', '')}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="document-btn document-btn--external"
-                    >
+                    <a href={mediaUrl} target="_blank" rel="noopener noreferrer" className="document-btn document-btn--external">
                         <FaExternalLinkAlt />
                         <span>Mở tab mới</span>
                     </a>
@@ -114,30 +112,53 @@ export default function DocumentViewer({
                 <span>Xem trước tài liệu</span>
             </div>
 
-            {/* Document iframe */}
-            <div className={`document-frame-wrapper ${isLoading ? 'is-loading' : ''}`}>
+            {/* Document wrapper */}
+            <div className={`document-frame-wrapper ${isLoading ? 'is-loading' : ''}`} style={{ minHeight: "600px", backgroundColor: "#fff" }}>
                 {isLoading && (
                     <div className="document-loading-overlay">
                         <Spinner animation="border" variant="primary" className="document-loading-spinner" />
                         <div className="document-loading-text">
                             <p className="fw-bold mb-1">Đang tải và dựng tài liệu</p>
-                            <span className="text-muted small">Vui lòng đợi giây lát, quá trình này phụ thuộc vào dung lượng file...</span>
-                        </div>
-                        <div className="document-progress-container mt-3">
-                            <div className="document-progress-bar" style={{ width: `${progress}%` }}></div>
-                            <div className="document-progress-text">{Math.floor(progress)}%</div>
+                            <span className="text-muted small">Vui lòng đợi giây lát...</span>
                         </div>
                     </div>
                 )}
-                <iframe
-                    src={viewerUrl}
-                    className="document-iframe"
-                    title="Document Viewer"
-                    allowFullScreen
-                    loading="lazy"
-                    onLoad={handleLoad}
-                    style={{ opacity: isLoading ? 0 : 1, transition: 'opacity 0.5s ease' }}
-                />
+                
+                {/* PDF Viewer - Native Browser Iframe */}
+                {isPdf && (
+                    <object 
+                        data={mediaUrl} 
+                        type="application/pdf"
+                        className="document-iframe"
+                        style={{ opacity: isLoading ? 0 : 1, transition: 'opacity 0.5s ease', height: '100%', width: '100%', display: 'block' }}
+                        onLoad={handlePdfLoad}
+                    >
+                        <iframe
+                            src={mediaUrl}
+                            className="document-iframe"
+                            title="PDF Viewer"
+                            onLoad={handlePdfLoad}
+                            style={{ height: '100%', width: '100%' }}
+                        />
+                    </object>
+                )}
+
+                {/* DOCX Viewer - docx-preview Native Canvas */}
+                {isDocx && (
+                    <div 
+                        ref={containerRef} 
+                        className="docx-render-container"
+                        style={{ opacity: isLoading ? 0 : 1, transition: 'opacity 0.5s ease' }}
+                    >
+                        {/* docx-preview injects HTML elements here */}
+                    </div>
+                )}
+
+                {!isPdf && !isDocx && (
+                    <div className="text-center p-5 text-muted">
+                        <p>Định dạng tài liệu này không hỗ trợ xem trước. Vui lòng tải xuống để xem.</p>
+                    </div>
+                )}
             </div>
         </div>
     );

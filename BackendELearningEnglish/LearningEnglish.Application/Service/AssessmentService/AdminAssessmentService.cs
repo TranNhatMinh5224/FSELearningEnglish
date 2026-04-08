@@ -3,6 +3,8 @@ using LearningEnglish.Application.Common;
 using LearningEnglish.Application.DTOs;
 using LearningEnglish.Application.Interface;
 using LearningEnglish.Domain.Entities;
+using LearningEnglish.Application.Common.Constants;
+using LearningEnglish.Application.Interface.Infrastructure;
 using Microsoft.Extensions.Logging;
 
 namespace LearningEnglish.Application.Service
@@ -12,15 +14,18 @@ namespace LearningEnglish.Application.Service
         private readonly IAssessmentRepository _assessmentRepository;
         private readonly IMapper _mapper;
         private readonly ILogger<AdminAssessmentService> _logger;
+        private readonly ICacheService _cache;
 
         public AdminAssessmentService(
             IAssessmentRepository assessmentRepository,
             IMapper mapper,
-            ILogger<AdminAssessmentService> logger)
+            ILogger<AdminAssessmentService> logger,
+            ICacheService cache)
         {
             _assessmentRepository = assessmentRepository;
             _mapper = mapper;
             _logger = logger;
+            _cache = cache;
         }
 
         public async Task<ServiceResponse<AssessmentDto>> CreateAssessmentAsync(CreateAssessmentDto dto)
@@ -39,6 +44,9 @@ namespace LearningEnglish.Application.Service
 
                 var assessment = _mapper.Map<Assessment>(dto);
                 await _assessmentRepository.AddAssessment(assessment);
+
+                _cache.RemoveByPrefix(CacheKeys.AssessmentsPrefix);
+                _cache.RemoveByPrefix(CacheKeys.QuizzesPrefix);
 
                 var assessmentDto = _mapper.Map<AssessmentDto>(assessment);
 
@@ -134,6 +142,9 @@ namespace LearningEnglish.Application.Service
                 _mapper.Map(dto, assessment);
                 await _assessmentRepository.UpdateAssessment(assessment);
 
+                _cache.RemoveByPrefix(CacheKeys.AssessmentsPrefix);
+                _cache.RemoveByPrefix(CacheKeys.QuizzesPrefix);
+
                 var assessmentDto = _mapper.Map<AssessmentDto>(assessment);
 
                 response.Success = true;
@@ -169,6 +180,9 @@ namespace LearningEnglish.Application.Service
                 }
 
                 await _assessmentRepository.DeleteAssessment(assessmentId);
+
+                _cache.RemoveByPrefix(CacheKeys.AssessmentsPrefix);
+                _cache.RemoveByPrefix(CacheKeys.QuizzesPrefix);
 
                 response.Success = true;
                 response.StatusCode = 200;

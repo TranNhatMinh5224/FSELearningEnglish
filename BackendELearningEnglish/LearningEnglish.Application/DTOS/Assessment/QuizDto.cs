@@ -40,6 +40,9 @@ namespace LearningEnglish.Application.DTOs
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
         public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
 
+       
+        public QuizDto ShallowCopy() => (QuizDto)this.MemberwiseClone();
+
 
 
 

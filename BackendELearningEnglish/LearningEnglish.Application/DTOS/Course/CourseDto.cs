@@ -82,6 +82,9 @@ namespace LearningEnglish.Application.DTOs
         public int EnrollmentCount { get; set; }
         public bool IsFeatured { get; set; }
         public DateTime CreatedAt { get; set; }
+
+        // Use to create a per-request copy from cache so IsEnrolled can be set without mutating the cached object
+        public SystemCoursesListResponseDto ShallowCopy() => (SystemCoursesListResponseDto)MemberwiseClone();
     }
 
     // DTO cho endpoint: GET /api/user/courses/{courseId}
@@ -107,6 +110,9 @@ namespace LearningEnglish.Application.DTOs
         public bool IsCompleted { get; set; } = false;
         public DateTime? EnrolledAt { get; set; }
         public DateTime? CompletedAt { get; set; }
+
+        // Use to create a per-request copy from cache so user-specific fields can be set without mutating the cached object
+        public CourseDetailWithEnrollmentDto ShallowCopy() => (CourseDetailWithEnrollmentDto)MemberwiseClone();
     }
 
     // DTO tóm tắt Lesson (dùng trong CourseDetailWithEnrollmentDto)

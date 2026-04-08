@@ -1,8 +1,10 @@
+using LearningEnglish.Application.Common;
+using LearningEnglish.Application.Common.Constants;
 using LearningEnglish.Application.DTOs;
 using LearningEnglish.Application.Interface;
 using LearningEnglish.Application.Interface.AdminManagement;
+using LearningEnglish.Application.Interface.Infrastructure;
 using LearningEnglish.Application.Interface.Infrastructure.MediaService;
-using LearningEnglish.Application.Common;
 using LearningEnglish.Domain.Entities;
 using LearningEnglish.Domain.Enums;
 using AutoMapper;
@@ -18,18 +20,21 @@ namespace LearningEnglish.Application.Service
 
         private readonly IAssetFrontendRepository _assetFrontendRepository;
         private readonly ILogger<AssetFrontendService> _logger;
+        private readonly ICacheService _cache;
 
         public AssetFrontendService(
             IMapper mapper,
             IAssetFrontendMediaService assetFrontendMediaService,
             IAssetFrontendRepository assetFrontendRepository,
-            ILogger<AssetFrontendService> logger
+            ILogger<AssetFrontendService> logger,
+            ICacheService cache
             )
         {
             _mapper = mapper;
             _assetFrontendMediaService = assetFrontendMediaService;
             _assetFrontendRepository = assetFrontendRepository;
             _logger = logger;
+            _cache = cache;
         }
         public async Task<ServiceResponse<List<AssetFrontendDto>>> GetAllAssetFrontends()
         {
@@ -108,6 +113,7 @@ namespace LearningEnglish.Application.Service
                 try
                 {
                     var addedAssetFrontend = await _assetFrontendRepository.AddAssetFrontend(assetFrontend);
+                    _cache.RemoveByPrefix(CacheKeys.LandingPrefix);
                     response.Data = _mapper.Map<AssetFrontendDto>(addedAssetFrontend);
 
                     // Generate URL từ key
@@ -151,6 +157,7 @@ namespace LearningEnglish.Application.Service
             try
             {
                 var deletedAssetFrontend = await _assetFrontendRepository.DeleteAssetFrontend(id);
+                _cache.RemoveByPrefix(CacheKeys.LandingPrefix);
                 if (deletedAssetFrontend == null)
                 {
                     response.Success = false;
@@ -248,6 +255,7 @@ namespace LearningEnglish.Application.Service
                         existingAsset.KeyImage = committedImageKey;
 
                     await _assetFrontendRepository.UpdateAssetFrontend(existingAsset);
+                    _cache.RemoveByPrefix(CacheKeys.LandingPrefix);
 
                     // Xóa ảnh cũ nếu có ảnh mới
                     if (oldImageKey != null && committedImageKey != null)
@@ -301,18 +309,26 @@ namespace LearningEnglish.Application.Service
             var response = new ServiceResponse<List<AssetFrontendDto>>();
             try
             {
-                var assetFrontends = await _assetFrontendRepository.GetAllActiveAssetFrontend();
-                response.Data = _mapper.Map<List<AssetFrontendDto>>(assetFrontends);
-
-                // Thêm ImageUrl cho từng asset
-                foreach (var asset in response.Data)
-                {
-                    if (!string.IsNullOrWhiteSpace(asset.KeyImage))
+                var assetDtos = await _cache.GetOrSetAsync(
+                    CacheKeys.LandingPageAssets,
+                    async () =>
                     {
-                        asset.ImageUrl = _assetFrontendMediaService.BuildImageUrl(asset.KeyImage);
-                    }
-                }
+                        var assetFrontends = await _assetFrontendRepository.GetAllActiveAssetFrontend();
+                        var dtos = _mapper.Map<List<AssetFrontendDto>>(assetFrontends);
 
+                        // Thêm ImageUrl cho từng asset
+                        foreach (var asset in dtos)
+                        {
+                            if (!string.IsNullOrWhiteSpace(asset.KeyImage))
+                            {
+                                asset.ImageUrl = _assetFrontendMediaService.BuildImageUrl(asset.KeyImage);
+                            }
+                        }
+                        return dtos;
+                    },
+                    TimeSpan.FromHours(24));
+
+                response.Data = assetDtos;
                 response.Success = true;
                 response.StatusCode = 200;
                 response.Message = "Lấy danh sách Asset Frontend active thành công";

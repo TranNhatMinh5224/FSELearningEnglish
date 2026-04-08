@@ -2,10 +2,7 @@ import React, { useRef, useState, useCallback } from "react";
 import { FaPlay, FaPause, FaExpand, FaVolumeUp, FaVolumeMute, FaClock } from "react-icons/fa";
 import "./VideoPlayer.css";
 
-/**
- * VideoPlayer Component
- * Modern video player with custom controls for lecture videos
- */
+
 export default function VideoPlayer({
     mediaUrl,
     title,

@@ -1,7 +1,8 @@
 using LearningEnglish.Application.Interface;
 using LearningEnglish.Application.DTOs;
 using LearningEnglish.Application.Common;
-using LearningEnglish.Application.Common.Helpers;
+using LearningEnglish.Application.Common.Constants;
+using LearningEnglish.Application.Interface.Infrastructure;
 using LearningEnglish.Domain.Entities;
 using AutoMapper;
 
@@ -12,15 +13,18 @@ namespace LearningEnglish.Application.Service
         private readonly IQuizRepository _quizRepository;
         private readonly IAssessmentRepository _assessmentRepository;
         private readonly IMapper _mapper;
+        private readonly ICacheService _cache;
 
         public AdminQuizService(
             IQuizRepository quizRepository, 
             IAssessmentRepository assessmentRepository, 
-            IMapper mapper)
+            IMapper mapper,
+            ICacheService cache)
         {
             _quizRepository = quizRepository;
             _assessmentRepository = assessmentRepository;
             _mapper = mapper;
+            _cache = cache;
         }
 
         public async Task<ServiceResponse<QuizDto>> GetQuizByIdAsync(int quizId)
@@ -99,6 +103,8 @@ namespace LearningEnglish.Application.Service
                 quiz.TotalPossibleScore = 0m;
                 await _quizRepository.AddQuizAsync(quiz);
 
+                _cache.RemoveByPrefix(CacheKeys.QuizzesPrefix);
+
                 response.Data = _mapper.Map<QuizDto>(quiz);
                 response.StatusCode = 201;
                 response.Success = true;
@@ -130,6 +136,8 @@ namespace LearningEnglish.Application.Service
                 _mapper.Map(quizDto, existingQuiz);
                 await _quizRepository.UpdateQuizAsync(existingQuiz);
 
+                _cache.RemoveByPrefix(CacheKeys.QuizzesPrefix);
+
                 response.Data = _mapper.Map<QuizDto>(existingQuiz);
                 response.StatusCode = 200;
                 response.Success = true;
@@ -160,6 +168,9 @@ namespace LearningEnglish.Application.Service
                 }
 
                 await _quizRepository.DeleteQuizAsync(quizId);
+
+                _cache.RemoveByPrefix(CacheKeys.QuizzesPrefix);
+
                 response.Data = true;
                 response.StatusCode = 200;
                 response.Success = true;

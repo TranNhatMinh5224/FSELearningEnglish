@@ -6,6 +6,7 @@ using LearningEnglish.Application.DTOs;
 using LearningEnglish.Application.Interface;
 using LearningEnglish.Application.Interface.Services.Lecture;
 using LearningEnglish.Application.Interface.Infrastructure.MediaService;
+using LearningEnglish.Application.Interface.Infrastructure;
 using LearningEnglish.Domain.Entities;
 using Microsoft.Extensions.Logging;
 
@@ -20,6 +21,7 @@ namespace LearningEnglish.Application.Service
         private readonly IMapper _mapper;
         private readonly ILogger<UserLectureService> _logger;
         private readonly ILectureMediaService _lectureMediaService;
+        private readonly ICacheService _cache;
 
         public UserLectureService(
             ILectureRepository lectureRepository,
@@ -27,7 +29,8 @@ namespace LearningEnglish.Application.Service
             ICourseRepository courseRepository,
             IMapper mapper,
             ILogger<UserLectureService> logger,
-            ILectureMediaService lectureMediaService)
+            ILectureMediaService lectureMediaService,
+            ICacheService cache)
         {
             _lectureRepository = lectureRepository;
             _moduleRepository = moduleRepository;
@@ -35,6 +38,7 @@ namespace LearningEnglish.Application.Service
             _mapper = mapper;
             _logger = logger;
             _lectureMediaService = lectureMediaService;
+            _cache = cache;
         }
 
         // Lấy thông tin lecture với progress của user (chỉ xem được nếu đã đăng ký course)
@@ -44,7 +48,13 @@ namespace LearningEnglish.Application.Service
 
             try
             {
-                var lecture = await _lectureRepository.GetLectureWithModuleCourseAsync(lectureId);
+                var cacheKey = CacheKeys.LectureDetail(lectureId);
+                var lecture = await _cache.GetOrSetAsync(
+                    cacheKey,
+                    async () => await _lectureRepository.GetLectureWithModuleCourseAsync(lectureId),
+                    TimeSpan.FromHours(1)
+                );
+
                 if (lecture == null)
                 {
                     response.Success = false;
@@ -137,7 +147,13 @@ namespace LearningEnglish.Application.Service
                     return response;
                 }
 
-                var lectures = await _lectureRepository.GetByModuleIdWithDetailsAsync(moduleId);
+                var cacheKey = CacheKeys.LecturesByModule(moduleId);
+                var lectures = await _cache.GetOrSetAsync(
+                    cacheKey,
+                    async () => await _lectureRepository.GetByModuleIdWithDetailsAsync(moduleId),
+                    TimeSpan.FromHours(1)
+                );
+
                 var lectureDtos = _mapper.Map<List<ListLectureDto>>(lectures);
 
                 // Generate URLs cho tất cả lectures
@@ -205,7 +221,12 @@ namespace LearningEnglish.Application.Service
                     return response;
                 }
 
-                var lectures = await _lectureRepository.GetTreeByModuleIdAsync(moduleId);
+                var cacheKey = CacheKeys.LectureTreeByModule(moduleId);
+                var lectures = await _cache.GetOrSetAsync(
+                    cacheKey,
+                    async () => await _lectureRepository.GetTreeByModuleIdAsync(moduleId),
+                    TimeSpan.FromHours(1)
+                );
 
                 // Tạo cấu trúc cây
                 var rootLectures = lectures.Where(l => l.ParentLectureId == null).ToList();

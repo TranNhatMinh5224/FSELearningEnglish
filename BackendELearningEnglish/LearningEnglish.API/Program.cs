@@ -38,15 +38,9 @@ BuildPublicUrl.Configure(builder.Configuration); //
 var app = builder.Build();
 
 // Middleware pipeline
-if (app.Environment.IsDevelopment() || app.Environment.EnvironmentName == "Docker")
-{
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
-else
-{
-    app.UseHttpsRedirection();
-}
+
+app.UseSwagger();
+app.UseSwaggerUI();
 
 app.UseRouting();
 app.UseCors("AllowFrontend");

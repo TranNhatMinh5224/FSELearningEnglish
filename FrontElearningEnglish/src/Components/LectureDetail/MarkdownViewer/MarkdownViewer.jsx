@@ -4,13 +4,7 @@ import DocumentViewer from "../DocumentViewer/DocumentViewer";
 import ContentViewer from "../ContentViewer/ContentViewer";
 import "./MarkdownViewer.css";
 
-/**
- * MarkdownViewer (LectureViewer) - Parent component that switches between viewers
- * 
- * Type 1: Content -> ContentViewer (markdown)
- * Type 2: Document -> DocumentViewer (PDF/DOCX)
- * Type 3: Video -> VideoPlayer
- */
+
 function MarkdownViewer({ lecture }) {
     const title = lecture?.title || lecture?.Title || "";
     const markdownContent = lecture?.markdownContent || lecture?.MarkdownContent || "";
@@ -67,6 +61,4 @@ function MarkdownViewer({ lecture }) {
     );
 }
 
-MarkdownViewer.displayName = "MarkdownViewer";
-
-export default MarkdownViewer;
+export default React.memo(MarkdownViewer);

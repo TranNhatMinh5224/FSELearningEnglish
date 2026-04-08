@@ -1,15 +1,13 @@
 .footer {
   background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%); /* Deep Navy/Charcoal gradient */
   color: #f3f4f6;
-  padding: 80px 0 40px;
-  margin-top: 80px;
+  padding: 40px 0 40px;
+  margin-top: 0;
   border-top: none;
   transition: background 0.3s ease;
 }
 
-.footer-content {
-  /* Content is already constrained by .container in index.css */
-}
+
 
 .footer-section {
   display: flex;
@@ -102,8 +100,8 @@
 /* Responsive */
 @media (max-width: 768px) {
   .footer {
-    padding: 60px 0 30px;
-    margin-top: 60px;
+    padding: 30px 0 30px;
+    margin-top: 0;
   }
 
   .footer-bottom {

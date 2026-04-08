@@ -1,4 +1,6 @@
 using LearningEnglish.Application.Interface;
+using LearningEnglish.Application.Interface.Infrastructure;
+using LearningEnglish.Application.Common.Constants;
 using LearningEnglish.Application.DTOs;
 using LearningEnglish.Application.Common;
 using AutoMapper;
@@ -14,6 +16,7 @@ namespace LearningEnglish.Application.Service
         private readonly ICourseRepository _courseRepository;
         private readonly IMapper _mapper;
         private readonly ILogger<UserQuizService> _logger;
+        private readonly ICacheService _cache;
 
         public UserQuizService(
             IQuizRepository quizRepository,
@@ -21,7 +24,8 @@ namespace LearningEnglish.Application.Service
             IModuleRepository moduleRepository,
             ICourseRepository courseRepository,
             IMapper mapper,
-            ILogger<UserQuizService> logger)
+            ILogger<UserQuizService> logger,
+            ICacheService cache)
         {
             _quizRepository = quizRepository;
             _assessmentRepository = assessmentRepository;
@@ -29,6 +33,7 @@ namespace LearningEnglish.Application.Service
             _courseRepository = courseRepository;
             _mapper = mapper;
             _logger = logger;
+            _cache = cache;
         }
 
         public async Task<ServiceResponse<QuizDto>> GetQuizByIdAsync(int quizId, int userId)
@@ -95,8 +100,16 @@ namespace LearningEnglish.Application.Service
                     return response;
                 }
 
-                var quizDto = _mapper.Map<QuizDto>(quiz);
-                response.Data = quizDto;
+                var cachedQuiz = await _cache.GetOrSetAsync(
+                    CacheKeys.QuizDetail(quizId),
+                    async () =>
+                    {
+                        var quizData = await _quizRepository.GetQuizByIdAsync(quizId);
+                        return _mapper.Map<QuizDto>(quizData);
+                    },
+                    TimeSpan.FromMinutes(30));
+
+                response.Data = cachedQuiz?.ShallowCopy();
                 response.StatusCode = 200;
                 response.Success = true;
                 return response;

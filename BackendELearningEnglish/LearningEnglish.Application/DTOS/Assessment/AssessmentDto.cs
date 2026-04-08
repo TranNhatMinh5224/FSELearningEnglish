@@ -16,6 +16,9 @@ namespace LearningEnglish.Application.DTOs
 
         // Navigation DTOs
         public string? ModuleTitle { get; set; }
+
+
+        public AssessmentDto ShallowCopy() => (AssessmentDto)this.MemberwiseClone();
     }
 
     public class CreateAssessmentDto

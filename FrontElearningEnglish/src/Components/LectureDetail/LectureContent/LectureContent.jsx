@@ -35,7 +35,4 @@ const LectureContent = ({ lecture, loading, error }) => {
         </div>
     );
 };
-
-LectureContent.displayName = "LectureContent";
-
-export default LectureContent;
+export default React.memo(LectureContent);

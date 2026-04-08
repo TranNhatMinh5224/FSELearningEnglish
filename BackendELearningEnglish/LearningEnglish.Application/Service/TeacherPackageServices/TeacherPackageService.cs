@@ -1,7 +1,9 @@
 using LearningEnglish.Application.DTOs;
 using LearningEnglish.Application.Interface.Services.TeacherPackage;
 using LearningEnglish.Application.Common;
+using LearningEnglish.Application.Common.Constants;
 using LearningEnglish.Application.Interface;
+using LearningEnglish.Application.Interface.Infrastructure;
 using LearningEnglish.Application.Interface.Infrastructure.ChatBotAI;
 
 using LearningEnglish.Domain.Entities;
@@ -17,17 +19,20 @@ namespace LearningEnglish.Application.Service
         private readonly IMapper _mapper;
         private readonly ILogger<TeacherPackageService> _logger;
         private readonly IEmbeddingIngestionService _embeddingIngestionService;
+        private readonly ICacheService _cache;
 
         public TeacherPackageService(
             ITeacherPackageRepository teacherPackageRepository,
             IMapper mapper,
             ILogger<TeacherPackageService> logger,
-            IEmbeddingIngestionService embeddingIngestionService)
+            IEmbeddingIngestionService embeddingIngestionService,
+            ICacheService cache)
         {
             _teacherPackageRepository = teacherPackageRepository;
             _mapper = mapper;
             _logger = logger;
             _embeddingIngestionService = embeddingIngestionService;
+            _cache = cache;
         }
 
         // Chỉ Admin mới có thể CRUD (đã có Permission check ở controller)
@@ -36,9 +41,17 @@ namespace LearningEnglish.Application.Service
             var response = new ServiceResponse<List<TeacherPackageDto>>();
             try
             {
-                var teacherPackages = await _teacherPackageRepository.GetAllTeacherPackagesAsync();
+                var packages = await _cache.GetOrSetAsync(
+                    CacheKeys.TeacherPackageList,
+                    async () =>
+                    {
+                        var data = await _teacherPackageRepository.GetAllTeacherPackagesAsync();
+                        return _mapper.Map<List<TeacherPackageDto>>(data);
+                    },
+                    TimeSpan.FromHours(1));
+
                 response.StatusCode = 200;
-                response.Data = _mapper.Map<List<TeacherPackageDto>>(teacherPackages);
+                response.Data = packages;
                 response.Success = true;
             }
             catch (Exception ex)
@@ -98,6 +111,7 @@ namespace LearningEnglish.Application.Service
                 var teacherPackage = _mapper.Map<TeacherPackage>(dto);
                 await _teacherPackageRepository.AddTeacherPackageAsync(teacherPackage);
                 await _embeddingIngestionService.UpsertTeacherPackageEmbeddingAsync(teacherPackage);
+                _cache.RemoveByPrefix(CacheKeys.TeacherPackagesPrefix); // Invalidate list cache
                 response.StatusCode = 201;
                 response.Data = _mapper.Map<TeacherPackageDto>(teacherPackage);
                 response.Success = true;
@@ -160,6 +174,7 @@ namespace LearningEnglish.Application.Service
 
                 await _teacherPackageRepository.UpdateTeacherPackageAsync(existingPackage);
                 await _embeddingIngestionService.UpsertTeacherPackageEmbeddingAsync(existingPackage);
+                _cache.RemoveByPrefix(CacheKeys.TeacherPackagesPrefix); // Invalidate list cache
 
                 var result = _mapper.Map<TeacherPackageDto>(existingPackage);
                 return new ServiceResponse<TeacherPackageDto>
@@ -210,6 +225,7 @@ namespace LearningEnglish.Application.Service
 
                 await _teacherPackageRepository.DeleteTeacherPackageAsync(id);
                 await _embeddingIngestionService.DeleteTeacherPackageEmbeddingsAsync(id);
+                _cache.RemoveByPrefix(CacheKeys.TeacherPackagesPrefix); // Invalidate list cache
                 response.StatusCode = 200;
                 response.Data = true;
                 response.Success = true;

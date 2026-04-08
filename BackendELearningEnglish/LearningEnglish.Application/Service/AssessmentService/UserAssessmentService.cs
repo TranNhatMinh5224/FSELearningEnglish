@@ -1,7 +1,9 @@
 using AutoMapper;
 using LearningEnglish.Application.Common;
+using LearningEnglish.Application.Common.Constants;
 using LearningEnglish.Application.DTOs;
 using LearningEnglish.Application.Interface;
+using LearningEnglish.Application.Interface.Infrastructure;
 using Microsoft.Extensions.Logging;
 
 namespace LearningEnglish.Application.Service
@@ -13,19 +15,22 @@ namespace LearningEnglish.Application.Service
         private readonly ICourseRepository _courseRepository;
         private readonly IMapper _mapper;
         private readonly ILogger<UserAssessmentService> _logger;
+        private readonly ICacheService _cache;
 
         public UserAssessmentService(
             IAssessmentRepository assessmentRepository,
             IModuleRepository moduleRepository,
             ICourseRepository courseRepository,
             IMapper mapper,
-            ILogger<UserAssessmentService> logger)
+            ILogger<UserAssessmentService> logger,
+            ICacheService cache)
         {
             _assessmentRepository = assessmentRepository;
             _moduleRepository = moduleRepository;
             _courseRepository = courseRepository;
             _mapper = mapper;
             _logger = logger;
+            _cache = cache;
         }
 
         public async Task<ServiceResponse<List<AssessmentDto>>> GetAssessmentsByModuleIdAsync(int moduleId, int userId)
@@ -64,13 +69,19 @@ namespace LearningEnglish.Application.Service
                     return response;
                 }
 
-                var assessments = await _assessmentRepository.GetAssessmentsByModuleId(moduleId);
-                var assessmentDtos = _mapper.Map<List<AssessmentDto>>(assessments);
+                var cachedAssessments = await _cache.GetOrSetAsync(
+                    CacheKeys.AssessmentList(moduleId),
+                    async () =>
+                    {
+                        var assessments = await _assessmentRepository.GetAssessmentsByModuleId(moduleId);
+                        return _mapper.Map<List<AssessmentDto>>(assessments);
+                    },
+                    TimeSpan.FromMinutes(30));
 
+                response.Data = cachedAssessments?.Select(a => a.ShallowCopy()).ToList();
                 response.Success = true;
                 response.StatusCode = 200;
                 response.Message = "Lấy danh sách Assessments thành công";
-                response.Data = assessmentDtos;
 
                 return response;
             }
@@ -128,12 +139,19 @@ namespace LearningEnglish.Application.Service
                     return response;
                 }
 
-                var assessmentDto = _mapper.Map<AssessmentDto>(assessment);
+                var cachedAssessment = await _cache.GetOrSetAsync(
+                    $"assessment:detail:{assessmentId}", // Manual key since it's not in CacheKeys yet
+                    async () =>
+                    {
+                        var assessment = await _assessmentRepository.GetAssessmentById(assessmentId);
+                        return _mapper.Map<AssessmentDto>(assessment);
+                    },
+                    TimeSpan.FromMinutes(30));
 
+                response.Data = cachedAssessment?.ShallowCopy();
                 response.Success = true;
                 response.StatusCode = 200;
                 response.Message = "Lấy Assessment thành công";
-                response.Data = assessmentDto;
 
                 return response;
             }

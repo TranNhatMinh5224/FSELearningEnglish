@@ -88,9 +88,6 @@ export default function ListLesson() {
     const calculateMilestones = () => {
         if (!modules || modules.length === 0 || lessons.length === 0) return [];
 
-        let accumulatedLessons = 0;
-        const totalLessonsCount = lessons.length;
-
         return modules.map(module => {
             // Đếm số bài học trong module này (giả sử backend trả về lessonIds hoặc tương đương)
             // Nếu không có data chính xác, chúng ta chia đều milestones theo số lượng module
@@ -192,6 +189,7 @@ export default function ListLesson() {
                                         lesson={lesson}
                                         orderNumber={index + 1}
                                         onClick={handleLessonClick}
+                                        staggerIndex={index}
                                     />
                                 );
                             })

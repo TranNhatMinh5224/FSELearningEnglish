@@ -7,7 +7,7 @@ import "./ContentViewer.css";
  * ContentViewer Component
  * Renders markdown content for lecture (type 1)
  */
-export default function ContentViewer({
+function ContentViewer({
     title,
     markdownContent
 }) {
@@ -34,3 +34,5 @@ export default function ContentViewer({
         </div>
     );
 }
+
+export default React.memo(ContentViewer);

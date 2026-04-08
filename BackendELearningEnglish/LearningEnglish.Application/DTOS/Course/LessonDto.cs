@@ -33,6 +33,8 @@ namespace LearningEnglish.Application.DTOs
         public float VideoProgressPercentage { get; set; } = 0;
         public DateTime? StartedAt { get; set; }
         public DateTime? CompletedAt { get; set; }
+
+        public LessonWithProgressDto ShallowCopy() => (LessonWithProgressDto)MemberwiseClone();
     }
 
     public class AdminCreateLessonDto

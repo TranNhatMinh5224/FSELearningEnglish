@@ -18,6 +18,7 @@ namespace LearningEnglish.API.Controller.Common
 
 
         [HttpGet]
+        [ResponseCache(Duration = 86400, Location = ResponseCacheLocation.Any)]
         [ProducesResponseType(typeof(ServiceResponse<Dictionary<string, List<EnumMappingDto>>>), 200)]
         public IActionResult GetAllEnums()
         {

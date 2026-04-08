@@ -6,6 +6,7 @@ using LearningEnglish.Application.DTOs;
 using LearningEnglish.Application.Interface;
 using LearningEnglish.Application.Interface.Services.Lecture;
 using LearningEnglish.Application.Interface.Infrastructure.MediaService;
+using LearningEnglish.Application.Interface.Infrastructure;
 using LearningEnglish.Domain.Entities;
 using Microsoft.Extensions.Logging;
 
@@ -17,17 +18,20 @@ namespace LearningEnglish.Application.Service
         private readonly IMapper _mapper;
         private readonly ILogger<AdminLectureService> _logger;
         private readonly ILectureMediaService _lectureMediaService;
+        private readonly ICacheService _cache;
 
         public AdminLectureService(
             ILectureRepository lectureRepository,
             IMapper mapper,
             ILogger<AdminLectureService> logger,
-            ILectureMediaService lectureMediaService)
+            ILectureMediaService lectureMediaService,
+            ICacheService cache)
         {
             _lectureRepository = lectureRepository;
             _mapper = mapper;
             _logger = logger;
             _lectureMediaService = lectureMediaService;
+            _cache = cache;
         }
 
         // Admin tạo lecture
@@ -130,6 +134,8 @@ namespace LearningEnglish.Application.Service
                 {
                     lectureDto.MediaUrl = _lectureMediaService.BuildMediaUrl(lectureDto.MediaUrl);
                 }
+
+                _cache.RemoveByPrefix(CacheKeys.LecturesPrefix);
 
                 response.Data = lectureDto;
                 response.Message = "Tạo lecture thành công";
@@ -304,6 +310,8 @@ namespace LearningEnglish.Application.Service
                             lectureNode.TempId, createdLecture.LectureId);
                     }
 
+                    _cache.RemoveByPrefix(CacheKeys.LecturesPrefix);
+
                     response.Success = true;
                     response.Message = $"Tạo thành công {response.Data.TotalCreated} lectures";
                 }
@@ -439,6 +447,8 @@ namespace LearningEnglish.Application.Service
                     lectureDto.MediaUrl = _lectureMediaService.BuildMediaUrl(lectureDto.MediaUrl);
                 }
 
+                _cache.RemoveByPrefix(CacheKeys.LecturesPrefix);
+
                 response.Data = lectureDto;
                 response.Message = "Cập nhật lecture thành công";
             }
@@ -486,6 +496,12 @@ namespace LearningEnglish.Application.Service
                 }
 
                 var deleted = await _lectureRepository.DeleteAsync(lectureId);
+                
+                if (deleted)
+                {
+                    _cache.RemoveByPrefix(CacheKeys.LecturesPrefix);
+                }
+
                 response.Data = deleted;
                 response.Message = deleted ? "Xóa lecture thành công" : "Không thể xóa lecture";
                 response.Success = deleted;
@@ -524,6 +540,8 @@ namespace LearningEnglish.Application.Service
 
                     await _lectureRepository.UpdateAsync(lecture);
                 }
+
+                _cache.RemoveByPrefix(CacheKeys.LecturesPrefix);
 
                 response.Data = true;
                 response.Message = "Sắp xếp lại lecture thành công";

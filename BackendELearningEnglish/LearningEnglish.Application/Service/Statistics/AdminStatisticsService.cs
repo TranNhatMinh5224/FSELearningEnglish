@@ -1,6 +1,8 @@
 using LearningEnglish.Application.Common;
+using LearningEnglish.Application.Common.Constants;
 using LearningEnglish.Application.DTOs;
 using LearningEnglish.Application.Interface;
+using LearningEnglish.Application.Interface.Infrastructure;
 using LearningEnglish.Domain.Enums;
 using Microsoft.Extensions.Logging;
 
@@ -11,15 +13,18 @@ namespace LearningEnglish.Application.Service
         private readonly IUserStatisticsRepository _userStatisticsRepository;
         private readonly IPaymentStatisticsRepository _paymentStatisticsRepository;
         private readonly ILogger<AdminStatisticsService> _logger;
+        private readonly ICacheService _cache;
 
         public AdminStatisticsService(
             IUserStatisticsRepository userStatisticsRepository,
             IPaymentStatisticsRepository paymentStatisticsRepository,
-            ILogger<AdminStatisticsService> logger)
+            ILogger<AdminStatisticsService> logger,
+            ICacheService cache)
         {
             _userStatisticsRepository = userStatisticsRepository;
             _paymentStatisticsRepository = paymentStatisticsRepository;
             _logger = logger;
+            _cache = cache;
         }
 
         // Lấy tổng quan statistics cho dashboard
@@ -31,25 +36,31 @@ namespace LearningEnglish.Application.Service
             {
                 _logger.LogInformation("Fetching admin overview statistics");
 
-                var thirtyDaysAgo = DateTime.UtcNow.AddDays(-30);
+                var statistics = await _cache.GetOrSetAsync(
+                    CacheKeys.StatisticsOverview,
+                    async () =>
+                    {
+                        var thirtyDaysAgo = DateTime.UtcNow.AddDays(-30);
 
-                // Sequential execution to avoid DbContext concurrency issues
-                var totalUsers = await _userStatisticsRepository.GetTotalUsersCountAsync();
-                var totalStudents = await _userStatisticsRepository.GetUserCountByRoleAsync("Student");
-                var totalTeachers = await _userStatisticsRepository.GetUserCountByRoleAsync("Teacher");
-                var totalAdmins = await _userStatisticsRepository.GetUserCountByRoleAsync("Admin");
-                var newUsers = await _userStatisticsRepository.GetNewUsersCountAsync(thirtyDaysAgo);
-                var totalRevenue = await _paymentStatisticsRepository.GetTotalRevenueAsync();
+                        // Sequential execution to avoid DbContext concurrency issues
+                        var totalUsers = await _userStatisticsRepository.GetTotalUsersCountAsync();
+                        var totalStudents = await _userStatisticsRepository.GetUserCountByRoleAsync("Student");
+                        var totalTeachers = await _userStatisticsRepository.GetUserCountByRoleAsync("Teacher");
+                        var totalAdmins = await _userStatisticsRepository.GetUserCountByRoleAsync("Admin");
+                        var newUsers = await _userStatisticsRepository.GetNewUsersCountAsync(thirtyDaysAgo);
+                        var totalRevenue = await _paymentStatisticsRepository.GetTotalRevenueAsync();
 
-                var statistics = new AdminOverviewStatisticsDto
-                {
-                    TotalUsers = totalUsers,
-                    TotalStudents = totalStudents,
-                    TotalTeachers = totalTeachers,
-                    TotalAdmins = totalAdmins,
-                    NewUsersLast30Days = newUsers,
-                    TotalRevenue = totalRevenue
-                };
+                        return new AdminOverviewStatisticsDto
+                        {
+                            TotalUsers = totalUsers,
+                            TotalStudents = totalStudents,
+                            TotalTeachers = totalTeachers,
+                            TotalAdmins = totalAdmins,
+                            NewUsersLast30Days = newUsers,
+                            TotalRevenue = totalRevenue
+                        };
+                    },
+                    TimeSpan.FromHours(2));
 
                 response.Data = statistics;
                 response.Success = true;
@@ -78,34 +89,40 @@ namespace LearningEnglish.Application.Service
             {
                 _logger.LogInformation("Fetching user statistics");
 
-                var now = DateTime.UtcNow;
-                var today = DateTime.SpecifyKind(now.Date, DateTimeKind.Utc);
-                var weekAgo = now.AddDays(-7);
-                var monthAgo = now.AddMonths(-1);
+                var statistics = await _cache.GetOrSetAsync(
+                    CacheKeys.StatisticsUser,
+                    async () =>
+                    {
+                        var now = DateTime.UtcNow;
+                        var today = DateTime.SpecifyKind(now.Date, DateTimeKind.Utc);
+                        var weekAgo = now.AddDays(-7);
+                        var monthAgo = now.AddMonths(-1);
 
-                // Sequential execution to avoid DbContext concurrency issues
-                var totalUsers = await _userStatisticsRepository.GetTotalUsersCountAsync();
-                var totalStudents = await _userStatisticsRepository.GetUserCountByRoleAsync("Student");
-                var totalTeachers = await _userStatisticsRepository.GetUserCountByRoleAsync("Teacher");
-                var totalAdmins = await _userStatisticsRepository.GetUserCountByRoleAsync("Admin");
-                var activeUsers = await _userStatisticsRepository.GetActiveUsersCountAsync();
-                var blockedUsers = await _userStatisticsRepository.GetBlockedUsersCountAsync();
-                var newUsersToday = await _userStatisticsRepository.GetNewUsersCountAsync(today);
-                var newUsersThisWeek = await _userStatisticsRepository.GetNewUsersCountAsync(weekAgo);
-                var newUsersThisMonth = await _userStatisticsRepository.GetNewUsersCountAsync(monthAgo);
+                        // Sequential execution to avoid DbContext concurrency issues
+                        var totalUsers = await _userStatisticsRepository.GetTotalUsersCountAsync();
+                        var totalStudents = await _userStatisticsRepository.GetUserCountByRoleAsync("Student");
+                        var totalTeachers = await _userStatisticsRepository.GetUserCountByRoleAsync("Teacher");
+                        var totalAdmins = await _userStatisticsRepository.GetUserCountByRoleAsync("Admin");
+                        var activeUsers = await _userStatisticsRepository.GetActiveUsersCountAsync();
+                        var blockedUsers = await _userStatisticsRepository.GetBlockedUsersCountAsync();
+                        var newUsersToday = await _userStatisticsRepository.GetNewUsersCountAsync(today);
+                        var newUsersThisWeek = await _userStatisticsRepository.GetNewUsersCountAsync(weekAgo);
+                        var newUsersThisMonth = await _userStatisticsRepository.GetNewUsersCountAsync(monthAgo);
 
-                var statistics = new UserStatisticsDto
-                {
-                    TotalUsers = totalUsers,
-                    TotalStudents = totalStudents,
-                    TotalTeachers = totalTeachers,
-                    TotalAdmins = totalAdmins,
-                    ActiveUsers = activeUsers,
-                    BlockedUsers = blockedUsers,
-                    NewUsersToday = newUsersToday,
-                    NewUsersThisWeek = newUsersThisWeek,
-                    NewUsersThisMonth = newUsersThisMonth
-                };
+                        return new UserStatisticsDto
+                        {
+                            TotalUsers = totalUsers,
+                            TotalStudents = totalStudents,
+                            TotalTeachers = totalTeachers,
+                            TotalAdmins = totalAdmins,
+                            ActiveUsers = activeUsers,
+                            BlockedUsers = blockedUsers,
+                            NewUsersToday = newUsersToday,
+                            NewUsersThisWeek = newUsersThisWeek,
+                            NewUsersThisMonth = newUsersThisMonth
+                        };
+                    },
+                    TimeSpan.FromHours(2));
 
                 response.Data = statistics;
                 response.Success = true;
@@ -134,55 +151,61 @@ namespace LearningEnglish.Application.Service
             {
                 _logger.LogInformation("Fetching revenue statistics");
 
-                var now = DateTime.UtcNow;
-                var today = DateTime.SpecifyKind(now.Date, DateTimeKind.Utc);
-                var startOfWeek = DateTime.SpecifyKind(today.AddDays(-(int)today.DayOfWeek), DateTimeKind.Utc);
-                var startOfMonth = DateTime.SpecifyKind(new DateTime(now.Year, now.Month, 1), DateTimeKind.Utc);
-                var startOfYear = DateTime.SpecifyKind(new DateTime(now.Year, 1, 1), DateTimeKind.Utc);
+                var statistics = await _cache.GetOrSetAsync(
+                    CacheKeys.StatisticsRevenue,
+                    async () =>
+                    {
+                        var now = DateTime.UtcNow;
+                        var today = DateTime.SpecifyKind(now.Date, DateTimeKind.Utc);
+                        var startOfWeek = DateTime.SpecifyKind(today.AddDays(-(int)today.DayOfWeek), DateTimeKind.Utc);
+                        var startOfMonth = DateTime.SpecifyKind(new DateTime(now.Year, now.Month, 1), DateTimeKind.Utc);
+                        var startOfYear = DateTime.SpecifyKind(new DateTime(now.Year, 1, 1), DateTimeKind.Utc);
 
-                // Sequential execution to avoid DbContext concurrency issues
-                var totalRevenue = await _paymentStatisticsRepository.GetTotalRevenueAsync();
-                var completedRevenue = await _paymentStatisticsRepository.GetRevenueByStatusAsync(PaymentStatus.Completed);
-                var pendingRevenue = await _paymentStatisticsRepository.GetRevenueByStatusAsync(PaymentStatus.Pending);
-                
-                var revenueToday = await _paymentStatisticsRepository.GetRevenueByDateRangeAsync(today);
-                var revenueWeek = await _paymentStatisticsRepository.GetRevenueByDateRangeAsync(startOfWeek);
-                var revenueMonth = await _paymentStatisticsRepository.GetRevenueByDateRangeAsync(startOfMonth);
-                var revenueYear = await _paymentStatisticsRepository.GetRevenueByDateRangeAsync(startOfYear);
-                
-                var totalTransactions = await _paymentStatisticsRepository.GetTotalTransactionsCountAsync();
-                var completedTransactions = await _paymentStatisticsRepository.GetTransactionsCountByStatusAsync(PaymentStatus.Completed);
-                var pendingTransactions = await _paymentStatisticsRepository.GetTransactionsCountByStatusAsync(PaymentStatus.Pending);
-                var failedTransactions = await _paymentStatisticsRepository.GetTransactionsCountByStatusAsync(PaymentStatus.Failed);
-                
-                var transactionsToday = await _paymentStatisticsRepository.GetTransactionsCountByDateRangeAsync(today);
-                var transactionsWeek = await _paymentStatisticsRepository.GetTransactionsCountByDateRangeAsync(startOfWeek);
-                var transactionsMonth = await _paymentStatisticsRepository.GetTransactionsCountByDateRangeAsync(startOfMonth);
+                        // Sequential execution to avoid DbContext concurrency issues
+                        var totalRevenue = await _paymentStatisticsRepository.GetTotalRevenueAsync();
+                        var completedRevenue = await _paymentStatisticsRepository.GetRevenueByStatusAsync(PaymentStatus.Completed);
+                        var pendingRevenue = await _paymentStatisticsRepository.GetRevenueByStatusAsync(PaymentStatus.Pending);
+                        
+                        var revenueToday = await _paymentStatisticsRepository.GetRevenueByDateRangeAsync(today);
+                        var revenueWeek = await _paymentStatisticsRepository.GetRevenueByDateRangeAsync(startOfWeek);
+                        var revenueMonth = await _paymentStatisticsRepository.GetRevenueByDateRangeAsync(startOfMonth);
+                        var revenueYear = await _paymentStatisticsRepository.GetRevenueByDateRangeAsync(startOfYear);
+                        
+                        var totalTransactions = await _paymentStatisticsRepository.GetTotalTransactionsCountAsync();
+                        var completedTransactions = await _paymentStatisticsRepository.GetTransactionsCountByStatusAsync(PaymentStatus.Completed);
+                        var pendingTransactions = await _paymentStatisticsRepository.GetTransactionsCountByStatusAsync(PaymentStatus.Pending);
+                        var failedTransactions = await _paymentStatisticsRepository.GetTransactionsCountByStatusAsync(PaymentStatus.Failed);
+                        
+                        var transactionsToday = await _paymentStatisticsRepository.GetTransactionsCountByDateRangeAsync(today);
+                        var transactionsWeek = await _paymentStatisticsRepository.GetTransactionsCountByDateRangeAsync(startOfWeek);
+                        var transactionsMonth = await _paymentStatisticsRepository.GetTransactionsCountByDateRangeAsync(startOfMonth);
 
-                var statistics = new RevenueStatisticsDto
-                {
-                    TotalRevenue = totalRevenue,
-                    CompletedRevenue = completedRevenue,
-                    PendingRevenue = pendingRevenue,
-                    
-                    RevenueToday = revenueToday,
-                    RevenueThisWeek = revenueWeek,
-                    RevenueThisMonth = revenueMonth,
-                    RevenueThisYear = revenueYear,
-                    
-                    TotalTransactions = totalTransactions,
-                    CompletedTransactions = completedTransactions,
-                    PendingTransactions = pendingTransactions,
-                    FailedTransactions = failedTransactions,
-                    
-                    AverageTransactionValue = completedTransactions > 0 
-                        ? totalRevenue / completedTransactions 
-                        : 0,
-                    
-                    TransactionsToday = transactionsToday,
-                    TransactionsThisWeek = transactionsWeek,
-                    TransactionsThisMonth = transactionsMonth
-                };
+                        return new RevenueStatisticsDto
+                        {
+                            TotalRevenue = totalRevenue,
+                            CompletedRevenue = completedRevenue,
+                            PendingRevenue = pendingRevenue,
+                            
+                            RevenueToday = revenueToday,
+                            RevenueThisWeek = revenueWeek,
+                            RevenueThisMonth = revenueMonth,
+                            RevenueThisYear = revenueYear,
+                            
+                            TotalTransactions = totalTransactions,
+                            CompletedTransactions = completedTransactions,
+                            PendingTransactions = pendingTransactions,
+                            FailedTransactions = failedTransactions,
+                            
+                            AverageTransactionValue = completedTransactions > 0 
+                                ? totalRevenue / completedTransactions 
+                                : 0,
+                            
+                            TransactionsToday = transactionsToday,
+                            TransactionsThisWeek = transactionsWeek,
+                            TransactionsThisMonth = transactionsMonth
+                        };
+                    },
+                    TimeSpan.FromHours(2));
 
                 response.Data = statistics;
                 response.Success = true;
@@ -212,68 +235,74 @@ namespace LearningEnglish.Application.Service
             {
                 _logger.LogInformation("📊 Fetching revenue chart data for last {Days} days", days);
 
-                var now = DateTime.UtcNow;
-                var fromDate = DateTime.SpecifyKind(now.AddDays(-days).Date, DateTimeKind.Utc);
-                var toDate = DateTime.SpecifyKind(now.Date, DateTimeKind.Utc);
-                var currentYear = now.Year;
+                var chartData = await _cache.GetOrSetAsync(
+                    CacheKeys.StatisticsRevenueChart(days),
+                    async () =>
+                    {
+                        var now = DateTime.UtcNow;
+                        var fromDate = DateTime.SpecifyKind(now.AddDays(-days).Date, DateTimeKind.Utc);
+                        var toDate = DateTime.SpecifyKind(now.Date, DateTimeKind.Utc);
+                        var currentYear = now.Year;
 
-                // Sequential execution to avoid DbContext concurrency issues
-                var totalRevenue = await _paymentStatisticsRepository.GetTotalRevenueAsync();
-                var courseRevenue = await _paymentStatisticsRepository.GetRevenueByProductTypeAsync(ProductType.Course);
-                var teacherPackageRevenue = await _paymentStatisticsRepository.GetRevenueByProductTypeAsync(ProductType.TeacherPackage);
-                var dailyRevenue = await _paymentStatisticsRepository.GetDailyRevenueAsync(fromDate, toDate);
-                var monthlyRevenue = await _paymentStatisticsRepository.GetMonthlyRevenueAsync(currentYear);
+                        // Sequential execution to avoid DbContext concurrency issues
+                        var totalRevenue = await _paymentStatisticsRepository.GetTotalRevenueAsync();
+                        var courseRevenue = await _paymentStatisticsRepository.GetRevenueByProductTypeAsync(ProductType.Course);
+                        var teacherPackageRevenue = await _paymentStatisticsRepository.GetRevenueByProductTypeAsync(ProductType.TeacherPackage);
+                        var dailyRevenue = await _paymentStatisticsRepository.GetDailyRevenueAsync(fromDate, toDate);
+                        var monthlyRevenue = await _paymentStatisticsRepository.GetMonthlyRevenueAsync(currentYear);
 
-                // Get daily revenue breakdown by ProductType
-                var dailyCourseRevenue = await _paymentStatisticsRepository.GetDailyRevenueByProductTypeAsync(ProductType.Course, fromDate, toDate);
-                var dailyTeacherPackageRevenue = await _paymentStatisticsRepository.GetDailyRevenueByProductTypeAsync(ProductType.TeacherPackage, fromDate, toDate);
+                        // Get daily revenue breakdown by ProductType
+                        var dailyCourseRevenue = await _paymentStatisticsRepository.GetDailyRevenueByProductTypeAsync(ProductType.Course, fromDate, toDate);
+                        var dailyTeacherPackageRevenue = await _paymentStatisticsRepository.GetDailyRevenueByProductTypeAsync(ProductType.TeacherPackage, fromDate, toDate);
 
-                // Format data for chart
-                var chartData = new RevenueChartDto
-                {
-                    TotalRevenue = totalRevenue,
-                    CourseRevenue = courseRevenue,
-                    TeacherPackageRevenue = teacherPackageRevenue,
-                    
-                    // Daily revenue timeline (fill missing dates with 0)
-                    DailyRevenue = Enumerable.Range(0, days + 1)
-                        .Select(offset => fromDate.AddDays(offset))
-                        .Select(date => new RevenueTimelineItem
+                        // Format data for chart
+                        return new RevenueChartDto
                         {
-                            Date = date,
-                            Amount = dailyRevenue.GetValueOrDefault(date, 0)
-                        })
-                        .ToList(),
-                    
-                    // Monthly revenue timeline for current year
-                    MonthlyRevenue = Enumerable.Range(1, 12)
-                        .Select(month => DateTime.SpecifyKind(new DateTime(currentYear, month, 1), DateTimeKind.Utc))
-                        .Select(date => new RevenueTimelineItem
-                        {
-                            Date = date,
-                            Amount = monthlyRevenue.GetValueOrDefault(date, 0)
-                        })
-                        .ToList(),
+                            TotalRevenue = totalRevenue,
+                            CourseRevenue = courseRevenue,
+                            TeacherPackageRevenue = teacherPackageRevenue,
+                            
+                            // Daily revenue timeline (fill missing dates with 0)
+                            DailyRevenue = Enumerable.Range(0, days + 1)
+                                .Select(offset => fromDate.AddDays(offset))
+                                .Select(date => new RevenueTimelineItem
+                                {
+                                    Date = date,
+                                    Amount = dailyRevenue.GetValueOrDefault(date, 0)
+                                })
+                                .ToList(),
+                            
+                            // Monthly revenue timeline for current year
+                            MonthlyRevenue = Enumerable.Range(1, 12)
+                                .Select(month => DateTime.SpecifyKind(new DateTime(currentYear, month, 1), DateTimeKind.Utc))
+                                .Select(date => new RevenueTimelineItem
+                                {
+                                    Date = date,
+                                    Amount = monthlyRevenue.GetValueOrDefault(date, 0)
+                                })
+                                .ToList(),
 
-                    // Daily revenue breakdown by ProductType
-                    DailyCourseRevenue = Enumerable.Range(0, days + 1)
-                        .Select(offset => fromDate.AddDays(offset))
-                        .Select(date => new RevenueTimelineItem
-                        {
-                            Date = date,
-                            Amount = dailyCourseRevenue.GetValueOrDefault(date, 0)
-                        })
-                        .ToList(),
+                            // Daily revenue breakdown by ProductType
+                            DailyCourseRevenue = Enumerable.Range(0, days + 1)
+                                .Select(offset => fromDate.AddDays(offset))
+                                .Select(date => new RevenueTimelineItem
+                                {
+                                    Date = date,
+                                    Amount = dailyCourseRevenue.GetValueOrDefault(date, 0)
+                                })
+                                .ToList(),
 
-                    DailyTeacherPackageRevenue = Enumerable.Range(0, days + 1)
-                        .Select(offset => fromDate.AddDays(offset))
-                        .Select(date => new RevenueTimelineItem
-                        {
-                            Date = date,
-                            Amount = dailyTeacherPackageRevenue.GetValueOrDefault(date, 0)
-                        })
-                        .ToList()
-                };
+                            DailyTeacherPackageRevenue = Enumerable.Range(0, days + 1)
+                                .Select(offset => fromDate.AddDays(offset))
+                                .Select(date => new RevenueTimelineItem
+                                {
+                                    Date = date,
+                                    Amount = dailyTeacherPackageRevenue.GetValueOrDefault(date, 0)
+                                })
+                                .ToList()
+                        };
+                    },
+                    TimeSpan.FromHours(2));
 
                 response.Data = chartData;
                 response.Success = true;
@@ -281,7 +310,7 @@ namespace LearningEnglish.Application.Service
                 response.Message = "Lấy dữ liệu biểu đồ doanh thu thành công";
 
                 _logger.LogInformation("✅ Successfully fetched revenue chart data: Total={Total}, Course={Course}, TeacherPackage={TeacherPackage}",
-                    chartData.TotalRevenue, chartData.CourseRevenue, chartData.TeacherPackageRevenue);
+                    chartData!.TotalRevenue, chartData.CourseRevenue, chartData.TeacherPackageRevenue);
             }
             catch (Exception ex)
             {

@@ -25,6 +25,7 @@ namespace LearningEnglish.API.Controller.Common
         /// GET: api/public/asset-frontend
         /// </summary>
         [HttpGet]
+        [ResponseCache(Duration = 86400, Location = ResponseCacheLocation.Any)]
         [ProducesResponseType(typeof(ServiceResponse<List<AssetFrontendDto>>), 200)]
         public async Task<IActionResult> GetAllActiveAssets()
         {

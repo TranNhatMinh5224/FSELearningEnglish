@@ -3,6 +3,7 @@ using LearningEnglish.Application.Common;
 using LearningEnglish.Application.Common.Constants;
 using LearningEnglish.Application.DTOs;
 using LearningEnglish.Application.Interface;
+using LearningEnglish.Application.Interface.Infrastructure;
 using LearningEnglish.Application.Interface.Services.Module;
 using LearningEnglish.Application.Interface.Infrastructure.MediaService;
 using LearningEnglish.Application.Common.Helpers;
@@ -18,19 +19,22 @@ namespace LearningEnglish.Application.Service
         private readonly ILogger<UserModuleService> _logger;
         private readonly IModuleCompletionRepository _moduleCompletionRepository;
         private readonly IModuleImageService _moduleImageService;
+        private readonly ICacheService _cache;
 
         public UserModuleService(
             IModuleRepository moduleRepository,
             IMapper mapper,
             ILogger<UserModuleService> logger,
             IModuleCompletionRepository moduleCompletionRepository,
-            IModuleImageService moduleImageService)
+            IModuleImageService moduleImageService,
+            ICacheService cache)
         {
             _moduleRepository = moduleRepository;
             _mapper = mapper;
             _logger = logger;
             _moduleCompletionRepository = moduleCompletionRepository;
             _moduleImageService = moduleImageService;
+            _cache = cache;
         }
 
         // Lấy module với tiến độ học tập
@@ -86,22 +90,34 @@ namespace LearningEnglish.Application.Service
             var response = new ServiceResponse<List<ModuleWithProgressDto>>();
             try
             {
-                var modules = await _moduleRepository.GetByLessonIdWithDetailsAsync(lessonId);
-                var completions = await _moduleCompletionRepository
-                    .GetByUserAndModuleIdsAsync(userId, modules.Select(x => x.ModuleId).ToList());
-
-                var result = new List<ModuleWithProgressDto>();
-
-                foreach (var module in modules)
-                {
-                    var dto = _mapper.Map<ModuleWithProgressDto>(module);
-
-                    if (!string.IsNullOrWhiteSpace(module.ImageKey))
+                // Cache phần cấu trúc module list
+                var cachedModules = await _cache.GetOrSetAsync(
+                    CacheKeys.ModulesByLesson(lessonId),
+                    async () =>
                     {
-                        dto.ImageUrl = _moduleImageService.BuildImageUrl(module.ImageKey);
-                    }
+                        var modules = await _moduleRepository.GetByLessonIdWithDetailsAsync(lessonId);
+                        var dtos = modules.Select(module =>
+                        {
+                            var dto = _mapper.Map<ModuleWithProgressDto>(module);
+                            if (!string.IsNullOrWhiteSpace(module.ImageKey))
+                                dto.ImageUrl = _moduleImageService.BuildImageUrl(module.ImageKey);
+                            dto.IsCompleted = false;
+                            dto.ProgressPercentage = 0;
+                            return dto;
+                        }).ToList();
+                        return dtos;
+                    },
+                    TimeSpan.FromMinutes(30));
 
-                    var completion = completions.FirstOrDefault(x => x.ModuleId == module.ModuleId);
+                var completions = await _moduleCompletionRepository
+                    .GetByUserAndModuleIdsAsync(userId, cachedModules!.Select(x => x.ModuleId).ToList());
+
+                // Clone từ cache và đè progress cá nhân
+                var result = cachedModules!.Select(m => m.ShallowCopy()).ToList();
+
+                foreach (var dto in result)
+                {
+                    var completion = completions.FirstOrDefault(x => x.ModuleId == dto.ModuleId);
                     if (completion != null)
                     {
                         dto.IsCompleted = completion.IsCompleted;
@@ -109,8 +125,6 @@ namespace LearningEnglish.Application.Service
                         dto.StartedAt = completion.StartedAt;
                         dto.CompletedAt = completion.CompletedAt;
                     }
-
-                    result.Add(dto);
                 }
 
                 response.Data = result;

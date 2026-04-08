@@ -5,6 +5,7 @@ using LearningEnglish.Application.Common.Helpers;
 using LearningEnglish.Application.Common.Pagination;
 using LearningEnglish.Application.DTOs;
 using LearningEnglish.Application.Interface;
+using LearningEnglish.Application.Interface.Infrastructure;
 using LearningEnglish.Application.Interface.Infrastructure.MediaService;
 using Microsoft.Extensions.Logging;
 
@@ -18,19 +19,22 @@ namespace LearningEnglish.Application.Service
         private readonly IMapper _mapper;
         private readonly ILogger<UserCourseService> _logger;
         private readonly ICourseImageService _courseImageService;
+        private readonly ICacheService _cache;
 
         public UserCourseService(
             ICourseRepository courseRepository,
             ICourseProgressRepository courseProgressRepository,
             IMapper mapper,
             ILogger<UserCourseService> logger,
-            ICourseImageService courseImageService)
+            ICourseImageService courseImageService,
+            ICacheService cache)
         {
             _courseRepository = courseRepository;
             _courseProgressRepository = courseProgressRepository;
             _mapper = mapper;
             _logger = logger;
             _courseImageService = courseImageService;
+            _cache = cache;
         }
         //  Lấy danh sách Khóa học System 
         
@@ -40,27 +44,30 @@ namespace LearningEnglish.Application.Service
 
             try
             {
-                var courses = await _courseRepository.GetSystemCourses();
+                // Cache chỉ phần dữ liệu không phụ thuộc vào user (cấu trúc course + URL ảnh)
+                var cachedBase = await _cache.GetOrSetAsync(
+                    CacheKeys.SystemCourseList,
+                    async () =>
+                    {
+                        var courses = await _courseRepository.GetSystemCourses();
+                        var dtos = _mapper.Map<IEnumerable<SystemCoursesListResponseDto>>(courses).ToList();
+                        foreach (var dto in dtos)
+                        {
+                            if (!string.IsNullOrWhiteSpace(dto.ImageUrl))
+                                dto.ImageUrl = _courseImageService.BuildImageUrl(dto.ImageUrl);
+                            dto.IsEnrolled = false;
+                        }
+                        return dtos;
+                    },
+                    TimeSpan.FromHours(24));
 
-                var courseDtos = _mapper.Map<IEnumerable<SystemCoursesListResponseDto>>(courses).ToList();
+                // Tạo bản copy để tránh sửa đổi cache gốc, rồi bổ sung IsEnrolled theo user
+                var courseDtos = cachedBase!.Select(c => c.ShallowCopy()).ToList();
 
-                // Generate URL từ key cho tất cả courses
-                foreach (var courseDto in courseDtos)
+                if (userId.HasValue)
                 {
-                    if (!string.IsNullOrWhiteSpace(courseDto.ImageUrl))
-                    {
-                        courseDto.ImageUrl = _courseImageService.BuildImageUrl(courseDto.ImageUrl);
-                    }
-
-                    // Check enrollment status nếu user đã login
-                    if (userId.HasValue)
-                    {
+                    foreach (var courseDto in courseDtos)
                         courseDto.IsEnrolled = await _courseRepository.IsUserEnrolled(courseDto.CourseId, userId.Value);
-                    }
-                    else
-                    {
-                        courseDto.IsEnrolled = false;
-                    }
                 }
 
                 response.StatusCode = 200;
@@ -88,9 +95,22 @@ namespace LearningEnglish.Application.Service
 
             try
             {
-                var course = await _courseRepository.GetCourseById(courseId);
+                // Cache phần cấu trúc course (không bao gồm dữ liệu cá nhân của user)
+                var cachedCourse = await _cache.GetOrSetAsync(
+                    CacheKeys.CourseDetail(courseId),
+                    async () =>
+                    {
+                        var course = await _courseRepository.GetCourseById(courseId);
+                        if (course == null) return null;
+                        var dto = _mapper.Map<CourseDetailWithEnrollmentDto>(course);
+                        if (!string.IsNullOrWhiteSpace(dto.ImageUrl))
+                            dto.ImageUrl = _courseImageService.BuildImageUrl(dto.ImageUrl);
+                        dto.IsEnrolled = false;
+                        return dto;
+                    },
+                    TimeSpan.FromMinutes(30));
 
-                if (course == null)
+                if (cachedCourse == null)
                 {
                     response.Success = false;
                     response.StatusCode = 404;
@@ -98,20 +118,12 @@ namespace LearningEnglish.Application.Service
                     return response;
                 }
 
-                var courseDto = _mapper.Map<CourseDetailWithEnrollmentDto>(course);
+                // Tạo bản copy, bổ sung dữ liệu cá nhân theo user
+                var courseDto = cachedCourse.ShallowCopy();
 
-                // Generate URL từ key
-                if (!string.IsNullOrWhiteSpace(courseDto.ImageUrl))
-                {
-                    courseDto.ImageUrl = _courseImageService.BuildImageUrl(courseDto.ImageUrl);
-                }
-
-                // Check enrollment status nếu user đã login
                 if (userId.HasValue)
                 {
                     courseDto.IsEnrolled = await _courseRepository.IsUserEnrolled(courseId, userId.Value);
-
-                    //  Add progress info if enrolled
                     if (courseDto.IsEnrolled)
                     {
                         var courseProgress = await _courseProgressRepository.GetByUserAndCourseAsync(userId.Value, courseId);
@@ -125,17 +137,13 @@ namespace LearningEnglish.Application.Service
                         }
                     }
                 }
-                else
-                {
-                    courseDto.IsEnrolled = false;
-                }
 
                 response.StatusCode = 200;
                 response.Data = courseDto;
                 response.Message = "Lấy thông tin khóa học thành công";
                 response.Success = true;
 
-                _logger.LogInformation("Retrieved course {CourseId} details, userId: {UserId}", courseId, userId);
+                _logger.LogInformation("Retrieved course {CourseId} details (cached), userId: {UserId}", courseId, userId);
             }
             catch (Exception ex)
             {

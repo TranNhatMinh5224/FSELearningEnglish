@@ -5,15 +5,13 @@ using LearningEnglish.Application.Common.Helpers;
 using LearningEnglish.Application.DTOs;
 using LearningEnglish.Application.Interface;
 using LearningEnglish.Application.Interface.Services.FlashCard;
+using LearningEnglish.Application.Interface.Infrastructure;
 using LearningEnglish.Application.Interface.Infrastructure.MediaService;
 using Microsoft.Extensions.Logging;
 
 namespace LearningEnglish.Application.Service
 {
-    /// <summary>
-    /// User flashcard service following SOLID principles
-    /// Uses shared media service to reduce code duplication (DRY)
-    /// </summary>
+    
     public class UserFlashCardService : IUserFlashCardService
     {
         private readonly IFlashCardRepository _flashCardRepository;
@@ -22,6 +20,7 @@ namespace LearningEnglish.Application.Service
         private readonly IMapper _mapper;
         private readonly ILogger<UserFlashCardService> _logger;
         private readonly IFlashCardMediaService _flashCardMediaService;
+        private readonly ICacheService _cache;
 
         public UserFlashCardService(
             IFlashCardRepository flashCardRepository,
@@ -29,7 +28,8 @@ namespace LearningEnglish.Application.Service
             ICourseRepository courseRepository,
             IMapper mapper,
             ILogger<UserFlashCardService> logger,
-            IFlashCardMediaService flashCardMediaService)
+            IFlashCardMediaService flashCardMediaService,
+            ICacheService cache)
         {
             _flashCardRepository = flashCardRepository;
             _moduleRepository = moduleRepository;
@@ -37,26 +37,50 @@ namespace LearningEnglish.Application.Service
             _mapper = mapper;
             _logger = logger;
             _flashCardMediaService = flashCardMediaService;
+            _cache = cache;
         }
 
         // Lấy thông tin flashcard (chỉ xem được nếu đã đăng ký course)
         public async Task<ServiceResponse<FlashCardDto>> GetFlashCardByIdAsync(int flashCardId, int userId)
         {
-            var response = new ServiceResponse<FlashCardDto>();
-
-            try
+            var cacheKey = CacheKeys.FlashCardDetail(flashCardId);
+            var flashCardDto = await _cache.GetOrSetAsync(cacheKey, async () =>
             {
                 var flashCard = await _flashCardRepository.GetByIdWithDetailsAsync(flashCardId);
-                if (flashCard == null)
+                if (flashCard == null) return null;
+
+                var dto = _mapper.Map<FlashCardDto>(flashCard);
+
+                // Generate URLs từ keys
+                if (!string.IsNullOrWhiteSpace(flashCard.ImageKey))
                 {
-                    response.Success = false;
-                    response.StatusCode = 404;
-                    response.Message = "Không tìm thấy FlashCard";
-                    return response;
+                    dto.ImageUrl = _flashCardMediaService.BuildImageUrl(flashCard.ImageKey);
+                }
+                if (!string.IsNullOrWhiteSpace(flashCard.AudioKey))
+                {
+                    dto.AudioUrl = _flashCardMediaService.BuildAudioUrl(flashCard.AudioKey);
                 }
 
-                // Check enrollment: user phải đăng ký course mới được xem flashcard
-                var courseId = flashCard.Module?.Lesson?.CourseId;
+                return dto;
+            }, TimeSpan.FromHours(24));
+
+            if (flashCardDto == null)
+            {
+                return new ServiceResponse<FlashCardDto>
+                {
+                    Success = false,
+                    StatusCode = 404,
+                    Message = "Không tìm thấy FlashCard"
+                };
+            }
+
+            var response = new ServiceResponse<FlashCardDto>();
+            try
+            {
+                // Check enrollment (luôn check realtime để bảo mật)
+                var flashCardForCheck = await _flashCardRepository.GetFlashCardWithModuleCourseAsync(flashCardId);
+                var courseId = flashCardForCheck?.Module?.Lesson?.CourseId;
+
                 if (!courseId.HasValue)
                 {
                     response.Success = false;
@@ -76,21 +100,9 @@ namespace LearningEnglish.Application.Service
                     return response;
                 }
 
-                var flashCardDto = _mapper.Map<FlashCardDto>(flashCard);
-
-                // Generate URLs từ keys
-                if (!string.IsNullOrWhiteSpace(flashCard.ImageKey))
-                {
-                    flashCardDto.ImageUrl = _flashCardMediaService.BuildImageUrl(flashCard.ImageKey);
-                }
-                if (!string.IsNullOrWhiteSpace(flashCard.AudioKey))
-                {
-                    flashCardDto.AudioUrl = _flashCardMediaService.BuildAudioUrl(flashCard.AudioKey);
-                }
-
                 response.Success = true;
                 response.StatusCode = 200;
-                response.Data = flashCardDto;
+                response.Data = flashCardDto.ShallowCopy();
                 response.Message = "Lấy thông tin FlashCard thành công";
             }
             catch (Exception ex)
@@ -142,29 +154,37 @@ namespace LearningEnglish.Application.Service
                     return response;
                 }
 
-                var flashCards = await _flashCardRepository.GetByModuleIdWithDetailsAsync(moduleId);
-                var flashCardDtos = _mapper.Map<List<ListFlashCardDto>>(flashCards);
-
-                // Generate URLs cho tất cả flashcards
-                for (int i = 0; i < flashCardDtos.Count; i++)
+                var cacheKey = CacheKeys.FlashCardsByModule(moduleId);
+                var flashCardDtos = await _cache.GetOrSetAsync(cacheKey, async () =>
                 {
-                    var dto = flashCardDtos[i];
-                    var flashCard = flashCards[i];
-                    
-                    if (!string.IsNullOrWhiteSpace(flashCard.ImageKey))
+                    var flashCards = await _flashCardRepository.GetByModuleIdWithDetailsAsync(moduleId);
+                    var dtos = _mapper.Map<List<ListFlashCardDto>>(flashCards);
+
+                    // Generate URLs cho tất cả flashcards
+                    for (int i = 0; i < dtos.Count; i++)
                     {
-                        dto.ImageUrl = _flashCardMediaService.BuildImageUrl(flashCard.ImageKey);
+                        var dto = dtos[i];
+                        var flashCard = flashCards[i];
+                        
+                        if (!string.IsNullOrWhiteSpace(flashCard.ImageKey))
+                        {
+                            dto.ImageUrl = _flashCardMediaService.BuildImageUrl(flashCard.ImageKey);
+                        }
+                        if (!string.IsNullOrWhiteSpace(flashCard.AudioKey))
+                        {
+                            dto.AudioUrl = _flashCardMediaService.BuildAudioUrl(flashCard.AudioKey);
+                        }
                     }
-                    if (!string.IsNullOrWhiteSpace(flashCard.AudioKey))
-                    {
-                        dto.AudioUrl = _flashCardMediaService.BuildAudioUrl(flashCard.AudioKey);
-                    }
-                }
+
+                    return dtos;
+                }, TimeSpan.FromHours(24));
+
+                var shallowCopyList = flashCardDtos?.Select(d => d.ShallowCopy()).ToList();
 
                 response.Success = true;
                 response.StatusCode = 200;
-                response.Data = flashCardDtos;
-                response.Message = $"Lấy danh sách {flashCards.Count} FlashCard thành công";
+                response.Data = shallowCopyList;
+                response.Message = $"Lấy danh sách {shallowCopyList?.Count ?? 0} FlashCard thành công";
             }
             catch (Exception ex)
             {

@@ -4,7 +4,7 @@ import { useAssets } from "../../../Context/AssetContext";
 import ImageWithIconFallback from "../../Common/ImageWithIconFallback/ImageWithIconFallback";
 import "./LessonCard.css";
 
-export default function LessonCard({ lesson, orderNumber, onClick }) {
+export default function LessonCard({ lesson, orderNumber, onClick, staggerIndex = 0 }) {
     const { getDefaultLessonImage } = useAssets();
     const {
         lessonId,
@@ -20,6 +20,9 @@ export default function LessonCard({ lesson, orderNumber, onClick }) {
         description,
         Description,
     } = lesson || {};
+
+    // Animation delay for stagger effect
+    const animationDelay = `${staggerIndex * 0.1}s`;
 
     const finalLessonId = lessonId || LessonId;
     const finalTitle = title || Title || "Bài học";
@@ -37,14 +40,17 @@ export default function LessonCard({ lesson, orderNumber, onClick }) {
     };
 
     return (
-        <div className={`lesson-card ${finalIsCompleted ? "completed" : ""}`} onClick={handleClick}>
+        <div 
+            className={`lesson-card ${finalIsCompleted ? "completed" : ""}`} 
+            onClick={handleClick}
+            style={{ animationDelay }}
+        >
             <div className="lesson-image-wrapper">
                 <ImageWithIconFallback
                     imageUrl={finalImageUrl}
                     icon={
                         <div className="lesson-image-placeholder">
                             <FaBook size={32} />
-                            <span>{displayOrder}</span>
                         </div>
                     }
                     alt={finalTitle}
@@ -54,12 +60,11 @@ export default function LessonCard({ lesson, orderNumber, onClick }) {
                 />
                 {finalIsCompleted && (
                     <div className="lesson-completed-badge">
-                        <FaCheckCircle />
+                        <FaCheckCircle size={10} />
                     </div>
                 )}
             </div>
             <div className="lesson-info">
-                <span className="lesson-order">Bài học {displayOrder}</span>
                 <h3 className="lesson-title">{finalTitle}</h3>
                 {finalDescription && <p className="lesson-description">{finalDescription}</p>}
             </div>

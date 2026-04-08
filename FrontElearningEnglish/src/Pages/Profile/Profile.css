@@ -82,7 +82,7 @@
     height: 140px;
     border-radius: 50%;
     object-fit: cover;
-    box-shadow: 0 8px 20px var(--shadow-sm, rgba(15,23,42,0.08));
+    box-shadow: 0 8px 20px var(--shadow-sm, rgba(15, 23, 42, 0.08));
     display: block;
     transition: box-shadow 0.3s ease;
 }
@@ -141,7 +141,7 @@
     border-radius: 50%;
     cursor: pointer;
     border: none;
-    background: rgba(0,0,0,0.04);
+    background: rgba(0, 0, 0, 0.04);
     transition: background 0.12s ease, transform 0.08s ease;
 }
 
@@ -151,7 +151,7 @@
 }
 
 .avatar-edit-overlay:hover {
-    background: rgba(0,0,0,0.08);
+    background: rgba(0, 0, 0, 0.08);
     transform: scale(1.02);
 }
 
@@ -162,7 +162,7 @@
     border-radius: 50%;
     background: var(--color-bg-white, white);
     color: var(--color-secondary-cyan, #41d6e3);
-    box-shadow: 0 6px 16px var(--shadow-sm, rgba(15,23,42,0.12));
+    box-shadow: 0 6px 16px var(--shadow-sm, rgba(15, 23, 42, 0.12));
     font-size: 18px;
     transition: background-color 0.3s ease, box-shadow 0.3s ease;
 }

@@ -1,8 +1,10 @@
 using LearningEnglish.Application.DTOs;
 using LearningEnglish.Application.Interface;
 using LearningEnglish.Application.Interface.Services.Lesson;
+using LearningEnglish.Application.Interface.Infrastructure;
 using LearningEnglish.Application.Interface.Infrastructure.MediaService;
 using LearningEnglish.Application.Common;
+using LearningEnglish.Application.Common.Constants;
 using AutoMapper;
 using Microsoft.Extensions.Logging;
 
@@ -17,6 +19,7 @@ namespace LearningEnglish.Application.Service
         private readonly ILogger<LessonService> _logger;
         private readonly ILessonCompletionRepository _lessonCompletionRepository;
         private readonly ILessonImageService _lessonImageService;
+        private readonly ICacheService _cache;
 
         public LessonService(
             ILessonRepository lessonRepository,
@@ -24,7 +27,8 @@ namespace LearningEnglish.Application.Service
             ILogger<LessonService> logger,
             ICourseRepository courseRepository,
             ILessonCompletionRepository lessonCompletionRepository,
-            ILessonImageService lessonImageService)
+            ILessonImageService lessonImageService,
+            ICacheService cache)
         {
             _lessonRepository = lessonRepository;
             _mapper = mapper;
@@ -32,6 +36,7 @@ namespace LearningEnglish.Application.Service
             _courseRepository = courseRepository;
             _lessonCompletionRepository = lessonCompletionRepository;
             _lessonImageService = lessonImageService;
+            _cache = cache;
         }
 
         // Get lessons với progress 
@@ -40,7 +45,6 @@ namespace LearningEnglish.Application.Service
             var response = new ServiceResponse<List<LessonWithProgressDto>>();
             try
             {
-                
                 var course = await _courseRepository.GetCourseById(courseId);
                 if (course == null)
                 {
@@ -50,30 +54,37 @@ namespace LearningEnglish.Application.Service
                     return response;
                 }
 
-                var lessons = await _lessonRepository.GetListLessonByCourseId(courseId);
-                var lessonDtos = new List<LessonWithProgressDto>();
+                // Cache phần cấu trúc lesson list
+                var cachedLessons = await _cache.GetOrSetAsync(
+                    CacheKeys.LessonsByCourse(courseId),
+                    async () =>
+                    {
+                        var lessons = await _lessonRepository.GetListLessonByCourseId(courseId);
+                        var dtos = lessons.Select(lesson =>
+                        {
+                            var dto = new LessonWithProgressDto
+                            {
+                                LessonId = lesson.LessonId,
+                                Title = lesson.Title,
+                                Description = lesson.Description,
+                                OrderIndex = lesson.OrderIndex,
+                                CourseId = lesson.CourseId,
+                                ImageType = lesson.ImageType
+                            };
+                            if (!string.IsNullOrWhiteSpace(lesson.ImageKey))
+                                dto.ImageUrl = _lessonImageService.BuildImageUrl(lesson.ImageKey);
+                            return dto;
+                        }).ToList();
+                        return dtos;
+                    },
+                    TimeSpan.FromMinutes(30));
 
-               
-                foreach (var lesson in lessons)
+                // Clone các DTO từ cache và bổ sung progress cá nhân cho mỗi user
+                var lessonDtos = cachedLessons!.Select(l => l.ShallowCopy()).ToList();
+
+                foreach (var lessonDto in lessonDtos)
                 {
-                    var lessonDto = new LessonWithProgressDto
-                    {
-                        LessonId = lesson.LessonId,
-                        Title = lesson.Title,
-                        Description = lesson.Description,
-                        OrderIndex = lesson.OrderIndex,
-                        CourseId = lesson.CourseId,
-                        ImageType = lesson.ImageType
-                    };
-
-                  
-                    if (!string.IsNullOrWhiteSpace(lesson.ImageKey))
-                    {
-                        lessonDto.ImageUrl = _lessonImageService.BuildImageUrl(lesson.ImageKey);
-                    }
-
-                    // ✅ Load progress for logged-in user
-                    var lessonCompletion = await _lessonCompletionRepository.GetByUserAndLessonAsync(userId, lesson.LessonId);
+                    var lessonCompletion = await _lessonCompletionRepository.GetByUserAndLessonAsync(userId, lessonDto.LessonId);
                     if (lessonCompletion != null)
                     {
                         lessonDto.CompletionPercentage = lessonCompletion.CompletionPercentage;
@@ -84,8 +95,6 @@ namespace LearningEnglish.Application.Service
                         lessonDto.StartedAt = lessonCompletion.StartedAt;
                         lessonDto.CompletedAt = lessonCompletion.CompletedAt;
                     }
-
-                    lessonDtos.Add(lessonDto);
                 }
 
                 response.StatusCode = 200;
