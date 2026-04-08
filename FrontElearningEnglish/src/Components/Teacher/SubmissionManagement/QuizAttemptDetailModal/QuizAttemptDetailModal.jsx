@@ -88,7 +88,7 @@ export default function QuizAttemptDetailModal({ show, onClose, attempt, quizId,
     if (show && attemptId) {
       fetchAttemptDetailData();
     }
-  }, [show, attemptId, isAdmin, quizId, fetchFromScoresAPI]);
+  }, [show, attemptId, isAdmin, quizId, attempt, fetchFromScoresAPI]);
 
   if (!attempt) return null;
 

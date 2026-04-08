@@ -344,8 +344,9 @@ namespace LearningEnglish.Infrastructure.Repositories
         public async Task<IEnumerable<Course>> SearchCourses(string keyword)
         {
             return await _context.Courses
-                .Where(c => EF.Functions.ILike(c.Title, $"%{keyword}%") ||
-                            EF.Functions.ILike(c.DescriptionMarkdown, $"%{keyword}%"))
+                .Where(c => c.Type == CourseType.System && (
+                            EF.Functions.ILike(c.Title, $"%{keyword}%") ||
+                            EF.Functions.ILike(c.DescriptionMarkdown, $"%{keyword}%")))
                 .OrderBy(c => c.Title)
                 .Take(10)
                 .ToListAsync();

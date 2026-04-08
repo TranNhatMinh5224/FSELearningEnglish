@@ -80,6 +80,8 @@ namespace LearningEnglish.Application.DTOs
         public decimal? Price { get; set; }
         public bool IsEnrolled { get; set; }
         public int EnrollmentCount { get; set; }
+        public int? TeacherId { get; set; }
+        public CourseType Type { get; set; }
         public bool IsFeatured { get; set; }
         public DateTime CreatedAt { get; set; }
 

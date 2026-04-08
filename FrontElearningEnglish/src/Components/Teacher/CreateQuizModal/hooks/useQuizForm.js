@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect } from "react";
 import { quizService } from "../../../../Services/quizService";
 import { useEnums } from "../../../../Context/EnumContext";
 import { useEntityForm } from "../../../../hooks/useEntityForm";
@@ -132,7 +132,7 @@ export const useQuizForm = (show, assessmentId, assessment, quizToUpdate, isAdmi
     };
 
     loadQuizData();
-  }, [show, isUpdateMode, quizToUpdate]);
+  }, [show, isUpdateMode, quizToUpdate, isAdmin, form]);
 
   return {
     ...form,

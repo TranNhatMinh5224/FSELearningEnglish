@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Modal, Button, Row, Col, Alert } from "react-bootstrap";
-import { FaBook, FaMarkdown, FaBold, FaItalic, FaHeading, FaListUl, FaCode, FaVideo, FaFileAlt, FaSitemap, FaArrowRight } from "react-icons/fa";
+import { FaBook, FaMarkdown, FaBold, FaItalic, FaHeading, FaListUl, FaCode, FaVideo, FaFileAlt } from "react-icons/fa";
 import FileUpload from "../../Common/FileUpload/FileUpload";
 import ConfirmModal from "../../Common/ConfirmModal/ConfirmModal";
 import FormInput from "../../Common/FormControls/FormInput";
@@ -28,7 +28,6 @@ export default function CreateLectureModal({ show, onClose, onSuccess, moduleId,
     insertMarkdown,
     parentLectures,
     loadingDetail,
-    setImageTempKey, // This was named mediaTempKey in hook, let's keep consistency or map it
     setMediaTempKey,
     setMediaType,
     setMediaSize,

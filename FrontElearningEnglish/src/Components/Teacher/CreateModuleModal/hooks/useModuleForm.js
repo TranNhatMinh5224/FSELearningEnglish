@@ -86,7 +86,7 @@ export const useModuleForm = (show, lessonId, moduleData, isUpdateMode, isAdmin,
       setImageUrl(null);
       setImageTempKey(null);
     }
-  }, [show, isUpdateMode, moduleData]);
+  }, [show, isUpdateMode, moduleData, form]);
 
   return {
     ...form,

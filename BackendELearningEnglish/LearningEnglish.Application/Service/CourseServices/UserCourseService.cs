@@ -163,8 +163,10 @@ namespace LearningEnglish.Application.Service
             try
             {
                 var courses = await _courseRepository.SearchCourses(keyword);
+                _logger.LogInformation("Search for '{Keyword}' found {Count} courses in repository", keyword, courses?.Count() ?? 0);
 
                 var courseDtos = _mapper.Map<IEnumerable<SystemCoursesListResponseDto>>(courses).ToList();
+                _logger.LogInformation("Mapped {Count} course DTOs for search results", courseDtos.Count);
 
                 // Generate URL từ key cho tất cả courses
                 foreach (var courseDto in courseDtos)

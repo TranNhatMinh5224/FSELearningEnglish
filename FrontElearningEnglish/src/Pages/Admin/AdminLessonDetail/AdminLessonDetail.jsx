@@ -57,7 +57,6 @@ export default function AdminLessonDetail() {
   const [moduleContent, setModuleContent] = useState([]);
   const [loadingContent, setLoadingContent] = useState(false);
   const [contentError, setContentError] = useState("");
-  const [assessmentTypes, setAssessmentTypes] = useState({}); // { assessmentId: { hasQuiz: boolean, hasEssay: boolean } }
 
   const isAdmin = roles.some(role => ["SuperAdmin", "ContentAdmin"].includes(role));
 
@@ -189,35 +188,7 @@ export default function AdminLessonDetail() {
           const assessments = response.data.data || [];
           setModuleContent(assessments);
 
-          // Fetch quiz and essay info for each assessment
-          const typePromises = assessments.map(async (assessment) => {
-            const assessmentId = assessment.assessmentId || assessment.AssessmentId;
-            if (!assessmentId) return null;
-
-            try {
-              const [quizRes, essayRes] = await Promise.all([
-                quizService.getAdminQuizzesByAssessment(assessmentId),
-                essayService.getAdminEssaysByAssessment(assessmentId)
-              ]);
-
-              const hasQuiz = quizRes.data?.success && quizRes.data?.data && quizRes.data.data.length > 0;
-              const hasEssay = essayRes.data?.success && essayRes.data?.data && essayRes.data.data.length > 0;
-
-              return { assessmentId, hasQuiz, hasEssay };
-            } catch (error) {
-              console.error(`Error fetching types for assessment ${assessmentId}:`, error);
-              return { assessmentId, hasQuiz: false, hasEssay: false };
-            }
-          });
-
-          const types = await Promise.all(typePromises);
-          const typesMap = {};
-          types.forEach(type => {
-            if (type) {
-              typesMap[type.assessmentId] = { hasQuiz: type.hasQuiz, hasEssay: type.hasEssay };
-            }
-          });
-          setAssessmentTypes(typesMap);
+          setModuleContent(assessments);
         } else {
           setContentError("Không thể tải danh sách assessments");
           setModuleContent([]);

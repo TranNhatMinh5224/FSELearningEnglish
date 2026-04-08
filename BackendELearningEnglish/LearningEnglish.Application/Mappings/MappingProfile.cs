@@ -109,6 +109,8 @@ namespace LearningEnglish.Application.Mappings
             CreateMap<Course, SystemCoursesListResponseDto>()
                 .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.DescriptionMarkdown))
                 .ForMember(dest => dest.ImageUrl, opt => opt.MapFrom(src => src.ImageKey))
+                .ForMember(dest => dest.Type, opt => opt.MapFrom(src => src.Type))
+                .ForMember(dest => dest.TeacherId, opt => opt.MapFrom(src => src.TeacherId))
                 .ForMember(dest => dest.IsEnrolled, opt => opt.Ignore()); // Set trong service
 
             // Mapping cho lấy chi tiết khóa học

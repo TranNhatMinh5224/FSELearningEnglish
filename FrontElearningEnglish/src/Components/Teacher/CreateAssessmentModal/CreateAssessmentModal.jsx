@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Modal, Button } from "react-bootstrap";
-import { FaInfoCircle, FaClock, FaCalendarAlt, FaToggleOn } from "react-icons/fa";
+import { FaInfoCircle, FaClock, FaToggleOn } from "react-icons/fa";
 import { assessmentService } from "../../../Services/assessmentService";
 import ConfirmModal from "../../Common/ConfirmModal/ConfirmModal";
 import SmartDateInput from "../../Common/SmartDateInput/SmartDateInput";

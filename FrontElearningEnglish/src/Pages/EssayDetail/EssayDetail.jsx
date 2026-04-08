@@ -59,7 +59,7 @@ export default function EssayDetail() {
                 setLoading(true);
                 setError("");
 
-                console.log("📌 [EssayDetail] Params:", { courseId, lessonId, moduleId, essayId });
+                
 
                 // Gọi API hoàn thành module khi vào trang essay
                 const parsedModuleId = typeof moduleId === 'string' ? parseInt(moduleId) : moduleId;
@@ -67,7 +67,7 @@ export default function EssayDetail() {
                     try {
                         await moduleService.startModule(parsedModuleId);
                         moduleStartedRef.current = true;
-                        console.log(`Module ${parsedModuleId} started successfully`);
+                        
                     } catch (err) {
                         console.error("Error starting module:", err);
                     }
@@ -75,32 +75,30 @@ export default function EssayDetail() {
 
                 // Fetch course info
                 const courseResponse = await courseService.getCourseById(courseId);
-                console.log("📌 [EssayDetail] Course response:", courseResponse?.data);
+                
                 if (courseResponse.data?.success && courseResponse.data?.data) {
                     setCourse(courseResponse.data.data);
                 }
 
                 // Fetch lesson info
                 const lessonResponse = await lessonService.getLessonById(lessonId);
-                console.log("📌 [EssayDetail] Lesson response:", lessonResponse?.data);
+                
                 if (lessonResponse.data?.success && lessonResponse.data?.data) {
                     setLesson(lessonResponse.data.data);
                 }
 
                 // Fetch module info
                 const moduleResponse = await moduleService.getModuleById(moduleId);
-                console.log("📌 [EssayDetail] Module response:", moduleResponse?.data);
+                
                 if (moduleResponse.data?.success && moduleResponse.data?.data) {
                     // Module data fetched but not stored
                 }
 
                 // Fetch essay info
                 if (essayId) {
-                    console.log("📌 [EssayDetail] Fetching essay with ID:", essayId);
+                    
                     const essayResponse = await essayService.getById(essayId);
-                    console.log("📌 [EssayDetail] Essay response:", essayResponse?.data);
                     if (essayResponse.data?.success && essayResponse.data?.data) {
-                        console.log("✅ [EssayDetail] Essay loaded successfully:", essayResponse.data.data);
                         setEssay(essayResponse.data.data);
 
                         // Fetch assessment info to get DueAt
@@ -111,10 +109,10 @@ export default function EssayDetail() {
                                 const assessmentResponse = await assessmentService.getById(assessmentId);
                                 if (assessmentResponse.data?.success && assessmentResponse.data?.data) {
                                     setAssessment(assessmentResponse.data.data);
-                                    console.log("✅ [EssayDetail] Loaded assessment info:", assessmentResponse.data.data);
+                                    
                                 }
                             } catch (err) {
-                                console.log("⚠️ [EssayDetail] Could not load assessment info:", err);
+                                
                             }
                         }
 
@@ -154,7 +152,7 @@ export default function EssayDetail() {
                                         setTextContent(content);
                                         const attachmentUrl = submissionFromState?.attachmentUrl || submissionFromState?.AttachmentUrl;
                                         if (attachmentUrl) setExistingAttachmentUrl(attachmentUrl);
-                                        console.log("✅ [EssayDetail] Loaded submission from navigation state:", submissionFromState);
+                                        
                                     } else {
                                         // Fallback: call status API which returns full submission object in data
                                         const statusResponse = await essaySubmissionService.getSubmissionStatus(essayId);
@@ -169,12 +167,12 @@ export default function EssayDetail() {
                                                 if (attachmentUrl) {
                                                     setExistingAttachmentUrl(attachmentUrl);
                                                 }
-                                                console.log("✅ [EssayDetail] Loaded existing submission from status API:", submission);
+                                                
                                             }
                                         }
                                     }
                                 } catch (statusErr) {
-                                    console.log("ℹ️ [EssayDetail] No existing submission found or error:", statusErr);
+                                    
                                 }
                     } else {
                         setError(essayResponse.data?.message || "Không thể tải thông tin essay");
@@ -266,21 +264,18 @@ export default function EssayDetail() {
 
         try {
             setUploadingFile(true);
-            console.log("📤 [EssayDetail] Uploading file to temp storage...");
-
             const uploadResponse = await fileService.uploadTempFile(
                 selectedFile,
                 "essay-attachments",
                 "temp"
             );
 
-            console.log("📥 [EssayDetail] Upload response:", uploadResponse.data);
+            
 
             if (uploadResponse.data?.success && uploadResponse.data?.data) {
                 const resultData = uploadResponse.data.data;
                 const tempKey = resultData.TempKey || resultData.tempKey;
-                const imageUrl = resultData.ImageUrl || resultData.imageUrl;
-                const imageType = resultData.ImageType || resultData.imageType || selectedFile.type;
+                const imageType = resultData.ImageType || resultData.imageType || selectedFile?.type;
 
                 if (!tempKey) {
                     throw new Error("Không nhận được TempKey từ server");
@@ -330,13 +325,6 @@ export default function EssayDetail() {
 
                 setAttachmentType(finalAttachmentType);
 
-                console.log("✅ [EssayDetail] File uploaded successfully:", {
-                    tempKey,
-                    imageUrl,
-                    imageType: finalAttachmentType,
-                    originalImageType: imageType,
-                    fileName: selectedFile?.name || "Unknown"
-                });
 
                 setNotification({
                     isOpen: true,
@@ -402,11 +390,7 @@ export default function EssayDetail() {
                     updateData.AttachmentType = attachmentType;
                 }
 
-                console.log("📤 [EssayDetail] Updating submission...");
-                console.log("📝 [EssayDetail] Update data (PascalCase):", updateData);
-
                 const updateResponse = await essaySubmissionService.updateSubmission(submissionId, updateData);
-                console.log("📥 [EssayDetail] Update response:", updateResponse.data);
 
                 if (updateResponse.data?.success) {
                     setNotification({
@@ -453,11 +437,7 @@ export default function EssayDetail() {
                     submissionData.AttachmentType = attachmentType;
                 }
 
-                console.log("📤 [EssayDetail] Submitting essay...");
-                console.log("📝 [EssayDetail] Submission data (PascalCase):", submissionData);
-
                 const submitResponse = await essaySubmissionService.submit(submissionData);
-                console.log("📥 [EssayDetail] Submit response:", submitResponse.data);
 
                 if (submitResponse.data?.success) {
                     setNotification({
@@ -538,10 +518,7 @@ export default function EssayDetail() {
             setIsDeleting(true);
             const submissionId = currentSubmission.submissionId || currentSubmission.SubmissionId;
 
-            console.log("🗑️ [EssayDetail] Deleting submission:", submissionId);
-
             const deleteResponse = await essaySubmissionService.deleteSubmission(submissionId);
-            console.log("📥 [EssayDetail] Delete response:", deleteResponse.data);
 
             if (deleteResponse.data?.success) {
                 setNotification({

@@ -88,13 +88,7 @@ export default function ListModule() {
         const contentTypeName = (module.contentTypeName || module.ContentTypeName || module.name || module.Name || "").toLowerCase();
 
         // Debug log
-        console.log("Module clicked:", {
-            moduleId,
-            contentType,
-            contentTypeName,
-            moduleName: module.name || module.Name,
-            fullModule: module
-        });
+        
 
         // Convert contentType to number if it's a string or enum
         if (typeof contentType === 'string') {
@@ -130,9 +124,9 @@ export default function ListModule() {
         // Gọi API start module ngay khi click vào module
         // Backend sẽ tự động complete cho Lecture/FlashCard
         try {
-            console.log(`Starting module ${moduleId}...`);
+            
             await moduleService.startModule(moduleId);
-            console.log(`Module ${moduleId} started successfully`);
+            
 
             // Refresh modules list để cập nhật trạng thái completed
             try {
@@ -159,7 +153,7 @@ export default function ListModule() {
         // Navigate based on ContentType: 1=Lecture, 2=FlashCard, 3=Assessment
         if (contentType === 2 || contentTypeName.includes("flashcard") || contentTypeName.includes("flash")) {
             // Navigate to flashcard detail page
-            console.log("Navigating to FlashCard page");
+            
             navigate(`/course/${courseId}/lesson/${lessonId}/module/${moduleId}/flashcards`);
         } else if (contentType === 3 ||
             contentTypeName.includes("assessment") ||
@@ -168,15 +162,15 @@ export default function ListModule() {
             contentTypeName.includes("quiz") ||
             contentTypeName.includes("test")) {
             // Navigate to assignment detail page (Assessment=3)
-            console.log("Navigating to Assignment page");
+            
             navigate(`/course/${courseId}/lesson/${lessonId}/module/${moduleId}/assignment`);
         } else if (contentType === 1 || contentTypeName.includes("lecture")) {
             // Navigate to lecture detail page
-            console.log("Navigating to Lecture page");
+            
             navigate(`/course/${courseId}/lesson/${lessonId}/module/${moduleId}`);
         } else {
             // Default: navigate to lecture page
-            console.log("Default: Navigating to Lecture page");
+            
             navigate(`/course/${courseId}/lesson/${lessonId}/module/${moduleId}`);
         }
     };
@@ -197,8 +191,7 @@ export default function ListModule() {
 
         // Navigate to pronunciation page
         const pronunciationPath = `/course/${courseId}/lesson/${lessonId}/module/${moduleId}/pronunciation`;
-        console.log("🔊 [ListModule] Navigating to Pronunciation page:", pronunciationPath);
-        console.log("🔊 [ListModule] Params:", { courseId, lessonId, moduleId });
+        
         navigate(pronunciationPath);
     };
 

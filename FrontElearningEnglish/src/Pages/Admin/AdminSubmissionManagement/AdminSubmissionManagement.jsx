@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { Button, Col, Container, Form, InputGroup, Nav, Row, Tab } from "react-bootstrap";
 import { FaFileAlt, FaClipboardList } from "react-icons/fa";
 import { useAuth } from "../../../Context/AuthContext";
@@ -25,24 +25,7 @@ export default function AdminSubmissionManagement() {
            roleName === "Admin";
   });
 
-  useEffect(() => {
-    if (!isAuthenticated || !isAdmin) {
-      return;
-    }
-
-    fetchCourses();
-  }, [isAuthenticated, isAdmin]);
-
-  useEffect(() => {
-    if (!isAuthenticated || !isAdmin) {
-      return;
-    }
-
-    setIsSearching(true);
-    fetchCourses();
-  }, [courseType, isAuthenticated, isAdmin]);
-
-  const fetchCourses = async (override = {}) => {
+  const fetchCourses = useCallback(async (override = {}) => {
     try {
       setLoading(true);
       setError("");
@@ -73,7 +56,16 @@ export default function AdminSubmissionManagement() {
       setLoading(false);
       setIsSearching(false);
     }
-  };
+  }, [searchTerm, courseType]);
+
+  useEffect(() => {
+    if (!isAuthenticated || !isAdmin) {
+      return;
+    }
+
+    setIsSearching(true);
+    fetchCourses();
+  }, [isAuthenticated, isAdmin, fetchCourses]);
 
   const handleSearch = (event) => {
     event.preventDefault();

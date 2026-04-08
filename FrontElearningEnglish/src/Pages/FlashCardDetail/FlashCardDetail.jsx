@@ -37,10 +37,10 @@ export default function FlashCardDetail() {
                 const parsedModuleId = typeof moduleId === 'string' ? parseInt(moduleId) : moduleId;
                 if (parsedModuleId && !isNaN(parsedModuleId) && !moduleStartedRef.current.has(parsedModuleId)) {
                     try {
-                        console.log(`Starting module ${parsedModuleId}...`);
-                        const response = await moduleService.startModule(parsedModuleId);
+                        
+                        await moduleService.startModule(parsedModuleId);
                         moduleStartedRef.current.add(parsedModuleId);
-                        console.log(`Module ${parsedModuleId} started successfully:`, response?.data);
+                        
                     } catch (err) {
                         console.error(`Error starting module ${parsedModuleId}:`, err);
                         console.error("Error details:", err.response?.data || err.message);
@@ -48,7 +48,7 @@ export default function FlashCardDetail() {
                     }
                 } else {
                     if (moduleStartedRef.current.has(parsedModuleId)) {
-                        console.log(`Module ${parsedModuleId} already started, skipping API call`);
+                        
                     } else {
                         console.warn(`Invalid moduleId: ${moduleId} (parsed: ${parsedModuleId})`);
                     }

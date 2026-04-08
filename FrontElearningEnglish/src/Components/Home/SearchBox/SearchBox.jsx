@@ -37,7 +37,14 @@ export default function SearchBox() {
                 const response = await courseService.searchCourses(searchQuery.trim());
                 const courses = response.data?.data || [];
                 
-                const mappedCourses = courses.map((course) => ({
+                // Only show System Courses (type 1) or courses with undefined/null type for safety/debugging
+                const systemCourses = courses.filter(course => 
+                    (course.type === 1 || course.Type === 1 || 
+                     course.type === undefined || course.type === null ||
+                     course.Type === undefined || course.Type === null)
+                );
+                
+                const mappedCourses = systemCourses.map((course) => ({
                     id: course.courseId,
                     courseId: course.courseId,
                     title: course.title || course.Title || "",
@@ -136,6 +143,9 @@ export default function SearchBox() {
                         setShowDropdown(false);
                         setSearchQuery("");
                         navigate(`/course/${course.courseId || course.id}`);
+                    } else if (searchQuery.trim()) {
+                        setShowDropdown(false);
+                        navigate(`/search?q=${encodeURIComponent(searchQuery.trim())}`);
                     }
                     break;
                 case 'Escape':
