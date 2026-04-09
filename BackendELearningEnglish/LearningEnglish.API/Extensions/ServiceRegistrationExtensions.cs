@@ -359,7 +359,6 @@ public static class ServiceRegistrationExtensions
     {
         services.AddScoped<IEmbeddingIngestionService, EmbeddingIngestionService>();
         services.AddScoped<IChatBotAIService, ChatBotAIService>();
-        services.AddScoped<ISemanticChatService, SemanticKernelChatService>();
         services.AddScoped<IPronunciationAssessmentService, PronunciationAssessmentService>();
         services.AddScoped<IDictionaryService, DictionaryService>();
         services.AddScoped<IAdminEssayGradingService, AdminEssayGradingService>();
@@ -389,6 +388,7 @@ public static class ServiceRegistrationExtensions
         var kernel = kernelBuilder.Build();
 
         services.AddSingleton(kernel);
+        services.AddScoped<ISemanticChatService, SemanticKernelChatService>();
     }
 
 
