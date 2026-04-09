@@ -1049,7 +1049,7 @@ namespace LearningEnglish.Infrastructure.Migrations
             migrationBuilder.InsertData(
                 table: "Users",
                 columns: new[] { "UserId", "AvatarKey", "CreatedAt", "CurrentTeacherSubscriptionId", "DateOfBirth", "Email", "EmailVerified", "FirstName", "IsMale", "LastName", "NormalizedEmail", "PasswordHash", "PhoneNumber", "Status", "UpdatedAt" },
-                values: new object[] { 1, null, new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), null, new DateTime(2004, 2, 5, 0, 0, 0, 0, DateTimeKind.Utc), "minhxoandev@gmail.com", true, "Super Admin", true, "System", "MINHXOANDEV@GMAIL.COM", "$2a$11$uuxl/dSyJUTTlA58ncnYWujb5ouLyQhTtes6nOUpaa9xYFm/QLmNq", "0257554479", 1, new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc) });
+                values: new object[] { 1, null, new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), null, new DateTime(2004, 2, 5, 0, 0, 0, 0, DateTimeKind.Utc), "minhxoandev@gmail.com", true, "Super Admin", true, "System", "MINHXOANDEV@GMAIL.COM", "$2a$11$i7RS0t2caBjFDeN4SsupluWit9CnI42/7UTwfiTKWpm54YTgKuugS", "0257554479", 1, new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc) });
 
             migrationBuilder.InsertData(
                 table: "RolePermissions",
@@ -1104,7 +1104,7 @@ namespace LearningEnglish.Infrastructure.Migrations
                 name: "IX_CourseEmbeddings_EmbeddingVector",
                 table: "CourseEmbeddings",
                 column: "EmbeddingVector")
-                .Annotation("Npgsql:IndexMethod", "hnsw")
+                .Annotation("Npgsql:IndexMethod", "ivfflat")
                 .Annotation("Npgsql:IndexOperators", new[] { "vector_cosine_ops" });
 
             migrationBuilder.CreateIndex(
@@ -1431,7 +1431,7 @@ namespace LearningEnglish.Infrastructure.Migrations
                 name: "IX_TeacherPackageEmbeddings_EmbeddingVector",
                 table: "TeacherPackageEmbeddings",
                 column: "EmbeddingVector")
-                .Annotation("Npgsql:IndexMethod", "hnsw")
+                .Annotation("Npgsql:IndexMethod", "ivfflat")
                 .Annotation("Npgsql:IndexOperators", new[] { "vector_cosine_ops" });
 
             migrationBuilder.CreateIndex(

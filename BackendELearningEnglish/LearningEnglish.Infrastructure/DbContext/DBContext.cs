@@ -1185,9 +1185,9 @@ namespace LearningEnglish.Infrastructure.Data
                  .HasForeignKey(ce => ce.CourseId)
                  .OnDelete(DeleteBehavior.Cascade);
 
-                // HNSW Index for fast vector search
+                // IVFFlat Index for fast vector search (supports > 2000 dimensions)
                 e.HasIndex(ce => ce.EmbeddingVector)
-                 .HasMethod("hnsw")
+                 .HasMethod("ivfflat")
                  .HasOperators("vector_cosine_ops");
             });
 
@@ -1214,7 +1214,7 @@ namespace LearningEnglish.Infrastructure.Data
                  .OnDelete(DeleteBehavior.Cascade);
 
                 e.HasIndex(tpe => tpe.EmbeddingVector)
-                 .HasMethod("hnsw")
+                 .HasMethod("ivfflat")
                  .HasOperators("vector_cosine_ops");
             });
 

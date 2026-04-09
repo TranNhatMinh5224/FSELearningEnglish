@@ -13,7 +13,7 @@ using Pgvector;
 namespace LearningEnglish.Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20260409090835_InitialCreate")]
+    [Migration("20260409113924_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -284,7 +284,7 @@ namespace LearningEnglish.Infrastructure.Migrations
 
                     b.HasIndex("EmbeddingVector");
 
-                    NpgsqlIndexBuilderExtensions.HasMethod(b.HasIndex("EmbeddingVector"), "hnsw");
+                    NpgsqlIndexBuilderExtensions.HasMethod(b.HasIndex("EmbeddingVector"), "ivfflat");
                     NpgsqlIndexBuilderExtensions.HasOperators(b.HasIndex("EmbeddingVector"), new[] { "vector_cosine_ops" });
 
                     b.ToTable("CourseEmbeddings", (string)null);
@@ -2000,7 +2000,7 @@ namespace LearningEnglish.Infrastructure.Migrations
 
                     b.HasIndex("EmbeddingVector");
 
-                    NpgsqlIndexBuilderExtensions.HasMethod(b.HasIndex("EmbeddingVector"), "hnsw");
+                    NpgsqlIndexBuilderExtensions.HasMethod(b.HasIndex("EmbeddingVector"), "ivfflat");
                     NpgsqlIndexBuilderExtensions.HasOperators(b.HasIndex("EmbeddingVector"), new[] { "vector_cosine_ops" });
 
                     b.HasIndex("TeacherPackageId");
@@ -2157,7 +2157,7 @@ namespace LearningEnglish.Infrastructure.Migrations
                             IsMale = true,
                             LastName = "System",
                             NormalizedEmail = "MINHXOANDEV@GMAIL.COM",
-                            PasswordHash = "$2a$11$uuxl/dSyJUTTlA58ncnYWujb5ouLyQhTtes6nOUpaa9xYFm/QLmNq",
+                            PasswordHash = "$2a$11$i7RS0t2caBjFDeN4SsupluWit9CnI42/7UTwfiTKWpm54YTgKuugS",
                             PhoneNumber = "0257554479",
                             Status = 1,
                             UpdatedAt = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc)
