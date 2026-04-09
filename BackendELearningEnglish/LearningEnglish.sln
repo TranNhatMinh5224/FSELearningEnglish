@@ -11,8 +11,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LearningEnglish.Infrastruct
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LearningEnglish.API", "LearningEnglish.API\LearningEnglish.API.csproj", "{FD37FA01-DE8F-466F-9872-C5A074A3DF07}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LearningEnglish.Tests", "LearningEnglish.Tests\LearningEnglish.Tests.csproj", "{67E1E880-2B67-49DB-AAA6-81AD6F83AAD9}"
-EndProject
+
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU

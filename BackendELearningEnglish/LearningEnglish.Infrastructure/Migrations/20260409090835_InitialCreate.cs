@@ -1,6 +1,7 @@
 ﻿using System;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
+using Pgvector;
 
 #nullable disable
 
@@ -16,7 +17,8 @@ namespace LearningEnglish.Infrastructure.Migrations
         {
             migrationBuilder.AlterDatabase()
                 .Annotation("Npgsql:PostgresExtension:pg_trgm", ",,")
-                .Annotation("Npgsql:PostgresExtension:uuid-ossp", ",,");
+                .Annotation("Npgsql:PostgresExtension:uuid-ossp", ",,")
+                .Annotation("Npgsql:PostgresExtension:vector", ",,");
 
             migrationBuilder.CreateTable(
                 name: "AssetsFrontend",
@@ -106,6 +108,33 @@ namespace LearningEnglish.Infrastructure.Migrations
                         column: x => x.RoleId,
                         principalTable: "Roles",
                         principalColumn: "RoleId",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "TeacherPackageEmbeddings",
+                columns: table => new
+                {
+                    TeacherPackageEmbeddingId = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    TeacherPackageId = table.Column<int>(type: "integer", nullable: false),
+                    PackageName = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
+                    LastUpdatedEmbeddingAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    EmbeddingModel = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
+                    EmbeddingDimension = table.Column<int>(type: "integer", nullable: false),
+                    PartType = table.Column<int>(type: "integer", nullable: false),
+                    ContentHash = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
+                    SourceData = table.Column<string>(type: "text", nullable: false),
+                    EmbeddingVector = table.Column<Vector>(type: "vector(3072)", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_TeacherPackageEmbeddings", x => x.TeacherPackageEmbeddingId);
+                    table.ForeignKey(
+                        name: "FK_TeacherPackageEmbeddings_TeacherPackages_TeacherPackageId",
+                        column: x => x.TeacherPackageId,
+                        principalTable: "TeacherPackages",
+                        principalColumn: "TeacherPackageId",
                         onDelete: ReferentialAction.Cascade);
                 });
 
@@ -313,6 +342,26 @@ namespace LearningEnglish.Infrastructure.Migrations
                         principalTable: "QuizSections",
                         principalColumn: "QuizSectionId",
                         onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "CourseEmbeddings",
+                columns: table => new
+                {
+                    CourseEmbeddingId = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    CourseId = table.Column<int>(type: "integer", nullable: false),
+                    Title = table.Column<string>(type: "character varying(255)", maxLength: 255, nullable: false),
+                    LastUpdatedEmbeddingAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    EmbeddingModel = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
+                    EmbeddingDimension = table.Column<int>(type: "integer", nullable: false),
+                    PartType = table.Column<int>(type: "integer", nullable: false),
+                    ContentHash = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
+                    EmbeddingVector = table.Column<Vector>(type: "vector(3072)", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_CourseEmbeddings", x => x.CourseEmbeddingId);
                 });
 
             migrationBuilder.CreateTable(
@@ -1000,7 +1049,7 @@ namespace LearningEnglish.Infrastructure.Migrations
             migrationBuilder.InsertData(
                 table: "Users",
                 columns: new[] { "UserId", "AvatarKey", "CreatedAt", "CurrentTeacherSubscriptionId", "DateOfBirth", "Email", "EmailVerified", "FirstName", "IsMale", "LastName", "NormalizedEmail", "PasswordHash", "PhoneNumber", "Status", "UpdatedAt" },
-                values: new object[] { 1, null, new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), null, new DateTime(2004, 2, 5, 0, 0, 0, 0, DateTimeKind.Utc), "minhxoandev@gmail.com", true, "Super Admin", true, "System", "MINHXOANDEV@GMAIL.COM", "$2a$11$rqGuRRtMqyJwUEzok/jGGuCqk57XpiBk2mEXAP6k9JumxAfiSvlEu", "0257554479", 1, new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc) });
+                values: new object[] { 1, null, new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), null, new DateTime(2004, 2, 5, 0, 0, 0, 0, DateTimeKind.Utc), "minhxoandev@gmail.com", true, "Super Admin", true, "System", "MINHXOANDEV@GMAIL.COM", "$2a$11$uuxl/dSyJUTTlA58ncnYWujb5ouLyQhTtes6nOUpaa9xYFm/QLmNq", "0257554479", 1, new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc) });
 
             migrationBuilder.InsertData(
                 table: "RolePermissions",
@@ -1045,6 +1094,18 @@ namespace LearningEnglish.Infrastructure.Migrations
                 name: "IX_Assessments_ModuleId",
                 table: "Assessments",
                 column: "ModuleId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_CourseEmbeddings_CourseId",
+                table: "CourseEmbeddings",
+                column: "CourseId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_CourseEmbeddings_EmbeddingVector",
+                table: "CourseEmbeddings",
+                column: "EmbeddingVector")
+                .Annotation("Npgsql:IndexMethod", "hnsw")
+                .Annotation("Npgsql:IndexOperators", new[] { "vector_cosine_ops" });
 
             migrationBuilder.CreateIndex(
                 name: "IX_CourseProgresses_CourseId",
@@ -1367,6 +1428,18 @@ namespace LearningEnglish.Infrastructure.Migrations
                 column: "UserId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_TeacherPackageEmbeddings_EmbeddingVector",
+                table: "TeacherPackageEmbeddings",
+                column: "EmbeddingVector")
+                .Annotation("Npgsql:IndexMethod", "hnsw")
+                .Annotation("Npgsql:IndexOperators", new[] { "vector_cosine_ops" });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_TeacherPackageEmbeddings_TeacherPackageId",
+                table: "TeacherPackageEmbeddings",
+                column: "TeacherPackageId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_TeacherSubscriptions_PaymentId",
                 table: "TeacherSubscriptions",
                 column: "PaymentId");
@@ -1466,6 +1539,14 @@ namespace LearningEnglish.Infrastructure.Migrations
                 column: "ModuleId",
                 principalTable: "Modules",
                 principalColumn: "ModuleId",
+                onDelete: ReferentialAction.Cascade);
+
+            migrationBuilder.AddForeignKey(
+                name: "FK_CourseEmbeddings_Courses_CourseId",
+                table: "CourseEmbeddings",
+                column: "CourseId",
+                principalTable: "Courses",
+                principalColumn: "CourseId",
                 onDelete: ReferentialAction.Cascade);
 
             migrationBuilder.AddForeignKey(
@@ -1634,6 +1715,9 @@ namespace LearningEnglish.Infrastructure.Migrations
                 name: "AssetsFrontend");
 
             migrationBuilder.DropTable(
+                name: "CourseEmbeddings");
+
+            migrationBuilder.DropTable(
                 name: "CourseProgresses");
 
             migrationBuilder.DropTable(
@@ -1680,6 +1764,9 @@ namespace LearningEnglish.Infrastructure.Migrations
 
             migrationBuilder.DropTable(
                 name: "Streaks");
+
+            migrationBuilder.DropTable(
+                name: "TeacherPackageEmbeddings");
 
             migrationBuilder.DropTable(
                 name: "UserCourses");

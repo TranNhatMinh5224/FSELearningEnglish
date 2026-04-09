@@ -2154,7 +2154,7 @@ namespace LearningEnglish.Infrastructure.Migrations
                             IsMale = true,
                             LastName = "System",
                             NormalizedEmail = "MINHXOANDEV@GMAIL.COM",
-                            PasswordHash = "$2a$11$y9lCK/4XbdkxhZGIwYUebezTiPX43qIfDOoW7/.wi26.syCDwjISW",
+                            PasswordHash = "$2a$11$uuxl/dSyJUTTlA58ncnYWujb5ouLyQhTtes6nOUpaa9xYFm/QLmNq",
                             PhoneNumber = "0257554479",
                             Status = 1,
                             UpdatedAt = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc)
