@@ -130,22 +130,22 @@ namespace LearningEnglish.Infrastructure.Services.ExternalProviders.AzureSpeech
             }
         }
 
-        public async Task<AzureSpeechAssessmentResult> AssessPronunciationFromStreamAsync(
+        public Task<AzureSpeechAssessmentResult> AssessPronunciationFromStreamAsync(
             Stream audioStream,
             string referenceText,
             string locale = "en-US")
         {
             // Not implemented yet - can add if needed
-            throw new NotImplementedException("Stream-based assessment not implemented yet");
+            return Task.FromException<AzureSpeechAssessmentResult>(new NotImplementedException("Stream-based assessment not implemented yet"));
         }
 
-        public async Task<Stream?> GenerateSpeechAsync(
+        public Task<Stream?> GenerateSpeechAsync(
             string text,
             string locale = "en-US",
             string voiceName = "en-US-JennyNeural")
         {
             // Not implemented yet - can add for TTS feature
-            throw new NotImplementedException("Text-to-speech not implemented yet");
+            return Task.FromException<Stream?>(new NotImplementedException("Text-to-speech not implemented yet"));
         }
 
         private AzureSpeechAssessmentResult ParseAzureResult(

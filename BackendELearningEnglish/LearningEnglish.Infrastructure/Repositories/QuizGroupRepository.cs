@@ -80,11 +80,12 @@ namespace LearningEnglish.Infrastructure.Repositories
             await _context.SaveChangesAsync();
         }
 
-        public async Task AddQuizGroupAsync(QuizGroup quizGroup)
+        public Task AddQuizGroupAsync(QuizGroup quizGroup)
         {
             quizGroup.CreatedAt = DateTime.UtcNow;
             quizGroup.UpdatedAt = DateTime.UtcNow;
             _context.QuizGroups.Add(quizGroup);
+            return Task.CompletedTask;
         }
     }
 }
