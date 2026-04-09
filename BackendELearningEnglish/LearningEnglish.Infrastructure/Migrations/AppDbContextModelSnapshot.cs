@@ -279,11 +279,6 @@ namespace LearningEnglish.Infrastructure.Migrations
 
                     b.HasIndex("CourseId");
 
-                    b.HasIndex("EmbeddingVector");
-
-                    NpgsqlIndexBuilderExtensions.HasMethod(b.HasIndex("EmbeddingVector"), "ivfflat");
-                    NpgsqlIndexBuilderExtensions.HasOperators(b.HasIndex("EmbeddingVector"), new[] { "vector_cosine_ops" });
-
                     b.ToTable("CourseEmbeddings", (string)null);
                 });
 
@@ -1995,11 +1990,6 @@ namespace LearningEnglish.Infrastructure.Migrations
 
                     b.HasKey("TeacherPackageEmbeddingId");
 
-                    b.HasIndex("EmbeddingVector");
-
-                    NpgsqlIndexBuilderExtensions.HasMethod(b.HasIndex("EmbeddingVector"), "ivfflat");
-                    NpgsqlIndexBuilderExtensions.HasOperators(b.HasIndex("EmbeddingVector"), new[] { "vector_cosine_ops" });
-
                     b.HasIndex("TeacherPackageId");
 
                     b.ToTable("TeacherPackageEmbeddings", (string)null);
@@ -2154,7 +2144,7 @@ namespace LearningEnglish.Infrastructure.Migrations
                             IsMale = true,
                             LastName = "System",
                             NormalizedEmail = "MINHXOANDEV@GMAIL.COM",
-                            PasswordHash = "$2a$11$i7RS0t2caBjFDeN4SsupluWit9CnI42/7UTwfiTKWpm54YTgKuugS",
+                            PasswordHash = "$2a$11$JjaYfesr3gTsK0S0tFWLO.lmzLCJn6/uVTc7C/FVZDzSl9SN3XkUa",
                             PhoneNumber = "0257554479",
                             Status = 1,
                             UpdatedAt = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc)

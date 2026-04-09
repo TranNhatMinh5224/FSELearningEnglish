@@ -1185,10 +1185,8 @@ namespace LearningEnglish.Infrastructure.Data
                  .HasForeignKey(ce => ce.CourseId)
                  .OnDelete(DeleteBehavior.Cascade);
 
-                // IVFFlat Index for fast vector search (supports > 2000 dimensions)
-                e.HasIndex(ce => ce.EmbeddingVector)
-                 .HasMethod("ivfflat")
-                 .HasOperators("vector_cosine_ops");
+                // Note: Index removed because 3072 dimensions exceed PostgreSQL page size for HNSW/IVFFlat indexes.
+                // Sequential scan will be used, which is sufficient for current data scale.
             });
 
             // TeacherPackageEmbedding
@@ -1213,9 +1211,7 @@ namespace LearningEnglish.Infrastructure.Data
                  .HasForeignKey(tpe => tpe.TeacherPackageId)
                  .OnDelete(DeleteBehavior.Cascade);
 
-                e.HasIndex(tpe => tpe.EmbeddingVector)
-                 .HasMethod("ivfflat")
-                 .HasOperators("vector_cosine_ops");
+                // Note: Index removed due to dimension limits.
             });
 
             SeedData(modelBuilder);
