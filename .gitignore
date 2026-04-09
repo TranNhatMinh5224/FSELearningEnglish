@@ -55,6 +55,7 @@ TestResults/
 **/appsettings.Production.json
 **/appsettings.Local.json
 **/appsettings.Docker.json
+**/appsettings.json
 # Giữ lại appsettings.json làm mẫu (nếu không chứa secret)
 
 # ===========================================
