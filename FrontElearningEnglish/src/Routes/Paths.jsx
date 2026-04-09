@@ -27,6 +27,7 @@ export const ROUTE_PATHS = {
   PAYMENT_HISTORY: "/payment-history",
   PAYMENT_SUCCESS: "/payment-success",
   PAYMENT_FAILED: "/payment-failed",
+  PAYMENT_PENDING: "/payment-pending",
   VOCABULARY_REVIEW: "/vocabulary-review",
   VOCABULARY_NOTEBOOK: "/vocabulary-notebook",
   SEARCH: "/search",
@@ -86,6 +87,7 @@ export const ROUTE_PATHS = {
     FINANCE: "/admin/finance",
     SUBMISSION_MANAGEMENT: "/admin/submission-management",
     ASSET_MANAGEMENT: "/admin/asset-management",
+    PAYMENT_MONITORING: "/admin/payment-monitoring",
   },
 };
 

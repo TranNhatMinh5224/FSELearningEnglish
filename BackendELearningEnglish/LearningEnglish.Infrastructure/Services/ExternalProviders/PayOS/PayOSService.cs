@@ -23,6 +23,17 @@ namespace LearningEnglish.Infrastructure.Services.ExternalProviders.PayOS
         {
             _options = options.Value;
             _logger = logger;
+
+            if (string.IsNullOrWhiteSpace(_options.ClientId) ||
+                string.IsNullOrWhiteSpace(_options.ApiKey) ||
+                string.IsNullOrWhiteSpace(_options.ChecksumKey) ||
+                string.IsNullOrWhiteSpace(_options.ApiUrl) ||
+                string.IsNullOrWhiteSpace(_options.ReturnUrl) ||
+                string.IsNullOrWhiteSpace(_options.CancelUrl))
+            {
+                throw new InvalidOperationException("PayOS configuration is incomplete. Please configure ClientId, ApiKey, ChecksumKey, ApiUrl, ReturnUrl, and CancelUrl.");
+            }
+
             _httpClient = httpClientFactory.CreateClient("PayOS");
             _httpClient.BaseAddress = new Uri(_options.ApiUrl);
             _httpClient.DefaultRequestHeaders.Add("x-client-id", _options.ClientId);
@@ -52,21 +63,19 @@ namespace LearningEnglish.Infrastructure.Services.ExternalProviders.PayOS
 
                 var amountInt = (int)Math.Round(amount, MidpointRounding.AwayFromZero);
 
-                var safeDescription = (description ?? "THANHTOAN").Trim();
-                if (safeDescription.Length > 9)
+                var safeDescription = (description ?? "Thanh toan").Trim();
+                // PayOS cho phép description dài hơn; chỉ cắt ở mức an toàn để không bị thiếu nội dung như "Thanh toa"
+                const int maxDescriptionLength = 25;
+                if (safeDescription.Length > maxDescriptionLength)
                 {
-                    safeDescription = safeDescription.Substring(0, 9);
+                    safeDescription = safeDescription.Substring(0, maxDescriptionLength);
                 }
 
-                var baseReturnUrl = _options.ReturnUrl?.Trim() ?? "";
-                var baseCancelUrl = _options.CancelUrl?.Trim() ?? "";
+                var baseReturnUrl = _options.ReturnUrl.Trim();
+                var baseCancelUrl = _options.CancelUrl.Trim();
 
-                var returnUrl = string.IsNullOrEmpty(baseReturnUrl)
-                    ? baseReturnUrl
-                    : $"{baseReturnUrl}{(baseReturnUrl.Contains("?") ? "&" : "?")}orderCode={orderCode}";
-                var cancelUrl = string.IsNullOrEmpty(baseCancelUrl)
-                    ? baseCancelUrl
-                    : $"{baseCancelUrl}{(baseCancelUrl.Contains("?") ? "&" : "?")}orderCode={orderCode}";
+                var returnUrl = AppendQueryString(baseReturnUrl, "orderCode", orderCode.ToString());
+                var cancelUrl = AppendQueryString(baseCancelUrl, "orderCode", orderCode.ToString());
 
                 var signData = $"amount={amountInt}&cancelUrl={cancelUrl}&description={safeDescription}&orderCode={orderCode}&returnUrl={returnUrl}";
                 var signature = HmacSha256(signData, _options.ChecksumKey);
@@ -85,8 +94,6 @@ namespace LearningEnglish.Infrastructure.Services.ExternalProviders.PayOS
                 var content = new StringContent(jsonContent, Encoding.UTF8, "application/json");
 
                 _logger.LogInformation("PayOS request body: {Body}", jsonContent);
-                _logger.LogInformation("PayOS signData: {SignData}", signData);
-                _logger.LogInformation("PayOS signature: {Signature}", signature);
 
                 var httpResponse = await _httpClient.PostAsync("/v2/payment-requests", content);
                 var responseContent = await httpResponse.Content.ReadAsStringAsync();
@@ -107,17 +114,17 @@ namespace LearningEnglish.Infrastructure.Services.ExternalProviders.PayOS
 
                 if (payosResponse.TryGetProperty("code", out var codeElement))
                 {
-                    var code = codeElement.GetString();
-                    if (code != "00")
+                    var codeStr = codeElement.GetString();
+                    if (codeStr != "00")
                     {
-                        var desc = payosResponse.TryGetProperty("desc", out var descElement)
+                        var descVal = payosResponse.TryGetProperty("desc", out var descElement)
                             ? descElement.GetString()
                             : "Unknown PayOS error";
 
                         _logger.LogError("PayOS error: Code={Code}, Desc={Desc}, Response={Response}",
-                            code, desc, responseContent);
+                            codeStr, descVal, responseContent);
                         response.Success = false;
-                        response.Message = $"PayOS error: {desc}";
+                        response.Message = $"PayOS error: {descVal}";
                         return response;
                     }
                 }
@@ -141,19 +148,90 @@ namespace LearningEnglish.Infrastructure.Services.ExternalProviders.PayOS
 
                 var checkoutUrl = checkoutUrlElement.GetString();
 
-                if (string.IsNullOrWhiteSpace(checkoutUrl))
+                // Helper to get string property safely (case-insensitive)
+                string GetPropString(JsonElement element, string propName)
                 {
-                    _logger.LogError("PayOS returned empty checkoutUrl. Response: {Response}", responseContent);
-                    response.Success = false;
-                    response.Message = "PayOS trả checkoutUrl rỗng";
-                    return response;
+                    foreach (var prop in element.EnumerateObject())
+                    {
+                        if (prop.Name.Equals(propName, StringComparison.OrdinalIgnoreCase))
+                            return prop.Value.ValueKind == JsonValueKind.String ? prop.Value.GetString() ?? "" : prop.Value.ToString();
+                    }
+                    return "";
                 }
+
+                // Helper to get decimal property safely
+                decimal GetPropDecimal(JsonElement element, string propName)
+                {
+                    foreach (var prop in element.EnumerateObject())
+                    {
+                        if (prop.Name.Equals(propName, StringComparison.OrdinalIgnoreCase))
+                        {
+                            if (prop.Value.ValueKind == JsonValueKind.Number) return prop.Value.GetDecimal();
+                            if (prop.Value.ValueKind == JsonValueKind.String && decimal.TryParse(prop.Value.GetString(), out var val)) return val;
+                        }
+                    }
+                    return 0;
+                }
+
+                // Helper to map BIN to Bank Name
+                string GetBankNameByBin(string bin)
+                {
+                    return bin switch
+                    {
+                        "970418" => "BIDV",
+                        "970436" => "Vietcombank",
+                        "970415" => "VietinBank",
+                        "970405" => "Agribank",
+                        "970422" => "MBBank",
+                        "970407" => "Techcombank",
+                        "970416" => "ACB",
+                        "970432" => "VPBank",
+                        "970423" => "TPBank",
+                        "970437" => "HDBank",
+                        "970441" => "VIB",
+                        "970403" => "Sacombank",
+                        "970428" => "Nam A Bank",
+                        "970429" => "SCB",
+                        "970448" => "OCB",
+                        "970438" => "BaoViet Bank",
+                        "970414" => "OceanBank",
+                        "970400" => "SaigonBank",
+                        "970412" => "PVcomBank",
+                        "970419" => "NCB",
+                        "970425" => "ABBANK",
+                        "970427" => "VietCapital Bank",
+                        "970431" => "Eximbank",
+                        "970433" => "VietBank",
+                        "970440" => "SeABank",
+                        "970443" => "SHB",
+                        "970449" => "LienVietPostBank",
+                        "970452" => "Kienlongbank",
+                        "970454" => "VietABank",
+                        "970426" => "MSB",
+                        "970439" => "Public Bank Vietnam",
+                        "970424" => "Shinhan Bank",
+                        "970409" => "Bac A Bank",
+                        "970410" => "Standard Chartered",
+                        _ => "Ngân hàng liên kết"
+                    };
+                }
+
+                _logger.LogInformation("Extracting payos details from data: {DataRaw}", dataElement.GetRawText());
+
+                var binValue = GetPropString(dataElement, "bin");
 
                 response.Data = new PayOSLinkResponse
                 {
-                    CheckoutUrl = checkoutUrl,
+                    CheckoutUrl = checkoutUrl ?? string.Empty,
                     OrderCode = orderCode.ToString(),
-                    PaymentId = request.PaymentId
+                    PaymentId = request.PaymentId,
+                    Bin = binValue,
+                    AccountNumber = GetPropString(dataElement, "accountNumber"),
+                    AccountName = GetPropString(dataElement, "accountName"),
+                    Amount = GetPropDecimal(dataElement, "amount"),
+                    Description = GetPropString(dataElement, "description"),
+                    QrCode = GetPropString(dataElement, "qrCode"),
+                    BankName = GetBankNameByBin(binValue)
                 };
                 response.Success = true;
 
@@ -230,12 +308,18 @@ namespace LearningEnglish.Infrastructure.Services.ExternalProviders.PayOS
             return Convert.ToHexString(hashBytes).ToLower();
         }
 
+        private static string AppendQueryString(string baseUrl, string key, string value)
+        {
+            var separator = baseUrl.Contains("?") ? "&" : "?";
+            return $"{baseUrl}{separator}{Uri.EscapeDataString(key)}={Uri.EscapeDataString(value)}";
+        }
+
         public Task<bool> VerifyWebhookSignature(string data, string signature)
         {
             try
             {
                 var computedSignature = HmacSha256(data, _options.ChecksumKey);
-                var isValid = computedSignature == signature.ToLower();
+                var isValid = computedSignature == (signature ?? string.Empty).ToLowerInvariant();
 
                 if (!isValid)
                 {

@@ -103,6 +103,8 @@ export default function PaymentHistory() {
                 return { text: "Hoàn thành", variant: "info", customClass: "status-completed" };
             case 3: // Failed
                 return { text: "Thất bại", variant: "danger" };
+            case 4: // Expired
+                return { text: "Hết hạn", variant: "secondary" };
             default:
                 return { text: "Không xác định", variant: "secondary" };
         }

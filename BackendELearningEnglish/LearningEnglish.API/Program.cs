@@ -8,11 +8,14 @@ using Microsoft.EntityFrameworkCore;
 var builder = WebApplication.CreateBuilder(args);
 
 
-var frontendUrl = builder.Configuration["Frontend:BaseUrl"] ?? "http://localhost:3000";
+var frontendUrl = builder.Configuration["Frontend:BaseUrl"];
 var conn = builder.Configuration.GetConnectionString("DefaultConnection");
 var jwtKey = builder.Configuration["Jwt:Key"];
 var jwtIssuer = builder.Configuration["Jwt:Issuer"];
 var jwtAudience = builder.Configuration["Jwt:Audience"];
+
+if (string.IsNullOrWhiteSpace(frontendUrl) || !Uri.TryCreate(frontendUrl, UriKind.Absolute, out _))
+    throw new InvalidOperationException("Frontend:BaseUrl is missing or invalid absolute URL.");
 
 if (string.IsNullOrWhiteSpace(jwtKey) || jwtKey.Length < 32)
     throw new InvalidOperationException("Jwt:Key is missing or too short (>=32 chars).");

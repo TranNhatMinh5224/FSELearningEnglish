@@ -23,6 +23,7 @@ namespace LearningEnglish.Application.Service.PaymentService
         private readonly IUnitOfWork _unitOfWork;
         private readonly IPayOSService _payOSService;
         private readonly IConfiguration _configuration;
+        private readonly IPaymentWebhookQueueRepository _webhookQueueRepository;
 
         public PaymentService(
             IPaymentRepository paymentRepository,
@@ -32,7 +33,8 @@ namespace LearningEnglish.Application.Service.PaymentService
             ILogger<PaymentService> logger,
             IUnitOfWork unitOfWork,
             IPayOSService payOSService,
-            IConfiguration configuration)
+            IConfiguration configuration,
+            IPaymentWebhookQueueRepository webhookQueueRepository)
         {
             _paymentRepository = paymentRepository;
             _paymentValidator = paymentValidator;
@@ -42,6 +44,7 @@ namespace LearningEnglish.Application.Service.PaymentService
             _unitOfWork = unitOfWork;
             _payOSService = payOSService;
             _configuration = configuration;
+            _webhookQueueRepository = webhookQueueRepository;
         }
 
         // POST /api/payments - Create Payment
@@ -109,9 +112,8 @@ namespace LearningEnglish.Application.Service.PaymentService
                     return response;
                 }
 
-                var baseTimestamp = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
-                var random = new Random().Next(100, 999);
-                var orderCode = baseTimestamp * 1000 + random;
+                // Use milliseconds + 4 random digits for high collision resistance
+                var orderCode = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() * 10000 + new Random().Next(1000, 9999);
                 
                 // Get product name for description from Strategy
                 var productName = await processor.GetProductNameAsync(request.ProductId);
@@ -880,22 +882,39 @@ namespace LearningEnglish.Application.Service.PaymentService
                 result.PaymentId = payment.PaymentId;
                 result.OrderCode = finalOrderCode ?? payment.OrderCode.ToString();
 
-                string? paymentStatus = status;
-                if (string.IsNullOrEmpty(paymentStatus) && !string.IsNullOrEmpty(finalOrderCode) && long.TryParse(finalOrderCode, out var orderCodeForStatus))
+                // SECURITY: never trust querystring status for confirming payment.
+                // Always verify status with PayOS API for the orderCode.
+                string? paymentStatus = null;
+                if (!string.IsNullOrEmpty(finalOrderCode) && long.TryParse(finalOrderCode, out var orderCodeForStatus))
                 {
                     var payosInfo = await _payOSService.GetPaymentInformationAsync(orderCodeForStatus);
                     if (payosInfo.Success && payosInfo.Data != null)
                     {
                         paymentStatus = payosInfo.Data.Status;
+
+                        if (!string.Equals(payosInfo.Data.Code, "00", StringComparison.OrdinalIgnoreCase))
+                        {
+                            _logger.LogWarning("PayOS API returned non-success code for OrderCode={OrderCode}: Code={Code}, Desc={Desc}",
+                                orderCodeForStatus, payosInfo.Data.Code, payosInfo.Data.Desc);
+                        }
+                    }
+                    else
+                    {
+                        _logger.LogWarning("Could not verify PayOS status for OrderCode={OrderCode}. Using pending redirect.", orderCodeForStatus);
                     }
                 }
 
                 if (string.IsNullOrEmpty(paymentStatus) || !string.Equals(paymentStatus, "PAID", StringComparison.OrdinalIgnoreCase))
                 {
-                    _logger.LogWarning("Payment {PaymentId} status is not PAID: Status={Status}", payment.PaymentId, paymentStatus ?? "null");
+                    // If PayOS didn't confirm PAID, treat as pending (even if querystring says PAID).
+                    var statusHint = !string.IsNullOrEmpty(paymentStatus) ? paymentStatus : (status ?? "");
+
+                    _logger.LogWarning("Payment {PaymentId} not confirmed PAID by PayOS: VerifiedStatus={VerifiedStatus}, StatusHint={StatusHint}",
+                        payment.PaymentId, paymentStatus ?? "null", statusHint);
+
                     result.Success = false;
-                    result.RedirectUrl = $"{GetFrontendUrl()}/payment-pending?orderCode={finalOrderCode}&status={Uri.EscapeDataString(paymentStatus ?? "")}";
-                    result.Message = $"Payment status: {paymentStatus ?? "unknown"}";
+                    result.RedirectUrl = $"{GetFrontendUrl()}/payment-pending?orderCode={finalOrderCode}&status={Uri.EscapeDataString(statusHint)}";
+                    result.Message = $"Payment status: {(paymentStatus ?? statusHint ?? "unknown")}";
                     response.Data = result;
                     return response;
                 }
@@ -965,9 +984,68 @@ namespace LearningEnglish.Application.Service.PaymentService
             }
         }
 
+        public async Task<ServiceResponse<IEnumerable<PaymentWebhookQueue>>> GetFailedWebhooksAsync()
+        {
+            var response = new ServiceResponse<IEnumerable<PaymentWebhookQueue>>();
+            try
+            {
+                var webhooks = await _webhookQueueRepository.GetDeadLetterWebhooksAsync();
+                response.Data = webhooks;
+                response.Success = true;
+                response.StatusCode = 200;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error getting failed webhooks");
+                response.Success = false;
+                response.Message = "Lỗi khi lấy danh sách webhook thất bại";
+            }
+            return response;
+        }
+
+        public async Task<ServiceResponse<bool>> RetryWebhookAsync(int webhookId)
+        {
+            var response = new ServiceResponse<bool>();
+            try
+            {
+                var webhook = await _webhookQueueRepository.GetWebhookByIdAsync(webhookId);
+                if (webhook == null)
+                {
+                    response.Success = false;
+                    response.Message = "Webhook không tồn tại";
+                    return response;
+                }
+
+                // Reset status to Pending and retry count
+                webhook.Status = WebhookStatus.Pending;
+                webhook.RetryCount = 0;
+                webhook.NextRetryAt = DateTime.UtcNow;
+                
+                await _webhookQueueRepository.UpdateWebhookStatusAsync(webhook);
+                await _webhookQueueRepository.SaveChangesAsync();
+                
+                response.Success = true;
+                response.Data = true;
+                response.Message = "Đã đặt lại trạng thái webhook để thử lại";
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error retrying webhook {WebhookId}", webhookId);
+                response.Success = false;
+                response.Message = "Lỗi khi thử lại webhook";
+            }
+            return response;
+        }
+
         private string GetFrontendUrl()
         {
-            return _configuration["Frontend:BaseUrl"] ?? "http://localhost:3000";
+            var frontendUrl = _configuration["Frontend:BaseUrl"]?.Trim();
+            if (string.IsNullOrWhiteSpace(frontendUrl) || !Uri.TryCreate(frontendUrl, UriKind.Absolute, out _))
+            {
+                throw new InvalidOperationException("Frontend:BaseUrl is missing or invalid. Please configure a valid absolute URL.");
+            }
+
+            return frontendUrl.TrimEnd('/');
         }
     }
 }

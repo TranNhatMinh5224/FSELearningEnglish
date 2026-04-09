@@ -6,6 +6,7 @@ using LearningEnglish.API.Extensions;
 using Microsoft.Extensions.Configuration;
 using LearningEnglish.Application.Common.Pagination;
 using Microsoft.Extensions.Logging;
+using LearningEnglish.Application.Interface;
 using LearningEnglish.Application.Interface.Services;
 
 namespace LearningEnglish.API.Controller.User
@@ -18,15 +19,18 @@ namespace LearningEnglish.API.Controller.User
         private readonly IPaymentService _paymentService;
         private readonly IConfiguration _configuration;
         private readonly ILogger<PaymentController> _logger;
+        private readonly IPayOSService _payOSService;
 
         public PaymentController(
             IPaymentService paymentService,
             IConfiguration configuration,
-            ILogger<PaymentController> logger)
+            ILogger<PaymentController> logger,
+            IPayOSService payOSService)
         {
             _paymentService = paymentService;
             _configuration = configuration;
             _logger = logger;
+            _payOSService = payOSService;
         }
 
        
@@ -101,7 +105,7 @@ namespace LearningEnglish.API.Controller.User
             [FromQuery] string? status,
             [FromQuery] string? signature)
         {
-            var frontendUrl = _configuration["Frontend:BaseUrl"] ?? "http://localhost:3000";
+            var frontendUrl = GetFrontendBaseUrl();
 
             if (cancel == true || string.Equals(status, "CANCELLED", StringComparison.OrdinalIgnoreCase))
             {
@@ -109,10 +113,16 @@ namespace LearningEnglish.API.Controller.User
                 return Redirect($"{frontendUrl}/payment-failed?reason=cancelled&orderCode={orderCode}");
             }
 
-            if (!string.IsNullOrEmpty(status) && !string.Equals(status, "PAID", StringComparison.OrdinalIgnoreCase))
+            // If PayOS provided a signature for return data, verify it before doing anything else.
+            // Even with a valid signature, we will still verify status with PayOS API in the service layer.
+            if (!string.IsNullOrEmpty(data) && !string.IsNullOrEmpty(signature))
             {
-                _logger.LogInformation("Payment not yet paid: OrderCode={OrderCode}", orderCode);
-                return Redirect($"{frontendUrl}/payment-pending?orderCode={orderCode}&status={Uri.EscapeDataString(status ?? "")}");
+                var isValidSignature = await _payOSService.VerifyWebhookSignature(data, signature);
+                if (!isValidSignature)
+                {
+                    _logger.LogWarning("Invalid PayOS return signature: OrderCode={OrderCode}", orderCode);
+                    return Redirect($"{frontendUrl}/payment-failed?reason=invalid_signature&orderCode={orderCode}");
+                }
             }
 
             var result = await _paymentService.ProcessPayOSReturnAsync(
@@ -135,7 +145,7 @@ namespace LearningEnglish.API.Controller.User
         [AllowAnonymous]
         public IActionResult PayOSCancel([FromQuery] long? orderCode)
         {
-            var frontendUrl = _configuration["Frontend:BaseUrl"] ?? "http://localhost:3000";
+            var frontendUrl = GetFrontendBaseUrl();
             _logger.LogInformation("Payment cancelled by user: OrderCode={OrderCode}", orderCode);
             return Redirect($"{frontendUrl}/payment-failed?reason=cancelled&orderCode={orderCode}");
         }
@@ -161,6 +171,17 @@ namespace LearningEnglish.API.Controller.User
             var userId = User.GetUserId();
             var result = await _paymentService.ConfirmPayOSPaymentAsync(paymentId, userId);
             return result.Success ? Ok(result) : StatusCode(result.StatusCode, result);
+        }
+
+        private string GetFrontendBaseUrl()
+        {
+            var frontendUrl = _configuration["Frontend:BaseUrl"]?.Trim();
+            if (string.IsNullOrWhiteSpace(frontendUrl) || !Uri.TryCreate(frontendUrl, UriKind.Absolute, out _))
+            {
+                throw new InvalidOperationException("Frontend:BaseUrl is missing or invalid. Please configure a valid absolute URL.");
+            }
+
+            return frontendUrl.TrimEnd('/');
         }
     }
 }

@@ -39,9 +39,7 @@ export default function SearchBox() {
                 
                 // Only show System Courses (type 1) or courses with undefined/null type for safety/debugging
                 const systemCourses = courses.filter(course => 
-                    (course.type === 1 || course.Type === 1 || 
-                     course.type === undefined || course.type === null ||
-                     course.Type === undefined || course.Type === null)
+                    (course.type === 1 || course.Type === 1)
                 );
                 
                 const mappedCourses = systemCourses.map((course) => ({

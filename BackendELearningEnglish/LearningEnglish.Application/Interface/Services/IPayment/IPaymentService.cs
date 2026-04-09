@@ -1,44 +1,44 @@
 using LearningEnglish.Application.Common;
 using LearningEnglish.Application.Common.Pagination;
 using LearningEnglish.Application.DTOs;
+using LearningEnglish.Domain.Entities;
 
 namespace LearningEnglish.Application.Interface.Services
 {
     public interface IPaymentService
     {
-        /// <summary>
-        /// Tạo payment record (POST /api/payments)
-        /// </summary>
+       
+        // Tạo payment record (POST /api/payments)
+       
         Task<ServiceResponse<CreateInforPayment>> ProcessPaymentAsync(int userId, requestPayment request);
 
-        /// <summary>
-        /// Tạo PayOS payment link (POST /api/payments/{paymentId}/payos)
-        /// </summary>
+        // Tạo PayOS payment link (POST /api/payments/{paymentId}/payos)
+        
         Task<ServiceResponse<PayOSLinkResponse>> CreatePayOSPaymentLinkAsync(int paymentId, int userId);
 
-        /// <summary>
-        /// Confirm payment thủ công (POST /api/payments/confirm)
-        /// </summary>
+        
+        // Confirm payment thủ công (POST /api/payments/confirm)
+        
         Task<ServiceResponse<bool>> ConfirmPaymentAsync(CompletePayment paymentDto, int userId);
 
-        /// <summary>
-        /// Xử lý PayOS webhook với signature verification (POST /api/payments/payos/webhook)
-        /// </summary>
+       
+        // Xử lý PayOS webhook với signature verification (POST /api/payments/payos/webhook)
+       
         Task<ServiceResponse<bool>> ProcessPayOSWebhookAsync(PayOSWebhookDto webhookData);
 
-        /// <summary>
-        /// Xử lý webhook từ queue (retry mechanism) - không cần signature
-        /// </summary>
+        
+        // Xử lý webhook từ queue (retry mechanism) - không cần signature
+        
         Task<ServiceResponse<bool>> ProcessWebhookFromQueueAsync(PayOSWebhookDto webhookData);
 
-        /// <summary>
-        /// Confirm PayOS payment với validation PayOS status (GET /api/payments/payos/confirm/{paymentId})
-        /// </summary>
+   
+        //Confirm PayOS payment với validation PayOS status (GET /api/payments/payos/confirm/{paymentId})
+      
         Task<ServiceResponse<bool>> ConfirmPayOSPaymentAsync(int paymentId, int userId);
 
-        /// <summary>
-        /// Xử lý PayOS return URL (GET /api/payments/payos/return)
-        /// </summary>
+
+        // Xử lý PayOS return URL (GET /api/payments/payos/return)
+       
         Task<ServiceResponse<PayOSReturnResult>> ProcessPayOSReturnAsync(
             string code, 
             string desc, 
@@ -46,14 +46,24 @@ namespace LearningEnglish.Application.Interface.Services
             string? orderCode = null, 
             string? status = null);
 
-        /// <summary>
-        /// Lấy lịch sử giao dịch với phân trang (GET /api/payments/history)
-        /// </summary>
+    
+        // Lấy lịch sử giao dịch với phân trang (GET /api/payments/history)
+ 
         Task<ServiceResponse<PagedResult<TransactionHistoryDto>>> GetTransactionHistoryAsync(int userId, PageRequest request);
 
-        /// <summary>
-        /// Lấy chi tiết giao dịch (GET /api/payments/{paymentId})
-        /// </summary>
+    
+        // Lấy chi tiết giao dịch (GET /api/payments/{paymentId})
+    
         Task<ServiceResponse<TransactionDetailDto>> GetTransactionDetailAsync(int paymentId, int userId);
+
+       
+        //Lấy danh sách webhook lỗi (DeadLetter) - Dành cho Admin
+      
+        Task<ServiceResponse<IEnumerable<PaymentWebhookQueue>>> GetFailedWebhooksAsync();
+
+      
+        // Thử lại một webhook lỗi - Dành cho Admin
+      
+        Task<ServiceResponse<bool>> RetryWebhookAsync(int webhookId);
     }
 }

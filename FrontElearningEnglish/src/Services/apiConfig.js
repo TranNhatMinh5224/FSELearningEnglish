@@ -159,12 +159,10 @@ export const API_ENDPOINTS = {
         PROCESS: "/user/payments/process",
         CONFIRM: "/user/payments/confirm",
         HISTORY: "/user/payments/history",
-        HISTORY_ALL: "/user/payments/history/all",
         TRANSACTION_DETAIL: (paymentId) => `/user/payments/transaction/${paymentId}`,
         // PayOS endpoints
         PAYOS_CREATE_LINK: (paymentId) => `/user/payments/payos/create-link/${paymentId}`,
-        // Note: PayOS_CONFIRM không cần vì backend xử lý tự động qua webhook
-        // PAYOS_CONFIRM: (paymentId) => `/user/payments/payos/confirm/${paymentId}`,
+        PAYOS_CONFIRM: (paymentId) => `/user/payments/payos/confirm/${paymentId}`,
     },
     // Teacher Packages
     TEACHER_PACKAGES: {

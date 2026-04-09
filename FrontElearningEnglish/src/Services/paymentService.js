@@ -16,13 +16,14 @@ export const paymentService = {
             params: { pageNumber, pageSize }
         }),
 
-    getAllHistory: () => axiosClient.get(API_ENDPOINTS.PAYMENTS.HISTORY_ALL),
-
     getTransactionDetail: (paymentId) =>
         axiosClient.get(API_ENDPOINTS.PAYMENTS.TRANSACTION_DETAIL(paymentId)),
+
+    // PayOS payment verification/confirmation (polling)
+    confirmPayOsPayment: (paymentId) =>
+        axiosClient.post(API_ENDPOINTS.PAYMENTS.PAYOS_CONFIRM(paymentId)),
 
     // PayOS payment link creation
     createPayOsLink: (paymentId) =>
         axiosClient.post(API_ENDPOINTS.PAYMENTS.PAYOS_CREATE_LINK(paymentId)),
-
 };

@@ -43,6 +43,13 @@ namespace LearningEnglish.Application.DTOs
         public string CheckoutUrl { get; set; } = string.Empty;
         public string OrderCode { get; set; } = string.Empty;
         public int PaymentId { get; set; }
+        public string Bin { get; set; } = string.Empty;
+        public string AccountNumber { get; set; } = string.Empty;
+        public string AccountName { get; set; } = string.Empty;
+        public decimal Amount { get; set; }
+        public string Description { get; set; } = string.Empty;
+        public string QrCode { get; set; } = string.Empty;
+        public string BankName { get; set; } = string.Empty;
     }
 
     public class PayOSWebhookDto

@@ -3,8 +3,10 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import "./PaymentSuccess.css";
 import { FaCheckCircle } from "react-icons/fa";
 import { paymentService } from "../../Services/paymentService";
+import { useAuth } from "../../Context/AuthContext";
 
 export default function PaymentSuccess() {
+  const { refreshUser } = useAuth();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const paymentId = searchParams.get("paymentId");
@@ -15,6 +17,9 @@ export default function PaymentSuccess() {
 
   useEffect(() => {
     const fetchPaymentDetails = async () => {
+      // Refresh user profile to get new role/subscription before showing details
+      await refreshUser();
+      
       if (!paymentId) {
         setLoading(false);
         return;

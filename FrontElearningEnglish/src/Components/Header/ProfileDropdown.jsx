@@ -50,7 +50,7 @@ export default function ProfileDropdown() {
                 : user?.fullName}
             </span>
             <span className="role">
-              {isOnTeacherInterface ? "Giáo viên" : "Học sinh"}
+              {isAdmin ? "Quản trị viên" : (isTeacher ? "Giáo viên" : "Học sinh")}
             </span>
           </div>
         )}

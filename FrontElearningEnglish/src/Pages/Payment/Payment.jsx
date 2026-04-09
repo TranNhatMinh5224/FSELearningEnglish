@@ -1,10 +1,10 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import "./Payment.css";
 import { paymentService } from "../../Services/paymentService";
 import { teacherPackageService } from "../../Services/teacherPackageService";
 import { courseService } from "../../Services/courseService";
-import { FaCheckCircle, FaLock } from "react-icons/fa";
+import { FaCheckCircle, FaLock, FaCopy, FaInfoCircle } from "react-icons/fa";
 import MainHeader from "../../Components/Header/MainHeader";
 import NotificationModal from "../../Components/Common/NotificationModal/NotificationModal";
 
@@ -16,7 +16,6 @@ export default function Payment() {
     const courseId = searchParams.get("courseId"); // courseId for course payment
     const typeproduct = searchParams.get("typeproduct"); // 1 for Course, 2 for TeacherPackage
 
-    const [checkoutUrl, setCheckoutUrl] = useState("");
     const [selectedPackage, setSelectedPackage] = useState(null);
     const [selectedCourse, setSelectedCourse] = useState(null);
     const [loading, setLoading] = useState(true);
@@ -25,6 +24,93 @@ export default function Payment() {
     const [showErrorModal, setShowErrorModal] = useState(false);
     const [errorMessage, setErrorMessage] = useState("");
     const [errorType, setErrorType] = useState("error");
+    const [payOsDetails, setPayOsDetails] = useState(null);
+    const [pollingStartTime] = useState(Date.now());
+    const [pollingActive, setPollingActive] = useState(true);
+    const [isCheckingStatus, setIsCheckingStatus] = useState(false);
+
+    const getPayOsValue = useCallback((camelKey, pascalKey) => {
+        if (!payOsDetails) return "";
+        return payOsDetails[camelKey] ?? payOsDetails[pascalKey] ?? "";
+    }, [payOsDetails]);
+
+    const resolveQrImageSrc = useCallback(() => {
+        const qrCode = getPayOsValue("qrCode", "QrCode");
+        if (!qrCode) return "";
+
+        if (typeof qrCode === "string") {
+            const trimmed = qrCode.trim();
+            if (trimmed.startsWith("http://") || trimmed.startsWith("https://") || trimmed.startsWith("data:image/")) {
+                return trimmed;
+            }
+
+            // qrCode là chuỗi raw (EMV/text) -> render bằng dịch vụ QR
+            return `https://api.qrserver.com/v1/create-qr-code/?size=360x360&data=${encodeURIComponent(trimmed)}`;
+        }
+
+        return "";
+    }, [getPayOsValue]);
+    // Polling logic to check payment status
+    useEffect(() => {
+        let pollInterval;
+        if (payOsDetails && !isRedirecting && pollingActive) {
+            pollInterval = setInterval(async () => {
+                // Check for timeout (15 minutes = 900,000 ms)
+                if (Date.now() - pollingStartTime > 900000) {
+                    setPollingActive(false);
+                    clearInterval(pollInterval);
+                    return;
+                }
+
+                try {
+                    const currentPaymentId = getPayOsValue("paymentId", "PaymentId");
+                    if (!currentPaymentId) return;
+
+                    const statusRes = await paymentService.confirmPayOsPayment(currentPaymentId);
+                    if (statusRes.data?.success) {
+                        clearInterval(pollInterval);
+                        setIsRedirecting(true);
+                        setTimeout(() => {
+                            navigate(`/payment-success?paymentId=${currentPaymentId}&status=success`);
+                        }, 1000);
+                    }
+                } catch {
+                }
+            }, 4000); // Poll every 4 seconds
+        }
+
+        return () => {
+            if (pollInterval) clearInterval(pollInterval);
+        };
+    }, [payOsDetails, isRedirecting, pollingActive, pollingStartTime, navigate, getPayOsValue]);
+
+    const handleManualCheck = async () => {
+        if (isCheckingStatus) return;
+        
+        try {
+            setIsCheckingStatus(true);
+            const currentPaymentId = getPayOsValue("paymentId", "PaymentId");
+            if (!currentPaymentId) return;
+
+            const statusRes = await paymentService.confirmPayOsPayment(currentPaymentId);
+            if (statusRes.data?.success) {
+                setIsRedirecting(true);
+                setTimeout(() => {
+                    navigate(`/payment-success?paymentId=${currentPaymentId}&status=success`);
+                }, 1000);
+            } else {
+                setErrorMessage("Giao dịch chưa hoàn tất hoặc chưa được ghi nhận.");
+                setErrorType("info");
+                setShowErrorModal(true);
+            }
+        } catch (err) {
+            setErrorMessage("Không thể kiểm tra trạng thái lúc này. Vui lòng thử lại sau.");
+            setErrorType("error");
+            setShowErrorModal(true);
+        } finally {
+            setIsCheckingStatus(false);
+        }
+    };
 
     useEffect(() => {
         let isCancelled = false; // Flag to prevent state updates after unmount
@@ -98,12 +184,6 @@ export default function Payment() {
                 // Generate unique IdempotencyKey to prevent duplicate payments
                 const idempotencyKey = `${Date.now()}-${productId}-${productType}`;
                 
-                console.log("Creating payment with:", { 
-                    ProductId: productId, 
-                    typeproduct: productType,
-                    IdempotencyKey: idempotencyKey
-                });
-                
                 const paymentResponse = await paymentService.processPayment({
                     ProductId: productId,
                     typeproduct: productType,
@@ -111,7 +191,6 @@ export default function Payment() {
                 });
                 
                 if (isCancelled) return; // Check after async operation
-                console.log("Payment response:", paymentResponse.data);
 
                 if (!paymentResponse.data?.success || !paymentResponse.data?.data?.paymentId) {
                     throw new Error(paymentResponse.data?.message || "Không thể tạo thanh toán");
@@ -119,57 +198,32 @@ export default function Payment() {
 
                 const createdPaymentId = paymentResponse.data.data.paymentId;
 
+                if (paymentResponse.data?.data?.amount === 0) {
+                    setIsRedirecting(true);
+                    setTimeout(() => {
+                        navigate(`/payment-success?paymentId=${createdPaymentId}&status=success&type=free`);
+                    }, 1000);
+                    return;
+                }
+
                 // Create PayOS link to get QR code and checkout URL
-                console.log("Creating PayOS link for payment:", createdPaymentId);
                 const payOsResponse = await paymentService.createPayOsLink(createdPaymentId);
                 
                 if (isCancelled) return; // Check after async operation
-                console.log("PayOS response:", payOsResponse.data);
 
                 if (!payOsResponse.data?.success || !payOsResponse.data?.data) {
                     throw new Error(payOsResponse.data?.message || "Không thể tạo link thanh toán");
                 }
 
-                const checkoutLink = payOsResponse.data.data.checkoutUrl;
+                setPayOsDetails(payOsResponse.data.data);
+                setLoading(false);
 
-                setCheckoutUrl(checkoutLink);
-                setIsRedirecting(true);
-                
-                // Tự động chuyển hướng (Seamless UX) sau 1.2s để user nhận thức độ bảo mật
-                setTimeout(() => {
-                    window.location.href = checkoutLink;
-                }, 1200);
-
-                // Lưu ý: KHÔNG tắt loading ở đây để giữ lại loading screen sang xịn 
-                // cho đến khi trình duyệt nảy sang PayOS.
             } catch (error) {
-                console.error("Error processing payment:", error);
-                console.error("Error details:", {
-                    message: error.message,
-                    response: error.response?.data,
-                    status: error.response?.status
-                });
-                
                 let errorMessage = "Có lỗi xảy ra khi xử lý thanh toán";
                 let errorType = "error";
                 
                 if (error.response?.data?.message) {
                     errorMessage = error.response.data.message;
-                    
-                    // Kiểm tra các trường hợp đặc biệt
-                    const messageLower = errorMessage.toLowerCase();
-                    if (messageLower.includes("đã là giáo viên") || 
-                        messageLower.includes("đã là teacher") ||
-                        messageLower.includes("đang hoạt động")) {
-                        errorType = "info";
-                    } else if (messageLower.includes("đã mua") || 
-                               messageLower.includes("đã đăng ký")) {
-                        errorType = "info";
-                    }
-                } else if (error.response?.data?.errors) {
-                    // Handle validation errors
-                    const errors = error.response.data.errors;
-                    errorMessage = Object.values(errors).flat().join(", ");
                 } else if (error.message) {
                     errorMessage = error.message;
                 }
@@ -178,7 +232,6 @@ export default function Payment() {
                 setLoading(false);
                 setIsRedirecting(false);
                 
-                // Hiển thị thông báo bằng NotificationModal
                 setErrorMessage(errorMessage);
                 setErrorType(errorType);
                 setShowErrorModal(true);
@@ -187,22 +240,23 @@ export default function Payment() {
 
         if (courseId || packageId || packageType) {
             processPayment();
-        } else {
-            setError("Không tìm thấy sản phẩm cần thanh toán");
-            setLoading(false);
         }
         
-        // Cleanup function to prevent state updates after unmount
         return () => {
             isCancelled = true;
         };
-    }, [courseId, packageId, packageType, typeproduct]);
+    }, [courseId, packageId, packageType, typeproduct, navigate]);
 
-    const handleBack = () => {
-        navigate("/home");
+    const copyToClipboard = (text, label) => {
+        if (!text) return;
+        navigator.clipboard.writeText(text);
+        setErrorMessage(`Đã sao chép ${label}`);
+        setErrorType("success");
+        setShowErrorModal(true);
     };
 
     const handleOpenCheckout = () => {
+        const checkoutUrl = getPayOsValue("checkoutUrl", "CheckoutUrl");
         if (checkoutUrl) {
             window.location.href = checkoutUrl;
         }
@@ -212,89 +266,169 @@ export default function Payment() {
         <>
             <MainHeader />
             <div className="payment-container">
-                {/* header intentionally left minimal for checkout */}
-
-                <div className="payment-card">
-                    {loading ? (
-                        <div className="payment-loading">
-                            {isRedirecting ? (
-                                <>
-                                    <FaCheckCircle className="secure-lock-icon redirecting" style={{color: '#3b82f6'}} />
-                                    <h2 className="loading-text-primary">Đã tạo kết nối!</h2>
-                                    <p className="loading-text-secondary">
-                                        Chuẩn bị chuyển hướng đến PayOS...
-                                    </p>
-                                </>
-                            ) : (
-                                <>
-                                    <FaLock className="secure-lock-icon" />
-                                    <h2 className="loading-text-primary">Thiết lập thanh toán bảo mật...</h2>
-                                    <p className="loading-text-secondary">
-                                        Hệ thống đang mã hóa dữ liệu và chuẩn bị cổng thanh toán an toàn cho bạn. Vui lòng chờ trong giây lát.
-                                    </p>
-                                    <div className="mt-4 payment-mini-spinner">
-                                        <div className="spinner"></div>
-                                    </div>
-                                </>
-                            )}
+                {loading ? (
+                    <div className="payment-loading">
+                        <div className="spinner"></div>
+                        <h2 className="loading-text-primary">Đang khởi tạo thanh toán</h2>
+                        <p className="loading-text-secondary">Vui lòng đợi trong giây lát khi chúng tôi thiết lập giao dịch an toàn cho bạn...</p>
+                    </div>
+                ) : error ? (
+                    <div className="payment-card error">
+                        <h2 className="payment-title">Có lỗi xảy ra</h2>
+                        <p className="payment-error">{error}</p>
+                        <button className="btn-back" onClick={() => navigate("/home")}>
+                            Về trang chủ
+                        </button>
+                    </div>
+                ) : isRedirecting ? (
+                    <div className="payment-loading">
+                        <div className="secure-lock-icon redirecting">
+                            <FaCheckCircle />
                         </div>
-                    ) : error ? (
-                        <>
-                            <h1 className="payment-title">Có lỗi xảy ra</h1>
-                            <div className="payment-error">{error}</div>
-                            <button className="btn-back" onClick={handleBack}>
-                                Quay lại trang chủ
-                            </button>
-                        </>
-                    ) : (
-                        <>
-                            <h1 className="payment-title">Thanh toán</h1>
-                            
-                            {selectedCourse && (
-                                <div className="package-info">
-                                    <h3>{selectedCourse.title}</h3>
-                                    <p className="package-price">
-                                        {selectedCourse.price > 0 
-                                            ? `${selectedCourse.price.toLocaleString("vi-VN")}đ`
-                                            : "Miễn phí"}
-                                    </p>
+                        <h2 className="loading-text-primary">Thanh toán thành công!</h2>
+                        <p className="loading-text-secondary">Hệ thống đã ghi nhận thanh toán của bạn. Đang chuyển hướng...</p>
+                        <div className="payment-mini-spinner">
+                            <div className="spinner"></div>
+                        </div>
+                    </div>
+                ) : payOsDetails ? (
+                    <div className="qr-checkout-card">
+                        <div className="qr-checkout-grid">
+                            {/* Left Column: QR Code */}
+                            <div className="qr-left">
+                                <div className="qr-image-container">
+                                    {resolveQrImageSrc() ? (
+                                    <img 
+                                        src={resolveQrImageSrc()}
+                                        alt="Payment QR code"
+                                        className="qr-image" 
+                                    />
+                                    ) : (
+                                        <div className="text-muted small text-center p-3">
+                                            Không lấy được QR từ cổng thanh toán. Vui lòng bấm "Tiến hành thanh toán" để mở trang PayOS.
+                                        </div>
+                                    )}
                                 </div>
-                            )}
-                            
-                            {selectedPackage && (
-                                <div className="package-info">
-                                    <h3>{selectedPackage.packageName}</h3>
-                                    <p className="package-price">
-                                        {selectedPackage.price > 0 
-                                            ? `${selectedPackage.price.toLocaleString("vi-VN")}đ/tháng`
-                                            : "Miễn phí"}
-                                    </p>
+                                <div className="polling-status">
+                                    {pollingActive ? (
+                                        <>
+                                            <div className="pulse-loader"></div>
+                                            <span>Đang chờ bạn quét mã...</span>
+                                        </>
+                                    ) : (
+                                        <span className="text-warning">Giao diện chờ đã hết hạn (15p). Vui lòng kiểm tra thủ công.</span>
+                                    )}
                                 </div>
-                            )}
+                                <p className="qr-instruction">
+                                    Sử dụng App Ngân hàng hoặc Ví điện tử để quét mã VietQR
+                                </p>
+                            </div>
 
-                            <div className="payment-methods">
-                                <div className="payment-method web-method">
-                                    <h2 className="method-title">
-                                        <FaCheckCircle /> Thanh toán trực tuyến
-                                    </h2>
-                                    <p className="method-description">
-                                        Thanh toán nhanh chóng qua cổng thanh toán PayOS
-                                    </p>
-                                    <button className="btn-checkout" onClick={handleOpenCheckout}>
-                                        Mở trang thanh toán
+                            {/* Right Column: Details */}
+                            <div className="qr-right">
+                                <h3 className="qr-title">Thông tin chuyển khoản</h3>
+                                
+                                <div className="qr-details-group">
+                                    <div className="qr-detail-item">
+                                        <span className="label">SỐ TIỀN</span>
+                                        <span className="value price">
+                                            {(Number(getPayOsValue("amount", "Amount")) || 0).toLocaleString("vi-VN")} VNĐ
+                                        </span>
+                                    </div>
+
+                                    <div className="qr-detail-item">
+                                        <span className="label">NGÂN HÀNG</span>
+                                        <span className="value bold">{getPayOsValue("bankName", "BankName") || "Ngân hàng liên kết"}</span>
+                                    </div>
+
+                                    <div className="qr-detail-item">
+                                        <span className="label">SỐ TÀI KHOẢN</span>
+                                        <div className="value-group">
+                                            <span className="value highlight">{getPayOsValue("accountNumber", "AccountNumber") || "Đang cập nhật"}</span>
+                                            <button 
+                                                className="copy-btn" 
+                                                onClick={() => copyToClipboard(getPayOsValue("accountNumber", "AccountNumber"), "Số tài khoản")}
+                                                title="Sao chép"
+                                            >
+                                                <FaCopy size={16} />
+                                            </button>
+                                        </div>
+                                    </div>
+
+                                    <div className="qr-detail-item">
+                                        <span className="label">CHỦ TÀI KHOẢN</span>
+                                        <span className="value uppercase">{getPayOsValue("accountName", "AccountName") || "PayOS"}</span>
+                                    </div>
+
+                                    <div className="qr-detail-item content-item">
+                                        <div className="content-box">
+                                            <span className="label">NỘI DUNG CHUYỂN KHOẢN</span>
+                                            <span className="content-value">{getPayOsValue("description", "Description") || ""}</span>
+                                            <button 
+                                                className="copy-btn-large"
+                                                onClick={() => copyToClipboard(getPayOsValue("description", "Description"), "Nội dung chuyển khoản")}
+                                            >
+                                                <FaCopy size={16} />
+                                                Sao chép
+                                            </button>
+                                            <p className="content-warning">
+                                                <FaInfoCircle size={14} />
+                                                Vui lòng giữ nguyên nội dung chuyển khoản.
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div className="qr-footer">
+                                    <button 
+                                        className={`btn-check-status ${isCheckingStatus ? 'loading' : ''}`} 
+                                        onClick={handleManualCheck}
+                                        disabled={isCheckingStatus}
+                                    >
+                                        {isCheckingStatus ? "Đang kiểm tra..." : "Tôi đã chuyển khoản"}
+                                    </button>
+                                    <button className="btn-cancel" onClick={() => navigate("/home")}>
+                                        Hủy giao dịch
                                     </button>
                                 </div>
                             </div>
+                        </div>
+                    </div>
+                ) : (
+                    <div className="payment-card">
+                        <div className="package-info">
+                            <h3>{selectedCourse?.title || selectedPackage?.packageName || "Sản phẩm"}</h3>
+                            <p className="package-price">
+                                {selectedCourse 
+                                    ? (selectedCourse.price || 0).toLocaleString("vi-VN") 
+                                    : (selectedPackage?.price || 0).toLocaleString("vi-VN")
+                                } VNĐ
+                            </p>
+                        </div>
 
-                            <div className="payment-note">
-                                <p>
-                                    💡 <strong>Lưu ý:</strong> Sau khi thanh toán thành công, 
-                                    bạn sẽ được chuyển hướng tự động. Vui lòng không đóng trang này.
+                        <div className="payment-methods">
+                            <div className="payment-method">
+                                <div className="method-title">
+                                    <FaLock /> Thanh toán an toàn qua PayOS
+                                </div>
+                                <p className="method-description">
+                                    Hệ thống hỗ trợ VietQR và chuyển khoản ngân hàng 24/7.
                                 </p>
+                                <button className="btn-checkout" onClick={handleOpenCheckout}>
+                                    Tiến hành thanh toán
+                                </button>
                             </div>
-                        </>
-                    )}
-                </div>
+                        </div>
+
+                        <div className="payment-note">
+                            <p><strong>Lưu ý:</strong></p>
+                            <ul>
+                                <li>Giao dịch sẽ được xử lý tự động ngay khi tiền vào tài khoản.</li>
+                                <li>Vui lòng không tắt trình duyệt trong quá trình thanh toán.</li>
+                            </ul>
+                        </div>
+                    </div>
+                )}
             </div>
 
             <NotificationModal
@@ -303,7 +437,6 @@ export default function Payment() {
                 type={errorType}
                 message={errorMessage}
                 autoClose={true}
-                autoCloseDelay={4000}
             />
         </>
     );

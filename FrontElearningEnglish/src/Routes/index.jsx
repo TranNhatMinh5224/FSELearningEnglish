@@ -17,6 +17,7 @@ import ResetPassword from "../Pages/ResetPassword/ResetPassword";
 import Payment from "../Pages/Payment/Payment";
 import PaymentSuccess from "../Pages/Payment/PaymentSuccess";
 import PaymentFailed from "../Pages/Payment/PaymentFailed";
+import PaymentPending from "../Pages/Payment/PaymentPending";
 import PaymentHistory from "../Pages/PaymentHistory/PaymentHistory";
 import VocabularyReview from "../Pages/VocabularyReview/VocabularyReview";
 import FlashCardReviewSession from "../Pages/FlashCardReviewSession/FlashCardReviewSession";
@@ -64,6 +65,7 @@ import AdminSubmissionManagement from "../Pages/Admin/AdminSubmissionManagement/
 import PackageManagement from "../Pages/Admin/PackageManagement/PackageManagement";
 import AdminManagement from "../Pages/Admin/AdminManagement/AdminManagement";
 import AssetManagement from "../Pages/Admin/AssetManagement/AssetManagement";
+import PaymentMonitoring from "../Pages/Admin/PaymentMonitoring/PaymentMonitoring";
 
 /**
  * Application Routes
@@ -94,6 +96,7 @@ export default function AppRoutes() {
       <Route path={ROUTE_PATHS.PAYMENT} element={<Payment />} />
       <Route path="/payment-success" element={<PaymentSuccess />} />
       <Route path="/payment-failed" element={<PaymentFailed />} />
+      <Route path={ROUTE_PATHS.PAYMENT_PENDING} element={<PaymentPending />} />
       <Route path={ROUTE_PATHS.PAYMENT_HISTORY} element={<PaymentHistory />} />
       <Route path={ROUTE_PATHS.VOCABULARY_REVIEW} element={<VocabularyReview />} />
       <Route path="/vocabulary-review/session" element={<FlashCardReviewSession />} />
@@ -151,6 +154,7 @@ export default function AppRoutes() {
         <Route path="asset-management" element={<AssetManagement />} />
         <Route path="finance" element={<AdminDashboard />} />
         <Route path="submission-management" element={<AdminSubmissionManagement />} />
+        <Route path="payment-monitoring" element={<PaymentMonitoring />} />
       </Route>
     </Routes>
   );

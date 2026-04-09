@@ -28,9 +28,7 @@ export default function SearchResults() {
             
             // Safety layer: filter by type if available, allowing null/undefined for transition
             const systemCourses = coursesData.filter(course => 
-                (course.type === 1 || course.Type === 1 || 
-                 course.type === undefined || course.type === null ||
-                 course.Type === undefined || course.Type === null)
+                (course.type === 1 || course.Type === 1)
             );
             
             const mappedCourses = systemCourses.map((course) => ({
