@@ -214,6 +214,7 @@ namespace LearningEnglish.Application.Service
                 _mapper.Map(dto, module);
                 var updated = await _moduleRepository.UpdateAsync(module);
                 _cache.RemoveByPrefix(CacheKeys.ModulesPrefix);
+                _cache.RemoveByPrefix(CacheKeys.LecturesPrefix); // Cascade: Lectures contains ModuleName
 
                 if (!string.IsNullOrWhiteSpace(oldImageKey) && newImageKey != null)
                 {

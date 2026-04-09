@@ -140,7 +140,7 @@ namespace LearningEnglish.Application.Service
                 }
 
                 var cachedAssessment = await _cache.GetOrSetAsync(
-                    $"assessment:detail:{assessmentId}", // Manual key since it's not in CacheKeys yet
+                    CacheKeys.AssessmentDetail(assessmentId),
                     async () =>
                     {
                         var assessment = await _assessmentRepository.GetAssessmentById(assessmentId);

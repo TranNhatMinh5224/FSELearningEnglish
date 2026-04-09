@@ -42,6 +42,9 @@ namespace LearningEnglish.Application.Interface
 
         // Kiểm tra user đã đăng ký khóa học
         Task<bool> IsUserEnrolled(int courseId, int userId);
+
+        // Kiểm tra user đã đăng ký khóa học dựa trên lectureId
+        Task<bool> IsUserEnrolledByLectureId(int lectureId, int userId);
         
         // Lấy thông tin đăng ký khóa học
         Task<UserCourse?> GetUserCourseAsync(int userId, int courseId);

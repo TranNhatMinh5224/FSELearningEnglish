@@ -176,6 +176,7 @@ namespace LearningEnglish.Application.Service
                 // Admin có full quyền cập nhật lessons
                 await _lessonRepository.UpdateLesson(lesson);
                 _cache.RemoveByPrefix(CacheKeys.LessonsPrefix);
+                _cache.RemoveByPrefix(CacheKeys.ModulesPrefix); // Cascade: Modules contains LessonTitle
 
                 // Xóa ảnh cũ nếu có ảnh mới
                 if (!string.IsNullOrWhiteSpace(oldImageKey) && !string.IsNullOrWhiteSpace(newImageKey))

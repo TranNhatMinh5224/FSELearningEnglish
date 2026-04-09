@@ -1,8 +1,13 @@
 using System.Text;
+using System.Security.Cryptography;
+using System.Text.RegularExpressions;
 using LearningEnglish.Application.Common;
+using LearningEnglish.Application.Common.Constants;
 using LearningEnglish.Application.DTOs.ChatBotAI;
 using LearningEnglish.Application.Interface;
+using LearningEnglish.Application.Interface.Infrastructure;
 using LearningEnglish.Application.Interface.Infrastructure.ChatBotAI;
+using Microsoft.Extensions.Logging;
 
 namespace LearningEnglish.Application.Service;
 
@@ -12,6 +17,11 @@ public class ChatBotAIService : IChatBotAIService
     private readonly ICourseEmbeddingRepository _courseEmbeddingRepository;
     private readonly ITeacherPackageEmbeddingRepository _teacherPackageEmbeddingRepository;
     private readonly ISemanticChatService _semanticChatService;
+    private readonly ILogger<ChatBotAIService> _logger;
+    private readonly ICacheService _cache;
+
+    private static readonly TimeSpan ConsultCacheTtl = TimeSpan.FromMinutes(10);
+    private const int MaxPromptLength = 1000;
 
     private const string SystemPrompt = """
         Bạn là trợ lý tư vấn học tiếng Anh của nền tảng Catalunya English (AI Catalunya English).
@@ -32,15 +42,19 @@ public class ChatBotAIService : IChatBotAIService
         IEmbeddingService embeddingService,
         ICourseEmbeddingRepository courseEmbeddingRepository,
         ITeacherPackageEmbeddingRepository teacherPackageEmbeddingRepository,
-        ISemanticChatService semanticChatService)
+        ISemanticChatService semanticChatService,
+        ILogger<ChatBotAIService> logger,
+        ICacheService cache)
     {
         _embeddingService = embeddingService;
         _courseEmbeddingRepository = courseEmbeddingRepository;
         _teacherPackageEmbeddingRepository = teacherPackageEmbeddingRepository;
         _semanticChatService = semanticChatService;
+        _logger = logger;
+        _cache = cache;
     }
 
-    public async Task<ServiceResponse<ChatBotConsultResponseDto>> GetChatBotResponseAsync(ChatBotConsultRequestDto request)
+    public async Task<ServiceResponse<ChatBotConsultResponseDto>> GetChatBotResponseAsync(ChatBotConsultRequestDto request, CancellationToken cancellationToken = default)
     {
         try
         {
@@ -56,25 +70,50 @@ public class ChatBotAIService : IChatBotAIService
                 };
             }
 
-            // Step 1: Vectorize the user query
-            var queryEmbedding = await _embeddingService.CreateEmbeddingAsync(prompt);
+            // Defense-in-depth (validator already enforces this in most cases)
+            if (prompt.Length > MaxPromptLength)
+            {
+                return new ServiceResponse<ChatBotConsultResponseDto>
+                {
+                    Success = false,
+                    StatusCode = 400,
+                    Message = $"Prompt must not exceed {MaxPromptLength} characters.",
+                    Data = null
+                };
+            }
 
-            // Step 2: ANN search — only System + Published courses and all teacher packages
-            var topCourses = await _courseEmbeddingRepository.SearchTopKSystemCoursesAsync(queryEmbedding, topK: 5);
-            var topTeacherPackages = await _teacherPackageEmbeddingRepository.SearchTopKTeacherPackagesAsync(queryEmbedding, topK: 3);
+            var promptHash = ComputePromptHash(prompt);
+            var cacheKey = CacheKeys.ChatBotConsult(promptHash);
 
-            // Step 3: Build RAG context
-            var context = BuildRagContext(topCourses, topTeacherPackages);
+            async Task<string> GenerateAnswerAsync()
+            {
+                // Step 1: Vectorize the user query
+                var queryEmbedding = await _embeddingService.CreateEmbeddingAsync(prompt);
 
-            // Step 4: Compose user prompt with context
-            var userPromptWithContext = $"""
-                {context}
-                
-                Câu hỏi của học viên: {prompt}
-                """;
+                // Step 2: ANN search — only System + Published courses and all teacher packages
+                var topCourses = await _courseEmbeddingRepository.SearchTopKSystemCoursesAsync(queryEmbedding, topK: 5);
+                var topTeacherPackages = await _teacherPackageEmbeddingRepository.SearchTopKTeacherPackagesAsync(queryEmbedding, topK: 3);
 
-            // Step 5: Call LLM via Semantic Kernel
-            var answer = await _semanticChatService.GetChatCompletionAsync(SystemPrompt, userPromptWithContext);
+                // Step 3: Build RAG context
+                var context = BuildRagContext(topCourses, topTeacherPackages);
+
+                // Step 4: Compose user prompt with context
+                var userPromptWithContext = $"""
+                    {context}
+                    
+                    Câu hỏi của học viên: {prompt}
+                    """;
+
+                // Step 5: Call LLM via Semantic Kernel
+                return await _semanticChatService.GetChatCompletionAsync(SystemPrompt, userPromptWithContext, cancellationToken);
+            }
+
+            // Avoid caching prompts that look like they may contain personal identifiers.
+            var answer = ShouldCachePrompt(prompt)
+                ? await _cache.GetOrSetAsync(cacheKey, GenerateAnswerAsync, ConsultCacheTtl)
+                : await GenerateAnswerAsync();
+
+            answer ??= string.Empty;
 
             return new ServiceResponse<ChatBotConsultResponseDto>
             {
@@ -89,14 +128,31 @@ public class ChatBotAIService : IChatBotAIService
         }
         catch (Exception ex)
         {
+            _logger.LogError(ex, "Chatbot consult failed");
             return new ServiceResponse<ChatBotConsultResponseDto>
             {
                 Success = false,
                 StatusCode = 500,
-                Message = $"Failed to consult chatbot: {ex.Message}",
+                Message = "Chatbot hiện đang gặp sự cố. Vui lòng thử lại sau.",
                 Data = null
             };
         }
+    }
+
+    private static string ComputePromptHash(string prompt)
+    {
+        var normalized = Regex.Replace(prompt.Trim(), "\\s+", " ");
+        var bytes = Encoding.UTF8.GetBytes(normalized);
+        return Convert.ToHexString(SHA256.HashData(bytes));
+    }
+
+    private static bool ShouldCachePrompt(string prompt)
+    {
+        // Very lightweight heuristic to reduce the risk of caching prompts containing personal identifiers.
+        // Chatbot is meant for public course/package consults, so skipping cache for these cases is acceptable.
+        if (prompt.Contains('@')) return false; // likely email
+        if (Regex.IsMatch(prompt, "\\b\\d{9,}\\b")) return false; // likely phone / id / long numbers
+        return true;
     }
 
     private static string BuildRagContext(

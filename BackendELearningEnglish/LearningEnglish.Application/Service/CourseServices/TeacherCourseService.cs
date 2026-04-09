@@ -7,6 +7,7 @@ using LearningEnglish.Application.Common.Utils;
 using LearningEnglish.Application.Common.Helpers;
 using LearningEnglish.Application.Common.Pagination;
 using LearningEnglish.Application.Interface.Infrastructure.ChatBotAI;
+using LearningEnglish.Application.Interface.Infrastructure;
 using LearningEnglish.Application.Interface.Infrastructure.MediaService;
 using AutoMapper;
 using LearningEnglish.Domain.Enums;
@@ -24,6 +25,7 @@ namespace LearningEnglish.Application.Service
         private readonly ITeacherPackageRepository _teacherPackageRepository;
         private readonly ICourseImageService _courseImageService;
         private readonly IEmbeddingIngestionService _embeddingIngestionService;
+        private readonly ICacheService _cache;
 
         public TeacherCourseService(
             ICourseRepository courseRepository,
@@ -32,7 +34,8 @@ namespace LearningEnglish.Application.Service
             ILogger<TeacherCourseService> logger,
             ITeacherPackageRepository teacherPackageRepository,
             ICourseImageService courseImageService,
-            IEmbeddingIngestionService embeddingIngestionService)
+            IEmbeddingIngestionService embeddingIngestionService,
+            ICacheService cache)
         {
             _courseRepository = courseRepository;
             _userRepository = userRepository;
@@ -41,6 +44,7 @@ namespace LearningEnglish.Application.Service
             _teacherPackageRepository = teacherPackageRepository;
             _courseImageService = courseImageService;
             _embeddingIngestionService = embeddingIngestionService;
+            _cache = cache;
         }
         // Tạo Khóa học 
 
@@ -132,6 +136,7 @@ namespace LearningEnglish.Application.Service
                 {
                     await _courseRepository.AddCourse(course);
                     await _embeddingIngestionService.UpsertCourseEmbeddingAsync(course);
+                    _cache.RemoveByPrefix(CacheKeys.CoursesPrefix);
                 }
                 catch (Exception dbEx)
                 {
@@ -281,6 +286,7 @@ namespace LearningEnglish.Application.Service
                 {
                     await _courseRepository.UpdateCourse(course);
                     await _embeddingIngestionService.UpsertCourseEmbeddingAsync(course);
+                    _cache.RemoveByPrefix(CacheKeys.CoursesPrefix);
                 }
                 catch (Exception dbEx)
                 {
@@ -407,6 +413,7 @@ namespace LearningEnglish.Application.Service
 
                 await _courseRepository.DeleteCourse(courseId);
                 await _embeddingIngestionService.DeleteCourseEmbeddingsAsync(courseId);
+                _cache.RemoveByPrefix(CacheKeys.CoursesPrefix);
 
                 response.Success = true;
                 response.StatusCode = 200;

@@ -32,6 +32,8 @@ namespace LearningEnglish.Application.DTOs
         // Child count
         public int ChildrenCount { get; set; }
         public int AssessmentCount { get; set; }
+
+        public LectureDto ShallowCopy() => (LectureDto)MemberwiseClone();
     }
 
     // DTO for listing lectures (lighter version)
@@ -48,6 +50,8 @@ namespace LearningEnglish.Application.DTOs
         public DateTime CreatedAt { get; set; }
         public int? ParentLectureId { get; set; }
         public int ChildrenCount { get; set; }
+
+        public ListLectureDto ShallowCopy() => (ListLectureDto)MemberwiseClone();
     }
 
     // DTO for creating new lecture
@@ -93,6 +97,8 @@ namespace LearningEnglish.Application.DTOs
         public DateTime? StartedAt { get; set; }
         public DateTime? CompletedAt { get; set; }
         public int TimeSpentSeconds { get; set; }
+
+        public new LectureWithProgressDto ShallowCopy() => (LectureWithProgressDto)MemberwiseClone();
     }
 
     // DTO for reordering lectures
@@ -107,6 +113,13 @@ namespace LearningEnglish.Application.DTOs
     public class LectureTreeDto : ListLectureDto
     {
         public List<LectureTreeDto> Children { get; set; } = new();
+
+        public new LectureTreeDto ShallowCopy() 
+        {
+            var clone = (LectureTreeDto)MemberwiseClone();
+            clone.Children = Children.Select(c => c.ShallowCopy()).ToList();
+            return clone;
+        }
     }
 
     // DTO for bulk create lectures with parent-child hierarchy

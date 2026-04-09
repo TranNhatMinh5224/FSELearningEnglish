@@ -1,7 +1,10 @@
 using LearningEnglish.API.Extensions;
+using LearningEnglish.Application.Common;
 using LearningEnglish.Infrastructure.Common.Helpers;
 using LearningEnglish.Infrastructure.Data;
+using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
+using System.Threading.RateLimiting;
 
 
 
@@ -34,6 +37,49 @@ builder.Services
     .AddApplicationServices(builder.Configuration) // SK Kernel + all app services
     .AddBackgroundServices();
 
+builder.Services.AddRateLimiter(options =>
+{
+    options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
+
+    options.OnRejected = async (context, cancellationToken) =>
+    {
+        // Try to include a Retry-After header when provided by the limiter
+        if (context.Lease.TryGetMetadata(MetadataName.RetryAfter, out var retryAfter))
+        {
+            var seconds = (int)Math.Ceiling(retryAfter.TotalSeconds);
+            context.HttpContext.Response.Headers.RetryAfter = seconds.ToString();
+        }
+
+        context.HttpContext.Response.ContentType = "application/json";
+
+        // Keep response shape consistent with the rest of the API
+        var payload = new ServiceResponse<object>
+        {
+            Success = false,
+            StatusCode = StatusCodes.Status429TooManyRequests,
+            Message = "Bạn gửi yêu cầu quá nhanh. Vui lòng thử lại sau.",
+            Data = null
+        };
+
+        await context.HttpContext.Response.WriteAsJsonAsync(payload, cancellationToken);
+    };
+
+    // Public endpoint: protect AI cost + prevent abuse
+    options.AddPolicy("chatbot", context =>
+    {
+        var ip = context.Connection.RemoteIpAddress?.ToString() ?? "unknown";
+        return RateLimitPartition.GetFixedWindowLimiter(
+            partitionKey: ip,
+            factory: _ => new FixedWindowRateLimiterOptions
+            {
+                PermitLimit = 20,
+                Window = TimeSpan.FromMinutes(1),
+                QueueLimit = 0,
+                AutoReplenishment = true
+            });
+    });
+});
+
 
 BuildPublicUrl.Configure(builder.Configuration); // 
 
@@ -47,6 +93,7 @@ app.UseSwaggerUI();
 
 app.UseRouting();
 app.UseCors("AllowFrontend");
+app.UseRateLimiter();
 app.UseAuthentication();
 app.UseAuthorization();
 

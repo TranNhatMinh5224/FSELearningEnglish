@@ -22,7 +22,7 @@ namespace LearningEnglish.API.Controller.User
         }
 
         [HttpGet("{lectureId}")]
-        [ResponseCache(Duration = 3600, Location = ResponseCacheLocation.Client)]
+        [ResponseCache(Duration = 3600, Location = ResponseCacheLocation.Client, VaryByHeader = "Authorization")]
         public async Task<IActionResult> GetLecture(int lectureId)
         {
             var userId = User.GetUserId();
@@ -31,7 +31,7 @@ namespace LearningEnglish.API.Controller.User
         }
 
         [HttpGet("module/{moduleId}")]
-        [ResponseCache(Duration = 3600, Location = ResponseCacheLocation.Client)]
+        [ResponseCache(Duration = 3600, Location = ResponseCacheLocation.Client, VaryByHeader = "Authorization")]
         public async Task<IActionResult> GetLecturesByModule(int moduleId)
         {
             var userId = User.GetUserId();
@@ -40,7 +40,7 @@ namespace LearningEnglish.API.Controller.User
         }
 
         [HttpGet("module/{moduleId}/tree")]
-        [ResponseCache(Duration = 3600, Location = ResponseCacheLocation.Client)]
+        [ResponseCache(Duration = 3600, Location = ResponseCacheLocation.Client, VaryByHeader = "Authorization")]
         public async Task<IActionResult> GetLectureTree(int moduleId)
         {
             var userId = User.GetUserId();

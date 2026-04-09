@@ -27,10 +27,15 @@ public static class CacheKeys
     // ── Landing Page & Assets ─────────────────────────────────────────────
     public const string LandingPageAssets = "landing:assets";
 
+    // ── Chatbot ───────────────────────────────────────────────────────────
+    public const string ChatBotPrefix = "chatbot:";
+    public static string ChatBotConsult(string promptHash) => $"chatbot:consult:{promptHash}";
+
     // ── Assessments & Quizzes ───────────────────────────────────────────
     public const string AssessmentsPrefix = "assessments:";
     public const string QuizzesPrefix = "quizzes:";
     public static string AssessmentList(int moduleId) => $"assessments:list:{moduleId}";
+    public static string AssessmentDetail(int assessmentId) => $"assessments:detail:{assessmentId}";
     public static string QuizDetail(int quizId) => $"quizzes:detail:{quizId}";
 
     // ── Flashcards ────────────────────────────────────────────────────────

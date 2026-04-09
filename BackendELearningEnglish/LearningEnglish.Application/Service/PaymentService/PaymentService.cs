@@ -1,6 +1,8 @@
 using AutoMapper;
 using LearningEnglish.Application.DTOs;
+using LearningEnglish.Application.Common.Constants;
 using LearningEnglish.Application.Interface;
+using LearningEnglish.Application.Interface.Infrastructure;
 using LearningEnglish.Application.Interface.Services;
 using LearningEnglish.Application.Interface.Strategies;
 using LearningEnglish.Domain.Entities;
@@ -24,6 +26,7 @@ namespace LearningEnglish.Application.Service.PaymentService
         private readonly IPayOSService _payOSService;
         private readonly IConfiguration _configuration;
         private readonly IPaymentWebhookQueueRepository _webhookQueueRepository;
+        private readonly ICacheService _cache;
 
         public PaymentService(
             IPaymentRepository paymentRepository,
@@ -34,7 +37,8 @@ namespace LearningEnglish.Application.Service.PaymentService
             IUnitOfWork unitOfWork,
             IPayOSService payOSService,
             IConfiguration configuration,
-            IPaymentWebhookQueueRepository webhookQueueRepository)
+            IPaymentWebhookQueueRepository webhookQueueRepository,
+            ICacheService cache)
         {
             _paymentRepository = paymentRepository;
             _paymentValidator = paymentValidator;
@@ -45,6 +49,7 @@ namespace LearningEnglish.Application.Service.PaymentService
             _payOSService = payOSService;
             _configuration = configuration;
             _webhookQueueRepository = webhookQueueRepository;
+            _cache = cache;
         }
 
         // POST /api/payments - Create Payment
@@ -277,6 +282,9 @@ namespace LearningEnglish.Application.Service.PaymentService
 
                 await _paymentRepository.UpdatePaymentStatusAsync(existingPayment);
                 await _unitOfWork.SaveChangesAsync();
+
+                // Clear statistics cache as revenue and transaction counts changed
+                _cache.RemoveByPrefix(CacheKeys.StatisticsPrefix);
 
                 _logger.LogInformation("Payment {PaymentId} status updated to Completed and saved", paymentDto.PaymentId);
 

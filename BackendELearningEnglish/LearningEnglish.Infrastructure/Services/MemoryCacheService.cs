@@ -1,6 +1,8 @@
 using LearningEnglish.Application.Interface.Infrastructure;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
+using System.Collections.Concurrent;
+using System.Threading;
 
 namespace LearningEnglish.Infrastructure.Services;
 
@@ -9,6 +11,10 @@ public sealed class MemoryCacheService : ICacheService
 {
     private readonly IMemoryCache _cache;
     private readonly ILogger<MemoryCacheService> _logger;
+
+    // Prevent cache stampede: ensure only one factory runs per key at a time
+    private readonly ConcurrentDictionary<string, Lazy<Task<object?>>> _inflight =
+        new(StringComparer.OrdinalIgnoreCase);
 
     // Track all registered keys for prefix-based removal
     private readonly HashSet<string> _keys = [];
@@ -32,12 +38,40 @@ public sealed class MemoryCacheService : ICacheService
         }
 
         _logger.LogDebug("[Cache MISS] {Key} — fetching from source", key);
-        var value = await factory();
+
+        var lazyFactory = _inflight.GetOrAdd(
+            key,
+            _ => new Lazy<Task<object?>>(async () => await factory(), LazyThreadSafetyMode.ExecutionAndPublication));
+
+        object? boxedValue;
+        try
+        {
+            boxedValue = await lazyFactory.Value;
+        }
+        finally
+        {
+            _inflight.TryRemove(key, out _);
+        }
+
+        var value = (T?)boxedValue;
 
         var options = new MemoryCacheEntryOptions
         {
             AbsoluteExpirationRelativeToNow = expiry ?? DefaultExpiry
         };
+
+        options.RegisterPostEvictionCallback((evictedKey, _, _, _) =>
+        {
+            if (evictedKey is not string evictedStringKey)
+            {
+                return;
+            }
+
+            lock (_lock)
+            {
+                _keys.Remove(evictedStringKey);
+            }
+        });
 
         _cache.Set(key, value, options);
 

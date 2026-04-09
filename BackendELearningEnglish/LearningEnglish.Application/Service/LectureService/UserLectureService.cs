@@ -49,13 +49,24 @@ namespace LearningEnglish.Application.Service
             try
             {
                 var cacheKey = CacheKeys.LectureDetail(lectureId);
-                var lecture = await _cache.GetOrSetAsync(
+                var cachedDto = await _cache.GetOrSetAsync(
                     cacheKey,
-                    async () => await _lectureRepository.GetLectureWithModuleCourseAsync(lectureId),
+                    async () =>
+                    {
+                        var lecture = await _lectureRepository.GetLectureWithModuleCourseAsync(lectureId);
+                        if (lecture == null) return null;
+
+                        var dto = _mapper.Map<LectureDto>(lecture);
+                        if (!string.IsNullOrWhiteSpace(dto.MediaUrl))
+                        {
+                            dto.MediaUrl = _lectureMediaService.BuildMediaUrl(dto.MediaUrl);
+                        }
+                        return dto;
+                    },
                     TimeSpan.FromHours(1)
                 );
 
-                if (lecture == null)
+                if (cachedDto == null)
                 {
                     response.Success = false;
                     response.StatusCode = 404;
@@ -64,38 +75,19 @@ namespace LearningEnglish.Application.Service
                 }
 
                 // Check enrollment: user phải đăng ký course mới được xem lecture
-                var courseId = lecture.Module?.Lesson?.CourseId;
-                if (!courseId.HasValue)
-                {
-                    response.Success = false;
-                    response.StatusCode = 404;
-                    response.Message = "Không tìm thấy khóa học";
-                    return response;
-                }
-
-                var isEnrolled = await _courseRepository.IsUserEnrolled(courseId.Value, userId);
+                // Note: Module navigation is required for enrollment check
+                var isEnrolled = await _courseRepository.IsUserEnrolledByLectureId(lectureId, userId);
                 if (!isEnrolled)
                 {
                     response.Success = false;
                     response.StatusCode = 403;
                     response.Message = "Bạn cần đăng ký khóa học để xem lecture này";
-                    _logger.LogWarning("User {UserId} attempted to access lecture {LectureId} without enrollment in course {CourseId}", 
-                        userId, lectureId, courseId.Value);
                     return response;
                 }
 
-                var lectureDto = _mapper.Map<LectureDto>(lecture);
-
-                // Generate URL từ key cho MediaUrl
-                if (!string.IsNullOrWhiteSpace(lectureDto.MediaUrl))
-                {
-                    lectureDto.MediaUrl = _lectureMediaService.BuildMediaUrl(lectureDto.MediaUrl);
-                }
-
-                
                 response.Success = true;
                 response.StatusCode = 200;
-                response.Data = lectureDto;
+                response.Data = cachedDto.ShallowCopy();
                 response.Message = "Lấy thông tin lecture thành công";
             }
             catch (Exception ex)
@@ -148,29 +140,28 @@ namespace LearningEnglish.Application.Service
                 }
 
                 var cacheKey = CacheKeys.LecturesByModule(moduleId);
-                var lectures = await _cache.GetOrSetAsync(
+                var cachedDtos = await _cache.GetOrSetAsync(
                     cacheKey,
-                    async () => await _lectureRepository.GetByModuleIdWithDetailsAsync(moduleId),
+                    async () =>
+                    {
+                        var lectures = await _lectureRepository.GetByModuleIdWithDetailsAsync(moduleId);
+                        var dtos = _mapper.Map<List<ListLectureDto>>(lectures);
+                        foreach (var dto in dtos)
+                        {
+                            if (!string.IsNullOrWhiteSpace(dto.MediaUrl))
+                            {
+                                dto.MediaUrl = _lectureMediaService.BuildMediaUrl(dto.MediaUrl);
+                            }
+                        }
+                        return dtos;
+                    },
                     TimeSpan.FromHours(1)
                 );
 
-                var lectureDtos = _mapper.Map<List<ListLectureDto>>(lectures);
-
-                // Generate URLs cho tất cả lectures
-                foreach (var dto in lectureDtos)
-                {
-                    if (!string.IsNullOrWhiteSpace(dto.MediaUrl))
-                    {
-                        dto.MediaUrl = _lectureMediaService.BuildMediaUrl(dto.MediaUrl);
-                    }
-
-                   
-                }
-
                 response.Success = true;
                 response.StatusCode = 200;
-                response.Data = lectureDtos;
-                response.Message = $"Lấy danh sách {lectures.Count} lecture thành công";
+                response.Data = (cachedDtos ?? new List<ListLectureDto>()).Select(l => l.ShallowCopy()).ToList();
+                response.Message = $"Lấy danh sách {cachedDtos?.Count ?? 0} lecture thành công";
             }
             catch (Exception ex)
             {
@@ -222,28 +213,33 @@ namespace LearningEnglish.Application.Service
                 }
 
                 var cacheKey = CacheKeys.LectureTreeByModule(moduleId);
-                var lectures = await _cache.GetOrSetAsync(
+                var cachedTree = await _cache.GetOrSetAsync(
                     cacheKey,
-                    async () => await _lectureRepository.GetTreeByModuleIdAsync(moduleId),
+                    async () =>
+                    {
+                        var allLectures = await _lectureRepository.GetTreeByModuleIdAsync(moduleId);
+                        
+                        // Ensure URLs are built for all nodes in the tree logic
+                        var rootLectures = allLectures.Where(l => l.ParentLectureId == null).OrderBy(l => l.OrderIndex).ToList();
+                        var tree = new List<LectureTreeDto>();
+
+                        foreach (var root in rootLectures)
+                        {
+                            var treeDto = _mapper.Map<LectureTreeDto>(root);
+                            if (!string.IsNullOrWhiteSpace(treeDto.MediaUrl))
+                                treeDto.MediaUrl = _lectureMediaService.BuildMediaUrl(treeDto.MediaUrl);
+                                
+                            BuildLectureTree(treeDto, allLectures);
+                            tree.Add(treeDto);
+                        }
+                        return tree;
+                    },
                     TimeSpan.FromHours(1)
                 );
 
-                // Tạo cấu trúc cây
-                var rootLectures = lectures.Where(l => l.ParentLectureId == null).ToList();
-                var treeDtos = new List<LectureTreeDto>();
-
-                foreach (var rootLecture in rootLectures)
-                {
-                    var treeDto = _mapper.Map<LectureTreeDto>(rootLecture);
-                    BuildLectureTree(treeDto, lectures);
-                    treeDtos.Add(treeDto);
-                }
-
-               
-
                 response.Success = true;
                 response.StatusCode = 200;
-                response.Data = treeDtos;
+                response.Data = cachedTree!.Select(t => t.ShallowCopy()).ToList();
                 response.Message = "Lấy cấu trúc cây lecture thành công";
             }
             catch (Exception ex)
@@ -268,6 +264,11 @@ namespace LearningEnglish.Application.Service
             foreach (var child in children)
             {
                 var childDto = _mapper.Map<LectureTreeDto>(child);
+                if (!string.IsNullOrWhiteSpace(childDto.MediaUrl))
+                {
+                    childDto.MediaUrl = _lectureMediaService.BuildMediaUrl(childDto.MediaUrl);
+                }
+                
                 parent.Children.Add(childDto);
                 BuildLectureTree(childDto, allLectures);
             }

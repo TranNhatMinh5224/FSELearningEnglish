@@ -1,7 +1,9 @@
 using LearningEnglish.Application.DTOs;
 using LearningEnglish.Application.Common;
+using LearningEnglish.Application.Common.Constants;
 using LearningEnglish.Application.Interface.Auth;
 using LearningEnglish.Application.Interface;
+using LearningEnglish.Application.Interface.Infrastructure;
 using LearningEnglish.Domain.Entities;
 using LearningEnglish.Application.Common.Helpers;
 using AutoMapper;
@@ -16,18 +18,21 @@ namespace LearningEnglish.Application.Service
         private readonly IEmailVerificationTokenRepository _emailVerificationTokenRepository;
         private readonly IEmailSender _emailSender;
         private readonly IMapper _mapper;
+        private readonly ICacheService _cache;
 
         // Constructor khởi tạo các dependency injection
         public RegisterService(
             IUserRepository userRepository,
             IEmailVerificationTokenRepository emailVerificationTokenRepository,
             IEmailSender emailSender,
-            IMapper mapper)
+            IMapper mapper,
+            ICacheService cache)
         {
             _userRepository = userRepository;
             _emailVerificationTokenRepository = emailVerificationTokenRepository;
             _emailSender = emailSender;
             _mapper = mapper;
+            _cache = cache;
         }
 
         // Xử lý đăng ký tài khoản người dùng mới với xác thực email
@@ -187,6 +192,9 @@ namespace LearningEnglish.Application.Service
                     user.UpdatedAt = DateTime.UtcNow;
                     await _userRepository.UpdateUserAsync(user);
                     await _userRepository.SaveChangesAsync();
+
+                    // Clear statistics cache as user counts changed
+                    _cache.RemoveByPrefix(CacheKeys.StatisticsPrefix);
                 }
 
                 // Xóa OTP khỏi database sau khi xác thực thành công

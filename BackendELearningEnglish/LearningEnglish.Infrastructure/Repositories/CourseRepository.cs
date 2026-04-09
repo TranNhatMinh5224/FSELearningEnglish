@@ -333,6 +333,18 @@ namespace LearningEnglish.Infrastructure.Repositories
             return await IsUserEnrolledInCourse(userId, courseId);
         }
 
+        public async Task<bool> IsUserEnrolledByLectureId(int lectureId, int userId)
+        {
+            var courseId = await _context.Lectures
+                .Where(l => l.LectureId == lectureId)
+                .Select(l => (int?)l.Module!.Lesson!.CourseId)
+                .FirstOrDefaultAsync();
+
+            if (!courseId.HasValue) return false;
+
+            return await IsUserEnrolledInCourse(userId, courseId.Value);
+        }
+
         // tìm kiem khoa học theo classcode 
         public async Task<IEnumerable<Course>> SearchCoursesByClassCode(string keyword)
         {

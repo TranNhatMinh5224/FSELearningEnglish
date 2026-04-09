@@ -1,6 +1,7 @@
 using LearningEnglish.Application.DTOs.ChatBotAI;
 using LearningEnglish.Application.Interface.Infrastructure.ChatBotAI;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 
 namespace LearningEnglish.API.Controller.Common;
 
@@ -10,6 +11,7 @@ namespace LearningEnglish.API.Controller.Common;
 /// </summary>
 [ApiController]
 [Route("api/public/chatbot")]
+[EnableRateLimiting("chatbot")]
 public class ChatBotController : ControllerBase
 {
     private readonly IChatBotAIService _chatBotAiService;
@@ -25,9 +27,9 @@ public class ChatBotController : ControllerBase
     /// </summary>
     [HttpPost("consult")]
     [ProducesResponseType(typeof(ChatBotConsultResponseDto), 200)]
-    public async Task<IActionResult> Consult([FromBody] ChatBotConsultRequestDto request)
+    public async Task<IActionResult> Consult([FromBody] ChatBotConsultRequestDto request, CancellationToken cancellationToken)
     {
-        var result = await _chatBotAiService.GetChatBotResponseAsync(request);
+        var result = await _chatBotAiService.GetChatBotResponseAsync(request, cancellationToken);
         return result.Success ? Ok(result) : StatusCode(result.StatusCode, result);
     }
 }
