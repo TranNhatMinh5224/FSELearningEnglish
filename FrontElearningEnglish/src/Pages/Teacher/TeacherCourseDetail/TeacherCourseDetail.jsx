@@ -43,7 +43,10 @@ export default function TeacherCourseDetail() {
   const [showClassCodeModal, setShowClassCodeModal] = useState(false);
   const [notification, setNotification] = useState({ isOpen: false, type: "info", message: "" });
 
-  const isTeacher = roles.includes("Teacher") || user?.teacherSubscription?.isTeacher === true;
+  const isTeacher = (roles && roles.some(role => {
+    const roleName = typeof role === 'string' ? role : (role?.name || '');
+    return roleName === "Teacher";
+  })) || user?.teacherSubscription?.isTeacher === true;
   const { getDefaultCourseImage, getDefaultLessonImage } = useAssets();
 
   const fetchCourseDetail = useCallback(async () => {

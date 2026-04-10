@@ -41,7 +41,10 @@ export default function EditLecture() {
   const [submitting, setSubmitting] = useState(false);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
 
-  const isTeacher = roles.includes("Teacher") || user?.teacherSubscription?.isTeacher === true;
+  const isTeacher = (roles && roles.some(role => {
+    const roleName = typeof role === 'string' ? role : (role?.name || '');
+    return roleName === "Teacher";
+  })) || user?.teacherSubscription?.isTeacher === true;
 
   const fetchData = useCallback(async () => {
     try {

@@ -40,9 +40,12 @@ export default function TeacherStudentManagement() {
     return ["SuperAdmin", "ContentAdmin", "FinanceAdmin", "Admin"].includes(roleName);
   });
   
-  const isTeacher = (roles && roles.includes("Teacher")) || 
-                    user?.teacherSubscription?.isTeacher === true || 
-                    isAdmin;
+  const isTeacher = (roles && roles.some(role => {
+    const roleName = typeof role === 'string' ? role : (role?.name || '');
+    return roleName === "Teacher";
+  })) || 
+  user?.teacherSubscription?.isTeacher === true || 
+  isAdmin;
 
   const fetchCourseDetail = useCallback(async () => {
     try {
