@@ -20,31 +20,61 @@
 
 /* Bootstrap utilities: d-flex, align-items-center */
 .course-stat-item {
-    gap: 12px;
+    gap: 16px;
+    padding: 8px 0;
+}
+
+.stat-icon-wrapper {
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    transition: transform 0.2s ease;
+}
+
+.course-stat-item:hover .stat-icon-wrapper {
+    transform: scale(1.05);
+}
+
+.stat-icon-wrapper.lessons {
+    background-color: rgba(79, 70, 229, 0.1); /* Indigo */
+    color: #4f46e5;
+}
+
+.stat-icon-wrapper.students {
+    background-color: rgba(16, 185, 129, 0.1); /* Green */
+    color: #10b981;
+}
+
+.stat-icon-wrapper.price {
+    background-color: rgba(245, 158, 11, 0.1); /* Amber */
+    color: #f59e0b;
 }
 
 .stat-icon {
-    font-size: 20px;
-    color: var(--color-secondary-cyan, #41d6e3);
-    flex-shrink: 0;
+    font-size: 18px;
+    color: inherit;
 }
 
-/* Bootstrap utilities: d-flex, flex-column */
 .stat-content {
-    gap: 4px;
+    gap: 2px;
     flex: 1;
 }
 
-/* Scope cụ thể cho CourseSummaryCard để tránh xung đột */
 .course-summary-card .stat-label {
-    font-size: 11px;
+    font-size: 12px;
     color: var(--color-text-secondary, #6b7280);
-    font-weight: 400;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
 }
 
 .course-summary-card .stat-value {
-    font-size: 17px;
-    font-weight: 500;
+    font-size: 16px;
+    font-weight: 700;
     color: var(--color-text-primary, #1f2937);
 }
 

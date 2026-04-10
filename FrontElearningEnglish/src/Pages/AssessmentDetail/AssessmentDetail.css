@@ -1,8 +1,12 @@
 .assessment-detail-container {
     padding: 30px 250px;
-    padding-top: calc(70px + 30px);
+    padding-top: calc(70px + 60px);
     background: var(--color-bg-secondary, #f6f8fb);
     min-height: calc(120vh - 70px);
+}
+
+.breadcrumb-wrapper {
+    padding: 10px 0;
 }
 
 .assessment-timing-info {

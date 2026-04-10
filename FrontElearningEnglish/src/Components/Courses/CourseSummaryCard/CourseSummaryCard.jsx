@@ -60,7 +60,9 @@ export default function CourseSummaryCard({ course, onEnroll, onStartLearning })
 
             <div className="course-summary-stats d-flex flex-column">
                 <div className="course-stat-item d-flex align-items-center">
-                    <FaBook className="stat-icon" />
+                    <div className="stat-icon-wrapper lessons">
+                        <FaBook className="stat-icon" />
+                    </div>
                     <div className="stat-content d-flex flex-column">
                         <span className="stat-label">Số lượng bài giảng</span>
                         <span className="stat-value">{course.totalLessons || course.TotalLessons || 0} bài giảng</span>
@@ -69,7 +71,9 @@ export default function CourseSummaryCard({ course, onEnroll, onStartLearning })
 
                 {course.enrollmentCount !== undefined && (
                     <div className="course-stat-item d-flex align-items-center">
-                        <FaUsers className="stat-icon" />
+                        <div className="stat-icon-wrapper students">
+                            <FaUsers className="stat-icon" />
+                        </div>
                         <div className="stat-content d-flex flex-column">
                             <span className="stat-label">Số học viên</span>
                             <span className="stat-value">{course.enrollmentCount || 0} học viên</span>
@@ -79,7 +83,9 @@ export default function CourseSummaryCard({ course, onEnroll, onStartLearning })
 
                 {priceDisplay !== null && (
                     <div className="course-stat-item d-flex align-items-center">
-                        <FaTag className="stat-icon" />
+                        <div className="stat-icon-wrapper price">
+                            <FaTag className="stat-icon" />
+                        </div>
                         <div className="stat-content d-flex flex-column">
                             <span className="stat-label">Giá khóa học</span>
                             <span className="stat-value">{priceDisplay}</span>
