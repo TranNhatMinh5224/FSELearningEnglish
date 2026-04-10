@@ -37,7 +37,7 @@ namespace LearningEnglish.API.Authorization
 
             if (roles.Any(RoleConstants.IsAdminRole))
             {
-                _logger.LogInformation("✅ User có role Admin ({Roles}) - Cho phép truy cập teacher endpoints", string.Join(", ", roles));
+                _logger.LogInformation(" User có role Admin ({Roles}) - Cho phép truy cập teacher endpoints", string.Join(", ", roles));
                 context.Succeed(requirement);
                 return;
             }
@@ -47,24 +47,24 @@ namespace LearningEnglish.API.Authorization
 
             if (string.IsNullOrEmpty(userIdClaim) || !int.TryParse(userIdClaim, out int userId))
             {
-                _logger.LogWarning("❌ Không tìm thấy userId trong claims. Claims: {Claims}", 
+                _logger.LogWarning("Không tìm thấy userId trong claims. Claims: {Claims}", 
                     string.Join(", ", context.User.Claims.Select(c => $"{c.Type}={c.Value}")));
                 return;
             }
 
-            _logger.LogInformation("🔍 Checking Teacher role for UserId: {UserId} (from database)", userId);
+            _logger.LogInformation("Checking Teacher role for UserId: {UserId} (from database)", userId);
 
           
             var hasTeacherRole = await _userRepository.HasTeacherRoleAsync(userId);
             
             if (hasTeacherRole)
             {
-                _logger.LogInformation("✅ User {UserId} có role Teacher trong database - Cho phép truy cập", userId);
+                _logger.LogInformation(" User {UserId} có role Teacher trong database - Cho phép truy cập", userId);
                 context.Succeed(requirement);
             }
             else
             {
-                _logger.LogWarning("❌ User {UserId} KHÔNG CÓ role Teacher trong database - Từ chối truy cập", userId);
+                _logger.LogWarning(" User {UserId} KHÔNG CÓ role Teacher trong database - Từ chối truy cập", userId);
             }
         }
     }

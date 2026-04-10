@@ -51,9 +51,8 @@ namespace LearningEnglish.API.Authorization
                 return;
             }
 
-            // ═══════════════════════════════════════════════════════════════
             // BƯỚC 2: KIỂM TRA PERMISSION (KHÔNG GIỚI HẠN THEO ROLE)
-            // ═══════════════════════════════════════════════════════════════
+            
             // REFACTOR: Bỏ check isAdmin để cho phép mở rộng permission cho các role khác
             // (ví dụ: Teacher VIP, Moderator có thể có permission đặc biệt)
             // Logic: Chỉ cần user có permission trong DB là được, không cần phải là Admin
