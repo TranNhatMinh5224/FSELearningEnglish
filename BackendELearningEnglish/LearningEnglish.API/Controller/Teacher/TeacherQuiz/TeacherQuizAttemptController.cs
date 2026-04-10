@@ -9,7 +9,7 @@ namespace LearningEnglish.API.Controller.Teacher
 {
     [ApiController]
     [Route("api/teacher/quiz-attempts")]
-    [Authorize(Roles = "Teacher")]
+    [Authorize]
     [RequireTeacherRole]
     public class TeacherQuizAttemptController : ControllerBase
     {

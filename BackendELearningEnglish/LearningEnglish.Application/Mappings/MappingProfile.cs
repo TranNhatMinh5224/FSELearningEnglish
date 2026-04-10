@@ -303,9 +303,15 @@ namespace LearningEnglish.Application.Mappings
 
             // Mapping for UserDto TeacherSubscription property
             CreateMap<TeacherSubscription, UserTeacherSubscriptionDto>()
-            .ForMember(dest => dest.IsTeacher, opt => opt.MapFrom(src => src.Status == SubscriptionStatus.Active))
+            .ForMember(dest => dest.IsTeacher, opt => opt.MapFrom(src =>
+                src.Status == SubscriptionStatus.Active
+                && src.StartDate <= DateTime.UtcNow
+                && src.EndDate > DateTime.UtcNow))
             .ForMember(dest => dest.PackageLevel, opt => opt.MapFrom(src =>
-                src.Status == SubscriptionStatus.Active && src.TeacherPackage != null
+                src.Status == SubscriptionStatus.Active
+                && src.StartDate <= DateTime.UtcNow
+                && src.EndDate > DateTime.UtcNow
+                && src.TeacherPackage != null
                 ? src.TeacherPackage.Level.ToString()
                 : null));
 

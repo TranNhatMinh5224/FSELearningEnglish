@@ -167,8 +167,20 @@ namespace LearningEnglish.Infrastructure.Repositories
                 return false;
             }
 
-            // Kiểm tra có role Teacher không (check theo tên role để linh hoạt)
-            return user.Roles.Any(r => r.Name.Equals(RoleConstants.Teacher, StringComparison.OrdinalIgnoreCase));
+            // 1) Check explicit Teacher role assignment (classic RBAC)
+            if (user.Roles.Any(r => r.Name.Equals(RoleConstants.Teacher, StringComparison.OrdinalIgnoreCase)))
+            {
+                return true;
+            }
+
+            // 2) Also treat users with an active TeacherSubscription as Teachers.
+            // Frontend & business logic define "teacher" via subscription, so policy must match.
+            var now = DateTime.UtcNow;
+            return await _context.TeacherSubscriptions
+                .AnyAsync(ts => ts.UserId == userId
+                               && ts.Status == SubscriptionStatus.Active
+                               && ts.StartDate <= now
+                               && ts.EndDate > now);
         }
 
         // Lấy danh sách teacher

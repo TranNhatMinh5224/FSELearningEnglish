@@ -37,6 +37,7 @@ namespace LearningEnglish.Infrastructure.Repositories
                 .Include(ts => ts.TeacherPackage)
                 .Where(ts => ts.UserId == userId
                           && ts.Status == Domain.Enums.SubscriptionStatus.Active
+                          && ts.StartDate <= now
                           && ts.EndDate > now)
                 .OrderByDescending(ts => ts.EndDate)
                 .FirstOrDefaultAsync();
