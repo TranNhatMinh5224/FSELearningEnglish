@@ -12,11 +12,24 @@ using LearningEnglish.Application.Common;
 using LearningEnglish.Application.Common.Pagination;
 using System.Text.Json;
 using Microsoft.Extensions.Configuration;
+using System.Security.Cryptography;
 
 namespace LearningEnglish.Application.Service.PaymentService
 {
     public class PaymentService : IPaymentService
     {
+        private const long PayOsMaxOrderCode = 9007199254740991L; // 2^53 - 1
+
+        private static long GeneratePayOsOrderCode()
+        {
+            // PayOS requires order_code <= 2^53-1.
+            // unixTimeMilliseconds (≈ 1.7e12) * 1000 + 0..999 => ≈ 1.7e15, safely below 2^53-1.
+            var baseMs = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
+            var suffix = RandomNumberGenerator.GetInt32(0, 1000);
+            var code = checked(baseMs * 1000L + suffix);
+            return code <= PayOsMaxOrderCode ? code : baseMs;
+        }
+
         private readonly IPaymentRepository _paymentRepository;
         private readonly IPaymentValidator _paymentValidator;
         private readonly IEnumerable<IPaymentStrategy> _paymentStrategies;
@@ -117,8 +130,8 @@ namespace LearningEnglish.Application.Service.PaymentService
                     return response;
                 }
 
-                // Use milliseconds + 4 random digits for high collision resistance
-                var orderCode = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() * 10000 + new Random().Next(1000, 9999);
+                // PayOS requires order_code <= 2^53-1.
+                var orderCode = GeneratePayOsOrderCode();
                 
                 // Get product name for description from Strategy
                 var productName = await processor.GetProductNameAsync(request.ProductId);
@@ -548,7 +561,7 @@ namespace LearningEnglish.Application.Service.PaymentService
                     await _unitOfWork.BeginTransactionAsync();
                     try
                     {
-                        var newOrderCode = (long)paymentId * 1000000000L + DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+                        var newOrderCode = GeneratePayOsOrderCode();
                         
                         payment.OrderCode = newOrderCode;
                         payment.ProviderTransactionId = newOrderCode.ToString();
