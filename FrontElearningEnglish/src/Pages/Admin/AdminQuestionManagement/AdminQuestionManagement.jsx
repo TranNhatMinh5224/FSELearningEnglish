@@ -1,14 +1,19 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { Container, Button, Card, Badge } from "react-bootstrap";
-import { FaPlus, FaArrowLeft, FaEdit, FaTrash, FaLayerGroup } from "react-icons/fa";
+import { FaPlus, FaEdit, FaTrash, FaLayerGroup } from "react-icons/fa";
 import CreateQuestionModal from "../../../Components/Teacher/CreateQuestionModal/CreateQuestionModal";
 import CreateQuizGroupModal from "../../../Components/Teacher/CreateQuizGroupModal/CreateQuizGroupModal";
 import SuccessModal from "../../../Components/Common/SuccessModal/SuccessModal";
 import NotificationModal from "../../../Components/Common/NotificationModal/NotificationModal";
 import ConfirmModal from "../../../Components/Common/ConfirmModal/ConfirmModal";
+import Breadcrumb from "../../../Components/Common/Breadcrumb/Breadcrumb";
 import { questionService } from "../../../Services/questionService";
 import { quizService } from "../../../Services/quizService";
+import { courseService } from "../../../Services/courseService";
+import { lessonService } from "../../../Services/lessonService";
+import { assessmentService } from "../../../Services/assessmentService";
+import { ROUTE_PATHS } from "../../../Routes/Paths";
 import { useAuth } from "../../../Context/AuthContext";
 import { useQuestionTypes } from "../../../hooks/useQuestionTypes";
 import "./AdminQuestionManagement.css";
@@ -21,6 +26,11 @@ export default function AdminQuestionManagement() {
   
   const [questions, setQuestions] = useState([]);
   const [groups, setGroups] = useState([]);
+  const [course, setCourse] = useState(null);
+  const [lesson, setLesson] = useState(null);
+  const [assessment, setAssessment] = useState(null);
+  const [quiz, setQuiz] = useState(null);
+  const [section, setSection] = useState(null);
   const [contextData, setContextData] = useState({ title: "", subtitle: "" });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -51,30 +61,27 @@ export default function AdminQuestionManagement() {
     setLoading(true);
     setError("");
     try {
-      let questionsRes;
-      let title = "";
+      const [qRes, gRes, sectionRes, quizRes, assessRes, courseRes, lessonRes] = await Promise.all([
+        questionService.getAdminQuestionsBySection(sectionId),
+        quizService.getAdminQuizGroupsBySection(sectionId),
+        quizService.getAdminQuizSectionById(sectionId),
+        quizService.getAdminQuizById(quizId),
+        assessmentService.getAdminAssessmentById(assessmentId),
+        courseService.getCourseById(courseId),
+        lessonService.getLessonById(lessonId)
+      ]);
 
-      if (sectionId) {
-        const sectionRes = await quizService.getAdminQuizSectionById(sectionId);
-        if (sectionRes.data?.success) {
-            title = `Section: ${sectionRes.data.data.title || "Untitled Section"}`;
-        }
-        
-        const [qRes, gRes] = await Promise.all([
-            questionService.getAdminQuestionsBySection(sectionId),
-            quizService.getAdminQuizGroupsBySection(sectionId)
-        ]);
-
-        questionsRes = qRes;
-        if (gRes.data?.success) {
-            setGroups(gRes.data.data || []);
-        }
-      }
-
-      if (questionsRes?.data?.success) {
-        setQuestions(questionsRes.data.data || []);
-      }
+      if (qRes.data?.success) setQuestions(qRes.data.data || []);
+      if (gRes.data?.success) setGroups(gRes.data.data || []);
+      
+      const title = sectionRes.data?.success ? `Section: ${sectionRes.data.data.title || "Untitled Section"}` : "";
       setContextData({ title });
+
+      if (sectionRes.data?.success) setSection(sectionRes.data.data);
+      if (quizRes.data?.success) setQuiz(quizRes.data.data);
+      if (assessRes.data?.success) setAssessment(assessRes.data.data);
+      if (courseRes.data?.success) setCourse(courseRes.data.data);
+      if (lessonRes.data?.success) setLesson(lessonRes.data.data);
 
     } catch (err) {
       console.error(err);
@@ -82,7 +89,7 @@ export default function AdminQuestionManagement() {
     } finally {
       setLoading(false);
     }
-  }, [sectionId]);
+  }, [sectionId, quizId, assessmentId, courseId, lessonId]);
 
   useEffect(() => {
     if (!isAuthenticated || !isAdmin) {
@@ -257,9 +264,19 @@ export default function AdminQuestionManagement() {
       <Container fluid className="py-4 p-0">
         <div className="d-flex justify-content-between align-items-center mb-4">
           <div>
-            <Button variant="outline-secondary" size="sm" onClick={() => navigate(`/admin/courses/${courseId}/lesson/${lessonId}/module/${moduleId}/assessment/${assessmentId}/quiz/${quizId}/sections`)} className="mb-2">
-              <FaArrowLeft className="me-1"/> Quay lại
-            </Button>
+            <div className="breadcrumb-wrapper mb-3">
+              <Breadcrumb
+                items={[
+                  { label: "Admin: Khóa học", path: ROUTE_PATHS.ADMIN.COURSES },
+                  { label: course?.title || course?.Title || "Khóa học", path: `/admin/courses/${courseId}` },
+                  { label: lesson?.title || lesson?.Title || "Bài học", path: `/admin/courses/${courseId}/lesson/${lessonId}?moduleId=${moduleId}` },
+                  { label: assessment?.title || assessment?.Title || "Bài tập", path: `/admin/courses/${courseId}/lesson/${lessonId}/module/${moduleId}/assessment/${assessmentId}/manage` },
+                  { label: quiz?.title || quiz?.Title || "Quiz", path: `/admin/courses/${courseId}/lesson/${lessonId}/module/${moduleId}/assessment/${assessmentId}/quiz/${quizId}/sections` },
+                  { label: section?.title || section?.Title || "Section", isCurrent: true }
+                ]}
+                showHomeIcon={false}
+              />
+            </div>
             <h2 className="mb-0 text-primary fw-bold">{contextData.title}</h2>
             {contextData.subtitle && <p className="text-muted mb-0">{contextData.subtitle}</p>}
           </div>

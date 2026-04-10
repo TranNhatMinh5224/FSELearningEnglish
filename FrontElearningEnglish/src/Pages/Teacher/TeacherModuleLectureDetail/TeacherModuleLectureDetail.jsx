@@ -1,11 +1,13 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { Container, Button, Badge } from "react-bootstrap";
-import { FaPlus, FaArrowLeft } from "react-icons/fa";
+import { FaPlus } from "react-icons/fa";
 import TeacherHeader from "../../../Components/Header/TeacherHeader";
-import { useAuth } from "../../../Context/AuthContext";
+import Breadcrumb from "../../../Components/Common/Breadcrumb/Breadcrumb";
 import { teacherService } from "../../../Services/teacherService";
 import { lectureService } from "../../../Services/lectureService";
+import { ROUTE_PATHS } from "../../../Routes/Paths";
+import { useAuth } from "../../../Context/AuthContext";
 import CreateLectureModal from "../../../Components/Teacher/CreateLectureModal/CreateLectureModal";
 import LectureTreeView from "../../../Components/Teacher/LectureTreeView/LectureTreeView";
 import LectureDetailModal from "../../../Components/Teacher/LectureDetailModal/LectureDetailModal";
@@ -20,6 +22,8 @@ export default function TeacherModuleLectureDetail() {
   const { user, roles, isAuthenticated } = useAuth();
 
   const [module, setModule] = useState(null);
+  const [course, setCourse] = useState(null);
+  const [lesson, setLesson] = useState(null);
   const [lectures, setLectures] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -39,20 +43,24 @@ export default function TeacherModuleLectureDetail() {
   const fetchData = useCallback(async () => {
     setLoading(true);
     try {
-      const [moduleRes, lecturesRes] = await Promise.all([
+      const [moduleRes, lecturesRes, courseRes, lessonRes] = await Promise.all([
         teacherService.getModuleById(moduleId),
-        lectureService.getTeacherLectureTree(moduleId)
+        lectureService.getTeacherLectureTree(moduleId),
+        teacherService.getCourseDetail(courseId),
+        teacherService.getLessonDetail(lessonId)
       ]);
 
       if (moduleRes.data?.success) setModule(moduleRes.data.data);
       if (lecturesRes.data?.success) setLectures(lecturesRes.data.data || []);
+      if (courseRes.data?.success) setCourse(courseRes.data.data);
+      if (lessonRes.data?.success) setLesson(lessonRes.data.data);
 
     } catch (err) {
       console.error(err);
     } finally {
       setLoading(false);
     }
-  }, [moduleId]);
+  }, [courseId, lessonId, moduleId]);
 
   useEffect(() => {
     if (!isAuthenticated || !isTeacher) {
@@ -138,18 +146,21 @@ export default function TeacherModuleLectureDetail() {
       <TeacherHeader />
       <div className="teacher-module-lecture-detail-container">
         <Container>
+          <div className="breadcrumb-section mt-3">
+            <Breadcrumb
+              items={[
+                { label: "Quản lý khoá học", path: ROUTE_PATHS.TEACHER_COURSE_MANAGEMENT },
+                { label: course?.title || course?.Title || "Khóa học", path: `/teacher/course/${courseId}` },
+                { label: lesson?.title || lesson?.Title || "Bài học", path: `/teacher/course/${courseId}/lesson/${lessonId}` },
+                { label: "Quản lý bài giảng", isCurrent: true }
+              ]}
+              showHomeIcon={false}
+            />
+          </div>
+
           <div className="lecture-management-header mb-4 mt-4">
             <div className="d-flex align-items-center justify-content-between">
               <div className="header-content d-flex align-items-center gap-3">
-                <Button 
-                  variant="outline-primary" 
-                  className="back-btn rounded-circle p-2 d-flex align-items-center justify-content-center"
-                  onClick={() => navigate(`/teacher/course/${courseId}/lesson/${lessonId}`)}
-                  title="Quay lại Danh sách Module"
-                  style={{ width: '40px', height: '40px' }}
-                >
-                  <FaArrowLeft />
-                </Button>
                 <div>
                   <h2 className="mb-0 fw-bold text-primary">Quản lý bài giảng</h2>
                   <div className="text-muted d-flex align-items-center gap-2">

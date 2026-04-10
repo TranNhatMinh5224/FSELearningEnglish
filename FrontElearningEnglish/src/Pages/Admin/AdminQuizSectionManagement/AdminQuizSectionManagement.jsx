@@ -1,9 +1,15 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { Container } from "react-bootstrap";
-import { FaEdit, FaTrash, FaList, FaArrowLeft, FaPlus } from "react-icons/fa";
+import { FaEdit, FaTrash, FaList, FaPlus } from "react-icons/fa";
 import { useAuth } from "../../../Context/AuthContext";
+import Breadcrumb from "../../../Components/Common/Breadcrumb/Breadcrumb";
+import { assessmentService } from "../../../Services/assessmentService";
+import { courseService } from "../../../Services/courseService";
+import { lessonService } from "../../../Services/lessonService";
+import { teacherService } from "../../../Services/teacherService";
 import { quizService } from "../../../Services/quizService";
+import { ROUTE_PATHS } from "../../../Routes/Paths";
 import CreateQuizSectionModal from "../../../Components/Teacher/CreateQuizSectionModal/CreateQuizSectionModal";
 import SuccessModal from "../../../Components/Common/SuccessModal/SuccessModal";
 import NotificationModal from "../../../Components/Common/NotificationModal/NotificationModal";
@@ -15,6 +21,9 @@ export default function AdminQuizSectionManagement() {
   const navigate = useNavigate();
   const { roles, isAuthenticated } = useAuth();
   const [quiz, setQuiz] = useState(null);
+  const [assessment, setAssessment] = useState(null);
+  const [course, setCourse] = useState(null);
+  const [lesson, setLesson] = useState(null);
   const [sections, setSections] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -38,25 +47,27 @@ export default function AdminQuizSectionManagement() {
       setLoading(true);
       setError("");
 
-      // Fetch quiz
-      const quizRes = await quizService.getAdminQuizById(quizId);
-      if (quizRes.data?.success && quizRes.data?.data) {
-        setQuiz(quizRes.data.data);
-      }
+      const [quizRes, sectionsRes, assessRes, courseRes, lessonRes] = await Promise.all([
+        quizService.getAdminQuizById(quizId),
+        quizService.getAdminQuizSectionsByQuiz(quizId),
+        assessmentService.getAdminAssessmentById(assessmentId),
+        courseService.getCourseById(courseId),
+        lessonService.getLessonById(lessonId)
+      ]);
 
-      // Fetch sections
-      const sectionsRes = await quizService.getAdminQuizSectionsByQuiz(quizId);
-      if (sectionsRes.data?.success) {
-        const sectionsData = sectionsRes.data.data || [];
-        setSections(sectionsData);
-      }
+      if (quizRes.data?.success) setQuiz(quizRes.data.data);
+      if (sectionsRes.data?.success) setSections(sectionsRes.data.data || []);
+      if (assessRes.data?.success) setAssessment(assessRes.data.data);
+      if (courseRes.data?.success) setCourse(courseRes.data.data);
+      if (lessonRes.data?.success) setLesson(lessonRes.data.data);
+
     } catch (err) {
       console.error("Error fetching data:", err);
       setError("Không thể tải dữ liệu");
     } finally {
       setLoading(false);
     }
-  }, [quizId]);
+  }, [quizId, assessmentId, courseId, lessonId]);
 
   useEffect(() => {
     if (!isAuthenticated || !isAdmin) {
@@ -154,14 +165,22 @@ export default function AdminQuizSectionManagement() {
   return (
     <div className="admin-quiz-section-management-container">
       <Container fluid className="p-0">
+        {/* Breadcrumb */}
+        <div className="breadcrumb-section mt-3">
+          <Breadcrumb
+            items={[
+              { label: "Admin: Khóa học", path: ROUTE_PATHS.ADMIN.COURSES },
+              { label: course?.title || course?.Title || "Khóa học", path: `/admin/courses/${courseId}` },
+              { label: lesson?.title || lesson?.Title || "Bài học", path: `/admin/courses/${courseId}/lesson/${lessonId}?moduleId=${moduleId}` },
+              { label: assessment?.title || assessment?.Title || "Bài tập", path: `/admin/courses/${courseId}/lesson/${lessonId}/module/${moduleId}/assessment/${assessmentId}/manage` },
+              { label: "Quản lý Section", isCurrent: true }
+            ]}
+            showHomeIcon={false}
+          />
+        </div>
+
         {/* Header */}
-        <div className="mb-4 question-header-section">
-          <button 
-            className="back-nav-link mb-3 text-muted" 
-            onClick={() => navigate(-1)}
-          >
-            <FaArrowLeft className="me-2" /> Quay lại
-          </button>
+        <div className="mb-4 question-header-section mt-4">
           <div className="d-flex align-items-center justify-content-between flex-wrap gap-3">
             <div className="title-wrapper">
               <h2 className="mb-0 fw-bold premium-gradient-text">Quản lý Quiz: {quizTitle}</h2>

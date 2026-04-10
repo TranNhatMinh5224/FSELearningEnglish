@@ -1,10 +1,15 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { Container, Row, Col } from "react-bootstrap";
-import { FaEdit, FaTrash, FaArrowLeft } from "react-icons/fa";
+import { FaEdit, FaTrash } from "react-icons/fa";
 import { useAuth } from "../../../Context/AuthContext";
+import Breadcrumb from "../../../Components/Common/Breadcrumb/Breadcrumb";
 import { assessmentService } from "../../../Services/assessmentService";
+import { courseService } from "../../../Services/courseService";
+import { lessonService } from "../../../Services/lessonService";
+import { teacherService } from "../../../Services/teacherService";
 import { quizService } from "../../../Services/quizService";
+import { ROUTE_PATHS } from "../../../Routes/Paths";
 import { essayService } from "../../../Services/essayService";
 import CreateQuizModal from "../../../Components/Teacher/CreateQuizModal/CreateQuizModal";
 import CreateEssayModal from "../../../Components/Teacher/CreateEssayModal/CreateEssayModal";
@@ -20,6 +25,9 @@ export default function AdminQuizEssayManagement() {
   const { roles, isAuthenticated } = useAuth();
   const { getStatusLabel } = useQuizStatus();
   const [assessment, setAssessment] = useState(null);
+  const [course, setCourse] = useState(null);
+  const [lesson, setLesson] = useState(null);
+  const [module, setModule] = useState(null);
   const [quizzes, setQuizzes] = useState([]);
   const [essays, setEssays] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -53,32 +61,30 @@ export default function AdminQuizEssayManagement() {
       setLoading(true);
       setError("");
 
-      // Fetch assessment
-      const assessmentRes = await assessmentService.getAdminAssessmentById(assessmentId);
-      if (assessmentRes.data?.success && assessmentRes.data?.data) {
-        setAssessment(assessmentRes.data.data);
-      }
-
-      // Fetch quizzes and essays
-      const [quizzesRes, essaysRes] = await Promise.all([
+      // Fetch metadata and content in parallel
+      const [assessmentRes, quizzesRes, essaysRes, courseRes, lessonRes, moduleRes] = await Promise.all([
+        assessmentService.getAdminAssessmentById(assessmentId),
         quizService.getAdminQuizzesByAssessment(assessmentId),
-        essayService.getAdminEssaysByAssessment(assessmentId)
+        essayService.getAdminEssaysByAssessment(assessmentId),
+        courseService.getCourseById(courseId),
+        lessonService.getLessonById(lessonId),
+        teacherService.getModuleById(moduleId)
       ]);
 
-      if (quizzesRes.data?.success) {
-        setQuizzes(quizzesRes.data.data || []);
-      }
-
-      if (essaysRes.data?.success) {
-        setEssays(essaysRes.data.data || []);
-      }
+      if (assessmentRes.data?.success) setAssessment(assessmentRes.data.data);
+      if (quizzesRes.data?.success) setQuizzes(quizzesRes.data.data || []);
+      if (essaysRes.data?.success) setEssays(essaysRes.data.data || []);
+      if (courseRes.data?.success) setCourse(courseRes.data.data);
+      if (lessonRes.data?.success) setLesson(lessonRes.data.data);
+      if (moduleRes.data?.success) setModule(moduleRes.data.data);
+      
     } catch (err) {
       console.error("Error fetching data:", err);
       setError("Không thể tải dữ liệu");
     } finally {
       setLoading(false);
     }
-  }, [assessmentId]);
+  }, [assessmentId, courseId, lessonId, moduleId]);
 
   useEffect(() => {
     if (!isAuthenticated || !isAdmin) {
@@ -217,14 +223,19 @@ export default function AdminQuizEssayManagement() {
   return (
     <div className="admin-quiz-essay-management-container">
       <Container fluid className="p-0">
-        {/* Header */}
-        <div className="mb-4 question-header-section">
-          <button 
-            className="back-nav-link mb-3 text-muted" 
-            onClick={() => navigate(`/admin/courses/${courseId}/lesson/${lessonId}?moduleId=${moduleId}`)}
-          >
-            <FaArrowLeft className="me-2" /> Quay lại
-          </button>
+        <div className="breadcrumb-section mt-3">
+          <Breadcrumb
+            items={[
+              { label: "Admin: Khóa học", path: ROUTE_PATHS.ADMIN.COURSES },
+              { label: course?.title || course?.Title || "Khóa học", path: `/admin/courses/${courseId}` },
+              { label: lesson?.title || lesson?.Title || "Bài học", path: `/admin/courses/${courseId}/lesson/${lessonId}?moduleId=${moduleId}` },
+              { label: "Quản lý bài tập", isCurrent: true }
+            ]}
+            showHomeIcon={false}
+          />
+        </div>
+
+        <div className="mb-4 question-header-section mt-4">
           <div className="text-center mb-4">
             <h1 className="mb-2 fw-bold premium-gradient-text">Quản lý nội dung bài kiểm tra</h1>
             {assessment && (

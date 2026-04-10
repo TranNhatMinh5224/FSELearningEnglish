@@ -1,11 +1,13 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { Container, Button, Card, Row, Col } from "react-bootstrap";
-import { FaPlus, FaEdit, FaTrash, FaVolumeUp, FaArrowLeft } from "react-icons/fa";
+import { FaPlus, FaEdit, FaTrash, FaVolumeUp } from "react-icons/fa";
 import TeacherHeader from "../../../Components/Header/TeacherHeader";
-import { useAuth } from "../../../Context/AuthContext";
+import Breadcrumb from "../../../Components/Common/Breadcrumb/Breadcrumb";
 import { teacherService } from "../../../Services/teacherService";
 import { flashcardService } from "../../../Services/flashcardService";
+import { ROUTE_PATHS } from "../../../Routes/Paths";
+import { useAuth } from "../../../Context/AuthContext";
 import CreateFlashCardModal from "../../../Components/Teacher/CreateFlashCardModal/CreateFlashCardModal";
 import SuccessModal from "../../../Components/Common/SuccessModal/SuccessModal";
 import NotificationModal from "../../../Components/Common/NotificationModal/NotificationModal";
@@ -18,6 +20,8 @@ export default function TeacherModuleFlashCardDetail() {
   const { user, roles, isAuthenticated } = useAuth();
   
   const [module, setModule] = useState(null);
+  const [course, setCourse] = useState(null);
+  const [lesson, setLesson] = useState(null);
   const [flashcards, setFlashcards] = useState([]);
   const [loading, setLoading] = useState(true);
   
@@ -35,20 +39,24 @@ export default function TeacherModuleFlashCardDetail() {
   const fetchData = useCallback(async () => {
     setLoading(true);
     try {
-      const [moduleRes, flashcardsRes] = await Promise.all([
+      const [moduleRes, flashcardsRes, courseRes, lessonRes] = await Promise.all([
         teacherService.getModuleById(moduleId),
-        flashcardService.getTeacherFlashcardsByModule(moduleId)
+        flashcardService.getTeacherFlashcardsByModule(moduleId),
+        teacherService.getCourseDetail(courseId),
+        teacherService.getLessonDetail(lessonId)
       ]);
 
       if (moduleRes.data?.success) setModule(moduleRes.data.data);
       if (flashcardsRes.data?.success) setFlashcards(flashcardsRes.data.data || []);
+      if (courseRes.data?.success) setCourse(courseRes.data.data);
+      if (lessonRes.data?.success) setLesson(lessonRes.data.data);
       
     } catch (err) {
       console.error(err);
     } finally {
       setLoading(false);
     }
-  }, [moduleId]);
+  }, [courseId, lessonId, moduleId]);
 
   useEffect(() => {
     if (!isAuthenticated || !isTeacher) {
@@ -112,17 +120,20 @@ export default function TeacherModuleFlashCardDetail() {
       <TeacherHeader />
       <div className="teacher-module-flashcard-detail-container">
         <Container>
+          <div className="breadcrumb-section mt-3">
+            <Breadcrumb
+              items={[
+                { label: "Quản lý khoá học", path: ROUTE_PATHS.TEACHER_COURSE_MANAGEMENT },
+                { label: course?.title || course?.Title || "Khóa học", path: `/teacher/course/${courseId}` },
+                { label: lesson?.title || lesson?.Title || "Bài học", path: `/teacher/course/${courseId}/lesson/${lessonId}` },
+                { label: "Quản lý từ vựng", isCurrent: true }
+              ]}
+              showHomeIcon={false}
+            />
+          </div>
+
           <div className="d-flex align-items-center justify-content-between mb-4 mt-4">
             <div className="d-flex align-items-center gap-3">
-              <Button 
-                variant="outline-primary" 
-                className="back-btn rounded-circle p-2 d-flex align-items-center justify-content-center"
-                onClick={() => navigate(`/teacher/course/${courseId}/lesson/${lessonId}`)}
-                title="Quay lại Danh sách Module"
-                style={{ width: '40px', height: '40px' }}
-              >
-                <FaArrowLeft />
-              </Button>
               <div>
                   <h2 className="mb-0 fw-bold text-primary">Quản lý từ vựng</h2>
                   <div className="text-muted">{module?.name || "Module"} ({flashcards.length} từ)</div>

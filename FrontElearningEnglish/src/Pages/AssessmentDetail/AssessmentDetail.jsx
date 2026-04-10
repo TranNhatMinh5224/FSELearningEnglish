@@ -207,24 +207,26 @@ export default function AssessmentDetail() {
             <MainHeader />
             <div className="assessment-detail-container">
                 <Container>
-                    <Breadcrumb 
-                        items={[
-                            { label: "Khóa học của tôi", path: "/my-courses" },
-                            { label: course?.title || "Khóa học", path: `/course/${courseId}` },
-                            { label: "Lesson", path: `/course/${courseId}/learn` },
-                            { label: lesson?.title || "Bài học", path: `/course/${courseId}/lesson/${lessonId}` },
-                            { label: "Bài tập", path: `/course/${courseId}/lesson/${lessonId}/module/${moduleId}/assignment` },
-                            { label: assessment?.title || "Kiểm tra", isCurrent: true }
-                        ]}
-                    />
-                    {/* Breadcrumb & Header */}
-                    <Row className="mb-4 align-items-end">
+                    <div className="breadcrumb-wrapper mb-4">
+                        <Breadcrumb 
+                            items={[
+                                { label: "Khóa học của tôi", path: "/my-courses" },
+                                { label: course?.title || "Khóa học", path: `/course/${courseId}` },
+                                { label: "Lesson", path: `/course/${courseId}/learn` },
+                                { label: lesson?.title || "Bài học", path: `/course/${courseId}/lesson/${lessonId}` },
+                                { label: "Bài tập", path: `/course/${courseId}/lesson/${lessonId}/module/${moduleId}/assignment` },
+                                { label: assessment?.title || "Kiểm tra", isCurrent: true }
+                            ]}
+                        />
+                    </div>
+                    {/* Header */}
+                    <Row className="mb-5 align-items-start">
                         <Col md={8}>
                             <h2 className="text-primary fw-bold mb-1">{assessment?.title}</h2>
                             <p className="text-muted mb-0">{assessment?.description}</p>
                         </Col>
-                        <Col md={4} className="text-md-end">
-                            <div className="assessment-timing-info p-2 rounded" style={{ backgroundColor: '#f8f9fa', border: '1px solid #e9ecef' }}>
+                        <Col md={4}>
+                            <div className="assessment-timing-info p-3 rounded" style={{ backgroundColor: '#ffffff', border: '1px solid #e5e7eb' }}>
                                 {assessment?.openAt && (
                                     <div className="small mb-1">
                                         <strong>Bắt đầu:</strong> {new Date(assessment.openAt).toLocaleString('vi-VN')}

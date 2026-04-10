@@ -1,8 +1,19 @@
 .assessment-detail-container {
     padding: 30px 250px;
-    padding-top: calc(70px + 50px);
+    padding-top: calc(70px + 30px);
     background: var(--color-bg-secondary, #f6f8fb);
-    min-height: calc(125vh - 70px);
+    min-height: calc(120vh - 70px);
+}
+
+.assessment-timing-info {
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+    background: white !important;
+    border: 1px solid #e5e7eb !important;
+}
+
+.assessment-timing-info:hover {
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
 }
 
 @media (max-width: 1600px) {

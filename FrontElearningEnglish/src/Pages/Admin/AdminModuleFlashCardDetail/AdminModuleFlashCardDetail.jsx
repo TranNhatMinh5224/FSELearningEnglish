@@ -1,10 +1,14 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { Container, Button, Card, Row, Col } from "react-bootstrap";
-import { FaPlus, FaEdit, FaTrash, FaVolumeUp, FaArrowLeft } from "react-icons/fa";
+import { FaPlus, FaEdit, FaTrash, FaVolumeUp } from "react-icons/fa";
 import { useAuth } from "../../../Context/AuthContext";
+import Breadcrumb from "../../../Components/Common/Breadcrumb/Breadcrumb";
 import { adminService } from "../../../Services/adminService";
+import { courseService } from "../../../Services/courseService";
+import { lessonService } from "../../../Services/lessonService";
 import { flashcardService } from "../../../Services/flashcardService";
+import { ROUTE_PATHS } from "../../../Routes/Paths";
 import CreateFlashCardModal from "../../../Components/Teacher/CreateFlashCardModal/CreateFlashCardModal";
 import SuccessModal from "../../../Components/Common/SuccessModal/SuccessModal";
 import NotificationModal from "../../../Components/Common/NotificationModal/NotificationModal";
@@ -17,6 +21,8 @@ export default function AdminModuleFlashCardDetail() {
   const { roles, isAuthenticated } = useAuth();
   
   const [module, setModule] = useState(null);
+  const [course, setCourse] = useState(null);
+  const [lesson, setLesson] = useState(null);
   const [flashcards, setFlashcards] = useState([]);
   const [loading, setLoading] = useState(true);
   
@@ -34,20 +40,24 @@ export default function AdminModuleFlashCardDetail() {
   const fetchData = useCallback(async () => {
     setLoading(true);
     try {
-      const [moduleRes, flashcardsRes] = await Promise.all([
+      const [moduleRes, flashcardsRes, courseRes, lessonRes] = await Promise.all([
         adminService.getModuleById(moduleId),
-        flashcardService.getAdminFlashcardsByModule(moduleId)
+        flashcardService.getAdminFlashcardsByModule(moduleId),
+        courseService.getCourseById(courseId),
+        lessonService.getLessonById(lessonId)
       ]);
 
       if (moduleRes.data?.success) setModule(moduleRes.data.data);
       if (flashcardsRes.data?.success) setFlashcards(flashcardsRes.data.data || []);
+      if (courseRes.data?.success) setCourse(courseRes.data.data);
+      if (lessonRes.data?.success) setLesson(lessonRes.data.data);
       
     } catch (err) {
       console.error(err);
     } finally {
       setLoading(false);
     }
-  }, [moduleId]);
+  }, [courseId, lessonId, moduleId]);
 
   useEffect(() => {
     if (!isAuthenticated || !isAdmin) {
@@ -113,17 +123,20 @@ export default function AdminModuleFlashCardDetail() {
   return (
     <div className="admin-module-flashcard-detail-container">
       <Container fluid className="p-0">
+        <div className="breadcrumb-section mt-3">
+          <Breadcrumb
+            items={[
+              { label: "Admin: Khóa học", path: ROUTE_PATHS.ADMIN.COURSES },
+              { label: course?.title || course?.Title || "Khóa học", path: `/admin/courses/${courseId}` },
+              { label: lesson?.title || lesson?.Title || "Bài học", path: `/admin/courses/${courseId}/lesson/${lessonId}?moduleId=${moduleId}` },
+              { label: "Quản lý từ vựng", isCurrent: true }
+            ]}
+            showHomeIcon={false}
+          />
+        </div>
+
         <div className="d-flex align-items-center justify-content-between mb-4 mt-4">
           <div className="d-flex align-items-center gap-3">
-            <Button 
-                variant="outline-primary" 
-                className="back-btn rounded-circle p-2 d-flex align-items-center justify-content-center"
-                onClick={() => navigate(`/admin/courses/${courseId}/lesson/${lessonId}`)}
-                title="Quay lại Danh sách Module"
-                style={{ width: '40px', height: '40px' }}
-            >
-                <FaArrowLeft />
-            </Button>
             <div>
                 <h2 className="mb-0 fw-bold text-primary">Quản lý từ vựng</h2>
                 <div className="text-muted">{module?.name || "Module"} ({flashcards.length} từ)</div>
