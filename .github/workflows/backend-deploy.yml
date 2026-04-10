@@ -20,6 +20,7 @@ jobs:
     runs-on: [self-hosted, Linux, X64]
 
     env:
+      DOTNET_INSTALL_DIR: ${{ github.workspace }}/.dotnet
       DOTNET_VERSION: '8.0.x'
       BACKEND_PROJECT: 'BackendELearningEnglish/LearningEnglish.API/LearningEnglish.API.csproj'
       PUBLISH_DIR: 'publish_backend'
