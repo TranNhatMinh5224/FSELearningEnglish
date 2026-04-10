@@ -90,7 +90,7 @@ export default function TeacherModuleLectureDetail() {
       setLectures(lecturesList);
     } catch (err) {
       console.error("Error fetching data:", err);
-      setError("Không thể tải dữ liệu bài giảng. Vui lòng thử lại sau.");
+      setNotification({ isOpen: true, type: "error", message: "Không thể tải dữ liệu bài giảng. Vui lòng thử lại sau." });
     } finally {
       setLoading(false);
     }
