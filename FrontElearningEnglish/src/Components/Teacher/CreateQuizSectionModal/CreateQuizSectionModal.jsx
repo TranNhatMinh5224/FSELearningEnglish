@@ -64,14 +64,14 @@ export default function CreateQuizSectionModal({ show, onClose, onSuccess, quizI
           }
         } catch (error) {
           console.error("Error loading section data:", error);
-          setErrors({ ...errors, submit: "Không thể tải dữ liệu section" });
+          setErrors(prev => ({ ...prev, submit: "Không thể tải dữ liệu section" }));
         } finally {
           setLoadingSection(false);
         }
       };
       loadSectionData();
     }
-  }, [show, isUpdateMode, sectionToUpdate, isAdmin, errors]);
+  }, [show, isUpdateMode, sectionToUpdate, isAdmin]);
 
   // Reset form when modal closes
   useEffect(() => {

@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo, useCallback } from "react";
 import { quizService } from "../../../../Services/quizService";
 import { useEnums } from "../../../../Context/EnumContext";
 import { useEntityForm } from "../../../../hooks/useEntityForm";
@@ -16,7 +16,7 @@ export const useQuizForm = (show, assessmentId, assessment, quizToUpdate, isAdmi
     }
   }
 
-  const initialValues = {
+  const initialValues = useMemo(() => ({
     title: "",
     description: "",
     instructions: "",
@@ -31,9 +31,9 @@ export const useQuizForm = (show, assessmentId, assessment, quizToUpdate, isAdmi
     shuffleQuestions: true,
     shuffleAnswers: true,
     maxAttempts: "",
-  };
+  }), []);
 
-  const validate = (values) => {
+  const validate = useCallback((values) => {
     const errors = {};
     if (!values.title?.trim()) {
       errors.title = "Tiêu đề Quiz là bắt buộc";
@@ -52,9 +52,9 @@ export const useQuizForm = (show, assessmentId, assessment, quizToUpdate, isAdmi
     }
 
     return errors;
-  };
+  }, [maxDurationMinutes]);
 
-  const onSubmit = async (values) => {
+  const onSubmit = useCallback(async (values) => {
     const submitData = {
       ...values,
       assessmentId: parseInt(assessmentId),
@@ -85,54 +85,59 @@ export const useQuizForm = (show, assessmentId, assessment, quizToUpdate, isAdmi
     } else {
       throw new Error(response.data?.message || "Thao tác thất bại");
     }
-  };
+  }, [assessmentId, isUpdateMode, quizToUpdate, isAdmin, onSuccess, onClose]);
 
   const form = useEntityForm(initialValues, validate, onSubmit);
+  const { setFormData, resetForm } = form;
   const [loadingQuiz, setLoadingQuiz] = useState(false);
   const [computedScore, setComputedScore] = useState(null);
 
-  // Load quiz data
+  // Load quiz data or reset
   useEffect(() => {
-    const loadQuizData = async () => {
-      if (!show || !isUpdateMode || !quizToUpdate) return;
-      
-      setLoadingQuiz(true);
-      try {
-        const quizId = quizToUpdate.quizId || quizToUpdate.QuizId;
-        const response = isAdmin
-          ? await quizService.getAdminQuizById(quizId)
-          : await quizService.getTeacherQuizById(quizId);
+    if (!show) return;
 
-        if (response.data?.success && response.data?.data) {
-          const quiz = response.data.data;
-          const totalScore = quiz.totalPossibleScore ?? quiz.TotalPossibleScore ?? 0;
-          setComputedScore(totalScore);
-          form.setFormData({
-            title: quiz.title || quiz.Title || "",
-            description: quiz.description || quiz.Description || "",
-            instructions: quiz.instructions || quiz.Instructions || "",
-            type: quiz.type ?? quiz.Type ?? 1,
-            status: quiz.status ?? quiz.Status ?? 1,
-            totalQuestions: (quiz.totalQuestions ?? quiz.TotalQuestions ?? "").toString(),
-            passingScore: (quiz.passingScore ?? quiz.PassingScore ?? "").toString(),
-            duration: (quiz.duration ?? quiz.Duration ?? "").toString(),
-            availableFrom: quiz.availableFrom ? new Date(quiz.availableFrom) : null,
-            showAnswersAfterSubmit: quiz.showAnswersAfterSubmit ?? quiz.ShowAnswersAfterSubmit ?? true,
-            showScoreImmediately: quiz.showScoreImmediately ?? quiz.ShowScoreImmediately ?? true,
-            shuffleQuestions: quiz.shuffleQuestions ?? quiz.ShuffleQuestions ?? true,
-            shuffleAnswers: quiz.shuffleAnswers ?? quiz.ShuffleAnswers ?? true,
-            maxAttempts: (quiz.maxAttempts ?? quiz.MaxAttempts ?? "").toString(),
-          });
+    if (isUpdateMode && quizToUpdate) {
+      const loadQuizData = async () => {
+        setLoadingQuiz(true);
+        try {
+          const quizId = quizToUpdate.quizId || quizToUpdate.QuizId;
+          const response = isAdmin
+            ? await quizService.getAdminQuizById(quizId)
+            : await quizService.getTeacherQuizById(quizId);
+
+          if (response.data?.success && response.data?.data) {
+            const quiz = response.data.data;
+            const totalScore = quiz.totalPossibleScore ?? quiz.TotalPossibleScore ?? 0;
+            setComputedScore(totalScore);
+            setFormData({
+              title: quiz.title || quiz.Title || "",
+              description: quiz.description || quiz.Description || "",
+              instructions: quiz.instructions || quiz.Instructions || "",
+              type: quiz.type ?? quiz.Type ?? 1,
+              status: quiz.status ?? quiz.Status ?? 1,
+              totalQuestions: (quiz.totalQuestions ?? quiz.TotalQuestions ?? "").toString(),
+              passingScore: (quiz.passingScore ?? quiz.PassingScore ?? "").toString(),
+              duration: (quiz.duration ?? quiz.Duration ?? "").toString(),
+              availableFrom: quiz.availableFrom ? new Date(quiz.availableFrom) : null,
+              showAnswersAfterSubmit: quiz.showAnswersAfterSubmit ?? quiz.ShowAnswersAfterSubmit ?? true,
+              showScoreImmediately: quiz.showScoreImmediately ?? quiz.ShowScoreImmediately ?? true,
+              shuffleQuestions: quiz.shuffleQuestions ?? quiz.ShuffleQuestions ?? true,
+              shuffleAnswers: quiz.shuffleAnswers ?? quiz.ShuffleAnswers ?? true,
+              maxAttempts: (quiz.maxAttempts ?? quiz.MaxAttempts ?? "").toString(),
+            });
+          }
+        } catch (error) {
+          console.error("Error loading quiz:", error);
+        } finally {
+          setLoadingQuiz(false);
         }
-      } catch (error) {
-        console.error("Error loading quiz:", error);
-      } finally {
-        setLoadingQuiz(false);
-      }
-    };
-
-    loadQuizData();
-  }, [show, isUpdateMode, quizToUpdate, isAdmin, form]);
+      };
+      loadQuizData();
+    } else {
+      resetForm();
+      setComputedScore(null);
+    }
+  }, [show, isUpdateMode, quizToUpdate, isAdmin, setFormData, resetForm]);
 
   return {
     ...form,

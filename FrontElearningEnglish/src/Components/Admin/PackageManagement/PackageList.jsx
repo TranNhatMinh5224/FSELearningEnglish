@@ -6,8 +6,9 @@ export default function PackageList({ packages, onEdit, onDelete }) {
     const getLevelBadge = (level) => {
         const levels = ["Basic", "Standard", "Premium", "Professional"];
         const colors = ["secondary", "info", "warning", "danger"];
-        const levelName = levels[level] || "Unknown";
-        const color = colors[level] || "secondary";
+        const index = level - 1;
+        const levelName = levels[index] || "Unknown";
+        const color = colors[index] || "secondary";
         return <Badge bg={color}>{levelName}</Badge>;
     };
 

@@ -65,11 +65,11 @@ export default function CreateEssayModal({ show, onClose, onSuccess, assessmentI
       }
     } catch (error) {
       console.error("Error loading essay data:", error);
-      setErrors({ ...errors, submit: "Không thể tải dữ liệu essay" });
+      setErrors(prev => ({ ...prev, submit: "Không thể tải dữ liệu essay" }));
     } finally {
       setLoadingEssay(false);
     }
-  }, [isAdmin, essayToUpdate, errors]);
+  }, [isAdmin, essayToUpdate]);
 
   // Load essay data when in update mode
   useEffect(() => {
@@ -236,7 +236,7 @@ export default function CreateEssayModal({ show, onClose, onSuccess, assessmentI
     } catch (error) {
       console.error(`Error ${isUpdateMode ? "updating" : "creating"} essay:`, error);
       const errorMessage = error.response?.data?.message || error.message || (isUpdateMode ? "Có lỗi xảy ra khi cập nhật Essay" : "Có lỗi xảy ra khi tạo Essay");
-      setErrors({ ...errors, submit: errorMessage });
+      setErrors(prev => ({ ...prev, submit: errorMessage }));
     } finally {
       setSubmitting(false);
     }

@@ -1,4 +1,4 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useMemo } from "react";
 
 /**
  * A generic hook to manage form state, validation, and submission.
@@ -44,7 +44,7 @@ export const useEntityForm = (initialValues, validate, onSubmit) => {
     setFormData((prev) => ({ ...prev, [name]: value }));
   }, []);
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = useCallback(async (e) => {
     if (e) e.preventDefault();
     
     const validationErrors = validate(formData);
@@ -67,9 +67,9 @@ export const useEntityForm = (initialValues, validate, onSubmit) => {
         setIsSubmitting(false);
       }
     }
-  };
+  }, [formData, validate, onSubmit]);
 
-  return {
+  return useMemo(() => ({
     formData,
     errors,
     touched,
@@ -82,5 +82,15 @@ export const useEntityForm = (initialValues, validate, onSubmit) => {
     setFieldValue,
     setErrors,
     setTouched,
-  };
+  }), [
+    formData, 
+    errors, 
+    touched, 
+    isSubmitting, 
+    handleChange, 
+    handleBlur, 
+    handleSubmit, 
+    resetForm, 
+    setFieldValue
+  ]);
 };

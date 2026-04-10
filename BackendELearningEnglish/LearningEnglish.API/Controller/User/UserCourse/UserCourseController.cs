@@ -23,7 +23,7 @@ namespace LearningEnglish.API.Controller.User
        
         [HttpGet("system-courses")]
         [AllowAnonymous]
-        [ResponseCache(Duration = 3600, Location = ResponseCacheLocation.Any, VaryByHeader = "Authorization")]
+        [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public async Task<IActionResult> GetSystemCourses()
         {
             var userIdValue = User.GetUserIdSafe();

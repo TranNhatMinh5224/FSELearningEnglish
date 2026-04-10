@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useRef } from "react";
+import { useState, useEffect, useCallback, useRef, useMemo } from "react";
 import { lectureService } from "../../../../Services/lectureService";
 import { useEntityForm } from "../../../../hooks/useEntityForm";
 
@@ -6,14 +6,14 @@ export const useLectureForm = (show, moduleId, lectureToUpdate, isAdmin, onSucce
   const isEditMode = !!lectureToUpdate && !lectureToUpdate._isChildCreation;
   const textAreaRef = useRef(null);
 
-  const initialValues = {
+  const initialValues = useMemo(() => ({
     title: "",
     lectureType: 1,
     markdownContent: "",
     parentLectureId: null,
-  };
+  }), []);
 
-  const validate = (values) => {
+  const validate = useCallback((values) => {
     const errors = {};
     if (!values.title?.trim()) {
       errors.title = "Tiêu đề là bắt buộc";
@@ -22,9 +22,14 @@ export const useLectureForm = (show, moduleId, lectureToUpdate, isAdmin, onSucce
       errors.markdownContent = "Nội dung là bắt buộc cho bài giảng văn bản";
     }
     return errors;
-  };
+  }, []);
 
-  const onSubmit = async (values) => {
+  const [mediaTempKey, setMediaTempKey] = useState(null);
+  const [mediaType, setMediaType] = useState(null);
+  const [mediaSize, setMediaSize] = useState(null);
+  const [duration, setDuration] = useState(null);
+
+  const onSubmit = useCallback(async (values) => {
     const lectureData = {
       moduleId: parseInt(moduleId),
       title: values.title.trim(),
@@ -55,18 +60,15 @@ export const useLectureForm = (show, moduleId, lectureToUpdate, isAdmin, onSucce
     } else {
       throw new Error(response.data?.message || "Thao tác thất bại");
     }
-  };
+  }, [moduleId, mediaTempKey, mediaType, mediaSize, duration, isEditMode, lectureToUpdate, isAdmin, onSuccess, onClose]);
 
   const form = useEntityForm(initialValues, validate, onSubmit);
+  const { setFormData, setFieldValue, resetForm, setErrors, setTouched } = form;
   
   const [parentLectures, setParentLectures] = useState([]);
   const [loadingDetail, setLoadingDetail] = useState(false);
   
   // Media states
-  const [mediaTempKey, setMediaTempKey] = useState(null);
-  const [mediaType, setMediaType] = useState(null);
-  const [mediaSize, setMediaSize] = useState(null);
-  const [duration, setDuration] = useState(null);
   const [existingMediaUrl, setExistingMediaUrl] = useState(null);
   const [uploadingMedia, setUploadingMedia] = useState(false);
 
@@ -103,7 +105,7 @@ export const useLectureForm = (show, moduleId, lectureToUpdate, isAdmin, onSucce
           
           if (response.data?.success) {
             const data = response.data.data;
-            form.setFormData({
+            setFormData({
               title: data.title || data.Title || "",
               lectureType: data.type || data.Type || 1,
               markdownContent: data.markdownContent || data.MarkdownContent || "",
@@ -118,14 +120,14 @@ export const useLectureForm = (show, moduleId, lectureToUpdate, isAdmin, onSucce
       fetchDetail();
     } else {
       // It's Create Mode - Reset form fully
-      form.setFormData({
+      setFormData({
         title: "",
         lectureType: 1,
         markdownContent: "",
         parentLectureId: lectureToUpdate?._isChildCreation ? (lectureToUpdate.lectureId || lectureToUpdate.LectureId) : null,
       });
-      form.setErrors({});
-      form.setTouched({});
+      setErrors({});
+      setTouched({});
       setMediaTempKey(null);
       setMediaType(null);
       setMediaSize(null);
@@ -133,8 +135,7 @@ export const useLectureForm = (show, moduleId, lectureToUpdate, isAdmin, onSucce
       setExistingMediaUrl(null);
       setUploadingMedia(false);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [show, isEditMode, lectureToUpdate, isAdmin]);
+  }, [show, isEditMode, lectureToUpdate, isAdmin, setFormData, setErrors, setTouched]);
 
 
   // Markdown Toolbar logic
@@ -158,12 +159,12 @@ export const useLectureForm = (show, moduleId, lectureToUpdate, isAdmin, onSucce
     }
 
     const newVal = text.substring(0, start) + inserted + text.substring(end);
-    form.setFieldValue("markdownContent", newVal);
+    setFieldValue("markdownContent", newVal);
     setTimeout(() => {
       area.focus();
       area.setSelectionRange(start + inserted.length, start + inserted.length);
     }, 0);
-  }, [form]);
+  }, [setFieldValue]);
 
   return {
     ...form,

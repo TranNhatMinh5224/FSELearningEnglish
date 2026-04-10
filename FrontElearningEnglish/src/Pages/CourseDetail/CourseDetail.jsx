@@ -12,6 +12,7 @@ import NotificationModal from "../../Components/Common/NotificationModal/Notific
 import EnrollmentSuccessModal from "../../Components/Common/EnrollmentSuccessModal/EnrollmentSuccessModal";
 import { courseService } from "../../Services/courseService";
 import { paymentService } from "../../Services/paymentService";
+import { useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "../../Context/AuthContext";
 import { useNotificationRefresh } from "../../Context/NotificationContext";
 import { useAssets } from "../../Context/AssetContext";
@@ -22,6 +23,7 @@ import SEO from "../../Components/SEO/SEO";
 export default function CourseDetail() {
     const { courseId } = useParams();
     const navigate = useNavigate();
+    const queryClient = useQueryClient();
     const { isAuthenticated } = useAuth();
     const { refreshNotifications } = useNotificationRefresh();
     const { getDefaultCourseImage } = useAssets();
@@ -85,6 +87,9 @@ export default function CourseDetail() {
                 // Đóng modal và hiển thị thông báo ngay lập tức (không đợi gì cả)
                 setShowEnrollmentModal(false);
                 setIsProcessing(false); // Tắt loading ngay
+
+                // Ensure any cached course lists reflect the new enrollment immediately
+                queryClient.invalidateQueries({ queryKey: ["system-courses"] });
                 
                 // Hiển thị EnrollmentSuccessModal với 2 nút: Để sau & Vào học ngay
                 setShowEnrollmentSuccessModal(true);

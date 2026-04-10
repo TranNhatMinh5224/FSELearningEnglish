@@ -1,16 +1,16 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo, useCallback } from "react";
 import { teacherService } from "../../../../Services/teacherService";
 import { adminService } from "../../../../Services/adminService";
 import { useEntityForm } from "../../../../hooks/useEntityForm";
 
 export const useModuleForm = (show, lessonId, moduleData, isUpdateMode, isAdmin, onSuccess, onClose) => {
-  const initialValues = {
+  const initialValues = useMemo(() => ({
     name: "",
     description: "",
     contentType: "",
-  };
+  }), []);
 
-  const validate = (values) => {
+  const validate = useCallback((values) => {
     const errors = {};
     if (!values.name?.trim()) {
       errors.name = "Tên module là bắt buộc";
@@ -26,9 +26,12 @@ export const useModuleForm = (show, lessonId, moduleData, isUpdateMode, isAdmin,
       errors.contentType = "Loại nội dung là bắt buộc";
     }
     return errors;
-  };
+  }, [isUpdateMode]);
 
-  const onSubmit = async (values) => {
+  const [imageTempKey, setImageTempKey] = useState(null);
+  const [imageType, setImageType] = useState(null);
+
+  const onSubmit = useCallback(async (values) => {
     let response;
     if (isUpdateMode && moduleData) {
       const moduleId = moduleData.moduleId || moduleData.ModuleId;
@@ -63,30 +66,32 @@ export const useModuleForm = (show, lessonId, moduleData, isUpdateMode, isAdmin,
     } else {
       throw new Error(response.data?.message || "Thao tác thất bại");
     }
-  };
+  }, [isUpdateMode, moduleData, imageTempKey, imageType, isAdmin, lessonId, onSuccess, onClose]);
 
   const form = useEntityForm(initialValues, validate, onSubmit);
-  
-  const [imageTempKey, setImageTempKey] = useState(null);
-  const [imageType, setImageType] = useState(null);
+  const { setFormData, resetForm } = form;
+
   const [imageUrl, setImageUrl] = useState(null);
   const [uploadingImage, setUploadingImage] = useState(false);
 
-  // Pre-fill
+  // Pre-fill or reset form when modal visibility or data changes
   useEffect(() => {
-    if (show && isUpdateMode && moduleData) {
-      form.setFormData({
+    if (!show) return;
+
+    if (isUpdateMode && moduleData) {
+      setFormData({
         name: moduleData.name || moduleData.Name || "",
         description: moduleData.description || moduleData.Description || "",
         contentType: (moduleData.contentType || moduleData.ContentType || "").toString(),
       });
       setImageUrl(moduleData.imageUrl || moduleData.ImageUrl || null);
-    } else if (show && !isUpdateMode) {
-      form.resetForm();
+    } else {
+      resetForm();
       setImageUrl(null);
       setImageTempKey(null);
+      setImageType(null);
     }
-  }, [show, isUpdateMode, moduleData, form]);
+  }, [show, isUpdateMode, moduleData, setFormData, resetForm]);
 
   return {
     ...form,

@@ -1,15 +1,18 @@
 import { useQuery } from "@tanstack/react-query";
 import { courseService } from "../Services/courseService";
 import { useAssets } from "../Context/AssetContext";
+import { useAuth } from "../Context/AuthContext";
 
 /**
  * Hook to fetch all system courses with automatic caching.
  */
 export const useSystemCourses = () => {
     const { getDefaultCourseImage } = useAssets();
+    const { isAuthenticated, user } = useAuth();
+    const userKey = isAuthenticated ? (user?.userId ?? user?.id ?? "auth") : "anon";
 
     return useQuery({
-        queryKey: ["system-courses"],
+        queryKey: ["system-courses", userKey],
         queryFn: async () => {
             const response = await courseService.getSystemCourses();
             if (!response.data?.success) {
@@ -35,8 +38,11 @@ export const useSystemCourses = () => {
  * Hook to fetch a specific course by ID.
  */
 export const useCourseById = (courseId) => {
+    const { isAuthenticated, user } = useAuth();
+    const userKey = isAuthenticated ? (user?.userId ?? user?.id ?? "auth") : "anon";
+
     return useQuery({
-        queryKey: ["course", courseId],
+        queryKey: ["course", courseId, userKey],
         queryFn: async () => {
             if (!courseId) return null;
             const response = await courseService.getCourseById(courseId);

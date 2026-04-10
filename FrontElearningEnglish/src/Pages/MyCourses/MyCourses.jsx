@@ -11,6 +11,7 @@ import SuggestedCourseCard from "../../Components/Home/SuggestedCourseCard/Sugge
 import AccountUpgradeSection from "../../Components/Home/AccountUpgradeSection/AccountUpgradeSection";
 import { FaPlus } from "react-icons/fa";
 import { enrollmentService } from "../../Services/enrollmentService";
+import { useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "../../Context/AuthContext";
 import { useAssets } from "../../Context/AssetContext";
 import LoginRequiredModal from "../../Components/Common/LoginRequiredModal/LoginRequiredModal";
@@ -18,6 +19,7 @@ import LoginRequiredModal from "../../Components/Common/LoginRequiredModal/Login
 export default function MyCourses() {
     const navigate = useNavigate();
     const { isAuthenticated, user } = useAuth();
+    const queryClient = useQueryClient();
     const { getDefaultCourseImage } = useAssets();
     const [selectedPackage, setSelectedPackage] = useState(null);
     
@@ -130,6 +132,9 @@ export default function MyCourses() {
                 
                 // Refresh courses list ngay lập tức
                 setRefreshTrigger(prev => prev + 1);
+
+                // Also refresh cached home course list (React Query)
+                queryClient.invalidateQueries({ queryKey: ["system-courses"] });
                 
                 // Reset về page 1 để thấy khóa học mới
                 if (currentPage !== 1) {

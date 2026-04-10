@@ -4,9 +4,11 @@ import "./PaymentSuccess.css";
 import { FaCheckCircle } from "react-icons/fa";
 import { paymentService } from "../../Services/paymentService";
 import { useAuth } from "../../Context/AuthContext";
+import { useQueryClient } from "@tanstack/react-query";
 
 export default function PaymentSuccess() {
   const { refreshUser } = useAuth();
+  const queryClient = useQueryClient();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const paymentId = searchParams.get("paymentId");
@@ -19,6 +21,9 @@ export default function PaymentSuccess() {
     const fetchPaymentDetails = async () => {
       // Refresh user profile to get new role/subscription before showing details
       await refreshUser();
+
+      // Ensure cached lists refresh (enrollment/subscription may have changed)
+      queryClient.invalidateQueries({ queryKey: ["system-courses"] });
       
       if (!paymentId) {
         setLoading(false);
@@ -38,7 +43,7 @@ export default function PaymentSuccess() {
     };
 
     fetchPaymentDetails();
-  }, [paymentId]);
+  }, [paymentId, refreshUser, queryClient]);
 
   const handleGoHome = () => {
     navigate("/home");

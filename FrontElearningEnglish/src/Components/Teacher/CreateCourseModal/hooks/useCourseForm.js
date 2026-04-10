@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useCallback } from "react";
+import { useState, useEffect, useRef, useCallback, useMemo } from "react";
 import { teacherService } from "../../../../Services/teacherService";
 import { teacherPackageService } from "../../../../Services/teacherPackageService";
 import { useAuth } from "../../../../Context/AuthContext";
@@ -13,12 +13,12 @@ export const useCourseForm = (show, isUpdateMode, courseData, onSuccess, onClose
   const [imageUrl, setImageUrl] = useState(null);
   const [uploadingImage, setUploadingImage] = useState(false);
 
-  const initialValues = {
+  const initialValues = useMemo(() => ({
     title: "",
     description: "",
-  };
+  }), []);
 
-  const validate = (values) => {
+  const validate = useCallback((values) => {
     const errors = {};
     if (!values.title?.trim()) {
       errors.title = "Tiêu đề là bắt buộc";
@@ -32,9 +32,9 @@ export const useCourseForm = (show, isUpdateMode, courseData, onSuccess, onClose
       errors.description = "Mô tả không được vượt quá 2,000 ký tự";
     }
     return errors;
-  };
+  }, []);
 
-  const onSubmit = async (values) => {
+  const onSubmit = useCallback(async (values) => {
     let submitData = {
       title: values.title.trim(),
       description: values.description.trim(),
@@ -61,9 +61,10 @@ export const useCourseForm = (show, isUpdateMode, courseData, onSuccess, onClose
     } else {
       throw new Error(response.data?.message || "Thao tác thất bại");
     }
-  };
+  }, [maxStudent, imageTempKey, imageType, isUpdateMode, courseData, onSuccess, onClose]);
 
   const form = useEntityForm(initialValues, validate, onSubmit);
+  const { setFormData, resetForm, formData, handleChange } = form;
 
   const textAreaRef = useRef(null);
 
@@ -73,7 +74,7 @@ export const useCourseForm = (show, isUpdateMode, courseData, onSuccess, onClose
 
     const start = area.selectionStart;
     const end = area.selectionEnd;
-    const currentText = form.formData.description || "";
+    const currentText = formData.description || "";
     const selectedText = currentText.substring(start, end) || "văn bản";
     let inserted = "";
 
@@ -89,29 +90,32 @@ export const useCourseForm = (show, isUpdateMode, courseData, onSuccess, onClose
     const newVal = currentText.substring(0, start) + inserted + currentText.substring(end);
     
     // Update the form's state securely
-    form.handleChange({ target: { name: 'description', value: newVal } });
+    handleChange({ target: { name: 'description', value: newVal } });
 
     // Refocus after rendering
     setTimeout(() => {
         area.focus();
         area.setSelectionRange(start + inserted.length, start + inserted.length);
     }, 0);
-  }, [form]);
+  }, [formData.description, handleChange]);
 
-  // Pre-fill form
+  // Pre-fill or reset form
   useEffect(() => {
-    if (show && isUpdateMode && courseData) {
-      form.setFormData({
+    if (!show) return;
+
+    if (isUpdateMode && courseData) {
+      setFormData({
         title: courseData.title || courseData.Title || "",
         description: courseData.description || courseData.Description || "",
       });
       setImageUrl(courseData.imageUrl || courseData.ImageUrl || null);
-    } else if (show && !isUpdateMode) {
-      form.resetForm();
+    } else {
+      resetForm();
       setImageUrl(null);
       setImageTempKey(null);
+      setImageType(null);
     }
-  }, [show, isUpdateMode, courseData]);
+  }, [show, isUpdateMode, courseData, setFormData, resetForm]);
 
   // Load package
   useEffect(() => {
