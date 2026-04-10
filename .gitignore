@@ -87,6 +87,8 @@ yarn-error.log*
 # 5. DEVOPS & DOCKER
 # ===========================================
 docker-compose.override.yml
+docker-compose.*.yml
+Dockerfile.*
 # Chặn folder data mount ra ngoài server
 minio_data/
 postgres_data/
