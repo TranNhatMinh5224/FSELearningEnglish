@@ -3,7 +3,7 @@ import { FaTimes, FaSearch, FaExternalLinkAlt } from "react-icons/fa";
 import { dictionaryService } from "../../../Services/dictionaryService";
 import "./LookupWordModal.css";
 
-export default function LookupWordModal({ show, onClose }) {
+export default function LookupWordModal({ show, onClose, onSelect }) {
   const [lookupWord, setLookupWord] = useState("");
   const [lookingUp, setLookingUp] = useState(false);
   const [lookupError, setLookupError] = useState("");
@@ -112,15 +112,34 @@ export default function LookupWordModal({ show, onClose }) {
                       {meaning.definitions && meaning.definitions.length > 0 && (
                         <div className="lookup-definitions">
                           {meaning.definitions.map((def, defIndex) => (
-                            <div key={defIndex} className="lookup-definition-item mb-3">
-                              <p className="lookup-definition-text">
-                                {defIndex + 1}. {def.definition || def.Definition}
-                              </p>
-                              {def.example || def.Example ? (
-                                <p className="lookup-example text-muted">
-                                  <em>Ví dụ: {def.example || def.Example}</em>
-                                </p>
-                              ) : null}
+                            <div key={defIndex} className="lookup-definition-item mb-3 p-2 rounded border-start border-3 border-primary bg-light">
+                              <div className="d-flex justify-content-between align-items-start gap-2">
+                                <div className="flex-grow-1">
+                                  <p className="lookup-definition-text mb-1">
+                                    {defIndex + 1}. {def.definition || def.Definition}
+                                  </p>
+                                  {def.example || def.Example ? (
+                                    <p className="lookup-example text-muted small mb-0">
+                                      <em>Ví dụ: {def.example || def.Example}</em>
+                                    </p>
+                                  ) : null}
+                                </div>
+                                {onSelect && (
+                                  <button
+                                    type="button"
+                                    className="btn btn-sm btn-outline-primary whitespace-nowrap"
+                                    onClick={() => onSelect({
+                                      word: lookupResult.word || lookupResult.Word,
+                                      pronunciation: lookupResult.phonetic || lookupResult.Phonetic,
+                                      partOfSpeech: meaning.partOfSpeech || meaning.PartOfSpeech,
+                                      definition: def.definition || def.Definition,
+                                      example: def.example || def.Example
+                                    })}
+                                  >
+                                    Áp dụng
+                                  </button>
+                                )}
+                              </div>
                             </div>
                           ))}
                         </div>

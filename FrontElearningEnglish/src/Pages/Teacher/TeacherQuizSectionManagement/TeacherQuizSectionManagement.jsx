@@ -3,8 +3,11 @@ import { useParams, useNavigate } from "react-router-dom";
 import { Container } from "react-bootstrap";
 import { FaEdit, FaTrash, FaPlus, FaList, FaArrowLeft } from "react-icons/fa";
 import TeacherHeader from "../../../Components/Header/TeacherHeader";
+import Breadcrumb from "../../../Components/Common/Breadcrumb/Breadcrumb";
 import { useAuth } from "../../../Context/AuthContext";
 import { quizService } from "../../../Services/quizService";
+import { teacherService } from "../../../Services/teacherService";
+import { assessmentService } from "../../../Services/assessmentService";
 import CreateQuizSectionModal from "../../../Components/Teacher/CreateQuizSectionModal/CreateQuizSectionModal";
 import CreateQuizGroupModal from "../../../Components/Teacher/CreateQuizGroupModal/CreateQuizGroupModal";
 import SuccessModal from "../../../Components/Common/SuccessModal/SuccessModal";
@@ -17,6 +20,9 @@ export default function TeacherQuizSectionManagement() {
   const { courseId, lessonId, moduleId, assessmentId, quizId } = useParams();
   const navigate = useNavigate();
   const { user, roles, isAuthenticated } = useAuth();
+  const [course, setCourse] = useState(null);
+  const [lesson, setLesson] = useState(null);
+  const [assessment, setAssessment] = useState(null);
   const [quiz, setQuiz] = useState(null);
   const [sections, setSections] = useState([]);
   const [, setSectionGroups] = useState({}); // { sectionId: [groups] }
@@ -60,12 +66,28 @@ export default function TeacherQuizSectionManagement() {
       setLoading(true);
       setError("");
 
-      // Fetch quiz
-      const quizRes = isAdmin
-        ? await quizService.getAdminQuizById(quizId)
-        : await quizService.getTeacherQuizById(quizId);
+      // Fetch metadata in parallel
+      const [quizRes, courseRes, lessonRes, assessmentRes] = await Promise.all([
+        isAdmin ? quizService.getAdminQuizById(quizId) : quizService.getTeacherQuizById(quizId),
+        teacherService.getCourseDetail(courseId),
+        teacherService.getLessonById(lessonId),
+        assessmentService.getTeacherAssessmentById(assessmentId)
+      ]);
+
       if (quizRes.data?.success && quizRes.data?.data) {
         setQuiz(quizRes.data.data);
+      }
+
+      if (courseRes.data?.success && courseRes.data?.data) {
+        setCourse(courseRes.data.data);
+      }
+
+      if (lessonRes.data?.success && lessonRes.data?.data) {
+        setLesson(lessonRes.data.data);
+      }
+
+      if (assessmentRes.data?.success && assessmentRes.data?.data) {
+        setAssessment(assessmentRes.data.data);
       }
 
       // Fetch sections
@@ -253,12 +275,18 @@ export default function TeacherQuizSectionManagement() {
         <Container>
           {/* Header */}
           <div className="mb-4 question-header-section">
-            <button 
-              className="back-nav-link mb-3 text-muted" 
-              onClick={() => navigate(-1)}
-            >
-              <FaArrowLeft className="me-2" /> Quay lại
-            </button>
+            <div className="breadcrumb-wrapper mb-3">
+              <Breadcrumb
+                items={[
+                  { label: "Quản lý khoá học", path: ROUTE_PATHS.TEACHER_COURSE_MANAGEMENT },
+                  { label: course?.title || course?.Title || "Khoá học", path: `/teacher/course/${courseId}` },
+                  { label: lesson?.title || lesson?.Title || "Bài học", path: `/teacher/course/${courseId}/lesson/${lessonId}` },
+                  { label: assessment?.title || assessment?.Title || "Quản lý bài tập", path: ROUTE_PATHS.TEACHER_QUIZ_ESSAY_MANAGEMENT(courseId, lessonId, moduleId, assessmentId) },
+                  { label: "Quản lý Quiz", isCurrent: true }
+                ]}
+                showHomeIcon={false}
+              />
+            </div>
             <div className="d-flex align-items-center justify-content-between flex-wrap gap-3">
               <div className="title-wrapper">
                 <h2 className="mb-0 fw-bold premium-gradient-text">Quản lý Quiz: {quizTitle}</h2>

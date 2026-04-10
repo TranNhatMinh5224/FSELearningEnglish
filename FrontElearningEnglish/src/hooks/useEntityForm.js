@@ -46,6 +46,7 @@ export const useEntityForm = (initialValues, validate, onSubmit) => {
 
   const handleSubmit = useCallback(async (e) => {
     if (e) e.preventDefault();
+    if (isSubmitting) return;
     
     const validationErrors = validate(formData);
     setErrors(validationErrors);

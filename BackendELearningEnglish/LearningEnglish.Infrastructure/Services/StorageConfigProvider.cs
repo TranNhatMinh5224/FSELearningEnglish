@@ -21,6 +21,7 @@ public class StorageConfigProvider : IStorageConfigProvider
         StorageConstants.FlashCardAudioBucket,   // flashcard-audio
         StorageConstants.ModuleImageBucket,      // modules
         StorageConstants.AvatarBucket,           // avatars
+        StorageConstants.EssayAudioBucket,       // essays (audio/images share the same bucket)
         StorageConstants.EssayAttachmentBucket,  // essay-attachments
         StorageConstants.AssetImageBucket,       // assetsfrontend
         StorageConstants.PronunciationBucket     // pronunciations

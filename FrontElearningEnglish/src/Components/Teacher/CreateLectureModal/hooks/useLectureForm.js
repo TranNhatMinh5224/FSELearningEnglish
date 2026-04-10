@@ -55,8 +55,8 @@ export const useLectureForm = (show, moduleId, lectureToUpdate, isAdmin, onSucce
     }
 
     if (response.data?.success) {
-      onSuccess?.(response.data.data);
       onClose();
+      onSuccess?.(response.data.data);
     } else {
       throw new Error(response.data?.message || "Thao tác thất bại");
     }

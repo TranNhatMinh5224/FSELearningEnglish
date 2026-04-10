@@ -30,7 +30,12 @@ export const useSystemCourses = () => {
                 // but we keep the raw values from API here.
             }));
         },
-        // Cache configuration is handled by default in App.js, but can be overridden here if needed.
+        // Force fresh data (avoid stale enrollment state on Home)
+        staleTime: 0,
+        gcTime: 0,
+        refetchOnMount: "always",
+        refetchOnWindowFocus: true,
+        refetchOnReconnect: true,
     });
 };
 

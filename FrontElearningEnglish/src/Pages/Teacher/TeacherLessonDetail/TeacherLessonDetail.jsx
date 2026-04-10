@@ -61,7 +61,14 @@ export default function TeacherLessonDetail() {
   const [contentError, setContentError] = useState("");
   const [assessmentTypes, setAssessmentTypes] = useState({}); // { assessmentId: { hasQuiz: boolean, hasEssay: boolean } }
 
-  const isTeacher = roles.some(role => ["Admin", "Teacher"].includes(role));
+  const isAdmin = roles && roles.some(role => {
+    const roleName = typeof role === 'string' ? role : (role?.name || '');
+    return ["SuperAdmin", "ContentAdmin", "FinanceAdmin", "Admin"].includes(roleName);
+  });
+  
+  const isTeacher = (roles && roles.includes("Teacher")) || 
+                    user?.teacherSubscription?.isTeacher === true || 
+                    isAdmin;
   
   const handleUpdateSuccess = () => {
     setShowUpdateModal(false);

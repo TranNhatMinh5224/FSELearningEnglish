@@ -3,7 +3,9 @@ import { useParams, useNavigate } from "react-router-dom";
 import { Container, Row, Col } from "react-bootstrap";
 import { FaEdit, FaTrash, FaArrowLeft } from "react-icons/fa";
 import TeacherHeader from "../../../Components/Header/TeacherHeader";
+import Breadcrumb from "../../../Components/Common/Breadcrumb/Breadcrumb";
 import { useAuth } from "../../../Context/AuthContext";
+import { teacherService } from "../../../Services/teacherService";
 import { assessmentService } from "../../../Services/assessmentService";
 import { quizService } from "../../../Services/quizService";
 import { essayService } from "../../../Services/essayService";
@@ -21,6 +23,8 @@ export default function TeacherQuizEssayManagement() {
   const navigate = useNavigate();
   const { user, roles, isAuthenticated } = useAuth();
   const { getStatusLabel } = useQuizStatus();
+  const [course, setCourse] = useState(null);
+  const [lesson, setLesson] = useState(null);
   const [assessment, setAssessment] = useState(null);
   const [quizzes, setQuizzes] = useState([]);
   const [essays, setEssays] = useState([]);
@@ -54,11 +58,24 @@ export default function TeacherQuizEssayManagement() {
     try {
       setLoading(true);
       setError("");
+      
+      // Fetch metadata in parallel
+      const [assessmentRes, courseRes, lessonRes] = await Promise.all([
+        assessmentService.getTeacherAssessmentById(assessmentId),
+        teacherService.getCourseDetail(courseId),
+        teacherService.getLessonById(lessonId)
+      ]);
 
-      // Fetch assessment
-      const assessmentRes = await assessmentService.getTeacherAssessmentById(assessmentId);
       if (assessmentRes.data?.success && assessmentRes.data?.data) {
         setAssessment(assessmentRes.data.data);
+      }
+      
+      if (courseRes.data?.success && courseRes.data?.data) {
+        setCourse(courseRes.data.data);
+      }
+
+      if (lessonRes.data?.success && lessonRes.data?.data) {
+        setLesson(lessonRes.data.data);
       }
 
       // Fetch quizzes and essays
@@ -229,12 +246,17 @@ export default function TeacherQuizEssayManagement() {
         <Container>
           {/* Header */}
           <div className="mb-4 question-header-section">
-            <button 
-              className="back-nav-link mb-3 text-muted" 
-              onClick={() => navigate(`/teacher/course/${courseId}/lesson/${lessonId}?moduleId=${moduleId}`)}
-            >
-              <FaArrowLeft className="me-2" /> Quay lại
-            </button>
+            <div className="breadcrumb-wrapper mb-3">
+              <Breadcrumb
+                items={[
+                  { label: "Quản lý khoá học", path: ROUTE_PATHS.TEACHER_COURSE_MANAGEMENT },
+                  { label: course?.title || course?.Title || "Khoá học", path: `/teacher/course/${courseId}` },
+                  { label: lesson?.title || lesson?.Title || "Bài học", path: `/teacher/course/${courseId}/lesson/${lessonId}` },
+                  { label: "Quản lý bài tập", isCurrent: true }
+                ]}
+                showHomeIcon={false}
+              />
+            </div>
             <div className="text-center mb-4">
               <h1 className="mb-2 fw-bold premium-gradient-text">Quản lý nội dung bài kiểm tra</h1>
               {assessment && (

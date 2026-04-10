@@ -6,6 +6,7 @@ import "./Header.css";
 import { useAssets } from "../../Context/AssetContext";
 import ProfileDropdown from "./ProfileDropdown";
 import { useAuth } from "../../Context/AuthContext";
+import { ROUTE_PATHS } from "../../Routes/Paths";
 import LoginRequiredModal from "../Common/LoginRequiredModal/LoginRequiredModal";
 import { FaUserCog, FaChalkboardTeacher } from "react-icons/fa";
 
@@ -40,7 +41,7 @@ export default function TeacherHeader() {
         {/* LEFT: logo + brand */}
         <Navbar.Brand
           className="main-header__left"
-          onClick={() => navigate("/teacher/course-management")}
+          onClick={() => navigate(ROUTE_PATHS.HOME)}
           style={{ cursor: "pointer" }}
         >
           {logo && <img src={logo} alt="Catalunya English - Logo Giáo Viên" className="main-header__logo" />}

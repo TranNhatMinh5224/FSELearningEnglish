@@ -3,6 +3,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import { Container, Button, Card, Badge } from "react-bootstrap";
 import { FaPlus, FaArrowLeft, FaEdit, FaTrash, FaLayerGroup } from "react-icons/fa";
 import TeacherHeader from "../../../Components/Header/TeacherHeader";
+import Breadcrumb from "../../../Components/Common/Breadcrumb/Breadcrumb";
 import CreateQuestionModal from "../../../Components/Teacher/CreateQuestionModal/CreateQuestionModal";
 import CreateQuizGroupModal from "../../../Components/Teacher/CreateQuizGroupModal/CreateQuizGroupModal"; // Import Group Modal
 import ConfirmModal from "../../../Components/Common/ConfirmModal/ConfirmModal";
@@ -10,26 +11,35 @@ import SuccessModal from "../../../Components/Common/SuccessModal/SuccessModal";
 import NotificationModal from "../../../Components/Common/NotificationModal/NotificationModal";
 import { questionService } from "../../../Services/questionService";
 import { quizService } from "../../../Services/quizService";
+import { teacherService } from "../../../Services/teacherService";
+import { assessmentService } from "../../../Services/assessmentService";
+import { ROUTE_PATHS } from "../../../Routes/Paths";
 import { useQuestionTypes } from "../../../hooks/useQuestionTypes";
 import { useAuth } from "../../../Context/AuthContext";
 import "./TeacherQuestionManagement.css";
 
 export default function TeacherQuestionManagement() {
   const { getQuestionTypeLabel } = useQuestionTypes();
-  const { sectionId, groupId } = useParams();
+  const { courseId, lessonId, moduleId, assessmentId, quizId, sectionId, groupId } = useParams();
   const navigate = useNavigate();
-  const { roles } = useAuth();
+  const { user, roles, isAuthenticated } = useAuth();
   
   // Auto-detect admin role from AuthContext
   const isAdmin = roles && roles.some(role => {
     const roleName = typeof role === 'string' ? role : (role?.name || '');
-    return roleName === "SuperAdmin" || 
-           roleName === "ContentAdmin" || 
-           roleName === "FinanceAdmin";
+    return ["SuperAdmin", "ContentAdmin", "FinanceAdmin", "Admin"].includes(roleName);
   });
+  
+  const isTeacher = (roles && roles.includes("Teacher")) || 
+                    user?.teacherSubscription?.isTeacher === true || 
+                    isAdmin;
   
   const [questions, setQuestions] = useState([]);
   const [groups, setGroups] = useState([]); // Store groups list
+  const [course, setCourse] = useState(null);
+  const [lesson, setLesson] = useState(null);
+  const [assessment, setAssessment] = useState(null);
+  const [quiz, setQuiz] = useState(null);
   const [contextData, setContextData] = useState({ title: "", subtitle: "" });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -108,6 +118,21 @@ export default function TeacherQuestionManagement() {
       }
       setContextData({ title, subtitle });
 
+      // Fetch metadata for breadcrumbs in parallel
+      const metadataPromises = [
+        teacherService.getCourseDetail(courseId),
+        teacherService.getLessonById(lessonId),
+        assessmentService.getTeacherAssessmentById(assessmentId),
+        isAdmin ? quizService.getAdminQuizById(quizId) : quizService.getTeacherQuizById(quizId)
+      ];
+
+      const [courseRes, lessonRes, assessmentRes, quizRes] = await Promise.all(metadataPromises);
+
+      if (courseRes.data?.success) setCourse(courseRes.data.data);
+      if (lessonRes.data?.success) setLesson(lessonRes.data.data);
+      if (assessmentRes.data?.success) setAssessment(assessmentRes.data.data);
+      if (quizRes.data?.success) setQuiz(quizRes.data.data);
+
     } catch (err) {
       console.error(err);
       setError("Không thể tải dữ liệu.");
@@ -117,8 +142,12 @@ export default function TeacherQuestionManagement() {
   }, [sectionId, groupId, isAdmin]);
 
   useEffect(() => {
+    if (!isAuthenticated || !isTeacher) {
+      navigate("/home");
+      return;
+    }
     fetchData();
-  }, [fetchData]);
+  }, [isAuthenticated, isTeacher, navigate, fetchData]);
 
   const handleCreateSuccess = (newQuestion) => {
     setSuccessMessage("Tạo câu hỏi thành công!");
@@ -295,12 +324,19 @@ export default function TeacherQuestionManagement() {
         <Container>
           {/* Header */}
           <div className="question-header-section mb-4">
-            <button 
-              className="back-nav-link mb-3 text-muted" 
-              onClick={() => navigate(-1)}
-            >
-              <FaArrowLeft className="me-2" /> Quay lại
-            </button>
+            <div className="breadcrumb-wrapper mb-3">
+              <Breadcrumb
+                items={[
+                  { label: "Quản lý khoá học", path: ROUTE_PATHS.TEACHER_COURSE_MANAGEMENT },
+                  { label: course?.title || course?.Title || "Khoá học", path: `/teacher/course/${courseId}` },
+                  { label: lesson?.title || lesson?.Title || "Bài học", path: `/teacher/course/${courseId}/lesson/${lessonId}` },
+                  { label: assessment?.title || assessment?.Title || "Quản lý bài tập", path: ROUTE_PATHS.TEACHER_QUIZ_ESSAY_MANAGEMENT(courseId, lessonId, moduleId, assessmentId) },
+                  { label: quiz?.title || quiz?.Title || "Quản lý Quiz", path: ROUTE_PATHS.TEACHER_QUIZ_SECTION_MANAGEMENT(courseId, lessonId, moduleId, assessmentId, quizId) },
+                  { label: "Quản lý câu hỏi", isCurrent: true }
+                ]}
+                showHomeIcon={false}
+              />
+            </div>
             
             <div className="d-flex align-items-center justify-content-between flex-wrap gap-3">
               <div className="title-wrapper">

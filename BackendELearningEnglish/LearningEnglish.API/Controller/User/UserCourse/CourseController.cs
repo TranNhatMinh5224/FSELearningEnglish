@@ -51,6 +51,7 @@ namespace LearningEnglish.API.Controller.User
 
         // endpoint Student lấy danh sách khóa học đã đăng ký (chỉ phân trang, không filter)
         [HttpGet("my-courses")]
+        [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public async Task<IActionResult> GetMyEnrolledCourses([FromQuery] PageRequest request)
         {
             

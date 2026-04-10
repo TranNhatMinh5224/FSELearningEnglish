@@ -105,7 +105,24 @@ public class ChatBotAIService : IChatBotAIService
                     """;
 
                 // Step 5: Call LLM via Semantic Kernel
-                return await _semanticChatService.GetChatCompletionAsync(SystemPrompt, userPromptWithContext, cancellationToken);
+                // If AI provider is temporarily unavailable, return a deterministic consult answer
+                // based on retrieved courses/packages so the UI doesn't show a connection error.
+                try
+                {
+                    var aiAnswer = await _semanticChatService.GetChatCompletionAsync(
+                        SystemPrompt,
+                        userPromptWithContext,
+                        cancellationToken);
+
+                    if (!string.IsNullOrWhiteSpace(aiAnswer))
+                        return aiAnswer;
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogWarning(ex, "Semantic chat service failed; falling back to deterministic answer");
+                }
+
+                return BuildDeterministicAnswer(topCourses, topTeacherPackages);
             }
 
             // Avoid caching prompts that look like they may contain personal identifiers.
@@ -129,14 +146,56 @@ public class ChatBotAIService : IChatBotAIService
         catch (Exception ex)
         {
             _logger.LogError(ex, "Chatbot consult failed");
+            // Keep endpoint stable (HTTP 200) to avoid frontend showing a generic "cannot connect" error.
+            // Return a friendly response that still guides the user.
             return new ServiceResponse<ChatBotConsultResponseDto>
             {
-                Success = false,
-                StatusCode = 500,
-                Message = "Chatbot hiện đang gặp sự cố. Vui lòng thử lại sau.",
-                Data = null
+                Success = true,
+                StatusCode = 200,
+                Message = "Chatbot responded with fallback.",
+                Data = new ChatBotConsultResponseDto
+                {
+                    Answer = "Mình chưa xử lý được câu hỏi vừa rồi. Bạn có thể mô tả rõ mục tiêu (giao tiếp/IELTS/TOEIC), trình độ hiện tại và ngân sách dự kiến để mình gợi ý phù hợp hơn nhé."
+                }
             };
         }
+    }
+
+    private static string BuildDeterministicAnswer(
+        IReadOnlyList<CourseRecommendationDto> courses,
+        IReadOnlyList<TeacherPackageRecommendationDto> packages)
+    {
+        var sb = new StringBuilder();
+        sb.AppendLine("Mình gợi ý nhanh một vài lựa chọn phù hợp dựa trên dữ liệu hiện có:");
+
+        if (courses.Count > 0)
+        {
+            sb.AppendLine();
+            sb.AppendLine("**📚 Khóa học hệ thống**");
+            foreach (var c in courses.Take(3))
+            {
+                sb.AppendLine($"- [{c.Title}](/course/{c.CourseId}) — Giá: {(c.Price ?? 0):N0} VNĐ");
+            }
+        }
+        else
+        {
+            sb.AppendLine();
+            sb.AppendLine("Hiện mình chưa tìm thấy khóa học hệ thống phù hợp trong dữ liệu.");
+        }
+
+        if (packages.Count > 0)
+        {
+            sb.AppendLine();
+            sb.AppendLine("**👨‍🏫 Gói nâng cấp Teacher**");
+            foreach (var p in packages.Take(2))
+            {
+                sb.AppendLine($"- [{p.PackageName}](/payment?packageId={p.TeacherPackageId}) — {p.DurationMonths} tháng — {p.Price:N0} VNĐ");
+            }
+        }
+
+        sb.AppendLine();
+        sb.Append("Bạn đang muốn học theo mục tiêu nào (giao tiếp/IELTS/TOEIC), và trình độ hiện tại ra sao?");
+        return sb.ToString();
     }
 
     private static string ComputePromptHash(string prompt)

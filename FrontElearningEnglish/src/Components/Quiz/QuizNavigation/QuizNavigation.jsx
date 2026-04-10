@@ -1,5 +1,4 @@
-import React from "react";
-import { FaCheckCircle } from "react-icons/fa";
+import { FaCheck } from "react-icons/fa";
 import { Card, Row, Col } from "react-bootstrap";
 import "./QuizNavigation.css";
 
@@ -56,16 +55,18 @@ export default function QuizNavigation({ questions, currentIndex, answers, onGoT
     groupedQuestions.sort((a, b) => a.index - b.index);
 
     return (
-        <Card className="quiz-navigation">
-            <Card.Body>
-                <div className="navigation-header d-flex justify-content-between align-items-center mb-3">
-                    <h4 className="navigation-title mb-0">Danh sách câu hỏi</h4>
-                    <div className="navigation-stats d-flex align-items-center">
-                        <div className="stat-panel d-flex align-items-center justify-content-center">
-                                <div className="stat-content d-flex align-items-center">
-                                    <FaCheckCircle className="stat-icon" />
-                                    <span className="stat-text">{answeredCount}/{questions ? questions.length : 0}</span>
-                                </div>
+        <Card className="quiz-navigation shadow-sm border-0">
+            <Card.Body className="p-3">
+                <div className="navigation-header d-flex justify-content-between align-items-center mb-4">
+                    <h5 className="navigation-title mb-0">Danh sách câu hỏi</h5>
+                    <div className="navigation-stats">
+                        <div className="stat-badge-progress">
+                            <div className="check-icon-circle">
+                                <FaCheck />
+                            </div>
+                            <span className="stat-count-text">
+                                {answeredCount}/{questions ? questions.length : 0}
+                            </span>
                         </div>
                     </div>
                 </div>

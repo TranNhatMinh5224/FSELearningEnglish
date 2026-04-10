@@ -8,7 +8,9 @@ using LearningEnglish.Infrastructure.Common.Helpers;
 using Minio;
 using Minio.Exceptions;
 using System;
+using System.Collections.Concurrent;
 using System.IO;
+using System.Threading;
 using System.Threading.Tasks;
 using Minio.DataModel.Args; // là namespace của MinIO SDK chứa các class “Args” dùng để cấu hình và gửi lệnh cho MinIO. Tất cả các thao tác của MinIO (upload, copy, delete, check bucket,…) đều cần 1 object Args
 
@@ -20,11 +22,59 @@ namespace LearningEnglish.Infrastructure.MinioFileStorage
         private readonly IMinioClient _minioClient; // client để kết nối với minio server
         private readonly ILogger<MinioFileStorageService> _logger;
 
+        // Prevent stampede when multiple requests try to create the same bucket concurrently
+        private static readonly ConcurrentDictionary<string, SemaphoreSlim> _bucketLocks =
+            new(StringComparer.OrdinalIgnoreCase);
+
         public MinioFileStorageService(IMapper mapper, IMinioClient minioClient, ILogger<MinioFileStorageService> logger)
         {
             _mapper = mapper;
             _minioClient = minioClient;
             _logger = logger;
+        }
+
+        private async Task<bool> EnsureBucketExistsAsync(string bucketName)
+        {
+            if (string.IsNullOrWhiteSpace(bucketName))
+            {
+                return false;
+            }
+
+            if (await _minioClient.BucketExistsAsync(new BucketExistsArgs().WithBucket(bucketName)))
+            {
+                return true;
+            }
+
+            var gate = _bucketLocks.GetOrAdd(bucketName, _ => new SemaphoreSlim(1, 1));
+            await gate.WaitAsync();
+            try
+            {
+                if (await _minioClient.BucketExistsAsync(new BucketExistsArgs().WithBucket(bucketName)))
+                {
+                    return true;
+                }
+
+                _logger?.LogWarning("MinIO bucket missing. Creating bucket '{Bucket}'...", bucketName);
+                await _minioClient.MakeBucketAsync(new MakeBucketArgs().WithBucket(bucketName));
+                _logger?.LogInformation("MinIO bucket created: {Bucket}", bucketName);
+
+                return await _minioClient.BucketExistsAsync(new BucketExistsArgs().WithBucket(bucketName));
+            }
+            catch (MinioException mEx)
+            {
+                // If creation fails due to permissions or policy, fall back to previous behavior
+                _logger?.LogError(mEx, "Failed to ensure MinIO bucket exists: {Bucket}", bucketName);
+                return false;
+            }
+            catch (Exception ex)
+            {
+                _logger?.LogError(ex, "Failed to ensure MinIO bucket exists: {Bucket}", bucketName);
+                return false;
+            }
+            finally
+            {
+                gate.Release();
+            }
         }
 
         public async Task<ServiceResponse<ResultUploadDto>> UpLoadFileTempAsync(IFormFile file, string BucketName, string? tempFolder = "temp")
@@ -41,10 +91,9 @@ namespace LearningEnglish.Infrastructure.MinioFileStorage
                     return response;
                 }
 
-                // Kiểm tra bucket có tồn tại không, nếu không thì báo lỗi
-                var bucketExists = await _minioClient.BucketExistsAsync(
-                    new BucketExistsArgs().WithBucket(BucketName));
-                if (!bucketExists)
+                // Ensure bucket exists (auto-create if needed)
+                var bucketReady = await EnsureBucketExistsAsync(BucketName);
+                if (!bucketReady)
                 {
                     response.Success = false;
                     response.Message = $"Bucket '{BucketName}' does not exist.";
@@ -177,8 +226,8 @@ namespace LearningEnglish.Infrastructure.MinioFileStorage
 
                 _logger?.LogInformation("CommitFileAsync called. Bucket={Bucket}, TempKey={TempKey}", BucketName, TempKey);
 
-                // kiểm tra bucket tồn tại
-                if (!await _minioClient.BucketExistsAsync(new BucketExistsArgs().WithBucket(BucketName)))
+                // Ensure bucket exists (auto-create if needed)
+                if (!await EnsureBucketExistsAsync(BucketName))
                 {
                     response.Success = false;
                     response.Message = "Bucket does not exist.";

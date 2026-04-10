@@ -379,7 +379,12 @@ public static class ServiceRegistrationExtensions
             ?? "gemini-2.0-flash";
 
         if (string.IsNullOrWhiteSpace(apiKey))
-            return; // Skip SK registration if no key is configured; validation will catch this on startup
+        {
+            // Keep application bootable without AI configuration.
+            // Chatbot endpoints will return a friendly message instead of crashing the host.
+            services.AddScoped<ISemanticChatService, DisabledSemanticChatService>();
+            return;
+        }
 
         var kernelBuilder = Kernel.CreateBuilder();
 #pragma warning disable SKEXP0070 // Google AI Gemini connector is experimental (alpha package)
@@ -421,18 +426,22 @@ public static class ServiceRegistrationExtensions
             ? chatBotAiSection
             : configuration.GetSection("Gemini");
 
-        services.AddOptions<ChatBotAIOptions>()
-            .Bind(sourceSection)
-            .Validate(o => !string.IsNullOrWhiteSpace(o.Provider),
-                "ChatBotAI:Provider is required.")
-            .Validate(o => !string.IsNullOrWhiteSpace(o.ApiKey),
-                "ChatBotAI:ApiKey is required.")
-            .Validate(o =>
-                    !string.IsNullOrWhiteSpace(o.ChatModel) ||
-                    !string.IsNullOrWhiteSpace(o.EmbeddingModel) ||
-                    !string.IsNullOrWhiteSpace(o.Model),
-                "ChatBotAI requires at least one model (ChatModel, EmbeddingModel, or Model).")
-            .ValidateOnStart();
+        // Allow the API to start without AI keys (useful for local/dev).
+        // If ApiKey is configured, validate early to catch config mistakes.
+        var configuredApiKey = sourceSection["ApiKey"] ?? string.Empty;
+
+        var optionsBuilder = services.AddOptions<ChatBotAIOptions>()
+            .Bind(sourceSection);
+
+        if (!string.IsNullOrWhiteSpace(configuredApiKey))
+        {
+            optionsBuilder
+                .Validate(o => !string.IsNullOrWhiteSpace(o.Provider),
+                    "ChatBotAI:Provider is required.")
+                .Validate(o => !string.IsNullOrWhiteSpace(o.ApiKey),
+                    "ChatBotAI:ApiKey is required.")
+                .ValidateOnStart();
+        }
 
         // Backward compatibility for existing code paths that still resolve GeminiOptions.
         services.Configure<GeminiOptions>(sourceSection);

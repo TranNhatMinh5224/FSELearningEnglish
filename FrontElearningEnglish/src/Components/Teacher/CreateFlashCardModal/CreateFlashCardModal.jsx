@@ -224,6 +224,10 @@ export default function CreateFlashCardModal({ show, onClose, onSuccess, moduleI
   };
 
   const handleGenerateSuccess = (data) => {
+    // Clear errors and touched states immediately to prevent stale UI during update
+    setErrors({});
+    setTouched({});
+
     if (data.word) setWord(data.word);
     if (data.meaning) setMeaning(data.meaning);
     if (data.pronunciation) setPronunciation(data.pronunciation);
@@ -231,7 +235,6 @@ export default function CreateFlashCardModal({ show, onClose, onSuccess, moduleI
     if (data.example) setExample(data.example);
     if (data.exampleTranslation) setExampleTranslation(data.exampleTranslation);
 
-    // Handle synonyms and antonyms (Backend returns JSON string)
     if (data.synonyms) setSynonyms(data.synonyms);
     if (data.antonyms) setAntonyms(data.antonyms);
 
@@ -245,7 +248,17 @@ export default function CreateFlashCardModal({ show, onClose, onSuccess, moduleI
       setAudioType(data.audioType);
     }
 
-    // AI Gen marks everything as touched
+    const newData = {
+      word: data.word || "",
+      meaning: data.meaning || "",
+      pronunciation: data.pronunciation || "",
+      partOfSpeech: data.partOfSpeech || "",
+      imagePreview: data.imageUrl || imagePreview,
+      imageTempKey: data.imageTempKey || imageTempKey,
+      audioPreview: data.audioUrl || audioPreview,
+      audioTempKey: data.audioTempKey || audioTempKey
+    };
+
     setTouched({
       word: true,
       meaning: true,
@@ -256,28 +269,65 @@ export default function CreateFlashCardModal({ show, onClose, onSuccess, moduleI
       image: true,
       audio: true,
     });
-    validateForm();
+    
+    validateForm(newData);
   };
 
-  const validateForm = () => {
-    const newErrors = {};
+  const handleSelectWord = (data) => {
+    if (data.word) setWord(data.word);
+    if (data.pronunciation) setPronunciation(data.pronunciation);
+    if (data.partOfSpeech) setPartOfSpeech(data.partOfSpeech);
+    if (data.definition) setMeaning(data.definition);
+    if (data.example) setExample(data.example);
 
-    if (!word.trim()) {
+    const newData = {
+      word: data.word || word,
+      pronunciation: data.pronunciation || pronunciation,
+      partOfSpeech: data.partOfSpeech || partOfSpeech,
+      meaning: data.definition || meaning,
+      imagePreview,
+      imageTempKey,
+      audioPreview,
+      audioTempKey
+    };
+
+    setTouched(prev => ({
+      ...prev,
+      word: !!data.word,
+      pronunciation: !!data.pronunciation,
+      partOfSpeech: !!data.partOfSpeech,
+      meaning: !!data.definition,
+    }));
+
+    validateForm(newData);
+    setShowLookupModal(false);
+  };
+
+  const validateForm = (values = null) => {
+    const newErrors = {};
+    const dWord = (values?.word || word).trim();
+    const dMeaning = (values?.meaning || meaning).trim();
+    const dPronunciation = (values?.pronunciation || pronunciation).trim();
+    const dPartOfSpeech = (values?.partOfSpeech || partOfSpeech).trim();
+    const dImage = values ? (values.imagePreview || values.imageTempKey) : (imagePreview || imageTempKey);
+    const dAudio = values ? (values.audioPreview || values.audioTempKey) : (audioPreview || audioTempKey);
+
+    if (!dWord) {
       newErrors.word = "Từ vựng là bắt buộc";
     }
-    if (!meaning.trim()) {
+    if (!dMeaning) {
       newErrors.meaning = "Nghĩa là bắt buộc";
     }
-    if (!pronunciation.trim()) {
+    if (!dPronunciation) {
       newErrors.pronunciation = "Phiên âm là bắt buộc";
     }
-    if (!partOfSpeech.trim()) {
+    if (!dPartOfSpeech) {
       newErrors.partOfSpeech = "Từ loại là bắt buộc";
     }
-    if (!imagePreview && !imageTempKey) {
+    if (!dImage) {
       newErrors.image = "Ảnh là bắt buộc";
     }
-    if (!audioPreview && !audioTempKey) {
+    if (!dAudio) {
       newErrors.audio = "Âm thanh là bắt buộc";
     }
 
@@ -356,7 +406,7 @@ export default function CreateFlashCardModal({ show, onClose, onSuccess, moduleI
           {!isEditMode && (
             <div className="d-flex justify-content-end mb-3 gap-2">
               <Button variant="outline-info" size="sm" onClick={() => setShowLookupModal(true)}><FaSearch className="me-1" /> Tra từ</Button>
-              <Button variant="outline-primary" size="sm" onClick={() => setShowGenerateModal(true)}><FaMagic className="me-1" /> AI Gen</Button>
+              <Button variant="outline-primary" size="sm" onClick={() => { setShowGenerateModal(true); setErrors({}); setTouched({}); }}><FaMagic className="me-1" /> AI Gen</Button>
             </div>
           )}
           <Form onSubmit={handleSubmit}>
@@ -545,7 +595,7 @@ export default function CreateFlashCardModal({ show, onClose, onSuccess, moduleI
         </Modal.Footer>
 
         <GenerateFlashcardModal show={showGenerateModal} onClose={() => setShowGenerateModal(false)} onGenerate={handleGenerateSuccess} />
-        <LookupWordModal show={showLookupModal} onClose={() => setShowLookupModal(false)} />
+        <LookupWordModal show={showLookupModal} onClose={() => setShowLookupModal(false)} onSelect={handleSelectWord} />
       </Modal>
 
       {/* Confirm Close Modal */}

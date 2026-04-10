@@ -44,25 +44,15 @@ namespace LearningEnglish.Application.Service
 
             try
             {
-                // Cache chỉ phần dữ liệu không phụ thuộc vào user (cấu trúc course + URL ảnh)
-                var cachedBase = await _cache.GetOrSetAsync(
-                    CacheKeys.SystemCourseList,
-                    async () =>
-                    {
-                        var courses = await _courseRepository.GetSystemCourses();
-                        var dtos = _mapper.Map<IEnumerable<SystemCoursesListResponseDto>>(courses).ToList();
-                        foreach (var dto in dtos)
-                        {
-                            if (!string.IsNullOrWhiteSpace(dto.ImageUrl))
-                                dto.ImageUrl = _courseImageService.BuildImageUrl(dto.ImageUrl);
-                            dto.IsEnrolled = false;
-                        }
-                        return dtos;
-                    },
-                    TimeSpan.FromHours(24));
-
-                // Tạo bản copy để tránh sửa đổi cache gốc, rồi bổ sung IsEnrolled theo user
-                var courseDtos = cachedBase!.Select(c => c.ShallowCopy()).ToList();
+                // No caching here: Home page enrollment state should reflect immediately
+                var courses = await _courseRepository.GetSystemCourses();
+                var courseDtos = _mapper.Map<IEnumerable<SystemCoursesListResponseDto>>(courses).ToList();
+                foreach (var dto in courseDtos)
+                {
+                    if (!string.IsNullOrWhiteSpace(dto.ImageUrl))
+                        dto.ImageUrl = _courseImageService.BuildImageUrl(dto.ImageUrl);
+                    dto.IsEnrolled = false;
+                }
 
                 if (userId.HasValue)
                 {

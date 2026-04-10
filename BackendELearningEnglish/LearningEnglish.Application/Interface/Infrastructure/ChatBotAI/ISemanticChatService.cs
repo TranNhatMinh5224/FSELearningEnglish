@@ -6,8 +6,6 @@ namespace LearningEnglish.Application.Interface.Infrastructure.ChatBotAI;
 /// </summary>
 public interface ISemanticChatService
 {
-    /// <summary>
-    /// Generates a chat completion response using the given system prompt and user prompt.
-    /// </summary>
+    
     Task<string> GetChatCompletionAsync(string systemPrompt, string userPrompt, CancellationToken cancellationToken = default);
 }
