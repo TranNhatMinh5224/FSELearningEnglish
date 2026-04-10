@@ -28,6 +28,14 @@ jobs:
       BUILD_DIR: 'build'
 
     steps:
+      - name: Set environment variables
+        run: |
+          echo "REACT_APP_API_BASE_URL=${{ secrets.REACT_APP_API_BASE_URL }}" >> $GITHUB_ENV
+          echo "REACT_APP_FACEBOOK_APP_ID=${{ secrets.REACT_APP_FACEBOOK_APP_ID }}" >> $GITHUB_ENV
+          echo "REACT_APP_FACEBOOK_REDIRECT_URI=${{ secrets.REACT_APP_FACEBOOK_REDIRECT_URI }}" >> $GITHUB_ENV
+          echo "REACT_APP_GOOGLE_CLIENT_ID=${{ secrets.REACT_APP_GOOGLE_CLIENT_ID }}" >> $GITHUB_ENV
+          echo "REACT_APP_GOOGLE_REDIRECT_URI=${{ secrets.REACT_APP_GOOGLE_REDIRECT_URI }}" >> $GITHUB_ENV
+
       - name: Checkout code
         uses: actions/checkout@v4
 
