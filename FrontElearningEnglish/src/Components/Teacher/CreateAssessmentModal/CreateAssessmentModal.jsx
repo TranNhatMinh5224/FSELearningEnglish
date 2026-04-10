@@ -187,7 +187,8 @@ export default function CreateAssessmentModal({
       }
 
       if (response.data?.success) {
-        onSuccess?.();
+        const createdId = response.data.data?.assessmentId || response.data.data?.AssessmentId;
+        onSuccess?.(createdId);
         onClose();
       } else {
         throw new Error(response.data?.message || (isUpdateMode ? "Cập nhật Assessment thất bại" : "Tạo Assessment thất bại"));
@@ -317,48 +318,60 @@ export default function CreateAssessmentModal({
                 <label className="form-label required">Thời gian làm bài</label>
                 <div className="time-limit-container">
                   <div className="time-input-group">
-                    <select
-                      className={`form-control time-select ${errors.timeLimit ? "is-invalid" : ""}`}
+                    <input
+                      type="number"
+                      className={`form-control time-input ${errors.timeLimit ? "is-invalid" : ""}`}
                       value={hours}
                       onChange={(e) => {
-                        setHours(parseInt(e.target.value, 10));
+                        const val = parseInt(e.target.value, 10);
+                        setHours(isNaN(val) ? 0 : Math.min(23, Math.max(0, val)));
                         setErrors({ ...errors, timeLimit: null });
                       }}
-                    >
-                      {Array.from({ length: 24 }, (_, i) => (
-                        <option key={i} value={i}>{String(i).padStart(2, "0")}</option>
-                      ))}
-                    </select>
+                      onBlur={(e) => {
+                        const val = parseInt(e.target.value, 10);
+                        setHours(isNaN(val) ? 0 : Math.min(23, Math.max(0, val)));
+                      }}
+                      min="0"
+                      max="23"
+                    />
                     <span className="time-label">giờ</span>
                   </div>
                   <div className="time-input-group">
-                    <select
-                      className={`form-control time-select ${errors.timeLimit ? "is-invalid" : ""}`}
+                    <input
+                      type="number"
+                      className={`form-control time-input ${errors.timeLimit ? "is-invalid" : ""}`}
                       value={minutes}
                       onChange={(e) => {
-                        setMinutes(parseInt(e.target.value, 10));
+                        const val = parseInt(e.target.value, 10);
+                        setMinutes(isNaN(val) ? 0 : Math.min(59, Math.max(0, val)));
                         setErrors({ ...errors, timeLimit: null });
                       }}
-                    >
-                      {Array.from({ length: 60 }, (_, i) => (
-                        <option key={i} value={i}>{String(i).padStart(2, "0")}</option>
-                      ))}
-                    </select>
+                      onBlur={(e) => {
+                        const val = parseInt(e.target.value, 10);
+                        setMinutes(isNaN(val) ? 0 : Math.min(59, Math.max(0, val)));
+                      }}
+                      min="0"
+                      max="59"
+                    />
                     <span className="time-label">phút</span>
                   </div>
                   <div className="time-input-group">
-                    <select
-                      className={`form-control time-select ${errors.timeLimit ? "is-invalid" : ""}`}
+                    <input
+                      type="number"
+                      className={`form-control time-input ${errors.timeLimit ? "is-invalid" : ""}`}
                       value={seconds}
                       onChange={(e) => {
-                        setSeconds(parseInt(e.target.value, 10));
+                        const val = parseInt(e.target.value, 10);
+                        setSeconds(isNaN(val) ? 0 : Math.min(59, Math.max(0, val)));
                         setErrors({ ...errors, timeLimit: null });
                       }}
-                    >
-                      {Array.from({ length: 60 }, (_, i) => (
-                        <option key={i} value={i}>{String(i).padStart(2, "0")}</option>
-                      ))}
-                    </select>
+                      onBlur={(e) => {
+                        const val = parseInt(e.target.value, 10);
+                        setSeconds(isNaN(val) ? 0 : Math.min(59, Math.max(0, val)));
+                      }}
+                      min="0"
+                      max="59"
+                    />
                     <span className="time-label">giây</span>
                   </div>
                 </div>

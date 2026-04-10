@@ -3,6 +3,7 @@ using FluentValidation;
 using FluentValidation.AspNetCore;
 using LearningEnglish.API.Authorization;
 using LearningEnglish.Application.Cofigurations;
+
 using LearningEnglish.Application.Configurations;
 using LearningEnglish.Application.Interface;
 using LearningEnglish.Application.Interface.AdminManagement;
@@ -50,6 +51,7 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Minio;
 using Pgvector;
+using Microsoft.Extensions.Logging;
 
 namespace LearningEnglish.API.Extensions;
 
@@ -139,6 +141,36 @@ public static class ServiceRegistrationExtensions
         services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             .AddJwtBearer(options =>
             {
+                options.Events = new JwtBearerEvents
+                {
+                    OnMessageReceived = context =>
+                    {
+                        // Standard: Authorization: Bearer <token>
+                        // Fallback: some reverse proxies drop Authorization header.
+                        if (string.IsNullOrEmpty(context.Token) &&
+                            context.Request.Headers.TryGetValue("X-Access-Token", out var tokenFromHeader))
+                        {
+                            var token = tokenFromHeader.ToString();
+                            if (!string.IsNullOrWhiteSpace(token))
+                            {
+                                context.Token = token;
+                            }
+                        }
+
+                        return Task.CompletedTask;
+                    },
+                    OnAuthenticationFailed = context =>
+                    {
+                        // Avoid logging tokens; log only the reason.
+                        var logger = context.HttpContext.RequestServices
+                            .GetRequiredService<ILoggerFactory>()
+                            .CreateLogger("JwtBearer");
+
+                        logger.LogWarning(context.Exception, "JWT authentication failed for {Path}", context.HttpContext.Request.Path);
+                        return Task.CompletedTask;
+                    }
+                };
+
                 options.TokenValidationParameters = new TokenValidationParameters
                 {
                     ValidateIssuer = true,
@@ -175,6 +207,7 @@ public static class ServiceRegistrationExtensions
 
     public static IServiceCollection AddInfrastructureServices(this IServiceCollection services, IConfiguration configuration)
     {
+        services.Configure<CacheOptions>(configuration.GetSection("Cache"));
         services.AddMemoryCache();
         services.AddSingleton<ICacheService, MemoryCacheService>();
         

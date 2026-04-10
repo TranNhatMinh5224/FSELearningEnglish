@@ -10,7 +10,7 @@ namespace LearningEnglish.API.Controller.Admin.AdminQuestion
 {
     [Route("api/admin/questions")]
     [ApiController]
-    [Authorize(Roles = "SuperAdmin, ContentAdmin, FinanceAdmin")]
+    [Authorize(Roles = "SuperAdmin,ContentAdmin,FinanceAdmin")]
     public class AdminQuestionController : ControllerBase
     {
         private readonly IQuestionService _questionService;

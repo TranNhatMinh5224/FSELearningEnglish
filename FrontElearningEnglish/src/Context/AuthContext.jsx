@@ -52,10 +52,9 @@ export const AuthProvider = ({ children }) => {
         } catch (error) {
           logger.error(`getProfile attempt ${i + 1} failed:`, error);
 
-          // If this is the last retry, clear tokens and set as guest
+          // If this is the last retry, set as guest
           if (i === retries - 1) {
-            logger.error("All getProfile attempts failed, clearing tokens");
-            tokenStorage.clear();
+            logger.error("All getProfile attempts failed.");
             setIsGuest(true);
             setLoading(false);
             return;

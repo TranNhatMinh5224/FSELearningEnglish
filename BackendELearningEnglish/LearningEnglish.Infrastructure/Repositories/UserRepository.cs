@@ -22,8 +22,13 @@ namespace LearningEnglish.Infrastructure.Repositories
         public async Task<User?> GetByIdAsync(int id) =>
             await _context.Users.Include(u => u.Roles).FirstOrDefaultAsync(u => u.UserId == id);
 
-        public async Task<User?> GetUserByEmailAsync(string email) =>
-            await _context.Users.Include(u => u.Roles).FirstOrDefaultAsync(u => u.Email == email);
+        public async Task<User?> GetUserByEmailAsync(string email)
+        {
+            var normalizedEmail = email.Trim().ToUpper();
+            return await _context.Users
+                .Include(u => u.Roles)
+                .FirstOrDefaultAsync(u => u.NormalizedEmail == normalizedEmail);
+        }
 
         public async Task<User?> GetUserByPhoneNumberAsync(string phoneNumber) =>
             await _context.Users.Include(u => u.Roles).FirstOrDefaultAsync(u => u.PhoneNumber == phoneNumber);

@@ -867,11 +867,16 @@ export default function TeacherLessonDetail() {
         <CreateAssessmentModal
           show={showCreateAssessmentModal}
           onClose={() => setShowCreateAssessmentModal(false)}
-          onSuccess={() => {
+          onSuccess={(assessmentId) => {
             setShowCreateAssessmentModal(false);
             setShowCreateAssessmentSuccessModal(true);
-            // Reload assessments list
-            if (selectedModule) {
+            
+            // If we have an assessmentId and a selected module, redirect to management page
+            if (assessmentId && selectedModule) {
+              const moduleId = selectedModule.moduleId || selectedModule.ModuleId;
+              navigate(ROUTE_PATHS.TEACHER_QUIZ_ESSAY_MANAGEMENT(courseId, lessonId, moduleId, assessmentId));
+            } else if (selectedModule) {
+              // Reload assessments list as fallback
               handleModuleClick(selectedModule);
             }
           }}

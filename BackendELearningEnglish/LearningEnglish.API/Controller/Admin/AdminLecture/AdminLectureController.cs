@@ -9,7 +9,7 @@ namespace LearningEnglish.API.Controller.Admin
 {
     [Route("api/admin/lectures")]
     [ApiController]
-    [Authorize(Roles = "SuperAdmin, ContentAdmin, FinanceAdmin")]
+    [Authorize(Roles = "SuperAdmin,ContentAdmin,FinanceAdmin")]
     public class AdminLectureController : ControllerBase
     {
         private readonly IAdminLectureService _lectureService;

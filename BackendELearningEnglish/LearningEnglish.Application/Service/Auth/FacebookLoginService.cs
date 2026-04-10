@@ -22,6 +22,7 @@ namespace LearningEnglish.Application.Service.Auth
         private readonly ILogger<FacebookLoginService> _logger;
         private readonly IFacebookAuthProvider _facebookAuthProvider;
         private readonly IAvatarService _avatarService;
+        private readonly IRefreshTokenRepository _refreshTokenRepository;
 
         public FacebookLoginService(
             IUserRepository userRepository,
@@ -30,7 +31,8 @@ namespace LearningEnglish.Application.Service.Auth
             ITokenService tokenService,
             ILogger<FacebookLoginService> logger,
             IFacebookAuthProvider facebookAuthProvider,
-            IAvatarService avatarService)
+            IAvatarService avatarService,
+            IRefreshTokenRepository refreshTokenRepository)
         {
             _userRepository = userRepository;
             _externalLoginRepository = externalLoginRepository;
@@ -39,6 +41,7 @@ namespace LearningEnglish.Application.Service.Auth
             _logger = logger;
             _facebookAuthProvider = facebookAuthProvider;
             _avatarService = avatarService;
+            _refreshTokenRepository = refreshTokenRepository;
         }
 
         // Xử lý đăng nhập bằng Facebook OAuth2 (Business Logic Only)
@@ -99,6 +102,10 @@ namespace LearningEnglish.Application.Service.Auth
                 // Generate JWT tokens
                 var accessToken = _tokenService.GenerateAccessToken(user);
                 var refreshToken = _tokenService.GenerateRefreshToken(user);
+
+                // Save refresh token to database
+                await _refreshTokenRepository.AddAsync(refreshToken);
+                await _refreshTokenRepository.SaveChangesAsync();
 
                 response.Success = true;
                 response.StatusCode = 200;

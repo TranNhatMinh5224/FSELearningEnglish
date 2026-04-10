@@ -38,7 +38,7 @@ namespace LearningEnglish.Application.Common.Constants
         }
 
       
-        public const string AllAdminRolesString = "SuperAdmin, ContentAdmin, FinanceAdmin";
+        public const string AllAdminRolesString = "SuperAdmin,ContentAdmin,FinanceAdmin";
     }
 }
 

@@ -41,14 +41,9 @@ namespace LearningEnglish.Application.Service
             var response = new ServiceResponse<List<TeacherPackageDto>>();
             try
             {
-                var packages = await _cache.GetOrSetAsync(
-                    CacheKeys.TeacherPackageList,
-                    async () =>
-                    {
-                        var data = await _teacherPackageRepository.GetAllTeacherPackagesAsync();
-                        return _mapper.Map<List<TeacherPackageDto>>(data);
-                    },
-                    TimeSpan.FromHours(1));
+                // NOTE: Bỏ cache cho teacher packages để tránh dữ liệu cũ sau khi CRUD.
+                var data = await _teacherPackageRepository.GetAllTeacherPackagesAsync();
+                var packages = _mapper.Map<List<TeacherPackageDto>>(data);
 
                 response.StatusCode = 200;
                 response.Data = packages;
@@ -110,8 +105,21 @@ namespace LearningEnglish.Application.Service
 
                 var teacherPackage = _mapper.Map<TeacherPackage>(dto);
                 await _teacherPackageRepository.AddTeacherPackageAsync(teacherPackage);
-                await _embeddingIngestionService.UpsertTeacherPackageEmbeddingAsync(teacherPackage);
-                _cache.RemoveByPrefix(CacheKeys.TeacherPackagesPrefix); // Invalidate list cache
+                // Invalidate list cache ngay sau khi CRUD để tránh cache giữ dữ liệu cũ
+                _cache.RemoveByPrefix(CacheKeys.TeacherPackagesPrefix);
+
+                // Embedding ingestion chỉ phục vụ chatbot/search, không nên làm fail CRUD.
+                try
+                {
+                    await _embeddingIngestionService.UpsertTeacherPackageEmbeddingAsync(teacherPackage);
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogWarning(ex,
+                        "Teacher package {TeacherPackageId} created but embedding upsert failed",
+                        teacherPackage.TeacherPackageId);
+                    response.Message = "Tạo gói giáo viên thành công nhưng cập nhật embedding thất bại";
+                }
                 response.StatusCode = 201;
                 response.Data = _mapper.Map<TeacherPackageDto>(teacherPackage);
                 response.Success = true;
@@ -173,8 +181,19 @@ namespace LearningEnglish.Application.Service
                     existingPackage.MaxStudents = dto.MaxStudents.Value;
 
                 await _teacherPackageRepository.UpdateTeacherPackageAsync(existingPackage);
-                await _embeddingIngestionService.UpsertTeacherPackageEmbeddingAsync(existingPackage);
-                _cache.RemoveByPrefix(CacheKeys.TeacherPackagesPrefix); // Invalidate list cache
+                _cache.RemoveByPrefix(CacheKeys.TeacherPackagesPrefix);
+
+                try
+                {
+                    await _embeddingIngestionService.UpsertTeacherPackageEmbeddingAsync(existingPackage);
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogWarning(ex,
+                        "Teacher package {TeacherPackageId} updated but embedding upsert failed",
+                        existingPackage.TeacherPackageId);
+                    // Không fail update nếu embedding lỗi.
+                }
 
                 var result = _mapper.Map<TeacherPackageDto>(existingPackage);
                 return new ServiceResponse<TeacherPackageDto>
@@ -224,8 +243,19 @@ namespace LearningEnglish.Application.Service
                 }
 
                 await _teacherPackageRepository.DeleteTeacherPackageAsync(id);
-                await _embeddingIngestionService.DeleteTeacherPackageEmbeddingsAsync(id);
-                _cache.RemoveByPrefix(CacheKeys.TeacherPackagesPrefix); // Invalidate list cache
+                _cache.RemoveByPrefix(CacheKeys.TeacherPackagesPrefix);
+
+                try
+                {
+                    await _embeddingIngestionService.DeleteTeacherPackageEmbeddingsAsync(id);
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogWarning(ex,
+                        "Teacher package {TeacherPackageId} deleted but embedding cleanup failed",
+                        id);
+                    // Không fail delete nếu embedding cleanup lỗi.
+                }
                 response.StatusCode = 200;
                 response.Data = true;
                 response.Success = true;

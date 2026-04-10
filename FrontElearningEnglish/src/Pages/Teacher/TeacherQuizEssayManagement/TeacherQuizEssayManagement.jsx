@@ -429,15 +429,6 @@ export default function TeacherQuizEssayManagement() {
                           <div className="d-flex justify-content-between align-items-start">
                             <div className="flex-grow-1">
                               <h5 className="mb-2 fw-semibold">{essayTitle}</h5>
-                              <span
-                                className="badge rounded-pill px-3 py-1"
-                                style={{
-                                  color: statusInfo.color,
-                                  backgroundColor: statusInfo.bg,
-                                }}
-                              >
-                                {statusInfo.label}
-                              </span>
                             </div>
                             <div className="d-flex gap-2 ms-3">
                               <button

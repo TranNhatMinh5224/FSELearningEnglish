@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Authorization;
 using System.Security.Claims;
 using LearningEnglish.Application.Interface;
 using Microsoft.Extensions.Logging;
+using LearningEnglish.Application.Common.Constants;
 
 namespace LearningEnglish.API.Authorization
 {
@@ -26,6 +27,18 @@ namespace LearningEnglish.API.Authorization
             if (context.User?.Identity?.IsAuthenticated != true)
             {
                 _logger.LogWarning("User chưa authenticated");
+                return;
+            }
+
+            // Admin roles (SuperAdmin/ContentAdmin/FinanceAdmin) are always allowed to access teacher endpoints.
+            var roles = context.User.FindAll(ClaimTypes.Role)
+                .Select(c => c.Value)
+                .ToList();
+
+            if (roles.Any(RoleConstants.IsAdminRole))
+            {
+                _logger.LogInformation("✅ User có role Admin ({Roles}) - Cho phép truy cập teacher endpoints", string.Join(", ", roles));
+                context.Succeed(requirement);
                 return;
             }
 

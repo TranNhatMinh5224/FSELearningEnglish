@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { Container, Row, Col } from "react-bootstrap";
-import { FaEdit, FaTrash } from "react-icons/fa";
+import { FaEdit, FaTrash, FaListAlt } from "react-icons/fa";
 import { useAuth } from "../../../Context/AuthContext";
 import Breadcrumb from "../../../Components/Common/Breadcrumb/Breadcrumb";
 import { assessmentService } from "../../../Services/assessmentService";
@@ -62,13 +62,12 @@ export default function AdminQuizEssayManagement() {
       setError("");
 
       // Fetch metadata and content in parallel
-      const [assessmentRes, quizzesRes, essaysRes, courseRes, lessonRes, moduleRes] = await Promise.all([
+      const [assessmentRes, quizzesRes, essaysRes, courseRes, lessonRes] = await Promise.all([
         assessmentService.getAdminAssessmentById(assessmentId),
         quizService.getAdminQuizzesByAssessment(assessmentId),
         essayService.getAdminEssaysByAssessment(assessmentId),
         courseService.getCourseById(courseId),
-        lessonService.getLessonById(lessonId),
-        teacherService.getModuleById(moduleId)
+        lessonService.getLessonById(lessonId)
       ]);
 
       if (assessmentRes.data?.success) setAssessment(assessmentRes.data.data);
@@ -76,7 +75,6 @@ export default function AdminQuizEssayManagement() {
       if (essaysRes.data?.success) setEssays(essaysRes.data.data || []);
       if (courseRes.data?.success) setCourse(courseRes.data.data);
       if (lessonRes.data?.success) setLesson(lessonRes.data.data);
-      if (moduleRes.data?.success) setModule(moduleRes.data.data);
       
     } catch (err) {
       console.error("Error fetching data:", err);
@@ -255,6 +253,17 @@ export default function AdminQuizEssayManagement() {
               </div>
             )}
           </div>
+
+          <div className="d-flex justify-content-center gap-3 mb-4">
+            <div className="header-stats-badge">
+              <FaListAlt />
+              <span>{quizzes.length} Quizzes</span>
+            </div>
+            <div className="header-stats-badge" style={{ backgroundColor: "rgba(188, 105, 192, 0.1)", color: "#BC69C0" }}>
+              <FaListAlt />
+              <span>{essays.length} Essays</span>
+            </div>
+          </div>
         </div>
 
         {/* Create Buttons */}
@@ -353,15 +362,6 @@ export default function AdminQuizEssayManagement() {
                         <div className="d-flex justify-content-between align-items-start">
                           <div className="flex-grow-1">
                             <h5 className="mb-2 fw-semibold">{essayTitle}</h5>
-                            <span
-                              className="badge rounded-pill px-3 py-1"
-                              style={{
-                                color: statusInfo.color,
-                                backgroundColor: statusInfo.bg,
-                              }}
-                            >
-                              {statusInfo.label}
-                            </span>
                           </div>
                           <div className="d-flex gap-2 ms-3">
                             <button

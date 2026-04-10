@@ -55,14 +55,7 @@ namespace LearningEnglish.Application.Service
                     return response;
                 }
 
-                // Business logic: Admin chỉ thêm vào System course
-                if (course.Type != CourseType.System)
-                {
-                    response.Success = false;
-                    response.StatusCode = 403;
-                    response.Message = "Chỉ admin mới có thể thêm bài học vào khóa học hệ thống";
-                    return response;
-                }
+                
 
                 // check tên Lesson đã tồn tại trong Course chưa
                 var lessons = await _lessonRepository.LessonIncourse(dto.Title, dto.CourseId);

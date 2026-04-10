@@ -9,7 +9,7 @@ namespace LearningEnglish.API.Controller.Admin
 {
     [Route("api/admin/flashcards")]
     [ApiController]
-    [Authorize(Roles = "SuperAdmin, ContentAdmin")]
+    [Authorize(Roles = "SuperAdmin,ContentAdmin")]
     public class AdminFlashCardController : ControllerBase
     {
         private readonly IAdminFlashCardService _flashCardService;

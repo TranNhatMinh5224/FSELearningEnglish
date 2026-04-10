@@ -11,7 +11,7 @@ namespace LearningEnglish.API.Controller.Admin
 {
     [Route("api/admin/modules")]
     [ApiController]
-    [Authorize(Roles = "SuperAdmin, ContentAdmin, FinanceAdmin")]
+    [Authorize(Roles = "SuperAdmin,ContentAdmin,FinanceAdmin")]
     public class AdminModuleController : ControllerBase
     {
         private readonly IAdminModuleService _moduleService;

@@ -57,7 +57,7 @@ export default function TeacherModuleLectureDetail() {
       const [moduleRes, courseRes, lessonRes] = await Promise.all([
         teacherService.getModuleById(moduleId),
         teacherService.getCourseDetail(courseId),
-        teacherService.getLessonDetail(lessonId)
+        teacherService.getLessonById(lessonId)
       ]);
 
       if (moduleRes.data?.success) setModule(moduleRes.data.data);

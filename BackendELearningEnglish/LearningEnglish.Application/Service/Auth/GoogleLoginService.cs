@@ -22,6 +22,7 @@ namespace LearningEnglish.Application.Service
         private readonly ILogger<GoogleLoginService> _logger;
         private readonly IGoogleAuthProvider _googleAuthProvider;
         private readonly IAvatarService _avatarService;
+        private readonly IRefreshTokenRepository _refreshTokenRepository;
 
         public GoogleLoginService(
             IUserRepository userRepository,
@@ -30,7 +31,8 @@ namespace LearningEnglish.Application.Service
             ITokenService tokenService,
             ILogger<GoogleLoginService> logger,
             IGoogleAuthProvider googleAuthProvider,
-            IAvatarService avatarService)
+            IAvatarService avatarService,
+            IRefreshTokenRepository refreshTokenRepository)
         {
             _userRepository = userRepository;
             _externalLoginRepository = externalLoginRepository;
@@ -39,6 +41,7 @@ namespace LearningEnglish.Application.Service
             _logger = logger;
             _googleAuthProvider = googleAuthProvider;
             _avatarService = avatarService;
+            _refreshTokenRepository = refreshTokenRepository;
         }
 
         // Xử lý đăng nhập bằng Google OAuth2 (Business Logic Only)
@@ -108,6 +111,10 @@ namespace LearningEnglish.Application.Service
                 // Generate JWT tokens
                 var accessToken = _tokenService.GenerateAccessToken(user);
                 var refreshToken = _tokenService.GenerateRefreshToken(user);
+
+                // Save refresh token to database
+                await _refreshTokenRepository.AddAsync(refreshToken);
+                await _refreshTokenRepository.SaveChangesAsync();
 
                 response.Success = true;
                 response.StatusCode = 200;

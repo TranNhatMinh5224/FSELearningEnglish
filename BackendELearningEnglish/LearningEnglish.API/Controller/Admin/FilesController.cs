@@ -9,7 +9,7 @@ namespace LearningEnglish.API.Controller.AdminAndTeacher
 {
     [ApiController]
     [Route("api/shared/files")]
-    [Authorize(Roles = "SuperAdmin, ContentAdmin, FinanceAdmin, Teacher , Student")]
+    [Authorize(Roles = "SuperAdmin,ContentAdmin,FinanceAdmin,Teacher,Student")]
     public class FilesController : ControllerBase
     {
         private readonly IMinioFileStorage _minioFileStorage;

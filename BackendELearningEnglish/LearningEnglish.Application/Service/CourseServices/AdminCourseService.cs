@@ -162,7 +162,6 @@ namespace LearningEnglish.Application.Service
                 try
                 {
                     await _courseRepository.AddCourse(course);
-                    await _embeddingIngestionService.UpsertCourseEmbeddingAsync(course);
                     _cache.RemoveByPrefix(CacheKeys.CoursesPrefix);
                 }
                 catch (Exception dbEx)
@@ -179,6 +178,16 @@ namespace LearningEnglish.Application.Service
                     response.StatusCode = 500;
                     response.Message = "Lỗi database khi tạo khóa học";
                     return response;
+                }
+
+                // Chạy riêng phần embedding, nếu lỗi thì không rollback DB vì đã tạo thành công course
+                try
+                {
+                    await _embeddingIngestionService.UpsertCourseEmbeddingAsync(course);
+                }
+                catch (Exception embedEx)
+                {
+                    _logger.LogWarning(embedEx, "Embedding tạo thất bại, khóa học vẫn được tạo thành công (CourseId: {CourseId})", course.CourseId);
                 }
 
                 var courseResponseDto = _mapper.Map<CourseResponseDto>(course);
@@ -272,7 +281,6 @@ namespace LearningEnglish.Application.Service
                 try
                 {
                     await _courseRepository.UpdateCourse(course);
-                    await _embeddingIngestionService.UpsertCourseEmbeddingAsync(course);
                     _cache.RemoveByPrefix(CacheKeys.CoursesPrefix);
                 }
                 catch (Exception dbEx)
@@ -289,6 +297,16 @@ namespace LearningEnglish.Application.Service
                     response.StatusCode = 500;
                     response.Message = "Lỗi database khi cập nhật khóa học";
                     return response;
+                }
+
+                // Cập nhật embedding (try-catch để không rollback course)
+                try
+                {
+                    await _embeddingIngestionService.UpsertCourseEmbeddingAsync(course);
+                }
+                catch (Exception embedEx)
+                {
+                    _logger.LogWarning(embedEx, "Embedding cập nhật thất bại cho CourseId {CourseId}", course.CourseId);
                 }
 
                 // Delete old image after successful DB update

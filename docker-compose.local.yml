@@ -1,0 +1,17 @@
+services:
+  postgres:
+    image: ankane/pgvector:latest
+    container_name: elearning-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: "postgres"
+      POSTGRES_PASSWORD: "05022004"
+      POSTGRES_DB: "ElearningEnglish2004"
+    ports:
+      # Use 5433 to avoid conflict with a locally-installed Postgres on 5432
+      - "5433:5432"
+    volumes:
+      - elearning_pgdata:/var/lib/postgresql/data
+
+volumes:
+  elearning_pgdata:

@@ -15,6 +15,9 @@ axiosClient.interceptors.request.use(
     const token = tokenStorage.getAccessToken();
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
+      // Fallback: some reverse proxies accidentally drop the Authorization header.
+      // This keeps auth working without changing UX.
+      config.headers["X-Access-Token"] = token;
     }
     return config;
   },
@@ -40,9 +43,12 @@ axiosClient.interceptors.response.use(
 
     if (
       error.response?.status === 401 &&
-      !originalRequest._retry
+      !originalRequest._retry &&
+      !originalRequest.url?.includes("refresh-token") &&
+      !originalRequest.url?.includes("login")
     ) {
       if (isRefreshing) {
+        console.warn(`[Axios] Request to ${originalRequest.url} queued while refreshing`);
         return new Promise((resolve, reject) => {
           queue.push({ resolve, reject });
         }).then((token) => {
@@ -57,8 +63,13 @@ axiosClient.interceptors.response.use(
       try {
         const refreshToken = tokenStorage.getRefreshToken();
         const expiredAccessToken = tokenStorage.getAccessToken();
-        if (!refreshToken || !expiredAccessToken) throw error;
+        
+        if (!refreshToken) {
+          console.warn("[Axios] No refresh token found, skipping refresh attempt");
+          throw error;
+        }
 
+        console.info("[Axios] Attempting to refresh token...");
         // Call refresh API with both refreshToken and current (expired) accessToken
         const res = await axios.post(
           AUTH_REFRESH_URL,
@@ -67,7 +78,12 @@ axiosClient.interceptors.response.use(
 
         // Backend wraps data in ServiceResponse<T>
         const { accessToken, refreshToken: newRefresh } = res?.data?.data || {};
-        if (!accessToken || !newRefresh) throw error;
+        if (!accessToken || !newRefresh) {
+          console.error("[Axios] Refresh response missing tokens", res?.data);
+          throw new Error("Invalid refresh response");
+        }
+
+        console.info("[Axios] Token refreshed successfully");
         tokenStorage.setTokens({ accessToken, refreshToken: newRefresh });
 
         axiosClient.defaults.headers.Authorization = `Bearer ${accessToken}`;
@@ -75,20 +91,25 @@ axiosClient.interceptors.response.use(
 
         return axiosClient(originalRequest);
       } catch (err) {
+        console.error("[Axios] Token refresh failed:", err.response?.status, err.message);
         processQueue(err, null);
-        const hadTokens = tokenStorage.getAccessToken() || tokenStorage.getRefreshToken();
-        tokenStorage.clear();
         
-        // Only redirect to login if we actually had tokens (not a guest user)
-        // Guest users should be allowed to stay on the page
-        if (hadTokens) {
-          // Only redirect if we're not already on a public page
-          const currentPath = window.location.pathname;
-          const publicPaths = ['/welcome', '/login', '/register', '/home'];
-          if (!publicPaths.includes(currentPath)) {
-            window.location.href = "/login";
+        const hadTokens = tokenStorage.getAccessToken() || tokenStorage.getRefreshToken();
+        
+        // Chỉ xóa token và redirect nếu lỗi là 401/403 (Token thực sự vô hiệu)
+        if (err.response?.status === 401 || err.response?.status === 403) {
+          console.error("[Axios] Refresh token revoked or expired, clearing tokens");
+          tokenStorage.clear();
+          
+          if (hadTokens) {
+            const currentPath = window.location.pathname;
+            const publicPaths = ['/welcome', '/login', '/register', '/home'];
+            if (!publicPaths.includes(currentPath)) {
+              window.location.href = `/login?redirect=${encodeURIComponent(currentPath)}`;
+            }
           }
         }
+        
         return Promise.reject(err);
       } finally {
         isRefreshing = false;

@@ -9,7 +9,7 @@ namespace LearningEnglish.API.Controller.Admin.AdminQuiz
 {
     [Route("api/admin/quizzes")]
     [ApiController]
-    [Authorize(Roles = "SuperAdmin, ContentAdmin, FinanceAdmin")]
+    [Authorize(Roles = "SuperAdmin,ContentAdmin,FinanceAdmin")]
     public class AdminQuizController : ControllerBase
     {
         private readonly IAdminQuizService _quizService;

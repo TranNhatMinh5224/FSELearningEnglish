@@ -1,6 +1,8 @@
 using LearningEnglish.Application.Interface.Infrastructure;
+using LearningEnglish.Application.Cofigurations;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using System.Collections.Concurrent;
 using System.Threading;
 
@@ -11,6 +13,7 @@ public sealed class MemoryCacheService : ICacheService
 {
     private readonly IMemoryCache _cache;
     private readonly ILogger<MemoryCacheService> _logger;
+    private readonly CacheOptions _options;
 
     // Prevent cache stampede: ensure only one factory runs per key at a time
     private readonly ConcurrentDictionary<string, Lazy<Task<object?>>> _inflight =
@@ -23,14 +26,24 @@ public sealed class MemoryCacheService : ICacheService
     // Default TTL if none is specified
     private static readonly TimeSpan DefaultExpiry = TimeSpan.FromMinutes(30);
 
-    public MemoryCacheService(IMemoryCache cache, ILogger<MemoryCacheService> logger)
+    public MemoryCacheService(
+        IMemoryCache cache,
+        ILogger<MemoryCacheService> logger,
+        IOptions<CacheOptions> options)
     {
         _cache = cache;
         _logger = logger;
+        _options = options.Value;
     }
 
     public async Task<T?> GetOrSetAsync<T>(string key, Func<Task<T>> factory, TimeSpan? expiry = null)
     {
+        if (!_options.Enabled)
+        {
+            _logger.LogDebug("[Cache DISABLED] {Key}", key);
+            return await factory();
+        }
+
         if (_cache.TryGetValue(key, out T? cached))
         {
             _logger.LogDebug("[Cache HIT] {Key}", key);
@@ -54,6 +67,13 @@ public sealed class MemoryCacheService : ICacheService
         }
 
         var value = (T?)boxedValue;
+
+        // Avoid caching null results to prevent stale 404 / missing-data issues.
+        if (value is null)
+        {
+            _logger.LogDebug("[Cache SKIP NULL] {Key}", key);
+            return default;
+        }
 
         var options = new MemoryCacheEntryOptions
         {

@@ -135,7 +135,6 @@ namespace LearningEnglish.Application.Service
                 try
                 {
                     await _courseRepository.AddCourse(course);
-                    await _embeddingIngestionService.UpsertCourseEmbeddingAsync(course);
                     _cache.RemoveByPrefix(CacheKeys.CoursesPrefix);
                 }
                 catch (Exception dbEx)
@@ -152,6 +151,16 @@ namespace LearningEnglish.Application.Service
                     response.StatusCode = 500;
                     response.Message = "Lỗi database khi tạo khóa học";
                     return response;
+                }
+
+                // Chạy embedding riêng rẽ để không throw error nếu DB đã commit
+                try
+                {
+                    await _embeddingIngestionService.UpsertCourseEmbeddingAsync(course);
+                }
+                catch (Exception embedEx)
+                {
+                    _logger.LogWarning(embedEx, "Embedding tạo thất bại nhưng khóa học đã được tạo thành công (CourseId {CourseId})", course.CourseId);
                 }
 
                 // Map response và generate URL từ key
@@ -285,7 +294,6 @@ namespace LearningEnglish.Application.Service
                 try
                 {
                     await _courseRepository.UpdateCourse(course);
-                    await _embeddingIngestionService.UpsertCourseEmbeddingAsync(course);
                     _cache.RemoveByPrefix(CacheKeys.CoursesPrefix);
                 }
                 catch (Exception dbEx)
@@ -302,6 +310,16 @@ namespace LearningEnglish.Application.Service
                     response.StatusCode = 500;
                     response.Message = "Lỗi database khi cập nhật khóa học";
                     return response;
+                }
+
+                // Xử lý embedding độc lập, không quăng lỗi DB/image nếu thất bại
+                try
+                {
+                    await _embeddingIngestionService.UpsertCourseEmbeddingAsync(course);
+                }
+                catch (Exception embedEx)
+                {
+                    _logger.LogWarning(embedEx, "Cập nhật embedding thất bại, nhưng khóa học đã được cập nhật thành công (CourseId {CourseId})", course.CourseId);
                 }
 
                 // Delete old image only after successful DB update
