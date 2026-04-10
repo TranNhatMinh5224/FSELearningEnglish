@@ -38,29 +38,63 @@ export default function TeacherModuleLectureDetail() {
   const [showDetailModal, setShowDetailModal] = useState(false);
   const [selectedLectureId, setSelectedLectureId] = useState(null);
 
-  const isTeacher = roles.includes("Teacher") || user?.teacherSubscription?.isTeacher === true;
+  const isAdmin = roles && roles.some(role => {
+    const roleName = typeof role === 'string' ? role : (role?.name || '');
+    return ["SuperAdmin", "ContentAdmin", "FinanceAdmin", "Admin"].includes(roleName);
+  });
+
+  const isTeacher = (roles && roles.includes("Teacher")) || 
+                    user?.teacherSubscription?.isTeacher === true || 
+                    isAdmin;
 
   const fetchData = useCallback(async () => {
     setLoading(true);
     try {
-      const [moduleRes, lecturesRes, courseRes, lessonRes] = await Promise.all([
+      // Fetch core data
+      const [moduleRes, courseRes, lessonRes] = await Promise.all([
         teacherService.getModuleById(moduleId),
-        lectureService.getTeacherLectureTree(moduleId),
         teacherService.getCourseDetail(courseId),
         teacherService.getLessonDetail(lessonId)
       ]);
 
       if (moduleRes.data?.success) setModule(moduleRes.data.data);
-      if (lecturesRes.data?.success) setLectures(lecturesRes.data.data || []);
       if (courseRes.data?.success) setCourse(courseRes.data.data);
       if (lessonRes.data?.success) setLesson(lessonRes.data.data);
 
+      // Try fetching teacher tree first
+      let lecturesList = [];
+      try {
+        const lecturesRes = await lectureService.getTeacherLectureTree(moduleId);
+        if (lecturesRes.data?.success) {
+          const data = lecturesRes.data.data;
+          // Handle both direct array or { lectures: [] } structure
+          lecturesList = Array.isArray(data) ? data : (data?.lectures || []);
+        }
+      } catch (teacherErr) {
+        console.warn("Teacher lecture tree fetch failed, trying admin fallback if applicable", teacherErr);
+      }
+
+      // Fallback to Admin endpoint IF empty AND user is Admin
+      if (lecturesList.length === 0 && isAdmin) {
+        try {
+          const adminLecturesRes = await lectureService.getAdminLectureTree(moduleId);
+          if (adminLecturesRes.data?.success) {
+            const data = adminLecturesRes.data.data;
+            lecturesList = Array.isArray(data) ? data : (data?.lectures || []);
+          }
+        } catch (adminErr) {
+          console.error("Admin lecture tree fallback failed:", adminErr);
+        }
+      }
+
+      setLectures(lecturesList);
     } catch (err) {
-      console.error(err);
+      console.error("Error fetching data:", err);
+      setError("Không thể tải dữ liệu bài giảng. Vui lòng thử lại sau.");
     } finally {
       setLoading(false);
     }
-  }, [courseId, lessonId, moduleId]);
+  }, [moduleId, courseId, lessonId, isAdmin]);
 
   useEffect(() => {
     if (!isAuthenticated || !isTeacher) {
@@ -160,25 +194,25 @@ export default function TeacherModuleLectureDetail() {
 
           <div className="lecture-management-header mb-4 mt-4">
             <div className="d-flex align-items-center justify-content-between">
-              <div className="header-content d-flex align-items-center gap-3">
-                <div>
-                  <h2 className="mb-0 fw-bold text-primary">Quản lý bài giảng</h2>
-                  <div className="text-muted d-flex align-items-center gap-2">
-                    <span className="module-name">{module?.name || "Module"}</span>
-                    {lectures.length > 0 && (
-                      <Badge bg="secondary" className="px-2 py-1">
-                        {lectures.length} bài giảng
-                      </Badge>
-                    )}
-                  </div>
+              <div className="header-content">
+                <h2 className="mb-1 fw-bold text-primary">Quản lý bài giảng</h2>
+                <div className="d-flex align-items-center gap-3">
+                  <span className="module-name text-muted">
+                    {module?.name || module?.Name || "Module"}
+                  </span>
+                  {lectures.length > 0 && (
+                    <Badge bg="primary" className="lecture-count-badge">
+                      {lectures.length} bài giảng
+                    </Badge>
+                  )}
                 </div>
               </div>
               <Button
                 variant="primary"
-                className="create-lecture-btn"
+                className="create-lecture-btn d-flex align-items-center gap-2"
                 onClick={() => { setLectureToUpdate(null); setShowCreateModal(true); }}
               >
-                <FaPlus className="me-2" /> Tạo Lecture mới
+                <FaPlus /> <span>Tạo bài giảng gốc</span>
               </Button>
             </div>
           </div>
@@ -211,13 +245,14 @@ export default function TeacherModuleLectureDetail() {
         moduleId={moduleId}
         moduleName={module?.name || module?.Name}
         lectureToUpdate={lectureToUpdate}
+        isAdmin={isAdmin}
       />
 
       <LectureDetailModal
         show={showDetailModal}
         onClose={() => { setShowDetailModal(false); setSelectedLectureId(null); }}
         lectureId={selectedLectureId}
-        isAdmin={false}
+        isAdmin={isAdmin}
       />
 
       <ConfirmModal

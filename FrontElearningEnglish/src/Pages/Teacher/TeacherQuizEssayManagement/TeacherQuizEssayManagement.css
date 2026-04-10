@@ -1,195 +1,38 @@
 .teacher-quiz-essay-management-container {
-  min-height: 125vh;
-  background: linear-gradient(135deg, #e0f2fe 0%, #f0f9ff 100%);
-  padding: 40px 20px;
-  padding-top: calc(40px + 70px);
+  min-height: 100vh;
+  background: linear-gradient(135deg, #f0f7ff 0%, #ffffff 100%);
+  padding: 2rem 2rem 5rem 2rem;
+  padding-top: calc(70px + 2rem);
 }
 
-/* Custom button gradients */
-.create-quiz-button {
-  background: linear-gradient(135deg, #9333ea 0%, #7c3aed 100%) !important;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  position: relative;
-  overflow: hidden;
+/* --- Premium Glassmorphic Header --- */
+.quiz-essay-management-header {
+    background: rgba(255, 255, 255, 0.7);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: 20px;
+    padding: 2rem;
+    box-shadow: 0 8px 32px rgba(31, 38, 135, 0.07);
+    margin-bottom: 2.5rem;
 }
 
-.create-quiz-button::before {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: -100%;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
-  transition: left 0.5s;
-}
-
-.create-quiz-button:hover::before {
-  left: 100%;
-}
-
-.create-quiz-button:hover {
-  transform: translateY(-3px) scale(1.02);
-  box-shadow: 0 8px 25px rgba(147, 51, 234, 0.4) !important;
-}
-
-.create-quiz-button:active {
-  transform: translateY(-1px) scale(1);
-}
-
-.create-essay-button {
-  background: linear-gradient(135deg, #41d6e3 0%, #6fd5e0 100%) !important;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  position: relative;
-  overflow: hidden;
-}
-
-.create-essay-button::before {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: -100%;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
-  transition: left 0.5s;
-}
-
-.create-essay-button:hover::before {
-  left: 100%;
-}
-
-.create-essay-button:hover {
-  transform: translateY(-3px) scale(1.02);
-  box-shadow: 0 8px 25px rgba(65, 214, 227, 0.4) !important;
-}
-
-.create-essay-button:active {
-  transform: translateY(-1px) scale(1);
-}
-
-/* Hover effect for cards */
-.hover-card {
-  transition: all 0.2s ease;
-}
-
-.hover-card:hover {
-  background-color: #f3f4f6 !important;
-  border-color: #d1d5db !important;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05) !important;
-}
-
-/* Edit and Delete buttons for quizzes */
-.btn-edit-quiz,
-.btn-delete-quiz {
-  border: none;
-  border-radius: 8px;
-  padding: 8px 12px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  transition: all 0.2s ease;
-  font-size: 14px;
-  cursor: pointer;
-  min-width: 36px;
-  height: 36px;
-}
-
-.btn-edit-quiz {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
-}
-
-.btn-edit-quiz:hover {
-  background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
-  color: white;
-}
-
-.btn-edit-quiz:active {
-  transform: translateY(0);
-}
-
-.btn-delete-quiz {
-  background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-  color: white;
-}
-
-.btn-delete-quiz:hover {
-  background: linear-gradient(135deg, #f5576c 0%, #f093fb 100%);
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(245, 87, 108, 0.4);
-  color: white;
-}
-
-.btn-delete-quiz:active {
-  transform: translateY(0);
-}
-
-/* Edit and Delete buttons for essays */
-.btn-edit-essay,
-.btn-delete-essay {
-  border: none;
-  border-radius: 8px;
-  padding: 8px 12px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  transition: all 0.2s ease;
-  font-size: 14px;
-  cursor: pointer;
-  min-width: 36px;
-  height: 36px;
-}
-
-.btn-edit-essay {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
-}
-
-.btn-edit-essay:hover {
-  background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
-  color: white;
-}
-
-.btn-edit-essay:active {
-  transform: translateY(0);
-}
-
-.btn-delete-essay {
-  background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-  color: white;
-}
-
-.btn-delete-essay:hover {
-  background: linear-gradient(135deg, #f5576c 0%, #f093fb 100%);
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(245, 87, 108, 0.4);
-  color: white;
-}
-
-.btn-delete-essay:active {
-  transform: translateY(0);
-}
-
-/* Premium Header Styles */
 .back-nav-link {
     background: none;
     border: none;
     padding: 0;
     font-size: 0.95rem;
     font-weight: 500;
+    color: #64748b !important;
     display: flex;
     align-items: center;
-    transition: all 0.2s ease;
+    transition: all 0.3s ease;
     cursor: pointer;
+    text-decoration: none !important;
 }
 
 .back-nav-link:hover {
-    color: #BC69C0 !important;
+    color: #4A00E0 !important;
     transform: translateX(-4px);
 }
 
@@ -198,6 +41,142 @@
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
-    display: inline-block;
+    font-weight: 800;
+}
+
+.header-stats-badge {
+    background: rgba(74, 0, 224, 0.1);
+    color: #4A00E0;
+    padding: 0.5rem 1rem;
+    border-radius: 12px;
+    font-weight: 600;
+    border: 1px solid rgba(74, 0, 224, 0.1);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+/* --- Action Buttons --- */
+.premium-btn-primary {
+    background: linear-gradient(135deg, #4A00E0 0%, #8E2DE2 100%);
+    border: none;
+    border-radius: 12px;
+    padding: 0.75rem 1.5rem;
+    font-weight: 600;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    color: white !important;
+}
+
+.premium-btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(74, 0, 224, 0.3);
+    filter: brightness(1.1);
+}
+
+.premium-btn-outline {
+    background: transparent;
+    border: 2px solid #BC69C0;
+    color: #BC69C0 !important;
+    border-radius: 12px;
+    padding: 0.75rem 1.5rem;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.premium-btn-outline:hover {
+    background: rgba(188, 105, 192, 0.1);
+    transform: translateY(-2px);
+}
+
+/* --- Section Cards --- */
+.content-section-title {
+    font-weight: 700;
+    color: #1e293b;
+    margin-bottom: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    font-size: 1.25rem;
+}
+
+/* Custom button gradients for table actions */
+.btn-edit-quiz,
+.btn-edit-essay {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+  color: white !important;
+  border: none;
+  border-radius: 8px;
+  width: 36px;
+  height: 36px;
+  display: flex !important;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.btn-delete-quiz,
+.btn-delete-essay {
+  background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%) !important;
+  color: white !important;
+  border: none;
+  border-radius: 8px;
+  width: 36px;
+  height: 36px;
+  display: flex !important;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.btn-edit-quiz:hover, .btn-edit-essay:hover,
+.btn-delete-quiz:hover, .btn-delete-essay:hover {
+    transform: translateY(-2px);
+    filter: brightness(1.1);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+/* Table styling */
+.premium-table {
+    background: white;
+    border-radius: 15px !important;
+    overflow: hidden;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.03);
+    border: 1px solid #eef2f6 !important;
+}
+
+.premium-table thead th {
+    background: #f8fafc;
+    color: #64748b;
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 0.75rem;
+    letter-spacing: 0.05em;
+    padding: 1rem 1.5rem;
+    border-bottom: 2px solid #e2e8f0;
+}
+
+.premium-table tbody td {
+    padding: 1.25rem 1.5rem;
+    border-bottom: 1px solid #f1f5f9;
+    vertical-align: middle;
+}
+
+.quiz-badge {
+    padding: 6px 12px;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 0.75rem;
+}
+
+.badge-quiz { background: rgba(74, 0, 224, 0.1); color: #4A00E0; }
+.badge-essay { background: rgba(188, 105, 192, 0.1); color: #BC69C0; }
+
+/* Empty state */
+.empty-state-card {
+    background: rgba(255, 255, 255, 0.5);
+    border: 2px dashed #e2e8f0;
+    border-radius: 20px;
+    padding: 3rem;
+    text-align: center;
 }
 

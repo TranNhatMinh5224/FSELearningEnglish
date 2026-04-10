@@ -74,72 +74,134 @@ export default function TeacherQuestionManagement() {
       let title = "";
       let subtitle = "";
 
+      // 1. Fetch contextual info (Group or Section)
       if (groupId) {
-        // [Legacy/Specific Group View] - though user wants unified view, keep this logic safe
-        const groupRes = isAdmin
-          ? await quizService.getAdminQuizGroupById(groupId)
-          : await quizService.getQuizGroupById(groupId);
-        if (groupRes.data?.success) {
-           const gData = groupRes.data.data;
-           title = `Group: ${gData.name || gData.Name || "Untitled Group"}`;
-           subtitle = gData.title || gData.Title;
-           
-        }
-        questionsRes = await questionService.getQuestionsByGroup(groupId);
-      } else if (sectionId) {
-        // [Section View] - Fetch Section Info, Questions AND Groups
-        const sectionRes = isAdmin
-          ? await quizService.getAdminQuizSectionById(sectionId)
-          : await quizService.getQuizSectionById(sectionId);
-          
-        if (sectionRes.data?.success) {
-            const sData = sectionRes.data.data;
-            title = `Section: ${sData.title || sData.Title || "Untitled Section"}`;
-            
+        let gData = null;
+        try {
+          const groupRes = await quizService.getQuizGroupById(groupId);
+          if (groupRes.data?.success) gData = groupRes.data.data;
+        } catch (e) { console.warn("Teacher group fetch failed"); }
+
+        if (!gData && isAdmin) {
+          try {
+            const adminGroupRes = await quizService.getAdminQuizGroupById(groupId);
+            if (adminGroupRes.data?.success) gData = adminGroupRes.data.data;
+          } catch (e) { console.error("Admin group fallback failed"); }
         }
         
-        // Parallel fetch
-        const [qRes, gRes] = await Promise.all([
-            questionService.getQuestionsBySection(sectionId),
-            isAdmin
-              ? quizService.getAdminQuizGroupsBySection(sectionId)
-              : quizService.getQuizGroupsBySection(sectionId)
-        ]);
-
-        questionsRes = qRes;
-        if (gRes.data?.success) {
-            setGroups(gRes.data.data || []);
+        if (gData) {
+          title = `Group: ${gData.name || gData.Name || "Untitled Group"}`;
+          subtitle = gData.title || gData.Title;
         }
 
+        // Fetch questions for group
+        try {
+          questionsRes = await questionService.getQuestionsByGroup(groupId);
+        } catch (e) { console.error("Questions by group fetch failed"); }
+
+      } else if (sectionId) {
+        let sData = null;
+        try {
+          const sectionRes = await quizService.getQuizSectionById(sectionId);
+          if (sectionRes.data?.success) sData = sectionRes.data.data;
+        } catch (e) { console.warn("Teacher section fetch failed"); }
+
+        if (!sData && isAdmin) {
+          try {
+            const adminSectionRes = await quizService.getAdminQuizSectionById(sectionId);
+            if (adminSectionRes.data?.success) sData = adminSectionRes.data.data;
+          } catch (e) { console.error("Admin section fallback failed"); }
+        }
+
+        if (sData) {
+          title = `Section: ${sData.title || sData.Title || "Untitled Section"}`;
+        }
+        
+        // Parallel fetch for questions and groups in section
+        const fetchSectionContent = async () => {
+          let qList = [];
+          let gList = [];
+          
+          try {
+            const qRes = await questionService.getQuestionsBySection(sectionId);
+            if (qRes.data?.success) qList = Array.isArray(qRes.data.data) ? qRes.data.data : (qRes.data.data?.questions || []);
+          } catch (e) { console.warn("Questions fetch failed"); }
+
+          try {
+            const gRes = await quizService.getQuizGroupsBySection(sectionId);
+            if (gRes.data?.success) {
+              const data = gRes.data.data;
+              gList = Array.isArray(data) ? data : (data?.groups || []);
+            }
+          } catch (e) { console.warn("Teacher groups fetch failed"); }
+
+          if (gList.length === 0 && isAdmin) {
+            try {
+              const adminGRes = await quizService.getAdminQuizGroupsBySection(sectionId);
+              if (adminGRes.data?.success) {
+                const data = adminGRes.data.data;
+                gList = Array.isArray(data) ? data : (data?.groups || []);
+              }
+            } catch (e) { console.error("Admin groups fallback failed"); }
+          }
+          
+          return { qList, gList };
+        };
+
+        const { qList, gList } = await fetchSectionContent();
+        setQuestions(qList);
+        setGroups(gList);
       }
 
-      if (questionsRes?.data?.success) {
-        setQuestions(questionsRes.data.data || []);
-      }
       setContextData({ title, subtitle });
 
-      // Fetch metadata for breadcrumbs in parallel
+      // Fetch metadata for breadcrumbs (Robust)
       const metadataPromises = [
         teacherService.getCourseDetail(courseId),
-        teacherService.getLessonById(lessonId),
-        assessmentService.getTeacherAssessmentById(assessmentId),
-        isAdmin ? quizService.getAdminQuizById(quizId) : quizService.getTeacherQuizById(quizId)
+        teacherService.getLessonById(lessonId)
       ];
 
-      const [courseRes, lessonRes, assessmentRes, quizRes] = await Promise.all(metadataPromises);
-
+      const [courseRes, lessonRes] = await Promise.all(metadataPromises);
       if (courseRes.data?.success) setCourse(courseRes.data.data);
       if (lessonRes.data?.success) setLesson(lessonRes.data.data);
-      if (assessmentRes.data?.success) setAssessment(assessmentRes.data.data);
-      if (quizRes.data?.success) setQuiz(quizRes.data.data);
+
+      // Assessment metadata
+      let assessmentData = null;
+      try {
+        const assessmentRes = await assessmentService.getTeacherAssessmentById(assessmentId);
+        if (assessmentRes.data?.success) assessmentData = assessmentRes.data.data;
+      } catch (e) { console.warn("Teacher assessment fetch failed"); }
+
+      if (!assessmentData && isAdmin) {
+        try {
+          const adminAssessmentRes = await assessmentService.getAdminAssessmentById(assessmentId);
+          if (adminAssessmentRes.data?.success) assessmentData = adminAssessmentRes.data.data;
+        } catch (e) { console.error("Admin assessment fallback failed"); }
+      }
+      setAssessment(assessmentData);
+
+      // Quiz metadata
+      let quizData = null;
+      try {
+        const quizRes = await quizService.getTeacherQuizById(quizId);
+        if (quizRes.data?.success) quizData = quizRes.data.data;
+      } catch (e) { console.warn("Teacher quiz fetch failed"); }
+
+      if (!quizData && isAdmin) {
+        try {
+          const adminQuizRes = await quizService.getAdminQuizById(quizId);
+          if (adminQuizRes.data?.success) quizData = adminQuizRes.data.data;
+        } catch (e) { console.error("Admin quiz fallback failed"); }
+      }
+      setQuiz(quizData);
 
     } catch (err) {
-      console.error(err);
-      setError("Không thể tải dữ liệu.");
+      console.error("Fetch Data Error:", err);
+      setError("Không thể tải dữ liệu đầy đủ. Vui lòng thử lại sau.");
     } finally {
       setLoading(false);
     }
-  }, [sectionId, groupId, isAdmin]);
+  }, [sectionId, groupId, assessmentId, courseId, lessonId, quizId, isAdmin]);
 
   useEffect(() => {
     if (!isAuthenticated || !isTeacher) {
@@ -322,36 +384,41 @@ export default function TeacherQuestionManagement() {
       <TeacherHeader />
       <div className="teacher-question-management-container">
         <Container>
-          {/* Header */}
-          <div className="question-header-section mb-4">
-            <div className="breadcrumb-wrapper mb-3">
-              <Breadcrumb
-                items={[
-                  { label: "Quản lý khoá học", path: ROUTE_PATHS.TEACHER_COURSE_MANAGEMENT },
-                  { label: course?.title || course?.Title || "Khoá học", path: `/teacher/course/${courseId}` },
-                  { label: lesson?.title || lesson?.Title || "Bài học", path: `/teacher/course/${courseId}/lesson/${lessonId}` },
-                  { label: assessment?.title || assessment?.Title || "Quản lý bài tập", path: ROUTE_PATHS.TEACHER_QUIZ_ESSAY_MANAGEMENT(courseId, lessonId, moduleId, assessmentId) },
-                  { label: quiz?.title || quiz?.Title || "Quản lý Quiz", path: ROUTE_PATHS.TEACHER_QUIZ_SECTION_MANAGEMENT(courseId, lessonId, moduleId, assessmentId, quizId) },
-                  { label: "Quản lý câu hỏi", isCurrent: true }
-                ]}
-                showHomeIcon={false}
-              />
-            </div>
-            
-            <div className="d-flex align-items-center justify-content-between flex-wrap gap-3">
-              <div className="title-wrapper">
-                <h2 className="mb-2 fw-bold premium-gradient-text">Quản lý câu hỏi</h2>
+          {/* Premium Header */}
+          <div className="question-header-section">
+            <div className="d-flex align-items-center justify-content-between mb-4 flex-wrap gap-3">
+              <div className="d-flex flex-column">
+                <Breadcrumb
+                  items={[
+                    { label: "Quản lý khoá học", path: ROUTE_PATHS.TEACHER_COURSE_MANAGEMENT },
+                    { label: course?.title || course?.Title || "Khoá học", path: `/teacher/course/${courseId}` },
+                    { label: lesson?.title || lesson?.Title || "Bài học", path: `/teacher/course/${courseId}/lesson/${lessonId}` },
+                    { label: assessment?.title || assessment?.Title || "Quản lý bài tập", path: ROUTE_PATHS.TEACHER_QUIZ_ESSAY_MANAGEMENT(courseId, lessonId, moduleId, assessmentId) },
+                    { label: quiz?.title || quiz?.Title || "Quản lý Quiz", path: ROUTE_PATHS.TEACHER_QUIZ_SECTION_MANAGEMENT(courseId, lessonId, moduleId, assessmentId, quizId) },
+                    { label: "Quản lý câu hỏi", isCurrent: true }
+                  ]}
+                  showHomeIcon={true}
+                />
+                <h1 className="premium-gradient-text mt-3 mb-0">Quản lý kho câu hỏi</h1>
+              </div>
+              
+              <div className="d-flex gap-3 align-items-center">
                 {contextData.title && (
                    <div className="section-pill">
                      {contextData.title}
                    </div>
                 )}
+                <div className="header-stats-badge">
+                  <FaRegListAlt />
+                  <span>{questions.length} Câu hỏi</span>
+                </div>
               </div>
-              <div>
-                  <Button variant="primary" className="premium-btn shadow-sm px-4 py-2" onClick={() => handleAddQuestion(null)}>
-                      <FaPlus className="me-2" /> Thêm câu hỏi
-                  </Button>
-              </div>
+            </div>
+
+            <div className="d-flex gap-3 mt-4">
+              <Button variant="primary" className="premium-btn shadow-sm px-4 py-2" onClick={() => handleAddQuestion(null)}>
+                  <FaPlus className="me-2" /> Thêm câu hỏi mới
+              </Button>
             </div>
           </div>
 

@@ -1,47 +1,63 @@
 .teacher-module-lecture-detail-container {
-  min-height: 125vh;
-  background: linear-gradient(to bottom, #f8f9fa 0%, #ffffff 100%);
-  padding: 2rem;
-  padding-top: calc(2rem + 70px);
+  min-height: 100vh;
+  background: #fdfdfd;
+  padding: 2.5rem 1rem;
+  padding-top: calc(2.5rem + 70px);
 }
 
 .lecture-management-header {
-  background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
-  padding: 2rem;
-  border-radius: 16px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-  margin-bottom: 2rem;
-  border: 1px solid #e9ecef;
-}
-
-.lecture-management-header .header-content h2 {
-  font-size: 2rem;
-  background: linear-gradient(135deg, #0d6efd 0%, #0a58ca 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  margin-bottom: 0.5rem;
-}
-
-.lecture-management-header .module-name {
-  font-size: 1.1rem;
-  font-weight: 500;
-  color: #6c757d;
-}
-
-.lecture-management-header .create-lecture-btn {
-  background: linear-gradient(135deg, #0d6efd 0%, #0a58ca 100%);
-  border: none;
-  border-radius: 10px;
-  padding: 0.75rem 1.5rem;
-  font-weight: 600;
-  box-shadow: 0 4px 12px rgba(13, 110, 253, 0.3);
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(12px);
+  padding: 2.5rem;
+  border-radius: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.04);
+  margin-bottom: 2.5rem;
   transition: all 0.3s ease;
 }
 
-.lecture-management-header .create-lecture-btn:hover {
+.lecture-management-header:hover {
+  box-shadow: 0 12px 48px rgba(0, 0, 0, 0.08);
+}
+
+.lecture-management-header h2 {
+  font-size: 2.25rem;
+  letter-spacing: -0.025em;
+  background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.lecture-management-header .module-name {
+  font-size: 1.15rem;
+  font-weight: 500;
+  color: #64748b;
+}
+
+.lecture-count-badge {
+  padding: 0.5rem 1rem;
+  border-radius: 999px;
+  font-weight: 600;
+  font-size: 0.85rem;
+  box-shadow: 0 4px 12px rgba(13, 110, 253, 0.15);
+}
+
+.create-lecture-btn {
+  background: linear-gradient(135deg, #0d6efd 0%, #0a58ca 100%);
+  border: none;
+  border-radius: 12px;
+  padding: 0.85rem 1.75rem;
+  font-weight: 600;
+  font-size: 1rem;
+  box-shadow: 0 10px 20px rgba(13, 110, 253, 0.2);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.create-lecture-btn:hover {
   transform: translateY(-2px);
-  box-shadow: 0 6px 16px rgba(13, 110, 253, 0.4);
+  box-shadow: 0 14px 28px rgba(13, 110, 253, 0.3);
+  filter: brightness(1.05);
 }
 
 .breadcrumb-section {

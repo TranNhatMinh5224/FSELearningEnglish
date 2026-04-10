@@ -53,13 +53,14 @@ export default function TeacherQuizSectionManagement() {
   const [showDeleteGroupSuccessModal, setShowDeleteGroupSuccessModal] = useState(false);
   const [deletingGroup, setDeletingGroup] = useState(false);
 
-  const isTeacher = roles.includes("Teacher") || user?.teacherSubscription?.isTeacher === true;
   const isAdmin = roles && roles.some(role => {
     const roleName = typeof role === 'string' ? role : (role?.name || '');
-    return roleName === "SuperAdmin" || 
-           roleName === "ContentAdmin" || 
-           roleName === "FinanceAdmin";
+    return ["SuperAdmin", "ContentAdmin", "FinanceAdmin", "Admin"].includes(roleName);
   });
+
+  const isTeacher = (roles && roles.includes("Teacher")) || 
+                    user?.teacherSubscription?.isTeacher === true || 
+                    isAdmin;
 
   const fetchData = useCallback(async () => {
     try {
@@ -67,63 +68,99 @@ export default function TeacherQuizSectionManagement() {
       setError("");
 
       // Fetch metadata in parallel
-      const [quizRes, courseRes, lessonRes, assessmentRes] = await Promise.all([
-        isAdmin ? quizService.getAdminQuizById(quizId) : quizService.getTeacherQuizById(quizId),
+      const metadataPromises = [
         teacherService.getCourseDetail(courseId),
-        teacherService.getLessonById(lessonId),
-        assessmentService.getTeacherAssessmentById(assessmentId)
-      ]);
+        teacherService.getLessonById(lessonId)
+      ];
 
-      if (quizRes.data?.success && quizRes.data?.data) {
-        setQuiz(quizRes.data.data);
+      // Try teacher assessment first, fallback to admin
+      let assessmentData = null;
+      try {
+        const assessmentRes = await assessmentService.getTeacherAssessmentById(assessmentId);
+        if (assessmentRes.data?.success) assessmentData = assessmentRes.data.data;
+      } catch (e) { console.warn("Teacher assessment fetch failed"); }
+
+      if (!assessmentData && isAdmin) {
+        try {
+          const adminAssessmentRes = await assessmentService.getAdminAssessmentById(assessmentId);
+          if (adminAssessmentRes.data?.success) assessmentData = adminAssessmentRes.data.data;
+        } catch (e) { console.error("Admin assessment fallback failed"); }
       }
+      setAssessment(assessmentData);
 
-      if (courseRes.data?.success && courseRes.data?.data) {
-        setCourse(courseRes.data.data);
+      // Try teacher quiz first, fallback to admin
+      let quizData = null;
+      try {
+        const quizRes = await quizService.getTeacherQuizById(quizId);
+        if (quizRes.data?.success) quizData = quizRes.data.data;
+      } catch (e) { console.warn("Teacher quiz fetch failed"); }
+
+      if (!quizData && isAdmin) {
+        try {
+          const adminQuizRes = await quizService.getAdminQuizById(quizId);
+          if (adminQuizRes.data?.success) quizData = adminQuizRes.data.data;
+        } catch (e) { console.error("Admin quiz fallback failed"); }
       }
+      setQuiz(quizData);
 
-      if (lessonRes.data?.success && lessonRes.data?.data) {
-        setLesson(lessonRes.data.data);
-      }
+      const [courseRes, lessonRes] = await Promise.all(metadataPromises);
+      if (courseRes.data?.success) setCourse(courseRes.data.data);
+      if (lessonRes.data?.success) setLesson(lessonRes.data.data);
 
-      if (assessmentRes.data?.success && assessmentRes.data?.data) {
-        setAssessment(assessmentRes.data.data);
-      }
+      // Fetch sections (Robust)
+      let sectionsData = [];
+      try {
+        const sectionsRes = await quizService.getQuizSectionsByQuiz(quizId);
+        if (sectionsRes.data?.success) {
+          const data = sectionsRes.data.data;
+          sectionsData = Array.isArray(data) ? data : (data?.sections || []);
+        }
+      } catch (e) { console.warn("Teacher sections fetch failed"); }
 
-      // Fetch sections
-      const sectionsRes = isAdmin
-        ? await quizService.getAdminQuizSectionsByQuiz(quizId)
-        : await quizService.getQuizSectionsByQuiz(quizId);
-      if (sectionsRes.data?.success) {
-        const sectionsData = sectionsRes.data.data || [];
-        setSections(sectionsData);
-
-        // Fetch groups for each section
-        const groupsPromises = sectionsData.map(async (section) => {
-          const sectionId = section.quizSectionId || section.QuizSectionId;
-          const groupsRes = isAdmin
-            ? await quizService.getAdminQuizGroupsBySection(sectionId)
-            : await quizService.getQuizGroupsBySection(sectionId);
-          if (groupsRes.data?.success) {
-            return { sectionId, groups: groupsRes.data.data || [] };
+      if (sectionsData.length === 0 && isAdmin) {
+        try {
+          const adminSectionsRes = await quizService.getAdminQuizSectionsByQuiz(quizId);
+          if (adminSectionsRes.data?.success) {
+            const data = adminSectionsRes.data.data;
+            sectionsData = Array.isArray(data) ? data : (data?.sections || []);
           }
-          return { sectionId, groups: [] };
-        });
-
-        const groupsResults = await Promise.all(groupsPromises);
-        const groupsMap = {};
-        groupsResults.forEach(({ sectionId, groups }) => {
-          groupsMap[sectionId] = groups;
-        });
-        setSectionGroups(groupsMap);
+        } catch (e) { console.error("Admin sections fallback failed"); }
       }
+      setSections(sectionsData);
+
+      // Fetch groups for each section (Robust)
+      const groupsMap = {};
+      await Promise.all(sectionsData.map(async (section) => {
+        const sectionId = section.quizSectionId || section.QuizSectionId;
+        let groups = [];
+        try {
+          const groupsRes = await quizService.getQuizGroupsBySection(sectionId);
+          if (groupsRes.data?.success) {
+            const data = groupsRes.data.data;
+            groups = Array.isArray(data) ? data : (data?.groups || []);
+          }
+        } catch (e) { console.warn(`Teacher groups fetch failed for section ${sectionId}`); }
+
+        if (groups.length === 0 && isAdmin) {
+          try {
+            const adminGroupsRes = await quizService.getAdminQuizGroupsBySection(sectionId);
+            if (adminGroupsRes.data?.success) {
+              const data = adminGroupsRes.data.data;
+              groups = Array.isArray(data) ? data : (data?.groups || []);
+            }
+          } catch (e) { console.error(`Admin groups fallback failed for section ${sectionId}`); }
+        }
+        groupsMap[sectionId] = groups;
+      }));
+      setSectionGroups(groupsMap);
+
     } catch (err) {
       console.error("Error fetching data:", err);
-      setError("Không thể tải dữ liệu");
+      setError("Không thể tải dữ liệu. Vui lòng thử lại sau.");
     } finally {
       setLoading(false);
     }
-  }, [quizId, isAdmin]);
+  }, [quizId, assessmentId, courseId, lessonId, isAdmin]);
 
   useEffect(() => {
     if (!isAuthenticated || (!isTeacher && !isAdmin)) {
@@ -273,32 +310,38 @@ export default function TeacherQuizSectionManagement() {
       <TeacherHeader />
       <div className="teacher-quiz-section-management-container">
         <Container>
-          {/* Header */}
-          <div className="mb-4 question-header-section">
-            <div className="breadcrumb-wrapper mb-3">
-              <Breadcrumb
-                items={[
-                  { label: "Quản lý khoá học", path: ROUTE_PATHS.TEACHER_COURSE_MANAGEMENT },
-                  { label: course?.title || course?.Title || "Khoá học", path: `/teacher/course/${courseId}` },
-                  { label: lesson?.title || lesson?.Title || "Bài học", path: `/teacher/course/${courseId}/lesson/${lessonId}` },
-                  { label: assessment?.title || assessment?.Title || "Quản lý bài tập", path: ROUTE_PATHS.TEACHER_QUIZ_ESSAY_MANAGEMENT(courseId, lessonId, moduleId, assessmentId) },
-                  { label: "Quản lý Quiz", isCurrent: true }
-                ]}
-                showHomeIcon={false}
-              />
+          {/* Premium Header */}
+          <div className="quiz-section-management-header">
+            <div className="d-flex align-items-center justify-content-between mb-4 flex-wrap gap-3">
+              <div className="d-flex flex-column">
+                <Breadcrumb
+                  items={[
+                    { label: "Quản lý khoá học", path: ROUTE_PATHS.TEACHER_COURSE_MANAGEMENT },
+                    { label: course?.title || course?.Title || "Khoá học", path: `/teacher/course/${courseId}` },
+                    { label: lesson?.title || lesson?.Title || "Bài học", path: `/teacher/course/${courseId}/lesson/${lessonId}` },
+                    { label: assessment?.title || assessment?.Title || "Quản lý bài tập", path: ROUTE_PATHS.TEACHER_QUIZ_ESSAY_MANAGEMENT(courseId, lessonId, moduleId, assessmentId) },
+                    { label: "Quản lý Quiz", isCurrent: true }
+                  ]}
+                  showHomeIcon={true}
+                />
+                <h1 className="premium-gradient-text mt-3 mb-0">Thiết lập cấu trúc Quiz: {quizTitle}</h1>
+              </div>
+              
+              <div className="d-flex gap-3 align-items-center">
+                <div className="header-stats-badge">
+                  <FaRegListAlt />
+                  <span>{sections.length} Sections</span>
+                </div>
+              </div>
             </div>
-            <div className="d-flex align-items-center justify-content-between flex-wrap gap-3">
-              <div className="title-wrapper">
-                <h2 className="mb-0 fw-bold premium-gradient-text">Quản lý Quiz: {quizTitle}</h2>
-              </div>
-              <div>
-                <button
-                  className="btn premium-btn shadow-sm px-4 py-2 text-white"
-                  onClick={() => setShowCreateSectionModal(true)}
-                >
-                  <FaPlus className="me-2" /> Tạo Section mới
-                </button>
-              </div>
+
+            <div className="d-flex gap-3 mt-4">
+              <button
+                className="premium-btn-primary d-flex align-items-center gap-2"
+                onClick={() => setShowCreateSectionModal(true)}
+              >
+                <FaPlus /> Thêm Section mới
+              </button>
             </div>
           </div>
 

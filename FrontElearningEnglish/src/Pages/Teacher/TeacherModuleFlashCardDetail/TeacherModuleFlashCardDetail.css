@@ -1,8 +1,71 @@
 .teacher-module-flashcard-detail-container {
-  min-height: 125vh;
-  background-color: #f5f5f5;
-  padding: 20px;
-  padding-top: calc(20px + 70px);
+  min-height: 100vh;
+  background: #fdfdfd;
+  padding: 2.5rem 1rem;
+  padding-top: calc(2.5rem + 70px);
+}
+
+.flashcard-management-header {
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(12px);
+  padding: 2.5rem;
+  border-radius: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.04);
+  margin-bottom: 2.5rem;
+  transition: all 0.3s ease;
+}
+
+.flashcard-management-header:hover {
+  box-shadow: 0 12px 48px rgba(0, 0, 0, 0.08);
+}
+
+.flashcard-management-header h2 {
+  font-size: 2.25rem;
+  letter-spacing: -0.025em;
+  background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.flashcard-count-badge {
+  padding: 0.5rem 1rem;
+  border-radius: 999px;
+  font-weight: 600;
+  font-size: 0.85rem;
+  box-shadow: 0 4px 12px rgba(13, 110, 253, 0.15);
+}
+
+.create-flashcard-btn {
+  background: linear-gradient(135deg, #0d6efd 0%, #0a58ca 100%);
+  border: none;
+  border-radius: 12px;
+  padding: 0.85rem 1.75rem;
+  font-weight: 600;
+  font-size: 1rem;
+  box-shadow: 0 10px 20px rgba(13, 110, 253, 0.2);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.create-flashcard-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 14px 28px rgba(13, 110, 253, 0.3);
+  filter: brightness(1.05);
+}
+
+.flashcard-item {
+  border-radius: 16px;
+  overflow: hidden;
+  transition: all 0.3s ease;
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.flashcard-item:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1) !important;
 }
 
 .breadcrumb-section {

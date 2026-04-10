@@ -1,65 +1,38 @@
 .teacher-question-management-container {
-    background-color: #f5f7fa;
-    min-height: 125vh;
-    padding-top: 80px; /* Adjust based on your header height */
-    padding-bottom: 50px;
+    min-height: 100vh;
+    background: linear-gradient(135deg, #f0f7ff 0%, #ffffff 100%);
+    padding: 2rem 2rem 5rem 2rem;
+    padding-top: calc(70px + 2rem);
 }
 
+/* --- Premium Glassmorphic Header --- */
 .question-header-section {
-    padding-top: 20px;
-    margin-bottom: 30px;
+    background: rgba(255, 255, 255, 0.7);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: 20px;
+    padding: 2rem;
+    box-shadow: 0 8px 32px rgba(31, 38, 135, 0.07);
+    margin-bottom: 2.5rem;
 }
 
-.question-card {
-    transition: transform 0.2s, box-shadow 0.2s;
-    border: 1px solid rgba(0,0,0,0.05) !important;
-}
-
-.question-card:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 .5rem 1rem rgba(0,0,0,.15)!important;
-}
-
-.question-index .badge {
-    font-size: 0.9rem;
-    width: 40px;
-}
-
-.options-preview li {
-    font-size: 0.95rem;
-    padding-left: 10px;
-    border-left: 2px solid transparent;
-}
-
-.options-preview li.text-success {
-    border-left-color: #198754;
-    background-color: rgba(25, 135, 84, 0.05);
-}
-
-.action-buttons .btn {
-    border-radius: 50%;
-    width: 35px;
-    height: 35px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-/* Premium Header Styles */
 .back-nav-link {
     background: none;
     border: none;
     padding: 0;
     font-size: 0.95rem;
     font-weight: 500;
+    color: #64748b !important;
     display: flex;
     align-items: center;
-    transition: all 0.2s ease;
+    transition: all 0.3s ease;
     cursor: pointer;
+    text-decoration: none !important;
 }
 
 .back-nav-link:hover {
-    color: #BC69C0 !important;
+    color: #4A00E0 !important;
     transform: translateX(-4px);
 }
 
@@ -68,48 +41,98 @@
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
-    display: inline-block;
+    font-weight: 800;
 }
 
 .section-pill {
     display: inline-block;
-    background-color: #f3e5f5;
+    background: rgba(142, 45, 226, 0.1);
     color: #8E2DE2;
-    padding: 6px 14px;
-    border-radius: 20px;
+    padding: 0.5rem 1rem;
+    border-radius: 12px;
     font-size: 0.85rem;
     font-weight: 600;
-    border: 1px solid rgba(142, 45, 226, 0.15);
+    border: 1px solid rgba(142, 45, 226, 0.1);
 }
 
+/* --- Action Buttons --- */
 .premium-btn {
-    background: linear-gradient(135deg, #8E2DE2 0%, #4A00E0 100%);
+    background: linear-gradient(135deg, #4A00E0 0%, #8E2DE2 100%);
     border: none;
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    border-radius: 12px;
+    padding: 0.75rem 1.5rem;
+    font-weight: 600;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    color: white !important;
 }
 
 .premium-btn:hover {
     transform: translateY(-2px);
-    box-shadow: 0 6px 15px rgba(142, 45, 226, 0.3) !important;
-    background: linear-gradient(135deg, #9b44e8 0%, #5608ea 100%);
+    box-shadow: 0 8px 20px rgba(74, 0, 224, 0.3);
+    filter: brightness(1.1);
 }
 
-/* Budget Card Styles */
-.budget-card {
-    background: #ffffff;
-    border: 1px solid rgba(142, 45, 226, 0.1) !important;
+/* --- Question Cards --- */
+.question-card {
+    background: white;
+    border-radius: 20px;
+    border: 1px solid #eef2f6 !important;
+    padding: 1.5rem;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.03);
+    margin-bottom: 1.5rem;
+    transition: all 0.3s ease;
 }
 
-.budget-card .progress {
-    background-color: #e9ecef;
-    box-shadow: inset 0 1px 2px rgba(0,0,0,.1);
+.question-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.06);
 }
 
-.budget-card .progress-bar {
-    border-radius: 6px;
-    font-weight: 600;
+.question-index .badge {
+    font-size: 0.8rem;
+    padding: 0.4rem 0.8rem;
+    background: #f1f5f9 !important;
+    color: #64748b !important;
+    border: 1px solid #e2e8f0;
 }
 
-.budget-card .badge {
-    font-weight: 600;
+.question-stem {
+    color: #1e293b;
+    line-height: 1.5;
+}
+
+.options-preview li {
+    font-size: 0.9rem;
+    padding: 0.5rem 0.75rem;
+    margin-bottom: 0.25rem;
+    border-radius: 8px;
+    background: #f8fafc;
+    border: 1px solid transparent;
+}
+
+.options-preview li.text-success {
+    background: rgba(34, 197, 94, 0.08);
+    border-color: rgba(34, 197, 94, 0.2);
+    color: #15803d !important;
+}
+
+/* --- Group Styling --- */
+.group-header-bar {
+    background: rgba(255, 255, 255, 0.8) !important;
+    backdrop-filter: blur(8px);
+    border-radius: 16px !important;
+    border: 1px solid #e2e8f0 !important;
+    border-left: 6px solid #4A00E0 !important;
+    padding: 1.25rem !important;
+    transition: all 0.3s ease;
+}
+
+.group-header-bar:hover {
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+}
+
+.group-questions-list {
+    border-left: 3px dashed #e2e8f0 !important;
+    margin-left: 2rem !important;
+    padding-left: 1.5rem !important;
 }

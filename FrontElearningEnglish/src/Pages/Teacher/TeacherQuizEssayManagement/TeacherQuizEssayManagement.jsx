@@ -52,7 +52,14 @@ export default function TeacherQuizEssayManagement() {
   const [showDeleteEssaySuccessModal, setShowDeleteEssaySuccessModal] = useState(false);
   const [deletingEssay, setDeletingEssay] = useState(false);
 
-  const isTeacher = roles.includes("Teacher") || user?.teacherSubscription?.isTeacher === true;
+  const isAdmin = roles && roles.some(role => {
+    const roleName = typeof role === 'string' ? role : (role?.name || '');
+    return ["SuperAdmin", "ContentAdmin", "FinanceAdmin", "Admin"].includes(roleName);
+  });
+
+  const isTeacher = (roles && roles.includes("Teacher")) || 
+                    user?.teacherSubscription?.isTeacher === true || 
+                    isAdmin;
 
   const fetchData = useCallback(async () => {
     try {
@@ -60,44 +67,79 @@ export default function TeacherQuizEssayManagement() {
       setError("");
       
       // Fetch metadata in parallel
-      const [assessmentRes, courseRes, lessonRes] = await Promise.all([
-        assessmentService.getTeacherAssessmentById(assessmentId),
+      const metadataPromises = [
         teacherService.getCourseDetail(courseId),
         teacherService.getLessonById(lessonId)
-      ]);
+      ];
 
-      if (assessmentRes.data?.success && assessmentRes.data?.data) {
-        setAssessment(assessmentRes.data.data);
-      }
-      
-      if (courseRes.data?.success && courseRes.data?.data) {
-        setCourse(courseRes.data.data);
-      }
+      // Try teacher assessment first, fallback to admin
+      let assessmentData = null;
+      try {
+        const assessmentRes = await assessmentService.getTeacherAssessmentById(assessmentId);
+        if (assessmentRes.data?.success) assessmentData = assessmentRes.data.data;
+      } catch (e) { console.warn("Teacher assessment fetch failed, trying fallback"); }
 
-      if (lessonRes.data?.success && lessonRes.data?.data) {
-        setLesson(lessonRes.data.data);
+      if (!assessmentData && isAdmin) {
+        try {
+          const adminAssessmentRes = await assessmentService.getAdminAssessmentById(assessmentId);
+          if (adminAssessmentRes.data?.success) assessmentData = adminAssessmentRes.data.data;
+        } catch (e) { console.error("Admin assessment fallback failed"); }
       }
+      setAssessment(assessmentData);
 
-      // Fetch quizzes and essays
-      const [quizzesRes, essaysRes] = await Promise.all([
-        quizService.getTeacherQuizzesByAssessment(assessmentId),
-        essayService.getTeacherEssaysByAssessment(assessmentId)
-      ]);
+      const [courseRes, lessonRes] = await Promise.all(metadataPromises);
+      if (courseRes.data?.success) setCourse(courseRes.data.data);
+      if (lessonRes.data?.success) setLesson(lessonRes.data.data);
 
-      if (quizzesRes.data?.success) {
-        setQuizzes(quizzesRes.data.data || []);
+      // Fetch Quizzes: try teacher first, fallback to admin
+      let quizzesList = [];
+      try {
+        const quizzesRes = await quizService.getTeacherQuizzesByAssessment(assessmentId);
+        if (quizzesRes.data?.success) {
+          const data = quizzesRes.data.data;
+          quizzesList = Array.isArray(data) ? data : (data?.quizzes || []);
+        }
+      } catch (e) { console.warn("Teacher quizzes fetch failed"); }
+
+      if (quizzesList.length === 0 && isAdmin) {
+        try {
+          const adminQuizzesRes = await quizService.getAdminQuizzesByAssessment(assessmentId);
+          if (adminQuizzesRes.data?.success) {
+            const data = adminQuizzesRes.data.data;
+            quizzesList = Array.isArray(data) ? data : (data?.quizzes || []);
+          }
+        } catch (e) { console.error("Admin quizzes fallback failed"); }
       }
+      setQuizzes(quizzesList);
 
-      if (essaysRes.data?.success) {
-        setEssays(essaysRes.data.data || []);
+      // Fetch Essays: try teacher first, fallback to admin
+      let essaysList = [];
+      try {
+        const essaysRes = await essayService.getTeacherEssaysByAssessment(assessmentId);
+        if (essaysRes.data?.success) {
+          const data = essaysRes.data.data;
+          essaysList = Array.isArray(data) ? data : (data?.essays || []);
+        }
+      } catch (e) { console.warn("Teacher essays fetch failed"); }
+
+      if (essaysList.length === 0 && isAdmin) {
+        try {
+          const adminEssaysRes = await essayService.getAdminEssaysByAssessment(assessmentId);
+          if (adminEssaysRes.data?.success) {
+            const data = adminEssaysRes.data.data;
+            essaysList = Array.isArray(data) ? data : (data?.essays || []);
+          }
+        } catch (e) { console.error("Admin essays fallback failed"); }
       }
+      setEssays(essaysList);
+
     } catch (err) {
       console.error("Error fetching data:", err);
-      setError("Không thể tải dữ liệu");
+      setError("Không thể tải dữ liệu. Vui lòng thử lại sau.");
     } finally {
       setLoading(false);
     }
-  }, [assessmentId]);
+  }, [assessmentId, courseId, lessonId, isAdmin]);
 
   useEffect(() => {
     if (!isAuthenticated || !isTeacher) {
@@ -244,55 +286,65 @@ export default function TeacherQuizEssayManagement() {
       <TeacherHeader />
       <div className="teacher-quiz-essay-management-container">
         <Container>
-          {/* Header */}
-          <div className="mb-4 question-header-section">
-            <div className="breadcrumb-wrapper mb-3">
-              <Breadcrumb
-                items={[
-                  { label: "Quản lý khoá học", path: ROUTE_PATHS.TEACHER_COURSE_MANAGEMENT },
-                  { label: course?.title || course?.Title || "Khoá học", path: `/teacher/course/${courseId}` },
-                  { label: lesson?.title || lesson?.Title || "Bài học", path: `/teacher/course/${courseId}/lesson/${lessonId}` },
-                  { label: "Quản lý bài tập", isCurrent: true }
-                ]}
-                showHomeIcon={false}
-              />
-            </div>
-            <div className="text-center mb-4">
-              <h1 className="mb-2 fw-bold premium-gradient-text">Quản lý nội dung bài kiểm tra</h1>
-              {assessment && (
-                <div className="assessment-context-info">
-                  <h4 className="text-primary mb-2">{assessment.title || assessment.Title}</h4>
-                  <div className="d-flex justify-content-center gap-4 text-muted small flex-wrap">
-                    {(assessment.openAt || assessment.OpenAt) && (
-                      <span><strong>Mở lúc:</strong> {new Date(assessment.openAt || assessment.OpenAt).toLocaleString('vi-VN')}</span>
-                    )}
-                    {(assessment.dueAt || assessment.DueAt) && (
-                      <span><strong>Hạn chót:</strong> {new Date(assessment.dueAt || assessment.DueAt).toLocaleString('vi-VN')}</span>
-                    )}
-                    {(assessment.timeLimit || assessment.TimeLimit) && (
-                      <span><strong>Thời gian:</strong> {assessment.timeLimit || assessment.TimeLimit}</span>
-                    )}
-                  </div>
+          {/* Premium Header */}
+          <div className="quiz-essay-management-header">
+            <div className="d-flex align-items-center justify-content-between mb-4 flex-wrap gap-3">
+              <div className="d-flex flex-column">
+                <Breadcrumb
+                  items={[
+                    { label: "Quản lý khoá học", path: ROUTE_PATHS.TEACHER_COURSE_MANAGEMENT },
+                    { label: course?.title || course?.Title || "Khoá học", path: `/teacher/course/${courseId}` },
+                    { label: lesson?.title || lesson?.Title || "Bài học", path: `/teacher/course/${courseId}/lesson/${lessonId}` },
+                    { label: "Quản lý bài tập", isCurrent: true }
+                  ]}
+                  showHomeIcon={true}
+                />
+                <h1 className="premium-gradient-text mt-3 mb-0">Quản lý nội dung bài kiểm tra</h1>
+              </div>
+              
+              <div className="d-flex gap-3 align-items-center">
+                <div className="header-stats-badge">
+                  <FaRegListAlt />
+                  <span>{quizzes.length} Quizzes</span>
                 </div>
-              )}
+                <div className="header-stats-badge" style={{ backgroundColor: "rgba(188, 105, 192, 0.1)", color: "#BC69C0" }}>
+                  <FaRegListAlt />
+                  <span>{essays.length} Essays</span>
+                </div>
+              </div>
             </div>
+
+            {assessment && (
+              <div className="assessment-info-glass p-3 rounded-4" style={{ background: "rgba(255,255,255,0.4)", border: "1px solid rgba(255,255,255,0.2)" }}>
+                <h4 className="fw-bold mb-2" style={{ color: "#1e293b" }}>{assessment.title || assessment.Title}</h4>
+                <div className="d-flex gap-4 text-muted small flex-wrap">
+                  {(assessment.openAt || assessment.OpenAt) && (
+                    <span><strong>Mở lúc:</strong> {new Date(assessment.openAt || assessment.OpenAt).toLocaleString('vi-VN')}</span>
+                  )}
+                  {(assessment.dueAt || assessment.DueAt) && (
+                    <span><strong>Hạn chót:</strong> {new Date(assessment.dueAt || assessment.DueAt).toLocaleString('vi-VN')}</span>
+                  )}
+                  {(assessment.timeLimit || assessment.TimeLimit) && (
+                    <span><strong>Thời gian:</strong> {assessment.timeLimit || assessment.TimeLimit}</span>
+                  )}
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Create Buttons */}
-          <div className="d-flex justify-content-center gap-4 mb-5 flex-wrap">
+          <div className="d-flex gap-3 mb-5 flex-wrap">
             <button
-              className="btn create-quiz-button px-5 py-3 text-white border-0 rounded-4 shadow-lg fw-semibold"
-              style={{ fontSize: "16px", minWidth: "200px" }}
+              className="premium-btn-primary d-flex align-items-center gap-2"
               onClick={() => setShowCreateQuizModal(true)}
             >
-              Tạo Quiz mới
+              <FaPlus /> Tạo Quiz mới
             </button>
             <button
-              className="btn create-essay-button px-5 py-3 text-white border-0 rounded-4 shadow-lg fw-semibold"
-              style={{ fontSize: "16px", minWidth: "200px" }}
+              className="premium-btn-outline d-flex align-items-center gap-2"
               onClick={() => setShowCreateEssayModal(true)}
             >
-              Tạo Essay mới
+              <FaPlus /> Tạo Essay mới
             </button>
           </div>
 
@@ -422,6 +474,7 @@ export default function TeacherQuizEssayManagement() {
           onSuccess={handleCreateQuizSuccess}
           assessmentId={parseInt(assessmentId)}
           assessment={assessment}
+          isAdmin={isAdmin}
         />
       )}
 
@@ -437,6 +490,7 @@ export default function TeacherQuizEssayManagement() {
           assessmentId={parseInt(assessmentId)}
           quizToUpdate={quizToUpdate}
           assessment={assessment}
+          isAdmin={isAdmin}
         />
       )}
 
@@ -494,6 +548,7 @@ export default function TeacherQuizEssayManagement() {
           onSuccess={handleCreateEssaySuccess}
           assessmentId={parseInt(assessmentId)}
           assessment={assessment}
+          isAdmin={isAdmin}
         />
       )}
 
@@ -509,6 +564,7 @@ export default function TeacherQuizEssayManagement() {
           assessmentId={parseInt(assessmentId)}
           essayToUpdate={essayToUpdate}
           assessment={assessment}
+          isAdmin={isAdmin}
         />
       )}
 

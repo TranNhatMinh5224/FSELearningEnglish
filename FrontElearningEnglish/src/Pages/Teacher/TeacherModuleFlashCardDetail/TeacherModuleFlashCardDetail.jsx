@@ -34,29 +34,63 @@ export default function TeacherModuleFlashCardDetail() {
   const [successMessage, setSuccessMessage] = useState("");
   const [notification, setNotification] = useState({ isOpen: false, type: "info", message: "" });
 
-  const isTeacher = roles.includes("Teacher") || user?.teacherSubscription?.isTeacher === true;
+  const isAdmin = roles && roles.some(role => {
+    const roleName = typeof role === 'string' ? role : (role?.name || '');
+    return ["SuperAdmin", "ContentAdmin", "FinanceAdmin", "Admin"].includes(roleName);
+  });
+
+  const isTeacher = (roles && roles.includes("Teacher")) || 
+                    user?.teacherSubscription?.isTeacher === true || 
+                    isAdmin;
 
   const fetchData = useCallback(async () => {
     setLoading(true);
     try {
-      const [moduleRes, flashcardsRes, courseRes, lessonRes] = await Promise.all([
+      // Fetch core data
+      const [moduleRes, courseRes, lessonRes] = await Promise.all([
         teacherService.getModuleById(moduleId),
-        flashcardService.getTeacherFlashcardsByModule(moduleId),
         teacherService.getCourseDetail(courseId),
         teacherService.getLessonDetail(lessonId)
       ]);
 
       if (moduleRes.data?.success) setModule(moduleRes.data.data);
-      if (flashcardsRes.data?.success) setFlashcards(flashcardsRes.data.data || []);
       if (courseRes.data?.success) setCourse(courseRes.data.data);
       if (lessonRes.data?.success) setLesson(lessonRes.data.data);
-      
+
+      // Try fetching teacher flashcards first
+      let flashcardsList = [];
+      try {
+        const flashcardsRes = await flashcardService.getTeacherFlashcardsByModule(moduleId);
+        if (flashcardsRes.data?.success) {
+          const data = flashcardsRes.data.data;
+          // Handle both direct array or { flashcards: [] } structure
+          flashcardsList = Array.isArray(data) ? data : (data?.flashcards || []);
+        }
+      } catch (teacherErr) {
+        console.warn("Teacher flashcards fetch failed, trying admin fallback if applicable", teacherErr);
+      }
+
+      // Fallback to Admin endpoint IF empty AND user is Admin
+      if (flashcardsList.length === 0 && isAdmin) {
+        try {
+          const adminFlashcardsRes = await flashcardService.getAdminFlashcardsByModule(moduleId);
+          if (adminFlashcardsRes.data?.success) {
+            const data = adminFlashcardsRes.data.data;
+            flashcardsList = Array.isArray(data) ? data : (data?.flashcards || []);
+          }
+        } catch (adminErr) {
+          console.error("Admin flashcards fallback failed:", adminErr);
+        }
+      }
+
+      setFlashcards(flashcardsList);
     } catch (err) {
-      console.error(err);
+      console.error("Error fetching data:", err);
+      setNotification({ isOpen: true, type: "error", message: "Không thể tải dữ liệu từ vựng. Vui lòng thử lại sau." });
     } finally {
       setLoading(false);
     }
-  }, [courseId, lessonId, moduleId]);
+  }, [moduleId, courseId, lessonId, isAdmin]);
 
   useEffect(() => {
     if (!isAuthenticated || !isTeacher) {
@@ -132,16 +166,27 @@ export default function TeacherModuleFlashCardDetail() {
             />
           </div>
 
-          <div className="d-flex align-items-center justify-content-between mb-4 mt-4">
-            <div className="d-flex align-items-center gap-3">
-              <div>
-                  <h2 className="mb-0 fw-bold text-primary">Quản lý từ vựng</h2>
-                  <div className="text-muted">{module?.name || "Module"} ({flashcards.length} từ)</div>
+          <div className="flashcard-management-header mb-4 mt-4">
+            <div className="d-flex align-items-center justify-content-between">
+              <div className="header-content">
+                <h2 className="mb-1 fw-bold text-primary">Quản lý từ vựng</h2>
+                <div className="d-flex align-items-center gap-3">
+                  <span className="module-name text-muted">
+                    {module?.name || module?.Name || "Module"}
+                  </span>
+                  <Badge bg="primary" className="flashcard-count-badge">
+                    {flashcards.length} từ vựng
+                  </Badge>
+                </div>
               </div>
+              <Button
+                variant="primary"
+                className="create-flashcard-btn d-flex align-items-center gap-2"
+                onClick={() => { setFlashcardToUpdate(null); setShowCreateModal(true); }}
+              >
+                <FaPlus /> <span>Thêm Flashcard</span>
+              </Button>
             </div>
-            <Button variant="primary" onClick={() => { setFlashcardToUpdate(null); setShowCreateModal(true); }}>
-                <FaPlus className="me-2" /> Thêm Flashcard
-            </Button>
           </div>
 
           {loading ? (
@@ -203,6 +248,7 @@ export default function TeacherModuleFlashCardDetail() {
         onSuccess={flashcardToUpdate ? handleUpdateSuccess : handleCreateSuccess}
         moduleId={moduleId}
         flashcardToUpdate={flashcardToUpdate}
+        isAdmin={isAdmin}
       />
 
       <ConfirmModal 
