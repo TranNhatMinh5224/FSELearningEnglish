@@ -57,8 +57,7 @@ jobs:
       - name: Deploy frontend to web root (local)
         shell: bash
         run: |
-          sudo -n mkdir -p "${{ secrets.VPS_FRONTEND_PATH }}"
-          sudo -n rsync -a --delete "${{ env.BUILD_DIR }}/" "${{ secrets.VPS_FRONTEND_PATH }}/"
+          sudo -n rsync -a --delete --mkpath "${{ env.BUILD_DIR }}/" "${{ secrets.VPS_FRONTEND_PATH }}/"
 
       - name: Reload Nginx
         shell: bash

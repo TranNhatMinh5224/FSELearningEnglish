@@ -54,8 +54,7 @@ jobs:
       - name: Deploy backend to target path (local)
         shell: bash
         run: |
-          sudo -n mkdir -p "${{ secrets.VPS_BACKEND_PATH }}"
-          sudo -n rsync -a --delete "${{ env.PUBLISH_DIR }}/" "${{ secrets.VPS_BACKEND_PATH }}/"
+          sudo -n rsync -a --delete --mkpath "${{ env.PUBLISH_DIR }}/" "${{ secrets.VPS_BACKEND_PATH }}/"
 
       - name: Restart backend service
         shell: bash
