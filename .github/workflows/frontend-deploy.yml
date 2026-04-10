@@ -46,16 +46,27 @@ jobs:
         with:
           ssh-private-key: ${{ secrets.VPS_SSH_KEY }}
 
+      - name: Prepare remote temp directory
+        run: |
+          ssh -o StrictHostKeyChecking=no "${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }}" \
+            "mkdir -p ~/deploy_tmp/frontend"
+
       - name: Upload frontend (rsync)
         run: |
           rsync -az --delete \
             -e "ssh -o StrictHostKeyChecking=no" \
             "${{ env.BUILD_DIR }}/" \
-            "${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }}:${{ secrets.VPS_FRONTEND_PATH }}/"
+            "${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }}:~/deploy_tmp/frontend/"
+
+      - name: Promote build to web root
+        run: |
+          ssh -o StrictHostKeyChecking=no "${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }}" "
+            sudo -n rsync -a --delete ~/deploy_tmp/frontend/ ${{ secrets.VPS_FRONTEND_PATH }}/
+          "
 
       - name: Reload Nginx
         run: |
           ssh -o StrictHostKeyChecking=no "${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }}" "
-            sudo systemctl reload nginx
-            sudo systemctl is-active nginx
+            sudo -n systemctl reload nginx
+            sudo -n systemctl is-active nginx
           "
