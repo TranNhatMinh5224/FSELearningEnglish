@@ -58,37 +58,37 @@ export default function CourseSummaryCard({ course, onEnroll, onStartLearning })
                 </div>
             )}
 
-            <div className="course-summary-stats d-flex flex-column">
-                <div className="course-stat-item d-flex align-items-center">
-                    <div className="stat-icon-wrapper lessons">
-                        <FaBook className="stat-icon" />
+            <div className="course-summary-stats d-flex flex-column" style={{ gap: '16px' }}>
+                <div className="course-stat-item d-flex align-items-center" style={{ gap: '16px', padding: '12px 0', borderBottom: '1px solid rgba(0,0,0,0.05)' }}>
+                    <div className="stat-icon-wrapper lessons" style={{ width: '48px', height: '48px', borderRadius: '14px', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, backgroundColor: '#4f46e5', boxShadow: '0 4px 12px rgba(79, 70, 229, 0.2)' }}>
+                        <FaBook className="stat-icon" style={{ color: '#ffffff', fontSize: '20px' }} />
                     </div>
-                    <div className="stat-content d-flex flex-column">
-                        <span className="stat-label">Số lượng bài giảng</span>
-                        <span className="stat-value">{course.totalLessons || course.TotalLessons || 0} bài giảng</span>
+                    <div className="stat-content d-flex flex-column" style={{ flex: 1 }}>
+                        <span className="stat-label" style={{ fontSize: '11px', color: '#6b7280', fontWeight: '600', textTransform: 'uppercase', letterSpacing: '0.8px', marginBottom: '2px' }}>Số lượng bài giảng</span>
+                        <span className="stat-value" style={{ fontSize: '18px', fontWeight: '800', color: '#111827' }}>{course.totalLessons || course.TotalLessons || 0} bài giảng</span>
                     </div>
                 </div>
 
                 {course.enrollmentCount !== undefined && (
-                    <div className="course-stat-item d-flex align-items-center">
-                        <div className="stat-icon-wrapper students">
-                            <FaUsers className="stat-icon" />
+                    <div className="course-stat-item d-flex align-items-center" style={{ gap: '16px', padding: '12px 0', borderBottom: '1px solid rgba(0,0,0,0.05)' }}>
+                        <div className="stat-icon-wrapper students" style={{ width: '48px', height: '48px', borderRadius: '14px', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, backgroundColor: '#10b981', boxShadow: '0 4px 12px rgba(16, 185, 129, 0.2)' }}>
+                            <FaUsers className="stat-icon" style={{ color: '#ffffff', fontSize: '20px' }} />
                         </div>
-                        <div className="stat-content d-flex flex-column">
-                            <span className="stat-label">Số học viên</span>
-                            <span className="stat-value">{course.enrollmentCount || 0} học viên</span>
+                        <div className="stat-content d-flex flex-column" style={{ flex: 1 }}>
+                            <span className="stat-label" style={{ fontSize: '11px', color: '#6b7280', fontWeight: '600', textTransform: 'uppercase', letterSpacing: '0.8px', marginBottom: '2px' }}>Số học viên</span>
+                            <span className="stat-value" style={{ fontSize: '18px', fontWeight: '800', color: '#111827' }}>{course.enrollmentCount || 0} học viên</span>
                         </div>
                     </div>
                 )}
 
                 {priceDisplay !== null && (
-                    <div className="course-stat-item d-flex align-items-center">
-                        <div className="stat-icon-wrapper price">
-                            <FaTag className="stat-icon" />
+                    <div className="course-stat-item d-flex align-items-center" style={{ gap: '16px', padding: '12px 0' }}>
+                        <div className="stat-icon-wrapper price" style={{ width: '48px', height: '48px', borderRadius: '14px', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, backgroundColor: '#f59e0b', boxShadow: '0 4px 12px rgba(245, 158, 11, 0.2)' }}>
+                            <FaTag className="stat-icon" style={{ color: '#ffffff', fontSize: '20px' }} />
                         </div>
-                        <div className="stat-content d-flex flex-column">
-                            <span className="stat-label">Giá khóa học</span>
-                            <span className="stat-value">{priceDisplay}</span>
+                        <div className="stat-content d-flex flex-column" style={{ flex: 1 }}>
+                            <span className="stat-label" style={{ fontSize: '11px', color: '#6b7280', fontWeight: '600', textTransform: 'uppercase', letterSpacing: '0.8px', marginBottom: '2px' }}>Giá khóa học</span>
+                            <span className="stat-value" style={{ fontSize: '18px', fontWeight: '800', color: '#111827' }}>{priceDisplay}</span>
                         </div>
                     </div>
                 )}

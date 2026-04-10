@@ -21,61 +21,73 @@
 /* Bootstrap utilities: d-flex, align-items-center */
 .course-stat-item {
     gap: 16px;
-    padding: 8px 0;
+    padding: 12px 0;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.03);
+}
+
+.course-stat-item:last-child {
+    border-bottom: none;
 }
 
 .stat-icon-wrapper {
-    width: 44px;
-    height: 44px;
-    border-radius: 12px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-shrink: 0;
-    transition: transform 0.2s ease;
+    width: 48px !important;
+    height: 48px !important;
+    border-radius: 14px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    flex-shrink: 0 !important;
+    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) !important;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05) !important;
 }
 
 .course-stat-item:hover .stat-icon-wrapper {
-    transform: scale(1.05);
+    transform: translateY(-3px) scale(1.05);
+    box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1) !important;
 }
 
 .stat-icon-wrapper.lessons {
-    background-color: rgba(79, 70, 229, 0.1); /* Indigo */
-    color: #4f46e5;
+    background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%) !important;
+    background-color: #4f46e5 !important;
+    color: #ffffff !important;
 }
 
 .stat-icon-wrapper.students {
-    background-color: rgba(16, 185, 129, 0.1); /* Green */
-    color: #10b981;
+    background: linear-gradient(135deg, #34d399 0%, #10b981 100%) !important;
+    background-color: #10b981 !important;
+    color: #ffffff !important;
 }
 
 .stat-icon-wrapper.price {
-    background-color: rgba(245, 158, 11, 0.1); /* Amber */
-    color: #f59e0b;
+    background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%) !important;
+    background-color: #f59e0b !important;
+    color: #ffffff !important;
 }
 
 .stat-icon {
-    font-size: 18px;
-    color: inherit;
+    font-size: 20px !important;
+    color: #ffffff !important;
 }
 
 .stat-content {
-    gap: 2px;
+    gap: 0;
     flex: 1;
 }
 
 .course-summary-card .stat-label {
-    font-size: 12px;
-    color: var(--color-text-secondary, #6b7280);
-    font-weight: 500;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
+    font-size: 11px !important;
+    color: #6b7280 !important;
+    font-weight: 600 !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.8px !important;
+    margin-bottom: 2px !important;
 }
 
 .course-summary-card .stat-value {
-    font-size: 16px;
-    font-weight: 700;
-    color: var(--color-text-primary, #1f2937);
+    font-size: 18px !important;
+    font-weight: 800 !important;
+    color: #111827 !important;
+    line-height: 1.2 !important;
 }
 
 .course-enroll-btn {
