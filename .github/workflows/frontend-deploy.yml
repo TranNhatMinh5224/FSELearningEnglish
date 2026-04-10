@@ -25,7 +25,7 @@ jobs:
       BUILD_DIR: 'build'
 
     steps:
-      - name: Checkout
+      - name: Checkout code
         uses: actions/checkout@v4
 
       - name: Setup Node
@@ -35,10 +35,10 @@ jobs:
           cache: npm
           cache-dependency-path: FrontElearningEnglish/package-lock.json
 
-      - name: Install
+      - name: Install dependencies
         run: npm ci
 
-      - name: Build
+      - name: Build project
         run: npm run build
 
       - name: Add SSH key
@@ -50,10 +50,12 @@ jobs:
         run: |
           rsync -az --delete \
             -e "ssh -o StrictHostKeyChecking=no" \
-            "FrontElearningEnglish/${{ env.BUILD_DIR }}/" \
+            "${{ env.BUILD_DIR }}/" \
             "${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }}:${{ secrets.VPS_FRONTEND_PATH }}/"
 
-      - name: Reload nginx
+      - name: Reload Nginx
         run: |
-          ssh -o StrictHostKeyChecking=no "${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }}" \
-            "sudo systemctl reload nginx && sudo systemctl status nginx --no-pager -l"
+          ssh -o StrictHostKeyChecking=no "${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }}" "
+            sudo systemctl reload nginx
+            sudo systemctl is-active nginx
+          "

@@ -22,7 +22,7 @@ jobs:
       PUBLISH_DIR: 'publish_backend'
 
     steps:
-      - name: Checkout
+      - name: Checkout code
         uses: actions/checkout@v4
 
       - name: Setup .NET
@@ -53,5 +53,12 @@ jobs:
 
       - name: Restart backend service
         run: |
-          ssh -o StrictHostKeyChecking=no "${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }}" \
-            "sudo systemctl restart ${{ secrets.VPS_BACKEND_SERVICE }} && sudo systemctl status ${{ secrets.VPS_BACKEND_SERVICE }} --no-pager -l"
+          ssh -o StrictHostKeyChecking=no "${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }}" "
+            sudo systemctl daemon-reload
+            sudo systemctl restart ${{ secrets.VPS_BACKEND_SERVICE }}
+            sudo systemctl is-active ${{ secrets.VPS_BACKEND_SERVICE }}
+          "
+
+      - name: Health check API
+        run: |
+          curl -f http://${{ secrets.VPS_HOST }}/api || exit 1
