@@ -12,6 +12,7 @@ import "./CreateLectureModal.css";
 const LECTURE_MEDIA_BUCKET = "lectures";
 
 export default function CreateLectureModal({ show, onClose, onSuccess, moduleId, moduleName, lectureToUpdate, isAdmin = false }) {
+  const isChildCreation = !!lectureToUpdate?._isChildCreation;
   const [showConfirmClose, setShowConfirmClose] = useState(false);
 
   const {
@@ -170,8 +171,10 @@ export default function CreateLectureModal({ show, onClose, onSuccess, moduleId,
                   name="parentLectureId"
                   value={formData.parentLectureId || ""}
                   onChange={handleChange}
+                  disabled={isChildCreation}
                   options={parentLectures.map(l => ({ value: l.lectureId || l.LectureId, label: l.title || l.Title }))}
-                  placeholder="-- Là bài giảng gốc --"
+                  placeholder={isChildCreation ? undefined : "-- Là bài giảng gốc --"}
+                  hint={isChildCreation ? `Đang tạo bài giảng con của: ${lectureToUpdate?.parentTitle || ""}` : undefined}
                 />
               </div>
 

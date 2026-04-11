@@ -26,6 +26,7 @@ export default function CreateFlashCardModal({ show, onClose, onSuccess, moduleI
   const [errors, setErrors] = useState({});
   const [touched, setTouched] = useState({});
   const [submitting, setSubmitting] = useState(false);
+  const [generateNotice, setGenerateNotice] = useState("");
 
   // Modals state
   const [showGenerateModal, setShowGenerateModal] = useState(false);
@@ -94,6 +95,7 @@ export default function CreateFlashCardModal({ show, onClose, onSuccess, moduleI
         resetForm();
       }
       setErrors({});
+      setGenerateNotice("");
     }
   }, [show, flashcardToUpdate]);
 
@@ -124,6 +126,7 @@ export default function CreateFlashCardModal({ show, onClose, onSuccess, moduleI
     setAudioTempKey(null);
     setTouched({});
     setShowConfirmClose(false);
+    setGenerateNotice("");
   };
 
   // Check if form has data
@@ -238,14 +241,25 @@ export default function CreateFlashCardModal({ show, onClose, onSuccess, moduleI
     if (data.synonyms) setSynonyms(data.synonyms);
     if (data.antonyms) setAntonyms(data.antonyms);
 
-    if (data.imageUrl || data.imageTempKey) {
-      setImagePreview(data.imageUrl);
-      setImageTempKey(data.imageTempKey);
-      setImageType(data.imageType);
+    const resolvedImageUrl = data.imageUrl || data.ImageUrl || null;
+    const resolvedImageTempKey = data.imageTempKey || data.ImageTempKey || null;
+    const resolvedImageType = data.imageType || data.ImageType || null;
+    const resolvedAudioUrl = data.audioUrl || data.AudioUrl || null;
+    const resolvedAudioTempKey = data.audioTempKey || data.AudioTempKey || null;
+    const resolvedAudioType = data.audioType || data.AudioType || null;
+
+    if (resolvedImageUrl || resolvedImageTempKey) {
+      setImagePreview(resolvedImageUrl);
+      setImageTempKey(resolvedImageTempKey);
+      setImageType(resolvedImageType);
     }
-    if (data.audioUrl || data.audioTempKey) {
-      setAudioTempKey(data.audioTempKey);
-      setAudioType(data.audioType);
+    if (resolvedAudioUrl || resolvedAudioTempKey) {
+      setAudioPreview(resolvedAudioUrl);
+      setAudioTempKey(resolvedAudioTempKey);
+      setAudioType(resolvedAudioType);
+      setGenerateNotice("");
+    } else {
+      setGenerateNotice("Không có audio từ dịch vụ gen. Bạn có thể tải audio thủ công nếu cần.");
     }
 
     const newData = {
@@ -253,10 +267,10 @@ export default function CreateFlashCardModal({ show, onClose, onSuccess, moduleI
       meaning: data.meaning || "",
       pronunciation: data.pronunciation || "",
       partOfSpeech: data.partOfSpeech || "",
-      imagePreview: data.imageUrl || imagePreview,
-      imageTempKey: data.imageTempKey || imageTempKey,
-      audioPreview: data.audioUrl || audioPreview,
-      audioTempKey: data.audioTempKey || audioTempKey
+      imagePreview: resolvedImageUrl || imagePreview,
+      imageTempKey: resolvedImageTempKey || imageTempKey,
+      audioPreview: resolvedAudioUrl || audioPreview,
+      audioTempKey: resolvedAudioTempKey || audioTempKey
     };
 
     setTouched({
@@ -515,6 +529,7 @@ export default function CreateFlashCardModal({ show, onClose, onSuccess, moduleI
                     )}
                     <input type="file" ref={audioInputRef} onChange={handleAudioChange} style={{ display: 'none' }} accept="audio/*" />
                   </div>
+                  {generateNotice && <div className="text-warning small mt-1">{generateNotice}</div>}
                   {touched.audio && errors.audio && <div className="text-danger small mt-1">{errors.audio}</div>}
                 </Col>
               </Row>
