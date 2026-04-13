@@ -80,7 +80,7 @@ export default function Profile() {
             <div className="profile-container">
                 <Container>
                     <div className="profile-header">
-                        <h1>Thông tin User</h1>
+                        <h1 className="profile-title">Thông Tin cá nhân</h1>
                     </div>
 
                     <div className="profile-card">

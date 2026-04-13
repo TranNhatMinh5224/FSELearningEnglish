@@ -47,6 +47,7 @@ import TeacherQuizEssayManagement from "../Pages/Teacher/TeacherQuizEssayManagem
 import TeacherQuizSectionManagement from "../Pages/Teacher/TeacherQuizSectionManagement/TeacherQuizSectionManagement";
 import TeacherQuestionManagement from "../Pages/Teacher/TeacherQuestionManagement/TeacherQuestionManagement";
 import TeacherSubmissionManagement from "../Pages/Teacher/TeacherSubmissionManagement/TeacherSubmissionManagement";
+import InfoPage from "../Pages/InfoPage/InfoPage";
 
 // Admin Imports
 import AdminLayout from "../Layouts/AdminLayout/AdminLayout";
@@ -156,6 +157,17 @@ export default function AppRoutes() {
         <Route path="submission-management" element={<AdminSubmissionManagement />} />
         <Route path="payment-monitoring" element={<PaymentMonitoring />} />
       </Route>
+
+      {/* Info, Guide, Policy routes */}
+      <Route path={ROUTE_PATHS.ABOUT} element={<InfoPage />} />
+      <Route path={ROUTE_PATHS.FEATURES} element={<InfoPage />} />
+      <Route path={ROUTE_PATHS.GUIDE_BUY_COURSE} element={<InfoPage />} />
+      <Route path={ROUTE_PATHS.GUIDE_UPGRADE_TEACHER} element={<InfoPage />} />
+      <Route path={ROUTE_PATHS.GUIDE_USER_MANUAL} element={<InfoPage />} />
+      <Route path={ROUTE_PATHS.POLICY_PRIVACY} element={<InfoPage />} />
+      <Route path={ROUTE_PATHS.POLICY_REFUND} element={<InfoPage />} />
+      <Route path={ROUTE_PATHS.POLICY_PAYMENT} element={<InfoPage />} />
+      <Route path={ROUTE_PATHS.POLICY_TERMS} element={<InfoPage />} />
     </Routes>
   );
 }

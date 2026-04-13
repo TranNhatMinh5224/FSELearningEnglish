@@ -4,6 +4,7 @@ import { Container } from "react-bootstrap";
 import "./VocabularyReview.css";
 import MainHeader from "../../Components/Header/MainHeader";
 import { flashcardReviewService } from "../../Services/flashcardReviewService";
+import SEO from "../../Components/SEO/SEO";
 
 export default function VocabularyReview() {
     const navigate = useNavigate();
@@ -36,6 +37,11 @@ export default function VocabularyReview() {
 
     return (
         <>
+            <SEO 
+                title="Ôn tập từ vựng - Catalunya English"
+                description="Hệ thống học từ vựng thông minh sử dụng thuật toán Spaced Repetition (Lặp lại ngắt quãng) giúp bạn ghi nhớ từ vựng hiệu quả."
+                keywords="ôn tập từ vựng, flashcards, spaced repetition, học tiếng anh, Catalunya English"
+            />
             <MainHeader />
             <div className="vocabulary-review-container">
                 <Container>

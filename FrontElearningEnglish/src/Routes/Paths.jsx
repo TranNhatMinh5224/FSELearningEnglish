@@ -89,5 +89,16 @@ export const ROUTE_PATHS = {
     ASSET_MANAGEMENT: "/admin/asset-management",
     PAYMENT_MONITORING: "/admin/payment-monitoring",
   },
+
+  // Info, Guide, Policy routes
+  ABOUT: "/about",
+  FEATURES: "/features",
+  GUIDE_BUY_COURSE: "/guide/buy-course",
+  GUIDE_UPGRADE_TEACHER: "/guide/upgrade-teacher",
+  GUIDE_USER_MANUAL: "/guide/user-manual",
+  POLICY_PRIVACY: "/policy/privacy",
+  POLICY_REFUND: "/policy/refund",
+  POLICY_PAYMENT: "/policy/payment",
+  POLICY_TERMS: "/policy/terms",
 };
 

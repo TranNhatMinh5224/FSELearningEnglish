@@ -6,7 +6,8 @@
 }
 
 .profile-header {
-    margin-bottom: 30px;
+    margin-bottom: 40px;
+    text-align: center;
 }
 
 .back-button {
@@ -26,20 +27,40 @@
     opacity: 0.7;
 }
 
-.profile-header h1 {
-    font-size: var(--font-size-3xl, clamp(1.875rem, 1.5rem + 1.875vw, 2.25rem));
-    font-weight: 700;
-    color: var(--color-text-primary, #1f2937);
+.profile-title {
+    font-size: var(--font-size-4xl, clamp(2.5rem, 2rem + 3vw, 3.5rem));
+    font-weight: 900;
+    background: linear-gradient(93deg, #7a3df0 0%, #ec4899 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
     margin: 0;
+    letter-spacing: -1.5px;
+    filter: drop-shadow(0 4px 6px rgba(122, 61, 240, 0.1));
 }
 
 .profile-card {
     background: var(--color-bg-primary, white);
-    border-radius: 20px;
-    padding: 40px;
-    box-shadow: 0 4px 12px var(--shadow-sm, rgba(0, 0, 0, 0.08));
-    max-width: 800px;
+    border-radius: 32px;
+    padding: 60px 40px;
+    box-shadow: 0 25px 50px -12px rgba(122, 61, 240, 0.12);
+    border: 1px solid rgba(122, 61, 240, 0.05);
+    max-width: 850px;
     margin: 0 auto;
+    position: relative;
+    overflow: hidden;
+}
+
+.profile-card::before {
+    content: '';
+    position: absolute;
+    top: -50px;
+    right: -50px;
+    width: 200px;
+    height: 200px;
+    background: radial-gradient(circle, rgba(122, 61, 240, 0.03) 0%, transparent 70%);
+    border-radius: 50%;
+    z-index: 0;
 }
 
 .profile-loading,
@@ -230,13 +251,22 @@
 }
 
 .btn-change-password {
-    background: var(--color-primary-main, #7a3df0);
+    background: linear-gradient(135deg, #7a3df0 0%, #4f46e5 100%);
     color: white;
+    box-shadow: 0 8px 20px rgba(122, 61, 240, 0.3);
 }
 
 .btn-edit-profile {
-    background: var(--color-secondary-cyan, #41d6e3);
+    background: linear-gradient(135deg, #0ea5e9 0%, #2dd4bf 100%);
     color: white;
+    box-shadow: 0 8px 20px rgba(14, 165, 233, 0.3);
+}
+
+.btn-change-password:hover,
+.btn-edit-profile:hover {
+    transform: translateY(-3px) scale(1.02);
+    box-shadow: 0 12px 25px rgba(0, 0, 0, 0.15);
+    opacity: 1;
 }
 
 @media (max-width: 768px) {

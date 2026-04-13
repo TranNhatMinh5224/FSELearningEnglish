@@ -68,6 +68,9 @@ export default function Home() {
 
       <div className="home-container">
         <Container>
+          {/* SEO Helper: Hidden H1 for Search Engines */}
+          <h1 className="visually-hidden">Catalunya English - Nền tảng học Tiếng Anh Online hiệu quả</h1>
+          
           <WelcomeSection displayName={displayName} />
           <div className="mb-4">
             <SearchBox />

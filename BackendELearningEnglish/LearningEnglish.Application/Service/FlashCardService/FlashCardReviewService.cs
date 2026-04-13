@@ -12,10 +12,9 @@ using Microsoft.Extensions.Options;
 
 namespace LearningEnglish.Application.Service
 {
-    /// <summary>
-    /// FlashCard review service following SOLID principles
-    /// Uses shared media service to reduce code duplication (DRY)
-    /// </summary>
+ 
+  
+    
     public class FlashCardReviewService : IFlashCardReviewService
     {
         private readonly IFlashCardReviewRepository _reviewRepository;
@@ -40,7 +39,7 @@ namespace LearningEnglish.Application.Service
             _logger = logger;
             _streakService = streakService;
             _flashCardMediaService = flashCardMediaService;
-            _spacedRepetitionOptions = new SpacedRepetitionOptions(); // Dùng giá trị mặc định thấp để test
+            _spacedRepetitionOptions = new SpacedRepetitionOptions(); 
         }
 
         public async Task<ServiceResponse<ReviewFlashCardResponseDto>> ReviewFlashCardAsync(int userId, ReviewFlashCardDto reviewDto)

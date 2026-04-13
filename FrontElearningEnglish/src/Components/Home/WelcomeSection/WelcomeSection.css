@@ -10,7 +10,8 @@
     text-align: left;
 }
 
-.welcome-section h1 {
+.welcome-section h1,
+.welcome-section h2.welcome-title {
     font-size: var(--font-size-3xl, clamp(1.875rem, 1.5rem + 1.875vw, 2.25rem));
     font-weight: 800;
     margin: 0;
@@ -21,34 +22,39 @@
     align-items: center;
     gap: 8px;
     animation: fadeInDown 0.8s ease-out, gradientShift 4s ease-in-out infinite;
-    background: linear-gradient(135deg, #41d6e3 0%, #d946ef 50%, #41d6e3 100%);
+    
+    /* Robust Gradient Text */
+    background-image: linear-gradient(135deg, #41d6e3 0%, #d946ef 50%, #41d6e3 100%);
     background-size: 300% 300%;
     -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
     background-clip: text;
+    -webkit-text-fill-color: transparent;
+    
     text-shadow: 0 0 40px rgba(65, 214, 227, 0.5), 0 0 80px rgba(217, 70, 239, 0.3);
     letter-spacing: -0.3px;
     filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
-    /* Fallback color cho browsers không support gradient text */
+    /* Fallback color */
     color: var(--color-secondary-cyan, #41d6e3);
 }
 
-/* Dark theme - Tăng độ tương phản và glow effect */
-[data-theme="dark"] .welcome-section h1 {
-    background: linear-gradient(135deg, #6fd5e0 0%, #e879f9 50%, #6fd5e0 100%);
+[data-theme="dark"] .welcome-section h1,
+[data-theme="dark"] .welcome-section h2.welcome-title {
+    background-image: linear-gradient(135deg, #6fd5e0 0%, #e879f9 50%, #6fd5e0 100%);
     background-size: 300% 300%;
     -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
     background-clip: text;
+    -webkit-text-fill-color: transparent;
+    
     text-shadow: 
         0 0 20px rgba(111, 213, 224, 0.8),
         0 0 40px rgba(232, 121, 249, 0.6),
         0 0 60px rgba(111, 213, 224, 0.4);
     filter: drop-shadow(0 2px 8px rgba(111, 213, 224, 0.3));
-    /* Fallback color cho dark theme */
+    /* Fallback color */
     color: #6fd5e0;
 }
 
+.welcome-section .welcome-title::after,
 .welcome-section h1::after {
     content: '✨';
     font-size: 24px;
@@ -59,6 +65,7 @@
 }
 
 /* Dark theme - Tăng glow cho emoji */
+[data-theme="dark"] .welcome-section .welcome-title::after,
 [data-theme="dark"] .welcome-section h1::after {
     filter: 
         drop-shadow(0 0 16px rgba(255, 215, 0, 1)) 
@@ -222,10 +229,12 @@
 
 /* Small Mobile: 576px and below */
 @media (max-width: 576px) {
+    .welcome-section .welcome-title,
     .welcome-section h1 {
         font-size: var(--font-size-2xl, clamp(1.5rem, 1.3rem + 1vw, 1.875rem));
     }
 
+    .welcome-section .welcome-title::after,
     .welcome-section h1::after {
         font-size: var(--font-size-lg, clamp(1.125rem, 1rem + 0.625vw, 1.25rem));
     }

@@ -15,6 +15,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "../../Context/AuthContext";
 import { useAssets } from "../../Context/AssetContext";
 import LoginRequiredModal from "../../Components/Common/LoginRequiredModal/LoginRequiredModal";
+import SEO from "../../Components/SEO/SEO";
 
 export default function MyCourses() {
     const navigate = useNavigate();
@@ -218,14 +219,22 @@ export default function MyCourses() {
 
     return (
         <>
+            <SEO 
+                title="Khóa học của tôi - Catalunya English"
+                description="Quản lý và tiếp tục hành trình học tập các khóa học tiếng Anh của bạn tại Catalunya English."
+                keywords="khóa học của tôi, học tiếng anh online, lộ trình học tập, Catalunya English"
+            />
             <MainHeader />
             <div className="my-courses-container">
                 <Container>
 
+                    {/* SEO Helper: Hidden H1 for Search Engines */}
+                    <h1 className="visually-hidden">Khóa học của tôi - Kho tàng tri thức của {displayName}</h1>
+
                     {/* Welcome Section giống trang chủ */}
                     <Row className="welcome-section g-3 g-md-4 align-items-center mb-4">
                         <Col xs={12} lg={7} className="welcome-section__left d-flex flex-column justify-content-center align-items-start">
-                            <h1>Chào mừng trở lại, {displayName}</h1>
+                            <h2 className="welcome-title">Chào mừng trở lại, {displayName}</h2>
                             <p>Hãy tiếp tục hành trình học tiếng Anh nào.</p>
                         </Col>
                         <Col xs={12} lg={5} className="welcome-section__right d-flex align-items-center justify-content-end">
