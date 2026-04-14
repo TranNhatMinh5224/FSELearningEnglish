@@ -2,6 +2,8 @@ import React from "react";
 import { useNavigate } from "react-router-dom";
 import "./TeacherCourseCard.css";
 import { useAssets } from "../../../Context/AssetContext";
+import { PiGraduationCapDuotone } from "react-icons/pi";
+import ImageWithIconFallback from "../../Common/ImageWithIconFallback/ImageWithIconFallback";
 
 export default function TeacherCourseCard({ course }) {
   const navigate = useNavigate();
@@ -30,13 +32,13 @@ export default function TeacherCourseCard({ course }) {
   return (
     <div className="teacher-course-card" onClick={handleClick}>
       <div className="teacher-course-card-image">
-        {displayImageUrl ? (
-          <img src={displayImageUrl} alt={title} />
-        ) : (
-          <div className="teacher-course-card-placeholder d-flex align-items-center justify-content-center">
-            <span>No Image</span>
-          </div>
-        )}
+        <ImageWithIconFallback
+          imageUrl={imageUrl}
+          fallbackImageUrl={defaultCourseImage}
+          icon={<PiGraduationCapDuotone size={48} />}
+          alt={title}
+          className="teacher-course-img"
+        />
       </div>
       <div className="teacher-course-card-content d-flex flex-column">
         <h3 className="teacher-course-card-title">{title}</h3>

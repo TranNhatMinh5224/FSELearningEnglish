@@ -207,12 +207,20 @@ export default function FlashCardDetail() {
                             </div>
                             <h2 className="completion-title">Hoàn thành Flash Card!</h2>
                             <p className="completion-message">{completionMessage}</p>
-                            <button 
-                                className="completion-back-button"
-                                onClick={handleBackFromCompletion}
-                            >
-                                Trở về
-                            </button>
+                            <div className="completion-actions d-flex gap-3 mt-4">
+                                <button 
+                                    className="completion-back-button secondary"
+                                    onClick={handleBackFromCompletion}
+                                >
+                                    Trở về
+                                </button>
+                                <button 
+                                    className="completion-pronunciation-button"
+                                    onClick={() => navigate(`/course/${courseId}/lesson/${lessonId}/module/${moduleId}/pronunciation`)}
+                                >
+                                    Luyện phát âm ngay
+                                </button>
+                            </div>
                         </div>
                     </Container>
                 </div>
@@ -231,6 +239,7 @@ export default function FlashCardDetail() {
             <div className="flashcard-detail-container">
                 <Container>
                     <Breadcrumb
+                        className="flashcard-detail-breadcrumb"
                         items={[
                             { label: "Khóa học của tôi", path: "/my-courses" },
                             { label: courseTitle, path: `/course/${courseId}` },

@@ -1,11 +1,11 @@
 .my-courses-section {
-    margin-top: var(--padding-container-xl, clamp(2rem, 1.5rem + 2.5vw, 4rem));
+    margin-top: calc(var(--padding-container-xl, clamp(2rem, 1.5rem + 2.5vw, 4rem)) + 2rem);
 }
 
 .my-courses-section h2 {
     font-size: var(--font-size-3xl, clamp(1.875rem, 1.5rem + 1.875vw, 2.25rem));
     font-weight: 800;
-    margin-bottom: var(--spacing-lg, clamp(1rem, 0.8rem + 1vw, 1.5rem));
+    margin-bottom: calc(var(--spacing-lg, clamp(1rem, 0.8rem + 1vw, 1.5rem)) + 1.5rem);
     margin-left: 0;
     position: relative;
     display: inline-flex;
@@ -15,7 +15,7 @@
     padding: var(--spacing-xs, clamp(0.25rem, 0.2rem + 0.25vw, 0.5rem)) var(--spacing-sm, clamp(0.5rem, 0.4rem + 0.5vw, 0.75rem));
     border-radius: var(--radius-md, clamp(0.5rem, 0.4rem + 0.5vw, 0.75rem));
     animation: fadeInLeft 0.8s ease-out;
-    color: var(--color-text-primary, #1f2937);
+    color: #4AD8E3;
     line-height: 1.2;
 }
 
@@ -96,7 +96,6 @@
 
 .my-courses-section h2:hover {
     transform: translateX(clamp(0.375rem, 0.3rem + 0.375vw, 0.5rem)) scale(1.05);
-    color: var(--color-secondary-cyan, #41d6e3);
 }
 
 @keyframes hoverGlow {

@@ -22,7 +22,7 @@
     border-color: #10b981;
     background: #ffffff;
     transform: translateY(-2px) translateX(6px);
-    box-shadow: 
+    box-shadow:
         0 10px 25px -5px rgba(16, 185, 129, 0.1),
         0 8px 10px -6px rgba(0, 0, 0, 0.05);
 }
@@ -59,8 +59,10 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    background: #41d6e3; /* Accent color matching the theme */
+    background: linear-gradient(135deg, #41d6e3 0%, #29b4c0 100%);
     color: white;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1), inset 0 2px 4px rgba(255, 255, 255, 0.3);
+    border-radius: 12px;
 }
 
 .lesson-completed-badge {
@@ -104,7 +106,8 @@
 }
 
 .lesson-order {
-    display: none; /* Removed as per the minimalist UI reference */
+    display: none;
+    /* Removed as per the minimalist UI reference */
 }
 
 .lesson-description {
@@ -128,6 +131,7 @@
         opacity: 0;
         transform: translateY(15px);
     }
+
     to {
         opacity: 1;
         transform: translateY(0);

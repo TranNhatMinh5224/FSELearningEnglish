@@ -263,6 +263,18 @@ namespace LearningEnglish.Application.Service
                 var averageScore = practicedProgresses.Any() 
                     ? practicedProgresses.Average(p => p.AvgPronunciationScore) 
                     : 0;
+                
+                var averageAccuracy = practicedProgresses.Any()
+                    ? practicedProgresses.Average(p => p.AvgAccuracyScore)
+                    : 0;
+                
+                var averageFluency = practicedProgresses.Any()
+                    ? practicedProgresses.Average(p => p.AvgFluencyScore)
+                    : 0;
+                
+                var averageCompleteness = practicedProgresses.Any()
+                    ? practicedProgresses.Average(p => p.AvgCompletenessScore)
+                    : 0;
 
                 // Practice info
                 var lastPracticeDate = practicedProgresses.Any() 
@@ -347,6 +359,9 @@ namespace LearningEnglish.Application.Service
                     MasteredCount = masteredCount,
                     OverallProgress = overallProgress,
                     AverageScore = Math.Round(averageScore, 1),
+                    AverageAccuracyScore = Math.Round(averageAccuracy, 1),
+                    AverageFluencyScore = Math.Round(averageFluency, 1),
+                    AverageCompletenessScore = Math.Round(averageCompleteness, 1),
                     LastPracticeDate = lastPracticeDate,
                     Status = status,
                     Message = message,

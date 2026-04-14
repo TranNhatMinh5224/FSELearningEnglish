@@ -58,13 +58,13 @@ namespace LearningEnglish.Application.Service
                     return response;
                 }
 
-                var isEnrolled = await _courseRepository.IsUserEnrolled(courseId.Value, userId);
-                if (!isEnrolled)
+                var hasAccess = await _courseRepository.HasCourseAccess(courseId.Value, userId);
+                if (!hasAccess)
                 {
                     response.Success = false;
                     response.StatusCode = 403;
                     response.Message = "Bạn cần đăng ký khóa học để xem assessment";
-                    _logger.LogWarning("User {UserId} attempted to list assessments of module {ModuleId} without enrollment in course {CourseId}", 
+                    _logger.LogWarning("User {UserId} attempted to list assessments of module {ModuleId} without access permissions in course {CourseId}", 
                         userId, moduleId, courseId.Value);
                     return response;
                 }
@@ -128,13 +128,13 @@ namespace LearningEnglish.Application.Service
                     return response;
                 }
 
-                var isEnrolled = await _courseRepository.IsUserEnrolled(courseId.Value, userId);
-                if (!isEnrolled)
+                var hasAccess = await _courseRepository.HasCourseAccess(courseId.Value, userId);
+                if (!hasAccess)
                 {
                     response.Success = false;
                     response.StatusCode = 403;
                     response.Message = "Bạn cần đăng ký khóa học để xem assessment này";
-                    _logger.LogWarning("User {UserId} attempted to access assessment {AssessmentId} without enrollment in course {CourseId}", 
+                    _logger.LogWarning("User {UserId} attempted to access assessment {AssessmentId} without access permissions in course {CourseId}", 
                         userId, assessmentId, courseId.Value);
                     return response;
                 }

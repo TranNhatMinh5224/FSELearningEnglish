@@ -12,9 +12,10 @@ import SuccessModal from "../../../Components/Common/SuccessModal/SuccessModal";
 import NotificationModal from "../../../Components/Common/NotificationModal/NotificationModal";
 import ConfirmModal from "../../../Components/Common/ConfirmModal/ConfirmModal";
 import CourseDescription from "../../../Components/Courses/CourseDescription/CourseDescription";
-import ActionButtons from "../../../Components/Common/ActionButtons";
 import AdminLessonCard from "../../../Components/Admin/CourseManagement/AdminLessonCard/AdminLessonCard";
 import { FaPlus } from "react-icons/fa";
+import { PiGraduationCapDuotone } from "react-icons/pi";
+import ImageWithIconFallback from "../../../Components/Common/ImageWithIconFallback/ImageWithIconFallback";
 
 export default function AdminCourseDetail() {
   const { courseId } = useParams();
@@ -196,8 +197,10 @@ export default function AdminCourseDetail() {
           <Col md={4} className="course-info-column">
             <div className="course-info-card">
               <div className="course-image-wrapper">
-                <img
-                  src={courseImage}
+                <ImageWithIconFallback
+                  imageUrl={course.imageUrl || course.ImageUrl}
+                  fallbackImageUrl={getDefaultCourseImage()}
+                  icon={<PiGraduationCapDuotone size={64} />}
                   alt={courseTitle}
                   className="course-image"
                 />

@@ -57,7 +57,7 @@ namespace LearningEnglish.Application.Service
                 if (userId.HasValue)
                 {
                     foreach (var courseDto in courseDtos)
-                        courseDto.IsEnrolled = await _courseRepository.IsUserEnrolled(courseDto.CourseId, userId.Value);
+                        courseDto.IsEnrolled = await _courseRepository.HasCourseAccess(courseDto.CourseId, userId.Value);
                 }
 
                 response.StatusCode = 200;
@@ -113,7 +113,7 @@ namespace LearningEnglish.Application.Service
 
                 if (userId.HasValue)
                 {
-                    courseDto.IsEnrolled = await _courseRepository.IsUserEnrolled(courseId, userId.Value);
+                    courseDto.IsEnrolled = await _courseRepository.HasCourseAccess(courseId, userId.Value);
                     if (courseDto.IsEnrolled)
                     {
                         var courseProgress = await _courseProgressRepository.GetByUserAndCourseAsync(userId.Value, courseId);

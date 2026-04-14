@@ -77,7 +77,7 @@ export default function Home() {
           </div>
           <MyCoursesSection />
 
-          <section className="row g-3 g-md-4">
+          <section className="row g-3 g-md-4 mt-5 pt-4">
             <div className="col-12 col-lg-8">
               <SuggestedCoursesSection />
             </div>

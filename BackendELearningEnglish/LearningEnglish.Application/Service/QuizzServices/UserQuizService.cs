@@ -89,13 +89,13 @@ namespace LearningEnglish.Application.Service
                     return response;
                 }
 
-                var isEnrolled = await _courseRepository.IsUserEnrolled(courseId.Value, userId);
-                if (!isEnrolled)
+                var hasAccess = await _courseRepository.HasCourseAccess(courseId.Value, userId);
+                if (!hasAccess)
                 {
                     response.Success = false;
                     response.StatusCode = 403;
                     response.Message = "Bạn cần đăng ký khóa học để xem Quiz này";
-                    _logger.LogWarning("User {UserId} attempted to access quiz {QuizId} without enrollment", 
+                    _logger.LogWarning("User {UserId} attempted to access quiz {QuizId} without access permissions", 
                         userId, quizId);
                     return response;
                 }
@@ -159,13 +159,13 @@ namespace LearningEnglish.Application.Service
                     return response;
                 }
 
-                var isEnrolled = await _courseRepository.IsUserEnrolled(courseId.Value, userId);
-                if (!isEnrolled)
+                var hasAccess = await _courseRepository.HasCourseAccess(courseId.Value, userId);
+                if (!hasAccess)
                 {
                     response.Success = false;
                     response.StatusCode = 403;
                     response.Message = "Bạn cần đăng ký khóa học để xem các Quiz";
-                    _logger.LogWarning("User {UserId} attempted to list quizzes of assessment {AssessmentId} without enrollment", 
+                    _logger.LogWarning("User {UserId} attempted to list quizzes of assessment {AssessmentId} without access permissions", 
                         userId, assessmentId);
                     return response;
                 }

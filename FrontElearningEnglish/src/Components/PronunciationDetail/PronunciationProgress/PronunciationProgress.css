@@ -1,15 +1,59 @@
 .pronunciation-progress-container {
     display: flex;
     flex-direction: column;
-    justify-content: center;
     align-items: center;
-    margin: 1rem 0;
+    gap: 0.75rem;
+    width: 100%;
+}
+
+.progress-main-row {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 2rem;
+    width: 100%;
+    flex-wrap: wrap;
+    background: #f8fafc;
+    padding: 1rem;
+    border-radius: 12px;
+}
+
+.metrics-container {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    min-width: 200px;
+}
+
+.metric-item {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.metric-label {
+    font-size: 0.875rem;
+    color: #6b7280;
+}
+
+.metric-bar-bg {
+    width: 100%;
+    height: 8px;
+    background-color: #e5e7eb;
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.metric-bar-fill {
+    height: 100%;
+    background-color: #41d6e3;
+    transition: width 0.5s ease;
 }
 
 .progress-circle-wrapper {
     position: relative;
-    width: 140px;
-    height: 140px;
+    width: 90px;
+    height: 90px;
 }
 
 .progress-circle {
@@ -38,26 +82,74 @@
 }
 
 .score-number {
-    font-size: 2.5rem;
-    font-weight: 700;
-    color: #1f2937;
+    font-size: 1.5rem;
+    font-weight: 800;
+    color: #41d6e3;
     line-height: 1;
 }
 
-.progress-feedback-wrapper {
-    margin-top: 0.75rem;
-    text-align: center;
+.score-label {
+    font-size: 0.6rem;
+    color: #94a3b8;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-top: 2px;
+}
+
+/* Detailed Metrics Styles */
+.detailed-metrics {
+    flex: 1;
+    max-width: 250px;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.metric-item {
     width: 100%;
-    max-width: 400px;
-    padding: 0 20px;
+}
+
+.metric-info {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 2px;
+    font-size: 0.8rem;
+}
+
+.metric-label {
+    color: #94a3b8;
+}
+
+.metric-value {
+    font-weight: 600;
+    color: #64748b;
+}
+
+.metric-bar-bg {
+    height: 4px;
+    background: #e2e8f0;
+    border-radius: 2px;
+    overflow: hidden;
+}
+
+.metric-bar-fill {
+    height: 100%;
+    border-radius: 3px;
+    transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.progress-feedback-wrapper {
+    text-align: center;
+    max-width: 500px;
+    background: transparent;
+    padding: 0.25rem;
 }
 
 .score-feedback {
-    font-size: 1rem;
-    color: #1f2937;
+    font-size: 0.875rem;
+    color: #64748b;
     font-weight: 500;
-    line-height: 1.6;
+    line-height: 1.4;
     display: block;
-    word-wrap: break-word;
 }
 

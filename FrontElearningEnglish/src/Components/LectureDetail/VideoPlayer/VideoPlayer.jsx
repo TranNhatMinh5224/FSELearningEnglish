@@ -1,4 +1,4 @@
-import React, { useRef, useState, useCallback } from "react";
+import React, { useRef, useState, useCallback, useEffect } from "react";
 import { FaPlay, FaPause, FaExpand, FaVolumeUp, FaVolumeMute, FaClock } from "react-icons/fa";
 import "./VideoPlayer.css";
 
@@ -18,6 +18,9 @@ export default function VideoPlayer({
     const [isMuted, setIsMuted] = useState(false);
     const [showControls, setShowControls] = useState(true);
     const [isFullscreen, setIsFullscreen] = useState(false);
+
+    const [playbackSpeed, setPlaybackSpeed] = useState(1);
+    const [showSpeedMenu, setShowSpeedMenu] = useState(false);
 
     // Format time to mm:ss
     const formatTime = (seconds) => {
@@ -39,6 +42,42 @@ export default function VideoPlayer({
         }
     }, [isPlaying]);
 
+    // Handle Keyboard Shortcuts
+    useEffect(() => {
+        const handleKeyDown = (e) => {
+            // Only handle if video is in focus or no other input is focused
+            if (document.activeElement.tagName === 'INPUT' || document.activeElement.tagName === 'TEXTAREA') return;
+
+            switch (e.code) {
+                case 'Space':
+                    e.preventDefault();
+                    togglePlay();
+                    break;
+                case 'ArrowLeft':
+                    e.preventDefault();
+                    if (videoRef.current) videoRef.current.currentTime = Math.max(0, videoRef.current.currentTime - 10);
+                    break;
+                case 'ArrowRight':
+                    e.preventDefault();
+                    if (videoRef.current) videoRef.current.currentTime = Math.min(videoDuration, videoRef.current.currentTime + 10);
+                    break;
+                case 'KeyF':
+                    e.preventDefault();
+                    toggleFullscreen();
+                    break;
+                case 'KeyM':
+                    e.preventDefault();
+                    toggleMute();
+                    break;
+                default:
+                    break;
+            }
+        };
+
+        window.addEventListener('keydown', handleKeyDown);
+        return () => window.removeEventListener('keydown', handleKeyDown);
+    }, [togglePlay, videoDuration]);
+
     // Handle time update
     const handleTimeUpdate = useCallback(() => {
         if (videoRef.current) {
@@ -57,8 +96,9 @@ export default function VideoPlayer({
     const handleLoadedMetadata = useCallback(() => {
         if (videoRef.current) {
             setVideoDuration(videoRef.current.duration);
+            videoRef.current.playbackRate = playbackSpeed;
         }
-    }, []);
+    }, [playbackSpeed]);
 
     // Handle video ended
     const handleEnded = useCallback(() => {
@@ -97,24 +137,47 @@ export default function VideoPlayer({
         setIsMuted(newVolume === 0);
     }, []);
 
+    // Handle speed change
+    const handleSpeedChange = (speed) => {
+        if (videoRef.current) {
+            videoRef.current.playbackRate = speed;
+        }
+        setPlaybackSpeed(speed);
+        setShowSpeedMenu(false);
+    };
+
     // Toggle fullscreen
     const toggleFullscreen = useCallback(() => {
         const container = document.querySelector('.video-player-container');
         if (container) {
-            if (!isFullscreen) {
+            if (!document.fullscreenElement) {
                 if (container.requestFullscreen) {
                     container.requestFullscreen();
                 } else if (container.webkitRequestFullscreen) {
                     container.webkitRequestFullscreen();
                 }
+                setIsFullscreen(true);
             } else {
                 if (document.exitFullscreen) {
                     document.exitFullscreen();
                 }
+                setIsFullscreen(false);
             }
-            setIsFullscreen(!isFullscreen);
         }
-    }, [isFullscreen]);
+    }, []);
+
+    // Sync fullscreen state
+    useEffect(() => {
+        const handleFsChange = () => {
+            setIsFullscreen(!!document.fullscreenElement);
+        };
+        document.addEventListener('fullscreenchange', handleFsChange);
+        document.addEventListener('webkitfullscreenchange', handleFsChange);
+        return () => {
+            document.removeEventListener('fullscreenchange', handleFsChange);
+            document.removeEventListener('webkitfullscreenchange', handleFsChange);
+        };
+    }, []);
 
     // Progress percentage
     const progress = videoDuration > 0 ? (currentTime / videoDuration) * 100 : 0;
@@ -132,7 +195,10 @@ export default function VideoPlayer({
         <div
             className={`video-player-container ${isFullscreen ? 'fullscreen' : ''}`}
             onMouseEnter={() => setShowControls(true)}
-            onMouseLeave={() => isPlaying && setShowControls(false)}
+            onMouseLeave={() => {
+                if (isPlaying) setShowControls(false);
+                setShowSpeedMenu(false);
+            }}
         >
             {/* Video Element */}
             <video
@@ -140,6 +206,7 @@ export default function VideoPlayer({
                 className="video-element"
                 src={mediaUrl}
                 onClick={togglePlay}
+                onDoubleClick={toggleFullscreen}
                 onTimeUpdate={handleTimeUpdate}
                 onLoadedMetadata={handleLoadedMetadata}
                 onEnded={handleEnded}
@@ -155,8 +222,24 @@ export default function VideoPlayer({
                 </div>
             )}
 
+            {/* Speed Menu */}
+            {showSpeedMenu && (
+                <div className="speed-menu">
+                    <div className="speed-menu-title">Tốc độ phát</div>
+                    {[0.5, 0.75, 1, 1.25, 1.5, 2].map(speed => (
+                        <div 
+                            key={speed} 
+                            className={`speed-option ${playbackSpeed === speed ? 'active' : ''}`}
+                            onClick={() => handleSpeedChange(speed)}
+                        >
+                            {speed}x
+                        </div>
+                    ))}
+                </div>
+            )}
+
             {/* Controls */}
-            <div className={`video-controls ${showControls ? 'visible' : 'hidden'}`}>
+            <div className={`video-controls ${showControls || !isPlaying ? 'visible' : 'hidden'}`}>
                 {/* Progress bar */}
                 <div className="progress-bar-container" onClick={handleSeek}>
                     <div className="progress-bar-track">
@@ -180,27 +263,39 @@ export default function VideoPlayer({
                         </button>
 
                         {/* Volume */}
-                        <button className="control-btn" onClick={toggleMute}>
-                            {isMuted || volume === 0 ? <FaVolumeMute /> : <FaVolumeUp />}
-                        </button>
-                        <input
-                            type="range"
-                            className="volume-slider"
-                            min="0"
-                            max="1"
-                            step="0.1"
-                            value={isMuted ? 0 : volume}
-                            onChange={handleVolumeChange}
-                        />
+                        <div className="volume-control-group">
+                            <button className="control-btn" onClick={toggleMute}>
+                                {isMuted || volume === 0 ? <FaVolumeMute /> : <FaVolumeUp />}
+                            </button>
+                            <input
+                                type="range"
+                                className="volume-slider"
+                                min="0"
+                                max="1"
+                                step="0.1"
+                                value={isMuted ? 0 : volume}
+                                onChange={handleVolumeChange}
+                            />
+                        </div>
 
                         {/* Time display */}
                         <span className="time-display">
-                            <FaClock className="time-icon" />
                             {formatTime(currentTime)} / {formatTime(videoDuration)}
                         </span>
                     </div>
 
                     <div className="controls-right">
+                        {/* Speed Selector */}
+                        <button 
+                            className={`control-btn speed-btn ${showSpeedMenu ? 'active' : ''}`} 
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                setShowSpeedMenu(!showSpeedMenu);
+                            }}
+                        >
+                            {playbackSpeed}x
+                        </button>
+
                         {/* Fullscreen */}
                         <button className="control-btn" onClick={toggleFullscreen}>
                             <FaExpand />
@@ -210,7 +305,7 @@ export default function VideoPlayer({
             </div>
 
             {/* Video title overlay */}
-            {title && showControls && (
+            {title && (showControls || !isPlaying) && (
                 <div className="video-title-overlay">
                     {title}
                 </div>

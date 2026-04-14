@@ -29,60 +29,22 @@
   position: relative;
 }
 
-.teacher-course-card-image img {
+.teacher-course-img {
   width: 100%;
   height: 100%;
   object-fit: cover;
   transition: transform 0.5s ease;
+  background-color: #f8fafc !important; /* Flat light background */
 }
 
-.teacher-course-card:hover .teacher-course-card-image img {
+/* Fallback Icon Style (Flat Minimalist) */
+.teacher-course-img svg {
+  color: #6366f1 !important; /* Indigo icon */
+  opacity: 0.9;
+}
+
+.teacher-course-card:hover .teacher-course-img img {
   transform: scale(1.1);
-}
-
-/* Bootstrap utilities: d-flex, align-items-center, justify-content-center */
-.teacher-course-card-placeholder {
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(135deg, #41d6e3 0%, #6fd5e0 50%, #d946ef 100%);
-  background-size: 200% 200%;
-  animation: gradientShift 8s ease infinite;
-  color: white;
-  font-size: 56px;
-  position: relative;
-}
-
-.teacher-course-card-placeholder::before {
-  content: "";
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  width: 80px;
-  height: 80px;
-  background: rgba(255, 255, 255, 0.2);
-  border-radius: 50%;
-  backdrop-filter: blur(10px);
-}
-
-.teacher-course-card-placeholder img {
-  width: 60px;
-  height: 60px;
-  object-fit: contain;
-  position: relative;
-  z-index: 1;
-}
-
-@keyframes gradientShift {
-
-  0%,
-  100% {
-    background-position: 0% 50%;
-  }
-
-  50% {
-    background-position: 100% 50%;
-  }
 }
 
 /* Bootstrap utilities: d-flex, flex-column */

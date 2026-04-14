@@ -20,6 +20,8 @@ import NotificationModal from "../../../Components/Common/NotificationModal/Noti
 import ConfirmModal from "../../../Components/Common/ConfirmModal/ConfirmModal";
 import ActionButtons from "../../../Components/Common/ActionButtons";
 import { FaPlus, FaEdit } from "react-icons/fa";
+import { PiBookOpenFill, PiLayoutDuotone, PiCardsDuotone, PiExamDuotone } from "react-icons/pi";
+import ImageWithIconFallback from "../../../Components/Common/ImageWithIconFallback/ImageWithIconFallback";
 
 export default function AdminLessonDetail() {
   const { courseId, lessonId } = useParams();
@@ -322,8 +324,10 @@ export default function AdminLessonDetail() {
             <Col md={4} className="lesson-info-column">
               <div className="lesson-info-card">
                 <div className="lesson-image-wrapper">
-                  <img
-                    src={lessonImage}
+                  <ImageWithIconFallback
+                    imageUrl={lesson.imageUrl || lesson.ImageUrl}
+                    fallbackImageUrl={getDefaultLessonImage()}
+                    icon={<PiBookOpenFill size={64} />}
                     alt={lessonTitle}
                     className="lesson-image-main"
                   />
@@ -685,10 +689,17 @@ export default function AdminLessonDetail() {
                           style={{ cursor: isClickable(contentTypeNum) ? 'pointer' : 'default' }}
                         >
                           <div className="module-item-content">
-                            <img
-                              src={moduleImage}
+                            <ImageWithIconFallback
+                              imageUrl={module.imageUrl || module.ImageUrl}
+                              icon={(() => {
+                                if (isLecture(contentTypeNum)) return <PiLayoutDuotone size={24} />;
+                                if (isFlashCard(contentTypeNum)) return <PiCardsDuotone size={24} />;
+                                if (isAssessment(contentTypeNum)) return <PiExamDuotone size={24} />;
+                                return <PiLayoutDuotone size={24} />;
+                              })()}
                               alt={moduleName}
                               className="module-image"
+                              iconClassName={`module-icon-wrapper ${isLecture(contentTypeNum) ? 'lecture' : isFlashCard(contentTypeNum) ? 'flashcard' : isAssessment(contentTypeNum) ? 'assessment' : ''}`}
                             />
                             <div className="module-info">
                               <span className="module-name">{moduleName}</span>

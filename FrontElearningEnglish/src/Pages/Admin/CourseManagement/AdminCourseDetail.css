@@ -80,6 +80,12 @@
   width: 100%;
   height: 100%;
   object-fit: cover;
+  background-color: #f8fafc !important;
+}
+
+.course-image svg {
+  color: #6366f1 !important;
+  opacity: 0.8;
 }
 
 .featured-badge {

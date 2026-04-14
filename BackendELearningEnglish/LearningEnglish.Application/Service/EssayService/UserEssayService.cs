@@ -85,13 +85,13 @@ namespace LearningEnglish.Application.Service.EssayService
                     return response;
                 }
 
-                var isEnrolled = await _courseRepository.IsUserEnrolled(courseId.Value, userId);
-                if (!isEnrolled)
+                var hasAccess = await _courseRepository.HasCourseAccess(courseId.Value, userId);
+                if (!hasAccess)
                 {
                     response.Success = false;
                     response.StatusCode = 403;
                     response.Message = "Bạn cần đăng ký khóa học để xem Essay này";
-                    _logger.LogWarning("User {UserId} attempted to access essay {EssayId} without enrollment", 
+                    _logger.LogWarning("User {UserId} attempted to access essay {EssayId} without access permissions", 
                         userId, essayId);
                     return response;
                 }
@@ -166,13 +166,13 @@ namespace LearningEnglish.Application.Service.EssayService
                     return response;
                 }
 
-                var isEnrolled = await _courseRepository.IsUserEnrolled(courseId.Value, userId);
-                if (!isEnrolled)
+                var hasAccess = await _courseRepository.HasCourseAccess(courseId.Value, userId);
+                if (!hasAccess)
                 {
                     response.Success = false;
                     response.StatusCode = 403;
                     response.Message = "Bạn cần đăng ký khóa học để xem các Essay";
-                    _logger.LogWarning("User {UserId} attempted to list essays of assessment {AssessmentId} without enrollment", 
+                    _logger.LogWarning("User {UserId} attempted to list essays of assessment {AssessmentId} without access permissions", 
                         userId, assessmentId);
                     return response;
                 }

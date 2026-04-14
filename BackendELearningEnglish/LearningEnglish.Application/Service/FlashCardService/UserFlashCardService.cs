@@ -89,13 +89,13 @@ namespace LearningEnglish.Application.Service
                     return response;
                 }
 
-                var isEnrolled = await _courseRepository.IsUserEnrolled(courseId.Value, userId);
-                if (!isEnrolled)
+                var hasAccess = await _courseRepository.HasCourseAccess(courseId.Value, userId);
+                if (!hasAccess)
                 {
                     response.Success = false;
                     response.StatusCode = 403;
                     response.Message = "Bạn cần đăng ký khóa học để xem flashcard này";
-                    _logger.LogWarning("User {UserId} attempted to access flashcard {FlashCardId} without enrollment in course {CourseId}", 
+                    _logger.LogWarning("User {UserId} attempted to access flashcard {FlashCardId} without access permissions in course {CourseId}", 
                         userId, flashCardId, courseId.Value);
                     return response;
                 }
@@ -143,13 +143,13 @@ namespace LearningEnglish.Application.Service
                     return response;
                 }
 
-                var isEnrolled = await _courseRepository.IsUserEnrolled(courseId.Value, userId);
-                if (!isEnrolled)
+                var hasAccess = await _courseRepository.HasCourseAccess(courseId.Value, userId);
+                if (!hasAccess)
                 {
                     response.Success = false;
                     response.StatusCode = 403;
                     response.Message = "Bạn cần đăng ký khóa học để xem flashcard";
-                    _logger.LogWarning("User {UserId} attempted to list flashcards of module {ModuleId} without enrollment in course {CourseId}", 
+                    _logger.LogWarning("User {UserId} attempted to list flashcards of module {ModuleId} without access permissions in course {CourseId}", 
                         userId, moduleId, courseId.Value);
                     return response;
                 }

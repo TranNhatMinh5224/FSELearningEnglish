@@ -23,6 +23,7 @@ export default function PronunciationDetail() {
     const [error, setError] = useState("");
     const [summary, setSummary] = useState(null);
     const [showSummary, setShowSummary] = useState(false);
+    const [sessionResults, setSessionResults] = useState({}); // Tracking results for this specific session
 
     useEffect(() => {
     }, [courseId, lessonId, moduleId]);
@@ -141,7 +142,16 @@ export default function PronunciationDetail() {
     };
 
     const handleAssessmentComplete = async (assessmentResult) => {
-        // Reload flashcards to update progress
+        // Record result for this session
+        if (assessmentResult && currentFlashcard) {
+            const cardId = currentFlashcard.flashCardId || currentFlashcard.FlashCardId;
+            setSessionResults(prev => ({
+                ...prev,
+                [cardId]: assessmentResult
+            }));
+        }
+
+        // Reload data from backend to update persistent progress
         try {
             const flashcardsResponse = await pronunciationService.getByModule(moduleId);
             if (flashcardsResponse.data?.success && flashcardsResponse.data?.data) {
@@ -159,15 +169,42 @@ export default function PronunciationDetail() {
     };
 
     const handleComplete = async () => {
-        // Reload summary before showing
-        try {
-            const summaryResponse = await pronunciationService.getModuleSummary(moduleId);
-            if (summaryResponse.data?.success && summaryResponse.data?.data) {
-                setSummary(summaryResponse.data.data);
-            }
-        } catch (err) {
-            console.error("Error loading summary:", err);
+        // Calculate session-based summary instead of using backend lifetime summary
+        const practicedInSession = Object.keys(sessionResults);
+        
+        if (practicedInSession.length > 0) {
+            const results = Object.values(sessionResults);
+            
+            const count = results.length;
+            const avgScore = results.reduce((acc, r) => acc + (r.PronunciationScore || r.pronunciationScore || 0), 0) / count;
+            const avgAccuracy = results.reduce((acc, r) => acc + (r.AccuracyScore || r.accuracyScore || 0), 0) / count;
+            const avgFluency = results.reduce((acc, r) => acc + (r.FluencyScore || r.fluencyScore || 0), 0) / count;
+            const avgCompleteness = results.reduce((acc, r) => acc + (r.CompletenessScore || r.completenessScore || 0), 0) / count;
+            
+            // Determine grade for this session
+            let grade = "F";
+            let message = "Cố gắng luyện tập thêm nhé!";
+            
+            if (avgScore >= 95) { grade = "A+"; message = "🌟 Session xuất sắc! Bạn phát âm rất chuẩn."; }
+            else if (avgScore >= 90) { grade = "A"; message = "🎉 Session tuyệt vời! Tiếp tục phát huy nhé."; }
+            else if (avgScore >= 80) { grade = "B"; message = "👍 Session khá tốt! Cố lên chút nữa để đạt A."; }
+            else if (avgScore >= 70) { grade = "C"; message = "📚 Session đạt mức khá. Cần trau chuốt thêm."; }
+            else if (avgScore >= 60) { grade = "D"; message = "💪 Session này tạm ổn, hãy nghe kỹ lại phát âm chuẩn."; }
+
+            setSummary({
+                totalFlashCards: flashcards.length,
+                totalPracticed: count,
+                masteredCount: results.filter(r => (r.PronunciationScore || r.pronunciationScore || 0) >= 90).length,
+                averageScore: avgScore,
+                averageAccuracyScore: avgAccuracy,
+                averageFluencyScore: avgFluency,
+                averageCompletenessScore: avgCompleteness,
+                grade: grade,
+                message: message,
+                isSessionRecent: true
+            });
         }
+        
         setShowSummary(true);
     };
 
@@ -210,6 +247,7 @@ export default function PronunciationDetail() {
             <div className="pronunciation-detail-container">
                 <Container>
                     <Breadcrumb 
+                        className="pronunciation-breadcrumb"
                         items={[
                             { label: "Khóa học của tôi", path: "/my-courses" },
                             { label: course?.title || "Khóa học", path: `/course/${courseId}` },
@@ -248,7 +286,9 @@ export default function PronunciationDetail() {
                         <Row className="justify-content-center">
                             <Col lg={8}>
                                 <div className="pronunciation-summary">
-                                    <h2 className="summary-title">Kết quả luyện phát âm</h2>
+                                    <h2 className="summary-title">
+                                        {summary.isSessionRecent ? "Kết quả lượt vừa luyện" : "Kết quả luyện phát âm"}
+                                    </h2>
                                     <Row className="summary-stats g-3">
                                         <Col xs={6} md={4} lg={3} className="stat-item">
                                             <div className="stat-value">{summary.totalFlashCards || 0}</div>
@@ -256,15 +296,29 @@ export default function PronunciationDetail() {
                                         </Col>
                                         <Col xs={6} md={4} lg={3} className="stat-item">
                                             <div className="stat-value">{summary.totalPracticed || 0}</div>
-                                            <div className="stat-label">Đã luyện</div>
+                                            <div className="stat-label">Từ đã luyện</div>
                                         </Col>
                                         <Col xs={6} md={4} lg={3} className="stat-item">
                                             <div className="stat-value">{summary.masteredCount || 0}</div>
-                                            <div className="stat-label">Đã thuộc</div>
+                                            <div className="stat-label">Phát âm chuẩn</div>
                                         </Col>
                                         <Col xs={6} md={4} lg={3} className="stat-item">
                                             <div className="stat-value">{summary.averageScore?.toFixed(1) || 0}</div>
                                             <div className="stat-label">Điểm trung bình</div>
+                                        </Col>
+                                        
+                                        {/* New Detailed Stats */}
+                                        <Col xs={6} md={4} lg={3} className="stat-item detail-stat">
+                                            <div className="stat-value accuracy">{summary.averageAccuracyScore?.toFixed(1) || 0}%</div>
+                                            <div className="stat-label">Độ chính xác</div>
+                                        </Col>
+                                        <Col xs={6} md={4} lg={3} className="stat-item detail-stat">
+                                            <div className="stat-value fluency">{summary.averageFluencyScore?.toFixed(1) || 0}%</div>
+                                            <div className="stat-label">Độ trôi chảy</div>
+                                        </Col>
+                                        <Col xs={6} md={4} lg={3} className="stat-item detail-stat">
+                                            <div className="stat-value completeness">{summary.averageCompletenessScore?.toFixed(1) || 0}%</div>
+                                            <div className="stat-label">Độ hoàn thiện</div>
                                         </Col>
                                     </Row>
                                     <div className="summary-grade d-flex align-items-center justify-content-center gap-3">
@@ -277,7 +331,11 @@ export default function PronunciationDetail() {
                                     <div className="summary-actions d-flex justify-content-center">
                                         <Button
                                             variant="outline-primary"
-                                            onClick={() => setShowSummary(false)}
+                                            onClick={() => {
+                                                setShowSummary(false);
+                                                setSessionResults({});
+                                                setCurrentIndex(0);
+                                            }}
                                             className="summary-action-button me-2"
                                         >
                                             Luyện lại

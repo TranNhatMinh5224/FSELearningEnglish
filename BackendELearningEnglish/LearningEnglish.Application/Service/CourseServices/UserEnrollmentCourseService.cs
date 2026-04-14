@@ -93,6 +93,24 @@ namespace LearningEnglish.Application.Service
                     return response;
                 }
 
+                // Chặn giáo viên đăng ký vào khóa học của chính mình
+                if (course.TeacherId == userId)
+                {
+                    response.Success = false;
+                    response.StatusCode = 403;
+                    response.Message = "Bạn là giáo viên của khóa học này nên không cần đăng ký.";
+                    return response;
+                }
+
+                // Chặn quản trị viên đăng ký vào khóa học hệ thống
+                if (course.Type == CourseType.System && await _userRepository.IsSuperAdminAsync(userId))
+                {
+                    response.Success = false;
+                    response.StatusCode = 403;
+                    response.Message = "Bạn là quản trị viên hệ thống nên không cần đăng ký khóa học này.";
+                    return response;
+                }
+
                 // Kiểm tra thanh toán cho TẤT CẢ course có phí (cả System và Teacher)
                 // Chỉ course MIỄN PHÍ (Price = 0 hoặc null) mới skip payment check
                 if (course.Price > 0)
@@ -228,6 +246,24 @@ namespace LearningEnglish.Application.Service
                     response.Success = false;
                     response.StatusCode = 400;
                     response.Message = "Bạn đã đăng ký khóa học này rồi";
+                    return response;
+                }
+
+                // Chặn giáo viên đăng ký vào khóa học của chính mình qua mã lớp
+                if (course.TeacherId == userId)
+                {
+                    response.Success = false;
+                    response.StatusCode = 403;
+                    response.Message = "Bạn là giáo viên của khóa học này nên không cần đăng ký.";
+                    return response;
+                }
+
+                // Chặn quản trị viên đăng ký vào khóa học hệ thống qua mã lớp
+                if (course.Type == CourseType.System && await _userRepository.IsSuperAdminAsync(userId))
+                {
+                    response.Success = false;
+                    response.StatusCode = 403;
+                    response.Message = "Bạn là quản trị viên hệ thống nên không cần đăng ký khóa học này.";
                     return response;
                 }
 

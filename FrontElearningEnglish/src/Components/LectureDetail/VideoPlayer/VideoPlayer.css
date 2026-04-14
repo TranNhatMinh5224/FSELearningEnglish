@@ -168,34 +168,83 @@
     color: #41d6e3;
 }
 
-/* Volume Slider */
+/* Volume Control Group */
+.volume-control-group {
+    display: flex;
+    align-items: center;
+    gap: 0;
+}
+
+.volume-control-group:hover .volume-slider {
+    width: 60px;
+    opacity: 1;
+    margin-left: 8px;
+}
+
 .volume-slider {
-    width: 80px;
+    width: 0;
+    opacity: 0;
     height: 4px;
     -webkit-appearance: none;
     appearance: none;
     background: rgba(255, 255, 255, 0.3);
     border-radius: 2px;
     cursor: pointer;
+    transition: all 0.3s ease;
 }
 
-.volume-slider::-webkit-slider-thumb {
-    -webkit-appearance: none;
-    appearance: none;
-    width: 12px;
-    height: 12px;
-    background: #41d6e3;
-    border-radius: 50%;
-    cursor: pointer;
+/* Speed Menu */
+.speed-menu {
+    position: absolute;
+    bottom: 70px;
+    right: 16px;
+    background: rgba(28, 28, 28, 0.95);
+    backdrop-filter: blur(10px);
+    border-radius: 12px;
+    padding: 8px 0;
+    min-width: 140px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    z-index: 100;
 }
 
-.volume-slider::-moz-range-thumb {
-    width: 12px;
-    height: 12px;
-    background: #41d6e3;
-    border-radius: 50%;
+.speed-menu-title {
+    padding: 8px 16px;
+    font-size: 12px;
+    font-weight: 600;
+    color: #9ca3af;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    margin-bottom: 4px;
+}
+
+.speed-option {
+    padding: 8px 16px;
+    font-size: 14px;
+    color: white;
     cursor: pointer;
-    border: none;
+    transition: all 0.2s ease;
+}
+
+.speed-option:hover {
+    background: rgba(65, 214, 227, 0.15);
+    color: #41d6e3;
+}
+
+.speed-option.active {
+    color: #41d6e3;
+    font-weight: 600;
+    background: rgba(65, 214, 227, 0.1);
+}
+
+.speed-btn {
+    font-size: 13px !important;
+    font-weight: 600 !important;
+    min-width: 44px;
+}
+
+.control-btn.active {
+    color: #41d6e3;
+    background: rgba(65, 214, 227, 0.15);
 }
 
 /* Time Display */
@@ -203,15 +252,7 @@
     color: rgba(255, 255, 255, 0.9);
     font-size: 13px;
     font-weight: 500;
-    display: flex;
-    align-items: center;
-    gap: 6px;
     white-space: nowrap;
-}
-
-.time-icon {
-    font-size: 11px;
-    opacity: 0.7;
 }
 
 /* Video Title Overlay */
@@ -220,11 +261,12 @@
     top: 0;
     left: 0;
     right: 0;
-    padding: 16px;
-    background: linear-gradient(rgba(0, 0, 0, 0.7), transparent);
+    padding: 20px 16px;
+    background: linear-gradient(rgba(0, 0, 0, 0.8), transparent);
     color: white;
-    font-size: 14px;
+    font-size: 15px;
     font-weight: 600;
+    transition: opacity 0.3s ease;
 }
 
 /* Empty State */
@@ -273,5 +315,10 @@
         width: 60px;
         height: 60px;
         font-size: 22px;
+    }
+
+    .speed-menu {
+        bottom: 60px;
+        right: 8px;
     }
 }

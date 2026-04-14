@@ -1,7 +1,9 @@
 import React from "react";
 import { Pagination } from "react-bootstrap";
 import { MdEdit, MdDelete, MdVisibility, MdMenuBook } from "react-icons/md";
+import { PiGraduationCapDuotone } from "react-icons/pi";
 import { useAssets } from "../../../../Context/AssetContext";
+import ImageWithIconFallback from "../../../Common/ImageWithIconFallback/ImageWithIconFallback";
 import "./CourseTable.css";
 
 export default function CourseTable({ 
@@ -71,17 +73,13 @@ export default function CourseTable({
                 >
                   <td>
                     <div className="course-info">
-                      {(course.imageUrl || defaultCourseImage) ? (
-                        <img 
-                          src={course.imageUrl || defaultCourseImage} 
-                          alt="Course" 
-                          className="course-thumbnail"
-                        />
-                      ) : (
-                        <div className="course-thumbnail-placeholder">
-                          <MdMenuBook size={20} />
-                        </div>
-                      )}
+                      <ImageWithIconFallback
+                        imageUrl={course.imageUrl}
+                        fallbackImageUrl={defaultCourseImage}
+                        icon={<PiGraduationCapDuotone size={24} />}
+                        alt="Course"
+                        className="course-thumbnail"
+                      />
                       <div className="course-details">
                         <div className="table-course-title">{course.title}</div>
                       </div>

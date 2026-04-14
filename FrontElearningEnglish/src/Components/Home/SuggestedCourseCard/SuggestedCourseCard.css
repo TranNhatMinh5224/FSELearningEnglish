@@ -130,6 +130,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
+    transition: all 0.3s ease;
 }
 
 .suggested-course-card .course-image-wrapper::after {

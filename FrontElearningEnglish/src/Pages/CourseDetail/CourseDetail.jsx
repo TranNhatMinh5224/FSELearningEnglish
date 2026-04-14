@@ -113,12 +113,14 @@ export default function CourseDetail() {
                 });
             } else {
                 setIsProcessing(false);
+                setShowEnrollmentModal(false); // Close enrollment modal before showing error
                 const errorMsg = paymentResponse.data?.message || "Không thể đăng ký khóa học. Vui lòng thử lại.";
                 setErrorMessage(errorMsg);
                 setShowErrorModal(true);
             }
         } catch (err) {
             setIsProcessing(false);
+            setShowEnrollmentModal(false); // Close enrollment modal before showing error
             console.error("Error enrolling:", err);
             const errorMsg = err.response?.data?.message || "Không thể đăng ký khóa học. Vui lòng thử lại.";
             setErrorMessage(errorMsg);

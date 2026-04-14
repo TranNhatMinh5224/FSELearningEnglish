@@ -57,6 +57,13 @@
   width: 100%;
   height: 100%;
   object-fit: cover;
+  /* Solid 3D Style for Lesson Main Image */
+  background: linear-gradient(145deg, #41d6e3, #2bb5c2) !important;
+}
+
+.lesson-image-main svg {
+  color: white !important;
+  filter: drop-shadow(0 4px 8px rgba(0,0,0,0.15));
 }
 
 .lesson-info-content {
@@ -166,12 +173,38 @@
 }
 
 .module-image {
-  width: 60px;
-  height: 60px;
+  width: 64px;
+  height: 64px;
   object-fit: cover;
-  border-radius: 8px;
-  border: 2px solid #e2e8f0;
-  flex-shrink: 0;
+  border-radius: 16px;
+  /* Premium Soft Tint Backgrounds */
+  background-color: #f8fafc !important;
+}
+
+/* Module Fallback Icon Overrides */
+.module-image svg {
+    font-size: 28px !important;
+}
+
+.module-icon-wrapper.lecture {
+    background: linear-gradient(135deg, #e0f2fe 0%, #bae6fd 100%) !important;
+}
+.module-icon-wrapper.lecture svg {
+    color: #0284c7 !important;
+}
+
+.module-icon-wrapper.flashcard {
+    background: linear-gradient(135deg, #f3e8ff 0%, #e9d5ff 100%) !important;
+}
+.module-icon-wrapper.flashcard svg {
+    color: #9333ea !important;
+}
+
+.module-icon-wrapper.assessment {
+    background: linear-gradient(135deg, #fce7f3 0%, #fbcfe8 100%) !important;
+}
+.module-icon-wrapper.assessment svg {
+    color: #db2777 !important;
 }
 
 .module-info {

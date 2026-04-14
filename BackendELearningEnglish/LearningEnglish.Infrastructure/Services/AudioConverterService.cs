@@ -11,8 +11,7 @@ namespace LearningEnglish.Infrastructure.Services
         public AudioConverterService(ILogger<AudioConverterService> logger)
         {
             _logger = logger;
-            // Initialize FFmpeg executable path - looks in PATH by default
-            // On some systems you might need: FFmpeg.SetExecutablesPath("/usr/bin");
+
         }
 
         public string DetectAudioFormat(string fileName)

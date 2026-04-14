@@ -10,6 +10,9 @@ export default function MyCoursesSection({ courses = [] }) {
     const [showLeftButton, setShowLeftButton] = useState(false);
     const [showRightButton, setShowRightButton] = useState(true);
 
+    const [isPaused, setIsPaused] = useState(false);
+    const scrollIntervalRef = useRef(null);
+
     // Derived state: Filter featured courses
     const displayCourses = React.useMemo(() => {
         if (systemCourses && systemCourses.length > 0) {
@@ -60,9 +63,30 @@ export default function MyCoursesSection({ courses = [] }) {
         const gap = 28;
         const scrollDistance = (cardWidth * 2) + gap;
         const maxScroll = container.scrollWidth - container.clientWidth;
-        const newScrollLeft = Math.min(maxScroll, container.scrollLeft + scrollDistance);
-        container.scrollTo({ left: newScrollLeft, behavior: 'smooth' });
+        
+        // Loop logic: If at the end, go back to start
+        if (container.scrollLeft + container.clientWidth >= container.scrollWidth - 10) {
+            container.scrollTo({ left: 0, behavior: 'smooth' });
+        } else {
+            const newScrollLeft = Math.min(maxScroll, container.scrollLeft + scrollDistance);
+            container.scrollTo({ left: newScrollLeft, behavior: 'smooth' });
+        }
     };
+
+    // Auto-scroll logic
+    useEffect(() => {
+        if (!isPaused && displayCourses.length > 3) {
+            scrollIntervalRef.current = setInterval(() => {
+                handleScrollRight();
+            }, 2000);
+        }
+
+        return () => {
+            if (scrollIntervalRef.current) {
+                clearInterval(scrollIntervalRef.current);
+            }
+        };
+    }, [isPaused, displayCourses.length]);
 
     useEffect(() => {
         const timer = setTimeout(() => {
@@ -91,7 +115,13 @@ export default function MyCoursesSection({ courses = [] }) {
                             <FaChevronLeft />
                         </button>
                     )}
-                    <div className="course-grid" ref={scrollContainerRef} onScroll={checkScrollPosition}>
+                    <div 
+                        className="course-grid" 
+                        ref={scrollContainerRef} 
+                        onScroll={checkScrollPosition}
+                        onMouseEnter={() => setIsPaused(true)}
+                        onMouseLeave={() => setIsPaused(false)}
+                    >
                         {displayCourses.map((course, index) => (
                             <CourseCard key={course.id || index} course={course} />
                         ))}

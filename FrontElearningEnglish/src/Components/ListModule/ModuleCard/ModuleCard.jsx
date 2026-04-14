@@ -1,11 +1,12 @@
 import React from "react";
 import { FaMicrophone } from "react-icons/fa";
 import {
-    FaBookOpen,
-    FaFileAlt,
-    FaEdit
-} from "react-icons/fa";
+    PiBookOpenDuotone,
+    PiCardsDuotone,
+    PiClipboardTextDuotone
+} from "react-icons/pi";
 import ImageWithIconFallback from "../../Common/ImageWithIconFallback/ImageWithIconFallback";
+import { APP_CONSTANTS } from "../../../config/constants";
 import "./ModuleCard.css";
 
 export default function ModuleCard({ module, onClick, onPronunciationClick }) {
@@ -34,16 +35,29 @@ export default function ModuleCard({ module, onClick, onPronunciationClick }) {
     const getIconConfig = (type, typeName) => {
         const typeLower = (typeName || "").toLowerCase();
         if (type === 1 || typeLower.includes("lecture")) {
-            return { icon: <FaBookOpen />, className: "lecture" };
+            return { icon: <PiBookOpenDuotone />, className: "lecture" };
         } else if (type === 2 || typeLower.includes("flashcard") || typeLower.includes("flash")) {
-            return { icon: <FaFileAlt />, className: "flashcard" };
+            return { icon: <PiCardsDuotone />, className: "flashcard" };
         } else if (type === 3 || typeLower.includes("assessment") || typeLower.includes("assignment") || typeLower.includes("essay")) {
-            return { icon: <FaEdit />, className: "assignment" };
+            return { icon: <PiClipboardTextDuotone />, className: "assignment" };
         }
-        return { icon: <FaBookOpen />, className: "lecture" };
+        return { icon: <PiBookOpenDuotone />, className: "lecture" };
     };
 
     const iconConfig = getIconConfig(finalContentType, finalContentTypeName);
+
+    // Get fallback image based on content type
+    const getFallbackImage = (type, typeName) => {
+        const typeLower = (typeName || "").toLowerCase();
+        if (type === 2 || typeLower.includes("flashcard") || typeLower.includes("flash")) {
+            return APP_CONSTANTS.DEFAULT_FLASHCARD_IMAGE;
+        } else if (type === 3 || typeLower.includes("assessment") || typeLower.includes("assignment") || typeLower.includes("essay")) {
+            return APP_CONSTANTS.DEFAULT_ASSESSMENT_IMAGE;
+        }
+        return APP_CONSTANTS.DEFAULT_LECTURE_IMAGE;
+    };
+
+    const fallbackImage = getFallbackImage(finalContentType, finalContentTypeName);
 
     // Handle card click - navigate to module content
     const handleCardClick = (e) => {
@@ -77,6 +91,7 @@ export default function ModuleCard({ module, onClick, onPronunciationClick }) {
                 <ImageWithIconFallback
                     imageUrl={imageUrl}
                     ImageUrl={ImageUrl}
+                    fallbackImageUrl={fallbackImage}
                     icon={<div className={`module-icon ${iconConfig.className}`}>{iconConfig.icon}</div>}
                     alt={finalName}
                     className={`module-image ${iconConfig.className}`}

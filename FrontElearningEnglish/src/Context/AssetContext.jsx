@@ -56,6 +56,30 @@ export const AssetProvider = ({ children }) => {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []); // Empty dependency - chỉ chạy 1 lần khi mount
 
+    // Cập nhật Dynamic Favicon khi Logo thay đổi
+    useEffect(() => {
+        const logoUrl = assets.find(asset => asset.assetType === 1)?.imageUrl;
+        if (logoUrl) {
+            // Cập nhật favicon tiêu chuẩn
+            let link = document.querySelector("link[rel*='icon']");
+            if (!link) {
+                link = document.createElement('link');
+                link.rel = 'icon';
+                document.head.appendChild(link);
+            }
+            link.href = logoUrl;
+
+            // Cập nhật apple-touch-icon (cho thiết bị iOS)
+            let appleLink = document.querySelector("link[rel='apple-touch-icon']");
+            if (!appleLink) {
+                appleLink = document.createElement('link');
+                appleLink.rel = 'apple-touch-icon';
+                document.head.appendChild(appleLink);
+            }
+            appleLink.href = logoUrl;
+        }
+    }, [assets]);
+
     // Helper functions
     const getAssetById = (id) => {
         return assets.find(asset => asset.id === id);

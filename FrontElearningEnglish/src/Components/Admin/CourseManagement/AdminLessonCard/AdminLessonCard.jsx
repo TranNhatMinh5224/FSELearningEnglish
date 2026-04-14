@@ -1,7 +1,7 @@
 import React from "react";
 import ImageWithIconFallback from "../../../Common/ImageWithIconFallback/ImageWithIconFallback";
 import ActionButtons from "../../../Common/ActionButtons";
-import { FaBook } from "react-icons/fa";
+import { PiBookOpenFill } from "react-icons/pi";
 import "./AdminLessonCard.css";
 
 export default function AdminLessonCard({ 
@@ -23,7 +23,7 @@ export default function AdminLessonCard({
                     <ImageWithIconFallback
                         imageUrl={lessonImage}
                         ImageUrl={lessonImage}
-                        icon={<div className="lesson-fallback-icon"><FaBook /></div>}
+                        icon={<PiBookOpenFill size={32} />}
                         alt={lessonTitle}
                         className="admin-lesson-image"
                         imageKey={lessonId}

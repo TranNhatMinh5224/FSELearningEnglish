@@ -1,4 +1,5 @@
 using LearningEnglish.Application.Common.Pagination;
+using LearningEnglish.Application.Common.Constants;
 using LearningEnglish.Application.Common.Specifications;
 using LearningEnglish.Application.DTOs;
 using LearningEnglish.Application.Interface;
@@ -353,6 +354,38 @@ namespace LearningEnglish.Infrastructure.Repositories
                 .ToListAsync();
 
         }
+
+        public async Task<bool> HasCourseAccess(int courseId, int userId)
+        {
+            // Kiểm tra xem user có phải giáo viên của khóa học không
+            var isTeacherOfCourse = await _context.Courses
+                .AnyAsync(c => c.CourseId == courseId && c.TeacherId == userId);
+            if (isTeacherOfCourse) return true;
+
+            // Kiểm tra xem user có phải Admin/SuperAdmin không
+            var isAdmin = await _context.Users
+                .AnyAsync(u => u.UserId == userId && u.Roles.Any(r => 
+                    r.Name == RoleConstants.SuperAdmin || 
+                    r.Name == RoleConstants.ContentAdmin || 
+                    r.Name == RoleConstants.FinanceAdmin));
+            if (isAdmin) return true;
+
+            // Kiểm tra xem user đã đăng ký chưa
+            return await IsUserEnrolledInCourse(userId, courseId);
+        }
+
+        public async Task<bool> HasCourseAccessByLectureId(int lectureId, int userId)
+        {
+            var courseId = await _context.Lectures
+                .Where(l => l.LectureId == lectureId)
+                .Select(l => (int?)l.Module!.Lesson!.CourseId)
+                .FirstOrDefaultAsync();
+
+            if (!courseId.HasValue) return false;
+
+            return await HasCourseAccess(courseId.Value, userId);
+        }
+
         public async Task<IEnumerable<Course>> SearchCourses(string keyword)
         {
             return await _context.Courses

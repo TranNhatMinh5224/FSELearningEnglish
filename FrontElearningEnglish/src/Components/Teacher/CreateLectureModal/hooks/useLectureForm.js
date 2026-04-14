@@ -124,7 +124,7 @@ export const useLectureForm = (show, moduleId, lectureToUpdate, isAdmin, onSucce
         title: "",
         lectureType: 1,
         markdownContent: "",
-        parentLectureId: lectureToUpdate?._isChildCreation ? (lectureToUpdate.lectureId || lectureToUpdate.LectureId) : null,
+        parentLectureId: lectureToUpdate?._isChildCreation ? (lectureToUpdate.parentLectureId) : null,
       });
       setErrors({});
       setTouched({});

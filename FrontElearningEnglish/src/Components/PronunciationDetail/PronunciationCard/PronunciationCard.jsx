@@ -6,6 +6,7 @@ import PronunciationMic from "../PronunciationMic/PronunciationMic";
 import NotificationModal from "../../Common/NotificationModal/NotificationModal";
 import { pronunciationService } from "../../../Services/pronunciationService";
 import { fileService } from "../../../Services/fileService";
+import PronunciationWordHighlight from "../PronunciationWordHighlight/PronunciationWordHighlight";
 import "./PronunciationCard.css";
 
 export default function PronunciationCard({
@@ -81,7 +82,7 @@ export default function PronunciationCard({
         setIsPlayingRecorded(false);
         setIsPlayingReference(false);
         audioChunksRef.current = [];
-    }, [flashCardId, recordedAudioUrl]);
+    }, [flashCardId]);
 
     const handleStartRecording = async () => {
         try {
@@ -503,6 +504,7 @@ export default function PronunciationCard({
         }
     };
 
+
     return (
         <div className="pronunciation-card">
             <div className="pronunciation-card-header">
@@ -510,6 +512,7 @@ export default function PronunciationCard({
                     <PronunciationProgress
                         score={pronunciationScore}
                         showScore={showScore}
+                        assessmentResult={assessmentResult}
                         feedback={
                             assessmentResult
                                 ? (assessmentResult.Feedback || assessmentResult.feedback || "Chưa tính điểm")
@@ -520,7 +523,10 @@ export default function PronunciationCard({
                     />
 
                     <div className="word-display">
-                        <h2 className="word-text">{word}</h2>
+                        <PronunciationWordHighlight 
+                            originalText={word} 
+                            words={assessmentResult?.Words || assessmentResult?.words || []} 
+                        />
                         {phonetic && (
                             <p className="phonetic-text">{phonetic}</p>
                         )}
@@ -539,6 +545,32 @@ export default function PronunciationCard({
                         onStartRecording={handleStartRecording}
                         onStopRecording={handleStopRecording}
                     />
+
+                    {(audioBlob && recordedAudioUrl || (assessmentResult && audioUrl && audioUrl.trim() !== "")) && (
+                        <div className="pronunciation-playback-actions">
+                            {audioBlob && recordedAudioUrl && (
+                                <Button
+                                    variant="outline-primary"
+                                    className="playback-button"
+                                    onClick={isPlayingRecorded ? handleStopRecordedPlayback : handlePlayRecordedAudio}
+                                >
+                                    <FaVolumeUp className="me-2" />
+                                    {isPlayingRecorded ? "Dừng" : "Nghe lại bản ghi"}
+                                </Button>
+                            )}
+
+                            {assessmentResult && audioUrl && audioUrl.trim() !== "" && (
+                                <Button
+                                    variant="outline-success"
+                                    className="reference-audio-button"
+                                    onClick={isPlayingReference ? handleStopReferencePlayback : handlePlayReferenceAudio}
+                                >
+                                    <FaVolumeUp className="me-2" />
+                                    {isPlayingReference ? "Dừng" : "Nghe phát âm chuẩn"}
+                                </Button>
+                            )}
+                        </div>
+                    )}
                 </div>
             </div>
 
@@ -554,27 +586,6 @@ export default function PronunciationCard({
                     </Button>
                 )}
 
-                {audioBlob && recordedAudioUrl && (
-                    <Button
-                        variant="outline-primary"
-                        className="playback-button"
-                        onClick={isPlayingRecorded ? handleStopRecordedPlayback : handlePlayRecordedAudio}
-                    >
-                        <FaVolumeUp className="me-2" />
-                        {isPlayingRecorded ? "Dừng" : "Nghe lại"}
-                    </Button>
-                )}
-
-                {assessmentResult && audioUrl && audioUrl.trim() !== "" && (
-                    <Button
-                        variant="outline-success"
-                        className="reference-audio-button"
-                        onClick={isPlayingReference ? handleStopReferencePlayback : handlePlayReferenceAudio}
-                    >
-                        <FaVolumeUp className="me-2" />
-                        {isPlayingReference ? "Dừng" : "Nghe phát âm chuẩn"}
-                    </Button>
-                )}
 
                 {(canGoNext || isLastCard) && (
                     <Button

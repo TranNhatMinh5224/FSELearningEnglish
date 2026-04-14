@@ -76,8 +76,8 @@ namespace LearningEnglish.Application.Service
 
                 // Check enrollment: user phải đăng ký course mới được xem lecture
                 // Note: Module navigation is required for enrollment check
-                var isEnrolled = await _courseRepository.IsUserEnrolledByLectureId(lectureId, userId);
-                if (!isEnrolled)
+                var hasAccess = await _courseRepository.HasCourseAccessByLectureId(lectureId, userId);
+                if (!hasAccess)
                 {
                     response.Success = false;
                     response.StatusCode = 403;
@@ -128,13 +128,13 @@ namespace LearningEnglish.Application.Service
                     return response;
                 }
 
-                var isEnrolled = await _courseRepository.IsUserEnrolled(courseId.Value, userId);
-                if (!isEnrolled)
+                var hasAccess = await _courseRepository.HasCourseAccess(courseId.Value, userId);
+                if (!hasAccess)
                 {
                     response.Success = false;
                     response.StatusCode = 403;
                     response.Message = "Bạn cần đăng ký khóa học để xem lecture";
-                    _logger.LogWarning("User {UserId} attempted to list lectures of module {ModuleId} without enrollment in course {CourseId}", 
+                    _logger.LogWarning("User {UserId} attempted to list lectures of module {ModuleId} without access to course {CourseId}", 
                         userId, moduleId, courseId.Value);
                     return response;
                 }
@@ -201,13 +201,13 @@ namespace LearningEnglish.Application.Service
                     return response;
                 }
 
-                var isEnrolled = await _courseRepository.IsUserEnrolled(courseId.Value, userId);
-                if (!isEnrolled)
+                var hasAccess = await _courseRepository.HasCourseAccess(courseId.Value, userId);
+                if (!hasAccess)
                 {
                     response.Success = false;
                     response.StatusCode = 403;
                     response.Message = "Bạn cần đăng ký khóa học để xem lecture";
-                    _logger.LogWarning("User {UserId} attempted to get lecture tree of module {ModuleId} without enrollment in course {CourseId}", 
+                    _logger.LogWarning("User {UserId} attempted to get lecture tree of module {ModuleId} without access to course {CourseId}", 
                         userId, moduleId, courseId.Value);
                     return response;
                 }

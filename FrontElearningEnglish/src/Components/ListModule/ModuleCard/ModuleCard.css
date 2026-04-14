@@ -15,13 +15,13 @@
 }
 
 .module-card:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+    transform: translateY(-4px);
+    box-shadow: 0 10px 25px rgba(65, 214, 227, 0.15);
 }
 
 .module-card.completed {
-    border-color: var(--color-status-success, #10b981);
-    background: linear-gradient(135deg, rgba(16, 185, 129, 0.08) 0%, rgba(16, 185, 129, 0.05) 100%);
+    border-color: rgba(16, 185, 129, 0.3);
+    background: linear-gradient(135deg, rgba(16, 185, 129, 0.05) 0%, rgba(16, 185, 129, 0.02) 100%);
 }
 
 .module-icon-wrapper {
@@ -30,40 +30,55 @@
     height: 60px;
     position: relative;
     z-index: 1;
+    border-radius: 16px;
+    overflow: hidden;
 }
 
 .module-icon {
     width: 60px;
     height: 60px;
-    border-radius: 50%;
+    border-radius: 16px;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 24px;
-    color: white;
+    font-size: 36px;
+    /* Slightly larger for Duotone details */
     position: relative;
     z-index: 1;
     flex-shrink: 0;
+    transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
-.module-icon.lecture,
-.module-icon[class*="lecture"] {
-    background: linear-gradient(135deg, #6fd5e0 0%, #41d6e3 100%) !important;
+.module-card:hover .module-icon {
+    transform: scale(1.1) rotate(-5deg);
 }
 
-.module-icon.flashcard,
-.module-icon[class*="flashcard"] {
-    background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%) !important;
+.module-icon.lecture {
+    background-color: #ecfeff;
+    color: #0891b2;
+    border: 2px solid #cffafe;
+    box-shadow: 0 4px 15px rgba(8, 145, 178, 0.12);
 }
 
-.module-icon.assignment,
-.module-icon[class*="assignment"] {
-    background: linear-gradient(135deg, #d946ef 0%, #c026d3 100%) !important;
+.module-icon.flashcard {
+    background-color: #f5f3ff;
+    color: #7c3aed;
+    border: 2px solid #ede9fe;
+    box-shadow: 0 4px 15px rgba(124, 58, 237, 0.12);
 }
 
-.module-icon.quiz,
-.module-icon[class*="quiz"] {
-    background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%) !important;
+.module-icon.assignment {
+    background-color: #fdf2f8;
+    color: #db2777;
+    border: 2px solid #fce7f3;
+    box-shadow: 0 4px 15px rgba(219, 39, 119, 0.12);
+}
+
+.module-icon.quiz {
+    background-color: #fffbeb;
+    color: #d97706;
+    border: 2px solid #fef3c7;
+    box-shadow: 0 4px 15px rgba(217, 119, 6, 0.12);
 }
 
 .module-content {

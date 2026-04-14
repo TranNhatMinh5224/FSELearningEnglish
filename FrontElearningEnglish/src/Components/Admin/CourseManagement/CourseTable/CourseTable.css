@@ -58,6 +58,12 @@
   border-radius: 6px;
   object-fit: cover;
   flex-shrink: 0;
+  background-color: #f8fafc !important;
+}
+
+.course-thumbnail svg {
+  color: #6366f1 !important;
+  opacity: 0.8;
 }
 
 .course-thumbnail-placeholder {

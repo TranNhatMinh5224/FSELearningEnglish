@@ -38,14 +38,14 @@ export const OAUTH_CONFIG = {
 export const EXTERNAL_URLS = {
   // Social Media
   facebookGroup: "https://web.facebook.com/groups/843825855021989",
-  
+
   // Third-party viewers/services
   googleDocsViewer: "https://docs.google.com/viewer",
-  
+
   // Placeholder images
   placeholder: "https://via.placeholder.com",
   unsplashDefault: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e",
-  
+
   // Avatar generator
   uiAvatars: "https://ui-avatars.com/api",
 };
@@ -66,7 +66,7 @@ export const getAvatarUrl = (name = "User", options = {}) => {
     color = "fff",
     size = 128,
   } = options;
-  
+
   return `${EXTERNAL_URLS.uiAvatars}/?name=${encodeURIComponent(name)}&background=${background}&color=${color}&size=${size}`;
 };
 
@@ -96,12 +96,15 @@ export const getDocViewerUrl = (documentUrl) => {
 export const APP_CONSTANTS = {
   // Toast notifications
   TOAST_DURATION: 3000,
-  
+
   // Notification polling
   NOTIFICATION_POLL_INTERVAL: 30000, // 30 seconds
-  
+
   // Default images
   DEFAULT_COURSE_IMAGE: EXTERNAL_URLS.unsplashDefault,
+  DEFAULT_LECTURE_IMAGE: "",
+  DEFAULT_FLASHCARD_IMAGE: "",
+  DEFAULT_ASSESSMENT_IMAGE: "",
 };
 
 export default {

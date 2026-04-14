@@ -15,6 +15,9 @@ namespace LearningEnglish.Application.DTOs
 
         // Score - THÔNG TIN QUAN TRỌNG NHẤT
         public double AverageScore { get; set; }             // Điểm trung bình (0-100)
+        public double AverageAccuracyScore { get; set; }    // Điểm chính xác TB
+        public double AverageFluencyScore { get; set; }     // Điểm trôi chảy TB
+        public double AverageCompletenessScore { get; set; } // Điểm hoàn thiện TB
         
         // Last practice
         public DateTime? LastPracticeDate { get; set; }      // Lần luyện gần nhất

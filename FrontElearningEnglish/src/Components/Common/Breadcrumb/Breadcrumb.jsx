@@ -8,7 +8,7 @@ import "./Breadcrumb.css";
  * @param {Array} items - Mảng các item breadcrumb: [{ label, path, isCurrent? }]
  * @param {Boolean} showHomeIcon - Hiển thị icon home ở item đầu tiên
  */
-const Breadcrumb = ({ items = [], showHomeIcon = true }) => {
+const Breadcrumb = ({ items = [], showHomeIcon = true, className = "" }) => {
     const navigate = useNavigate();
 
     if (!items || items.length === 0) {
@@ -16,7 +16,7 @@ const Breadcrumb = ({ items = [], showHomeIcon = true }) => {
     }
 
     return (
-        <nav className="custom-breadcrumb">
+        <nav className={`custom-breadcrumb ${className}`}>
             {items.map((item, index) => {
                 const isLast = index === items.length - 1;
                 const isFirst = index === 0;

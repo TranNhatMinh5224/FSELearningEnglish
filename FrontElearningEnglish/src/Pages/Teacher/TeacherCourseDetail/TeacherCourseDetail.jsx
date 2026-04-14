@@ -19,6 +19,8 @@ import LessonLimitModal from "../../../Components/Common/LessonLimitModal/Lesson
 import ClassCodeModal from "../../../Components/Teacher/ClassCodeModal/ClassCodeModal";
 import ActionButtons from "../../../Components/Common/ActionButtons";
 import { FaPlus, FaExpand } from "react-icons/fa";
+import { PiGraduationCapDuotone, PiBookOpenFill } from "react-icons/pi";
+import ImageWithIconFallback from "../../../Components/Common/ImageWithIconFallback/ImageWithIconFallback";
 import { ROUTE_PATHS } from "../../../Routes/Paths";
 
 export default function TeacherCourseDetail() {
@@ -246,8 +248,10 @@ export default function TeacherCourseDetail() {
             <Col md={4} className="course-info-column">
               <div className="course-info-card">
                 <div className="course-image-wrapper">
-                  <img
-                    src={courseImage}
+                  <ImageWithIconFallback
+                    imageUrl={course.imageUrl || course.ImageUrl}
+                    fallbackImageUrl={getDefaultCourseImage()}
+                    icon={<PiGraduationCapDuotone size={64} />}
                     alt={courseTitle}
                     className="course-image"
                   />
@@ -328,8 +332,10 @@ export default function TeacherCourseDetail() {
                         style={{ cursor: 'pointer' }}
                       >
                         <div className="lesson-item-content">
-                          <img
-                            src={lessonImage}
+                          <ImageWithIconFallback
+                            imageUrl={lesson.imageUrl || lesson.ImageUrl}
+                            fallbackImageUrl={getDefaultLessonImage()}
+                            icon={<PiBookOpenFill size={24} />}
                             alt={lessonTitle}
                             className="lesson-image"
                           />

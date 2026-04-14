@@ -42,7 +42,7 @@ export default function ImageWithIconFallback({
     // If no image URL or image failed to load, show icon
     if (!finalImageUrl || imageError) {
         return (
-            <div 
+            <div
                 className={`image-with-icon-fallback ${iconClassName} ${className}`}
                 style={style}
                 {...props}

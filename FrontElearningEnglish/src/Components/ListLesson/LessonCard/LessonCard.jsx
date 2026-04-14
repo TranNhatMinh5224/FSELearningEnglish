@@ -1,5 +1,5 @@
-import React from "react";
-import { FaCheckCircle, FaBook } from "react-icons/fa";
+import { FaCheckCircle } from "react-icons/fa";
+import { PiBookOpenFill } from "react-icons/pi";
 import { useAssets } from "../../../Context/AssetContext";
 import ImageWithIconFallback from "../../Common/ImageWithIconFallback/ImageWithIconFallback";
 import "./LessonCard.css";
@@ -31,7 +31,7 @@ export default function LessonCard({ lesson, orderNumber, onClick, staggerIndex 
     const finalDescription = description || Description;
     const displayOrder = orderNumber || finalOrderIndex || 1;
     const defaultImage = getDefaultLessonImage();
-    const finalImageUrl = (imageUrl || ImageUrl) || defaultImage;
+    const customImageUrl = imageUrl || ImageUrl;
 
     const handleClick = () => {
         if (onClick && finalLessonId) {
@@ -40,17 +40,18 @@ export default function LessonCard({ lesson, orderNumber, onClick, staggerIndex 
     };
 
     return (
-        <div 
-            className={`lesson-card ${finalIsCompleted ? "completed" : ""}`} 
+        <div
+            className={`lesson-card ${finalIsCompleted ? "completed" : ""}`}
             onClick={handleClick}
             style={{ animationDelay }}
         >
             <div className="lesson-image-wrapper">
                 <ImageWithIconFallback
-                    imageUrl={finalImageUrl}
+                    imageUrl={customImageUrl}
+                    fallbackImageUrl={defaultImage}
                     icon={
                         <div className="lesson-image-placeholder">
-                            <FaBook size={32} />
+                            <PiBookOpenFill size={36} />
                         </div>
                     }
                     alt={finalTitle}
