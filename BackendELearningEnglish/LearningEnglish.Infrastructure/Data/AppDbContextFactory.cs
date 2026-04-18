@@ -29,11 +29,13 @@ namespace LearningEnglish.Infrastructure.Data
         private IConfiguration BuildConfiguration()
         {
             var basePath = GetConfigurationBasePath();
+            var environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") ?? "Development";
 
             var builder = new ConfigurationBuilder()
                 .SetBasePath(basePath)
                 .AddJsonFile(APPSETTINGS_FILE, optional: false, reloadOnChange: false)
-                .AddJsonFile(APPSETTINGS_DEV_FILE, optional: true, reloadOnChange: false);
+                .AddJsonFile($"appsettings.{environment}.json", optional: true, reloadOnChange: false)
+                .AddEnvironmentVariables();
 
             return builder.Build();
         }
