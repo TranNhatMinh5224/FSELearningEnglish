@@ -1,6 +1,7 @@
 using Scriban;
 using LearningEnglish.Application.Interface.Services.Markdown;
 using LearningEnglish.Domain.Entities;
+using Microsoft.Extensions.Configuration;
 
 namespace LearningEnglish.Application.Service.MarkdownService;
 
@@ -8,7 +9,7 @@ public class MarkdownForWikiService : IMarkdownForWikiService
 {
     private readonly string _frontendBaseUrl;
 
-    public MarkdownForWikiService(Microsoft.Extensions.Configuration.IConfiguration configuration)
+    public MarkdownForWikiService(IConfiguration configuration)
     {
         _frontendBaseUrl = configuration["Frontend:BaseUrl"] ?? "https://learning-eng.hocnghiepvu.com";
     }

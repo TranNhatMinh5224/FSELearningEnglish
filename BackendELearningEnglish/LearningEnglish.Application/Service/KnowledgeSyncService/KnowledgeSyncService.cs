@@ -6,6 +6,7 @@ using LearningEnglish.Application.Interface.Repositories;
 using LearningEnglish.Application.Interface.Services.Markdown;
 using LearningEnglish.Domain.Entities;
 using LearningEnglish.Domain.Enums;
+using Pgvector;
 
 namespace LearningEnglish.Application.Service.KnowledgeSyncService;
 
@@ -73,12 +74,12 @@ public class KnowledgeSyncService : IKnowledgeSyncService
                 await _courseKnowledgeRepository.AddAsync(new CourseKnowledge {
                     CourseId = courseId,
                     MarkdownContent = markdown,
-                    Embedding = new Pgvector.Vector(vector),
+                    Embedding = new Vector(vector),
                     ContentHash = ""
                 });
             } else {
                 knowledge.MarkdownContent = markdown;
-                knowledge.Embedding = new Pgvector.Vector(vector);
+                knowledge.Embedding = new Vector(vector);
                 await _courseKnowledgeRepository.UpdateAsync(knowledge);
             }
 
@@ -115,12 +116,12 @@ public class KnowledgeSyncService : IKnowledgeSyncService
                 await _packageKnowledgeRepository.AddAsync(new TeacherPackageKnowledge {
                     TeacherPackageId = packageId,
                     MarkdownContent = markdown,
-                    Embedding = new Pgvector.Vector(vector),
+                    Embedding = new Vector(vector),
                     ContentHash = ""
                 });
             } else {
                 knowledge.MarkdownContent = markdown;
-                knowledge.Embedding = new Pgvector.Vector(vector);
+                knowledge.Embedding = new Vector(vector);
                 await _packageKnowledgeRepository.UpdateAsync(knowledge);
             }
 
@@ -153,12 +154,12 @@ public class KnowledgeSyncService : IKnowledgeSyncService
                 await _policyKnowledgeRepository.AddAsync(new PolicyKnowledge {
                     PolicyId = policyId,
                     MarkdownContent = markdown,
-                    Embedding = new Pgvector.Vector(vector),
+                    Embedding = new Vector(vector),
                     ContentHash = ""
                 });
             } else {
                 knowledge.MarkdownContent = markdown;
-                knowledge.Embedding = new Pgvector.Vector(vector);
+                knowledge.Embedding = new Vector(vector);
                 await _policyKnowledgeRepository.UpdateAsync(knowledge);
             }
 
