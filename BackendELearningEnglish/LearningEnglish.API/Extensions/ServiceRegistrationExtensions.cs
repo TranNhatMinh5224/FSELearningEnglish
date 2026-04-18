@@ -2,7 +2,7 @@ using System.Text; // Thư viện dùng để xử lý văn bản, mã hóa (ví
 using FluentValidation; // Thư viện dùng để kiểm tra tính hợp lệ của dữ liệu đầu vào (Validation)
 using FluentValidation.AspNetCore; // Tích hợp FluentValidation vào luồng xử lý của ASP.NET Core
 using LearningEnglish.API.Authorization; // Namespace chứa các xử lý phân quyền (Authorization)
-using LearningEnglish.Application.Cofigurations; // Namespace chứa các lớp cấu hình của Application
+using LearningEnglish.Application.Configurations; // Namespace chứa các lớp cấu hình của Application
 using LearningEnglish.Application.Configurations; // AzureSpeechOptions
 using LearningEnglish.Application.Interface; // Namespace chứa các interface dùng chung
 using LearningEnglish.Application.Interface.AdminManagement; // Interface cho quản lý admin
@@ -28,7 +28,6 @@ using LearningEnglish.Application.Interface.Services.Markdown;
 using LearningEnglish.Application.Service.KnowledgeSyncService;
 using LearningEnglish.Application.Service.MarkdownService;
 using LearningEnglish.Application.Service.AdminManagement;
-using LearningEnglish.Application.Interface.Services.AdminManagement;
 using LearningEnglish.Application.Service; // Namespace chứa các lớp xử lý nghiệp vụ chính
 using LearningEnglish.Application.Service.Auth; // Dịch vụ xử lý xác thực
 using LearningEnglish.Application.Service.BackgroundJobs; // Các tiến trình chạy ngầm
@@ -40,7 +39,6 @@ using LearningEnglish.Application.Service.LectureService; // Dịch vụ bài gi
 using LearningEnglish.Application.Service.PaymentService; // Dịch vụ thanh toán
 using LearningEnglish.Application.Strategies.Payment; // Chiến lược xử lý thanh toán
 using LearningEnglish.Application.Strategies.Scoring; // Chiến lược chấm điểm
-using LearningEnglish.Application.Service.AdminManagement;
 using LearningEnglish.Domain.Entities; // Namespace chứa các thực thể (Entity) database
 using LearningEnglish.Infrastructure.MinioFileStorage; // Namespace chứa xử lý lưu trữ file MinIO
 using LearningEnglish.Infrastructure.Repositories; // Namespace chứa các Repository truy cập dữ liệu
@@ -62,7 +60,6 @@ using Pgvector; // Thư viện hỗ trợ vector cho Postgres (cho AI/RAG)
 using Microsoft.Extensions.Logging; // Thư viện hỗ trợ ghi Log
 using Microsoft.SemanticKernel; // Thư viện hỗ trợ AI Gemini
 using Microsoft.SemanticKernel.ChatCompletion;
-using Microsoft.SemanticKernel.Connectors.Google; 
 using Microsoft.SemanticKernel.Embeddings; 
 
 

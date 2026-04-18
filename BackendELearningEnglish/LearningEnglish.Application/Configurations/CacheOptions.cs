@@ -1,4 +1,4 @@
-namespace LearningEnglish.Application.Cofigurations;
+namespace LearningEnglish.Application.Configurations;
 
 public sealed class CacheOptions
 {

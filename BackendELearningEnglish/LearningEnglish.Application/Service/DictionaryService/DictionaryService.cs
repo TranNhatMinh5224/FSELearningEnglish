@@ -4,7 +4,7 @@ using LearningEnglish.Application.Common;
 using LearningEnglish.Application.DTOs;
 using LearningEnglish.Application.Interface;
 using LearningEnglish.Application.Interface.Infrastructure.MediaService;
-using LearningEnglish.Application.Cofigurations;
+using LearningEnglish.Application.Configurations;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Options;

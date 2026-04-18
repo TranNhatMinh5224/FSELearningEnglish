@@ -2,7 +2,7 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
 using LearningEnglish.Application.Interface;
-using LearningEnglish.Application.Cofigurations;
+using LearningEnglish.Application.Configurations;
 using LearningEnglish.Application.Common;
 using LearningEnglish.Application.DTOs;
 using Microsoft.Extensions.Options;

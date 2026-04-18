@@ -1,7 +1,7 @@
 using System.Net;
 using System.Net.Mail;
 using LearningEnglish.Application.Interface;
-using LearningEnglish.Application.Cofigurations;
+using LearningEnglish.Application.Configurations;
 using Microsoft.Extensions.Options;
 
 namespace LearningEnglish.Infrastructure.Services

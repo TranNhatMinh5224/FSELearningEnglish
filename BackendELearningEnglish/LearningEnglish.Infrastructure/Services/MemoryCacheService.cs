@@ -1,5 +1,5 @@
 using LearningEnglish.Application.Interface.Infrastructure;
-using LearningEnglish.Application.Cofigurations;
+using LearningEnglish.Application.Configurations;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;

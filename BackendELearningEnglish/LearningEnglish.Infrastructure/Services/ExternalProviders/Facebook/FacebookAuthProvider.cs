@@ -1,4 +1,4 @@
-using LearningEnglish.Application.Cofigurations;
+using LearningEnglish.Application.Configurations;
 using LearningEnglish.Application.Interface;
 using LearningEnglish.Infrastructure.Services.ExternalProviders.Facebook.Models;
 using Microsoft.Extensions.Logging;

@@ -1,5 +1,5 @@
 using Google.Apis.Auth;
-using LearningEnglish.Application.Cofigurations;
+using LearningEnglish.Application.Configurations;
 using LearningEnglish.Application.Interface;
 using LearningEnglish.Infrastructure.Services.ExternalProviders.Google.Models;
 using Microsoft.Extensions.Logging;

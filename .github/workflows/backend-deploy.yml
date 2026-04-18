@@ -82,8 +82,10 @@ jobs:
 
       - name: Run Database Migrations
         shell: bash
+        env:
+          ASPNETCORE_ENVIRONMENT: Production
         run: |
           cd "${{ secrets.VPS_BACKEND_PATH }}"
           sudo -n chmod +x efbundle
-          # Chạy bundle để update DB (nó sẽ tự đọc appsettings.Production.json trong thư mục này)
-          ./efbundle --environment Production
+          # Chạy bundle để update DB (nó sẽ tự đọc appsettings.Production.json nhờ biến môi trường trên)
+          ./efbundle
