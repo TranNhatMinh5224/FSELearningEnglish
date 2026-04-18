@@ -3,6 +3,7 @@ using LearningEnglish.Application.DTOs.Common;
 using LearningEnglish.Application.Interface.Repositories;
 using LearningEnglish.Application.Interface.Services.AI;
 using LearningEnglish.Domain.Entities;
+using Microsoft.SemanticKernel;
 using Microsoft.SemanticKernel.ChatCompletion;
 using System.Text;
 
@@ -68,7 +69,16 @@ DỮ LIỆU TRI THỨC:
             chatHistory.AddUserMessage(request.Message);
 
             // 5. Gọi AI Generation - Handle null result defensive
-            var result = await _chatCompletionService.GetChatMessageContentAsync(chatHistory);
+            var executionSettings = new PromptExecutionSettings
+            {
+                ExtensionData = new Dictionary<string, object>
+                {
+                    { "max_tokens", 800 },
+                    { "temperature", 0.7 }
+                }
+            };
+
+            var result = await _chatCompletionService.GetChatMessageContentAsync(chatHistory, executionSettings);
             
             response.Data = new ChatResponseDto
             {

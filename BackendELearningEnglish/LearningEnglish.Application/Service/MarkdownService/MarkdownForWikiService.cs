@@ -6,6 +6,12 @@ namespace LearningEnglish.Application.Service.MarkdownService;
 
 public class MarkdownForWikiService : IMarkdownForWikiService
 {
+    private readonly string _frontendBaseUrl;
+
+    public MarkdownForWikiService(Microsoft.Extensions.Configuration.IConfiguration configuration)
+    {
+        _frontendBaseUrl = configuration["Frontend:BaseUrl"] ?? "https://learning-eng.hocnghiepvu.com";
+    }
     public async Task<string> GenCourseMarkdown(Course course)
     {
         var templateSource = @"
@@ -13,6 +19,7 @@ public class MarkdownForWikiService : IMarkdownForWikiService
 - **Mô tả ngắn:** {{ description_markdown }}
 - **Giá:** {{ price | math.format ""N0"" }} VNĐ
 - **Sức chứa:** {{ max_student }} học viên
+- **Link khóa học:** {{ course_url }}
 {{ if is_featured }}- *Đây là khóa học nổi bật của hệ thống.*{{ end }}
 
 ## Nội dung khóa học
@@ -38,6 +45,7 @@ public class MarkdownForWikiService : IMarkdownForWikiService
             teacher_name = course.Teacher != null ? $"{course.Teacher.FirstName} {course.Teacher.LastName}" : "Hệ thống",
             max_student = course.MaxStudent,
             is_featured = course.IsFeatured,
+            course_url = $"{_frontendBaseUrl.TrimEnd('/')}/course/{course.CourseId}",
             modules = course.Lessons ?? new List<Lesson>()
         });
     }
