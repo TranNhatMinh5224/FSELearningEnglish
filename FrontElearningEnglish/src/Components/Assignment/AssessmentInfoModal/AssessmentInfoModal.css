@@ -10,7 +10,7 @@
     font-size: 1.4rem;
 }
 
-/* Form Section Cards - Same style as CreateCourseModal */
+/* Form Section Card */
 .assessment-info-modal .form-section-card {
     background: #f8fafc;
     border: 1px solid #e2e8f0;
@@ -132,7 +132,7 @@
     .assessment-info-modal .modal-footer {
         padding: 1rem;
     }
-    
+
     .assessment-info-modal .form-section-card {
         padding: 16px;
     }

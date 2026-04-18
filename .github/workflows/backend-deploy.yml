@@ -43,6 +43,20 @@ jobs:
       - name: Publish
         run: dotnet publish "${{ env.BACKEND_PROJECT }}" -c Release -o "${{ env.PUBLISH_DIR }}" --no-build
 
+      - name: Install EF Tool
+        run: |
+          dotnet tool install --global dotnet-ef --version 8.* || dotnet tool update --global dotnet-ef --version 8.*
+          echo "$HOME/.dotnet/tools" >> $GITHUB_PATH
+
+      - name: Generate Migration Bundle
+        run: |
+          dotnet ef migrations bundle \
+            --project BackendELearningEnglish/LearningEnglish.Infrastructure \
+            --startup-project BackendELearningEnglish/LearningEnglish.API \
+            --runtime linux-x64 \
+            --self-contained \
+            -o "${{ env.PUBLISH_DIR }}/efbundle"
+
       - name: Validate deploy secrets
         shell: bash
         run: |
@@ -65,3 +79,11 @@ jobs:
           sudo -n systemctl daemon-reload
           sudo -n systemctl restart "${{ secrets.VPS_BACKEND_SERVICE }}"
           sudo -n systemctl is-active "${{ secrets.VPS_BACKEND_SERVICE }}"
+
+      - name: Run Database Migrations
+        shell: bash
+        run: |
+          cd "${{ secrets.VPS_BACKEND_PATH }}"
+          sudo -n chmod +x efbundle
+          # Chạy bundle để update DB (nó sẽ tự đọc appsettings.Production.json trong thư mục này)
+          ./efbundle --environment Production

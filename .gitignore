@@ -93,6 +93,9 @@ Dockerfile.*
 # Chặn folder data mount ra ngoài server
 minio_data/
 postgres_data/
+# EF Migration Bundles
+efbundle*
+
 
 # ===========================================
 # 6. PROJECT SPECIFIC

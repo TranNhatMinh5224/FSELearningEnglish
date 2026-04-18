@@ -34,7 +34,7 @@ export const AssetProvider = ({ children }) => {
             setLoading(true);
             setError(null);
             const response = await assetFrontendService.getAllActiveAssets();
-            
+
             if (response.data && response.data.success && response.data.data) {
                 setAssets(response.data.data);
                 setLastFetchTime(Date.now());
@@ -47,14 +47,13 @@ export const AssetProvider = ({ children }) => {
         } finally {
             setLoading(false);
         }
-        // eslint-disable-next-line react-hooks/exhaustive-deps
+
     }, [assets.length, lastFetchTime]);
 
-    // Fetch assets khi mount (chỉ 1 lần)
+
     useEffect(() => {
         fetchAssets();
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, []); // Empty dependency - chỉ chạy 1 lần khi mount
+    }, []);
 
     // Cập nhật Dynamic Favicon khi Logo thay đổi
     useEffect(() => {
@@ -108,18 +107,18 @@ export const AssetProvider = ({ children }) => {
         loading,
         error,
         refreshAssets,
-        
+
         // Helper functions
         getAssetById,
         getAssetsByType,
         getFirstAssetByType,
         getAssetUrl,
-        
+
         // Shortcuts cho các asset types được quản lý (chỉ Logo, DefaultCourse, DefaultLesson)
         logos: getAssetsByType(1), // AssetType.Logo = 1
         defaultCourses: getAssetsByType(4), // AssetType.DefaultCourse = 4
         defaultLessons: getAssetsByType(5), // AssetType.DefaultLesson = 5
-        
+
         // Quick access functions - chỉ các asset types còn được quản lý
         getLogo: () => getFirstAssetByType(1)?.imageUrl, // AssetType.Logo = 1
         getDefaultCourseImage: () => getFirstAssetByType(4)?.imageUrl, // AssetType.DefaultCourse = 4

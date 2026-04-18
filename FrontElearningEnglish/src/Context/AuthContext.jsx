@@ -29,10 +29,8 @@ export const AuthProvider = ({ children }) => {
         return;
       }
 
-      // Retry logic for getProfile - sometimes after social login, 
-      // there's a small delay before backend recognizes the token
       let retries = 3;
-      let delay = 500; // start with 500ms delay
+      let delay = 500;
 
       for (let i = 0; i < retries; i++) {
         try {
@@ -60,10 +58,10 @@ export const AuthProvider = ({ children }) => {
             return;
           }
 
-          // Wait before retrying (exponential backoff)
+
           const currentDelay = delay;
           await new Promise(resolve => setTimeout(resolve, currentDelay));
-          delay *= 2; // double the delay for next retry
+          delay *= 2;
         }
       }
     };

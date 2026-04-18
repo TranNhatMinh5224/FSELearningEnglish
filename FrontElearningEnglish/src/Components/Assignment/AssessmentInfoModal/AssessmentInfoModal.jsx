@@ -9,9 +9,9 @@ import { quizService } from "../../../Services/quizService";
 import ConfirmModal from "../../Common/ConfirmModal/ConfirmModal";
 import "./AssessmentInfoModal.css";
 
-export default function AssessmentInfoModal({ 
-    isOpen, 
-    onClose, 
+export default function AssessmentInfoModal({
+    isOpen,
+    onClose,
     assessment,
     onStartQuiz,
     onStartEssay
@@ -28,18 +28,18 @@ export default function AssessmentInfoModal({
 
     const checkQuizProgress = useCallback(async (rawQuizId) => {
         setCheckingProgress(true);
-        const quizId = parseInt(rawQuizId); 
-        console.log("🔍 [AssessmentInfoModal] Checking active attempt via API for quizId:", quizId);
-        
+        const quizId = parseInt(rawQuizId);
+        console.log(" [AssessmentInfoModal] Checking active attempt via API for quizId:", quizId);
+
         try {
             // New logic: Call backend API instead of checking localStorage
             const response = await quizAttemptService.checkActiveAttempt(quizId);
-            console.log("📥 [AssessmentInfoModal] CheckActive API Response:", response.data);
+            console.log(" [AssessmentInfoModal] CheckActive API Response:", response.data);
 
             // Only treat as in-progress when backend explicitly reports hasActiveAttempt === true
             if (response.data?.success && response.data?.data?.hasActiveAttempt) {
                 const attemptData = response.data.data;
-                console.log("✅ [AssessmentInfoModal] Found active attempt:", attemptData);
+                console.log(" [AssessmentInfoModal] Found active attempt:", attemptData);
                 setInProgressAttempt({
                     attemptId: attemptData.attemptId || attemptData.AttemptId,
                     quizId: quizId,
@@ -47,11 +47,11 @@ export default function AssessmentInfoModal({
                     timeSpentSeconds: attemptData.timeSpentSeconds || attemptData.TimeSpentSeconds || 0
                 });
             } else {
-                console.log("ℹ️ [AssessmentInfoModal] No active attempt found");
+                console.log(" [AssessmentInfoModal] No active attempt found");
                 setInProgressAttempt(null);
             }
         } catch (err) {
-            console.error("❌ [AssessmentInfoModal] Error checking quiz progress:", err);
+            console.error(" [AssessmentInfoModal] Error checking quiz progress:", err);
             setInProgressAttempt(null);
         } finally {
             setCheckingProgress(false);
@@ -72,7 +72,7 @@ export default function AssessmentInfoModal({
                 setEssayHasSubmission(false);
             }
         } catch (err) {
-            console.log("ℹ️ [AssessmentInfoModal] No essay submission found:", err);
+            console.log(" [AssessmentInfoModal] No essay submission found:", err);
             setEssayHasSubmission(false);
         }
     }, []);
@@ -168,7 +168,7 @@ export default function AssessmentInfoModal({
         if (quiz) {
             try {
                 setLoading(true);
-                
+
                 // If user requested to start a NEW attempt but there is an active attempt, show card instead
                 if (isNewAttempt && inProgressAttempt && inProgressAttempt.attemptId) {
                     setShowCannotStartModal(true);
@@ -178,7 +178,7 @@ export default function AssessmentInfoModal({
 
                 // Nếu không phải attempt mới và có in-progress attempt, dùng nó
                 if (!isNewAttempt && inProgressAttempt && inProgressAttempt.attemptId) {
-                    console.log("▶️ [AssessmentInfoModal] Continuing in-progress attempt:", inProgressAttempt.attemptId);
+                    console.log(" [AssessmentInfoModal] Continuing in-progress attempt:", inProgressAttempt.attemptId);
                     onStartQuiz({
                         ...assessment,
                         attemptId: inProgressAttempt.attemptId,
@@ -187,15 +187,15 @@ export default function AssessmentInfoModal({
                     onClose();
                     return;
                 }
-                
+
                 // Start new quiz attempt
-                console.log("🆕 [AssessmentInfoModal] Starting new quiz attempt");
+                console.log(" [AssessmentInfoModal] Starting new quiz attempt");
                 const response = await quizAttemptService.start(quiz.quizId || quiz.QuizId);
                 if (response.data?.success && response.data?.data) {
                     const attemptData = response.data.data;
                     const attemptId = attemptData.attemptId || attemptData.AttemptId;
                     const quizId = attemptData.quizId || attemptData.QuizId || quiz.quizId || quiz.QuizId;
-                    
+
                     // Pass attempt data to parent
                     onStartQuiz({
                         ...assessment,
