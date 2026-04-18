@@ -1,7 +1,7 @@
 import { Table, Button, Badge } from "react-bootstrap";
 import { FaEdit, FaTrash, FaSync } from "react-icons/fa";
 
-export default function PolicyList({ policies, onEdit, onDelete, onSync }) {
+export default function PolicyList({ policies, onEdit, onDelete }) {
   if (!policies || policies.length === 0) {
     return <div className="text-center py-5 text-muted">Chưa có chính sách nào.</div>;
   }
@@ -29,15 +29,6 @@ export default function PolicyList({ policies, onEdit, onDelete, onSync }) {
             </td>
             <td>{new Date(policy.updatedAt || policy.UpdatedAt).toLocaleDateString("vi-VN")}</td>
             <td className="text-end pe-4">
-              <Button
-                variant="outline-info"
-                size="sm"
-                className="me-2"
-                onClick={() => onSync(policy)}
-                title="Đồng bộ AI"
-              >
-                <FaSync />
-              </Button>
               <Button
                 variant="outline-primary"
                 size="sm"

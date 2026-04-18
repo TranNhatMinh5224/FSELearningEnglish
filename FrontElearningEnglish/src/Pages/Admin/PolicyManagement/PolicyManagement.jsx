@@ -17,41 +17,7 @@ export default function PolicyManagement() {
   const [policyToDelete, setPolicyToDelete] = useState(null);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [successMessage, setSuccessMessage] = useState("");
-  const [syncingAll, setSyncingAll] = useState(false);
 
-  const handleSyncAll = async () => {
-    try {
-      setSyncingAll(true);
-      toast.info("Đang đồng bộ tri thức AI...");
-      const response = await policyService.syncAllPolicies();
-      if (response.data?.success) {
-        toast.success(response.data.message || "Đồng bộ thành công!");
-      } else {
-        toast.error(response.data?.message || "Lỗi đồng bộ.");
-      }
-    } catch (error) {
-      console.error("Sync error:", error);
-      toast.error("Lỗi kết nối khi đồng bộ.");
-    } finally {
-      setSyncingAll(false);
-    }
-  };
-
-  const handleSyncSingle = async (policy) => {
-    try {
-      const id = policy.id || policy.Id;
-      toast.info(`Đang đồng bộ "${policy.title || policy.Title}"...`);
-      const response = await policyService.syncPolicy(id);
-      if (response.data?.success) {
-        toast.success("Đồng bộ thành công!");
-      } else {
-        toast.error("Lỗi đồng bộ.");
-      }
-    } catch (error) {
-      console.error("Sync error:", error);
-      toast.error("Lỗi kết nối.");
-    }
-  };
 
   useEffect(() => {
     fetchPolicies();
@@ -123,19 +89,6 @@ export default function PolicyManagement() {
           <p className="text-muted m-0">Quản lý các quy định, chính sách dùng làm tri thức cho AI Chatbot</p>
         </div>
         <div className="d-flex gap-2">
-          <Button 
-            variant="outline-primary" 
-            onClick={handleSyncAll} 
-            disabled={syncingAll}
-            className="shadow-sm"
-          >
-            {syncingAll ? (
-              <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
-            ) : (
-              <FaSync className="me-2" />
-            )}
-            Đồng bộ tất cả
-          </Button>
           <Button variant="primary" onClick={handleCreate} className="shadow-sm">
             <FaPlus className="me-2" /> Thêm chính sách
           </Button>
@@ -156,7 +109,6 @@ export default function PolicyManagement() {
               policies={policies}
               onEdit={handleEdit}
               onDelete={handleDeleteClick}
-              onSync={handleSyncSingle}
             />
           )}
         </Card.Body>

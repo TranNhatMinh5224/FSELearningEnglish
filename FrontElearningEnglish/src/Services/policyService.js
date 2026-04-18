@@ -35,18 +35,4 @@ export const policyService = {
   deletePolicy: async (id) => {
     return await axiosClient.delete(`/admin/policy/${id}`);
   },
-
-  /**
-   * Đồng bộ toàn bộ chính sách lên AI Knowledge base
-   */
-  syncAllPolicies: async () => {
-    return await axiosClient.post("/admin/policy/sync-all");
-  },
-
-  /**
-   * Đồng bộ thủ công một chính sách lên AI Knowledge base
-   */
-  syncPolicy: async (id) => {
-    return await axiosClient.post(`/admin/policy/${id}/sync`);
-  },
 };
