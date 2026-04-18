@@ -43,13 +43,23 @@ namespace LearningEnglish.Infrastructure.Data
         {
             var currentDirectory = Directory.GetCurrentDirectory();
 
-            // Chạy từ Infrastructure project
-            if (currentDirectory.Contains("LearningEnglish.Infrastructure"))
+            // Nếu chạy từ Migration Bundle hoặc publish folder (có sẵn appsettings.json)
+            if (File.Exists(Path.Combine(currentDirectory, APPSETTINGS_FILE)))
             {
-                return Path.Combine(currentDirectory, "..", API_PROJECT_NAME);
+                return currentDirectory;
             }
 
-            // Chạy từ root hoặc API project
+            // Chạy từ Infrastructure project (Development)
+            if (currentDirectory.Contains("LearningEnglish.Infrastructure"))
+            {
+                var apiPathInDev = Path.Combine(currentDirectory, "..", API_PROJECT_NAME);
+                if (Directory.Exists(apiPathInDev))
+                {
+                    return apiPathInDev;
+                }
+            }
+
+            // Chạy từ root hoặc cạnh project API
             var apiPath = Path.Combine(currentDirectory, API_PROJECT_NAME);
             if (Directory.Exists(apiPath))
             {
@@ -64,7 +74,7 @@ namespace LearningEnglish.Infrastructure.Data
             }
 
             throw new DirectoryNotFoundException(
-                $"Không tìm thấy thư mục {API_PROJECT_NAME}. " +
+                $"Không tìm thấy thư mục {API_PROJECT_NAME} hoặc file {APPSETTINGS_FILE}. " +
                 $"Current directory: {currentDirectory}");
         }
 
