@@ -17,7 +17,8 @@ import {
   MdAdminPanelSettings,
   MdImage,
   MdHome,
-  MdLock
+  MdLock,
+  MdShield
 } from "react-icons/md";
 import { useAuth } from "../../Context/AuthContext";
 
@@ -196,6 +197,19 @@ export default function AdminLayout() {
           >
             <MdAssignment /> Quản lý bài nộp
             {!isAllowed(["SuperAdmin", "ContentAdmin"]) && <MdLock className="lock-icon" />}
+          </NavLink>
+
+          <NavLink
+            to={ROUTE_PATHS.ADMIN.POLICY_MANAGEMENT}
+            className={({ isActive }) => {
+              const baseClass = isActive ? "menu-item active" : "menu-item";
+              return !isAllowed(["SuperAdmin"]) ? `${baseClass} restricted` : baseClass;
+            }}
+            onClick={(e) => handleNavClick(e, ROUTE_PATHS.ADMIN.POLICY_MANAGEMENT, ["SuperAdmin"], "Quản lý Chính sách")}
+            title={!isAllowed(["SuperAdmin"]) ? "Yêu cầu quyền Super Admin" : ""}
+          >
+            <MdShield /> Policy Wiki AI
+            {!isAllowed(["SuperAdmin"]) && <MdLock className="lock-icon" />}
           </NavLink>
 
           <div style={{ marginTop: 'auto', borderTop: '1px solid rgba(255,255,255,0.1)' }}>

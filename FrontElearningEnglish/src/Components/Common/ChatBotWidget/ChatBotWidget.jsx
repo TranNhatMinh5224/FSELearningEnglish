@@ -19,7 +19,7 @@ const SUGGESTIONS = [
 const WELCOME_MESSAGE = {
   id: "welcome",
   role: "bot",
-  text: "Xin chào! 👋 Mình là ** AI Catalunya English **.\n\nMình có thể giúp bạn:\n- 📚 Tìm **khóa học tiếng Anh** phù hợp\n- 👨‍🏫 Tư vấn **nâng cấp tài khoản Giáo viên**\n\nBạn muốn tìm hiểu gì hôm nay?",
+  text: "Xin chào! 👋 Mình là **FSE AI Assistant**.\n\nMình có thể giúp bạn:\n- 📚 Tìm **khóa học tiếng Anh** phù hợp\n- 👨‍🏫 Tư vấn **nâng cấp tài khoản Giáo viên**\n- 🛡️ Thông tin về **chính sách học tập**\n\nBạn muốn tìm hiểu gì hôm nay?",
 };
 
 let msgIdCounter = 1;
@@ -65,8 +65,9 @@ export default function ChatBotWidget() {
       setLoading(true);
 
       try {
-        const res = await chatBotService.consult(prompt);
-        const answer = res?.data?.answer || res?.data?.Answer || "Xin lỗi, mình chưa tìm được câu trả lời phù hợp.";
+        const res = await chatBotService.chat(prompt);
+        // data trả về format mới: { response: "...", sentAt: "..." }
+        const answer = res?.response || res?.data?.response || "Xin lỗi, mình chưa tìm được câu trả lời phù hợp.";
         setMessages((prev) => [
           ...prev,
           { id: newId(), role: "bot", text: answer },

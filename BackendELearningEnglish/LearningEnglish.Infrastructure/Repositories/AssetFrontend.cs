@@ -1,9 +1,10 @@
+using LearningEnglish.Application.Interface.Repositories;
 using LearningEnglish.Domain.Entities;
-using LearningEnglish.Application.Interface;
-using LearningEnglish.Infrastructure.Data;
 using LearningEnglish.Domain.Enums;
+using LearningEnglish.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 
+namespace LearningEnglish.Infrastructure.Repositories;
 
 public class AssetFrontendRepository : IAssetFrontendRepository
 {

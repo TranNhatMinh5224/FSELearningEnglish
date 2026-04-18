@@ -1,7 +1,7 @@
 using LearningEnglish.Domain.Entities;
 using LearningEnglish.Domain.Enums;
 
-namespace LearningEnglish.Application.Interface
+namespace LearningEnglish.Application.Interface.Repositories
 {
     public interface IAssetFrontendRepository
     {

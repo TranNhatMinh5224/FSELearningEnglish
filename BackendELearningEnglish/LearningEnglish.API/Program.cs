@@ -64,20 +64,6 @@ builder.Services.AddRateLimiter(options =>
         await context.HttpContext.Response.WriteAsJsonAsync(payload, cancellationToken);
     };
 
-    // Public endpoint: protect AI cost + prevent abuse
-    options.AddPolicy("chatbot", context =>
-    {
-        var ip = context.Connection.RemoteIpAddress?.ToString() ?? "unknown";
-        return RateLimitPartition.GetFixedWindowLimiter(
-            partitionKey: ip,
-            factory: _ => new FixedWindowRateLimiterOptions
-            {
-                PermitLimit = 20,
-                Window = TimeSpan.FromMinutes(1),
-                QueueLimit = 0,
-                AutoReplenishment = true
-            });
-    });
 });
 
 

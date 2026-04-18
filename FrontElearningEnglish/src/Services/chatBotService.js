@@ -2,18 +2,24 @@ import axiosClient from "./axiosClient";
 
 const chatBotService = {
   /**
-   * POST /api/public/chatbot/consult
-   * Không cần auth - public endpoint
+   * POST /api/user/chatbot/chat
+   * Endpoint yêu cầu xác thực JWT
+   * @param {string} message - Câu hỏi của người dùng
+   */
+  chat: (message) =>
+    axiosClient.post(
+      "/user/chatbot/chat",
+      { message },
+      {
+        timeout: 30000,
+      }
+    ),
+
+  /**
+   * Phương thức cũ (consult) - có thể giữ lại nếu còn dùng chung
    */
   consult: async (prompt) => {
-    const res = await axiosClient.post(
-      "/public/chatbot/consult",
-      { prompt },
-      {
-        // Prevent requests from hanging forever when AI provider is slow
-        timeout: 25000,
-      }
-    );
+    const res = await axiosClient.post("/public/chatbot/consult", { prompt });
     return res.data;
   },
 };

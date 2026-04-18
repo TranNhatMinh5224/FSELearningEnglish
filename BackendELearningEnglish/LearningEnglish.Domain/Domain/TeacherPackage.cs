@@ -20,5 +20,5 @@ public class TeacherPackage
 
     // Navigation (optional reverse)
     public List<TeacherSubscription> Subscriptions { get; set; } = new();
-    public List<TeacherPackageEmbedding> TeacherPackageEmbeddings { get; set; } = new();
+    public TeacherPackageKnowledge? TeacherPackageKnowledge { get; set; } // AI Wiki Knowledge (1-1)
 }

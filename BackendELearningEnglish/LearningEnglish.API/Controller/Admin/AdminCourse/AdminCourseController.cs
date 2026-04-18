@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
 using LearningEnglish.Application.Interface;
+using LearningEnglish.Application.Interface.IKnowledgeSyncService;
 using LearningEnglish.Application.Interface.AdminManagement;
 using LearningEnglish.Application.DTOs;
 using LearningEnglish.Application.Common.Pagination;
@@ -19,17 +20,21 @@ namespace LearningEnglish.API.Controller.Admin
     {
         private readonly IAdminCourseService _adminCourseService;
         private readonly IUserManagementService _userManagementService;
+        private readonly IKnowledgeSyncService _knowledgeSyncService;
         private readonly ILogger<AdminCourseController> _logger;
 
         public AdminCourseController(
             IAdminCourseService adminCourseService,
             IUserManagementService userManagementService,
+            IKnowledgeSyncService knowledgeSyncService,
             ILogger<AdminCourseController> logger)
         {
             _adminCourseService = adminCourseService;
             _userManagementService = userManagementService;
+            _knowledgeSyncService = knowledgeSyncService;
             _logger = logger;
         }
+
 
         // GET: Admin lấy danh sách tất cả khóa học 
         [HttpGet]

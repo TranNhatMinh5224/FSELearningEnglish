@@ -8,10 +8,9 @@ namespace LearningEnglish.Infrastructure.Services
 
         public TemplatePathResolver()
         {
-            // Look for templates in the Infrastructure project's Templates folder
+            // basePath là đường dẫn đến thư mục Templates trong project LearningEnglish.Infrastructure
             _basePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "..", "..", "..", "..", "LearningEnglish.Infrastructure", "Templates");
-
-            // Fallback to current directory if development path doesn't exist
+            // Nếu không tìm thấy thư mục Templates, sẽ lấy đường dẫn hiện tại
             if (!Directory.Exists(_basePath))
             {
                 _basePath = Path.Combine(Directory.GetCurrentDirectory(), "Templates");

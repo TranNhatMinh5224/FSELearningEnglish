@@ -67,6 +67,7 @@ import PackageManagement from "../Pages/Admin/PackageManagement/PackageManagemen
 import AdminManagement from "../Pages/Admin/AdminManagement/AdminManagement";
 import AssetManagement from "../Pages/Admin/AssetManagement/AssetManagement";
 import PaymentMonitoring from "../Pages/Admin/PaymentMonitoring/PaymentMonitoring";
+import PolicyManagement from "../Pages/Admin/PolicyManagement/PolicyManagement";
 
 /**
  * Application Routes
@@ -156,6 +157,7 @@ export default function AppRoutes() {
         <Route path="finance" element={<AdminDashboard />} />
         <Route path="submission-management" element={<AdminSubmissionManagement />} />
         <Route path="payment-monitoring" element={<PaymentMonitoring />} />
+        <Route path="policy" element={<PolicyManagement />} />
       </Route>
 
       {/* Info, Guide, Policy routes */}

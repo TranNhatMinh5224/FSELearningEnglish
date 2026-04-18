@@ -236,50 +236,42 @@ namespace LearningEnglish.Infrastructure.Migrations
                     b.ToTable("Courses", (string)null);
                 });
 
-            modelBuilder.Entity("LearningEnglish.Domain.Entities.CourseEmbedding", b =>
+            modelBuilder.Entity("LearningEnglish.Domain.Entities.CourseKnowledge", b =>
                 {
-                    b.Property<int>("CourseEmbeddingId")
+                    b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("integer");
 
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("CourseEmbeddingId"));
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<string>("ContentHash")
                         .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("character varying(100)");
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)");
 
                     b.Property<int>("CourseId")
                         .HasColumnType("integer");
 
-                    b.Property<int>("EmbeddingDimension")
-                        .HasColumnType("integer");
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
 
-                    b.Property<string>("EmbeddingModel")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("character varying(100)");
-
-                    b.Property<Vector>("EmbeddingVector")
+                    b.Property<Vector>("Embedding")
                         .IsRequired()
                         .HasColumnType("vector(3072)");
 
-                    b.Property<DateTime?>("LastUpdatedEmbeddingAt")
+                    b.Property<string>("MarkdownContent")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<int>("PartType")
-                        .HasColumnType("integer");
+                    b.HasKey("Id");
 
-                    b.Property<string>("Title")
-                        .IsRequired()
-                        .HasMaxLength(255)
-                        .HasColumnType("character varying(255)");
+                    b.HasIndex("CourseId")
+                        .IsUnique();
 
-                    b.HasKey("CourseEmbeddingId");
-
-                    b.HasIndex("CourseId");
-
-                    b.ToTable("CourseEmbeddings", (string)null);
+                    b.ToTable("CourseKnowledges", (string)null);
                 });
 
             modelBuilder.Entity("LearningEnglish.Domain.Entities.CourseProgress", b =>
@@ -1285,6 +1277,83 @@ namespace LearningEnglish.Infrastructure.Migrations
                         });
                 });
 
+            modelBuilder.Entity("LearningEnglish.Domain.Entities.Policy", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Category")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("ContentMarkdown")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Slug")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Slug")
+                        .IsUnique();
+
+                    b.ToTable("Policies", (string)null);
+                });
+
+            modelBuilder.Entity("LearningEnglish.Domain.Entities.PolicyKnowledge", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("ContentHash")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Vector>("Embedding")
+                        .IsRequired()
+                        .HasColumnType("vector(3072)");
+
+                    b.Property<string>("MarkdownContent")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<int>("PolicyId")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("PolicyId")
+                        .IsUnique();
+
+                    b.ToTable("PolicyKnowledges", (string)null);
+                });
+
             modelBuilder.Entity("LearningEnglish.Domain.Entities.PronunciationProgress", b =>
                 {
                     b.Property<int>("PronunciationProgressId")
@@ -1945,54 +2014,42 @@ namespace LearningEnglish.Infrastructure.Migrations
                     b.ToTable("TeacherPackages", (string)null);
                 });
 
-            modelBuilder.Entity("LearningEnglish.Domain.Entities.TeacherPackageEmbedding", b =>
+            modelBuilder.Entity("LearningEnglish.Domain.Entities.TeacherPackageKnowledge", b =>
                 {
-                    b.Property<int>("TeacherPackageEmbeddingId")
+                    b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("integer");
 
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("TeacherPackageEmbeddingId"));
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<string>("ContentHash")
                         .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("character varying(100)");
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)");
 
-                    b.Property<int>("EmbeddingDimension")
-                        .HasColumnType("integer");
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
 
-                    b.Property<string>("EmbeddingModel")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("character varying(100)");
-
-                    b.Property<Vector>("EmbeddingVector")
+                    b.Property<Vector>("Embedding")
                         .IsRequired()
                         .HasColumnType("vector(3072)");
 
-                    b.Property<DateTime?>("LastUpdatedEmbeddingAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<string>("PackageName")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("character varying(100)");
-
-                    b.Property<int>("PartType")
-                        .HasColumnType("integer");
-
-                    b.Property<string>("SourceData")
+                    b.Property<string>("MarkdownContent")
                         .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<int>("TeacherPackageId")
                         .HasColumnType("integer");
 
-                    b.HasKey("TeacherPackageEmbeddingId");
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
 
-                    b.HasIndex("TeacherPackageId");
+                    b.HasKey("Id");
 
-                    b.ToTable("TeacherPackageEmbeddings", (string)null);
+                    b.HasIndex("TeacherPackageId")
+                        .IsUnique();
+
+                    b.ToTable("TeacherPackageKnowledges", (string)null);
                 });
 
             modelBuilder.Entity("LearningEnglish.Domain.Entities.TeacherSubscription", b =>
@@ -2144,7 +2201,7 @@ namespace LearningEnglish.Infrastructure.Migrations
                             IsMale = true,
                             LastName = "System",
                             NormalizedEmail = "MINHXOANDEV@GMAIL.COM",
-                            PasswordHash = "$2a$11$JjaYfesr3gTsK0S0tFWLO.lmzLCJn6/uVTc7C/FVZDzSl9SN3XkUa",
+                            PasswordHash = "$2a$11$.9GfvVH0q9cOca8HA2QEAuOGH3V7NqfZMxtf4QTcX/fyt3loPt.Te",
                             PhoneNumber = "0257554479",
                             Status = 1,
                             UpdatedAt = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc)
@@ -2248,11 +2305,11 @@ namespace LearningEnglish.Infrastructure.Migrations
                     b.Navigation("Teacher");
                 });
 
-            modelBuilder.Entity("LearningEnglish.Domain.Entities.CourseEmbedding", b =>
+            modelBuilder.Entity("LearningEnglish.Domain.Entities.CourseKnowledge", b =>
                 {
                     b.HasOne("LearningEnglish.Domain.Entities.Course", "Course")
-                        .WithMany("CourseEmbeddings")
-                        .HasForeignKey("CourseId")
+                        .WithOne("CourseKnowledge")
+                        .HasForeignKey("LearningEnglish.Domain.Entities.CourseKnowledge", "CourseId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -2487,6 +2544,17 @@ namespace LearningEnglish.Infrastructure.Migrations
                     b.Navigation("Payment");
                 });
 
+            modelBuilder.Entity("LearningEnglish.Domain.Entities.PolicyKnowledge", b =>
+                {
+                    b.HasOne("LearningEnglish.Domain.Entities.Policy", "Policy")
+                        .WithOne("PolicyKnowledge")
+                        .HasForeignKey("LearningEnglish.Domain.Entities.PolicyKnowledge", "PolicyId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Policy");
+                });
+
             modelBuilder.Entity("LearningEnglish.Domain.Entities.PronunciationProgress", b =>
                 {
                     b.HasOne("LearningEnglish.Domain.Entities.FlashCard", "FlashCard")
@@ -2616,11 +2684,11 @@ namespace LearningEnglish.Infrastructure.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("LearningEnglish.Domain.Entities.TeacherPackageEmbedding", b =>
+            modelBuilder.Entity("LearningEnglish.Domain.Entities.TeacherPackageKnowledge", b =>
                 {
                     b.HasOne("LearningEnglish.Domain.Entities.TeacherPackage", "TeacherPackage")
-                        .WithMany("TeacherPackageEmbeddings")
-                        .HasForeignKey("TeacherPackageId")
+                        .WithOne("TeacherPackageKnowledge")
+                        .HasForeignKey("LearningEnglish.Domain.Entities.TeacherPackageKnowledge", "TeacherPackageId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -2713,7 +2781,7 @@ namespace LearningEnglish.Infrastructure.Migrations
 
             modelBuilder.Entity("LearningEnglish.Domain.Entities.Course", b =>
                 {
-                    b.Navigation("CourseEmbeddings");
+                    b.Navigation("CourseKnowledge");
 
                     b.Navigation("CourseProgresses");
 
@@ -2762,6 +2830,11 @@ namespace LearningEnglish.Infrastructure.Migrations
                     b.Navigation("RolePermissions");
                 });
 
+            modelBuilder.Entity("LearningEnglish.Domain.Entities.Policy", b =>
+                {
+                    b.Navigation("PolicyKnowledge");
+                });
+
             modelBuilder.Entity("LearningEnglish.Domain.Entities.Question", b =>
                 {
                     b.Navigation("Options");
@@ -2795,7 +2868,7 @@ namespace LearningEnglish.Infrastructure.Migrations
                 {
                     b.Navigation("Subscriptions");
 
-                    b.Navigation("TeacherPackageEmbeddings");
+                    b.Navigation("TeacherPackageKnowledge");
                 });
 
             modelBuilder.Entity("LearningEnglish.Domain.Entities.User", b =>

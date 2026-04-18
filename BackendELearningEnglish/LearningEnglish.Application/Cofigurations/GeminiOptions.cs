@@ -1,6 +1,7 @@
-namespace LearningEnglish.Application.Cofigurations;
-
-// Backward-compatible alias to keep existing "Gemini" config working.
-public class GeminiOptions : ChatBotAIOptions
+namespace LearningEnglish.Application.Cofigurations
 {
+    public class GeminiOptions
+    {
+        public string ApiKey { get; set; }
+    }
 }

@@ -6,9 +6,9 @@ using LearningEnglish.Application.Common;
 using LearningEnglish.Application.Common.Constants;
 using LearningEnglish.Application.Common.Helpers;
 using LearningEnglish.Application.Common.Pagination;
-using LearningEnglish.Application.Interface.Infrastructure.ChatBotAI;
 using LearningEnglish.Application.Interface.Infrastructure.MediaService;
 using LearningEnglish.Application.Interface.Infrastructure;
+using LearningEnglish.Application.Interface.IKnowledgeSyncService;
 using AutoMapper;
 using Microsoft.Extensions.Logging;
 
@@ -21,23 +21,23 @@ namespace LearningEnglish.Application.Service
         private readonly IMapper _mapper;
         private readonly ILogger<AdminCourseService> _logger;
         private readonly ICourseImageService _courseImageService;
-        private readonly IEmbeddingIngestionService _embeddingIngestionService;
         private readonly ICacheService _cache;
+        private readonly IKnowledgeSyncService _knowledgeSyncService;
 
         public AdminCourseService(
             ICourseRepository courseRepository,
             IMapper mapper,
             ILogger<AdminCourseService> logger,
             ICourseImageService courseImageService,
-            IEmbeddingIngestionService embeddingIngestionService,
-            ICacheService cache)
+            ICacheService cache,
+            IKnowledgeSyncService knowledgeSyncService)
         {
             _courseRepository = courseRepository;
             _mapper = mapper;
             _logger = logger;
             _courseImageService = courseImageService;
-            _embeddingIngestionService = embeddingIngestionService;
             _cache = cache;
+            _knowledgeSyncService = knowledgeSyncService;
         }
 
         // Lấy danh sách loại khóa học (System/Teacher) 
@@ -180,16 +180,6 @@ namespace LearningEnglish.Application.Service
                     return response;
                 }
 
-                // Chạy riêng phần embedding, nếu lỗi thì không rollback DB vì đã tạo thành công course
-                try
-                {
-                    await _embeddingIngestionService.UpsertCourseEmbeddingAsync(course);
-                }
-                catch (Exception embedEx)
-                {
-                    _logger.LogWarning(embedEx, "Embedding tạo thất bại, khóa học vẫn được tạo thành công (CourseId: {CourseId})", course.CourseId);
-                }
-
                 var courseResponseDto = _mapper.Map<CourseResponseDto>(course);
                 courseResponseDto.TeacherName = "System Admin";
                 courseResponseDto.LessonCount = 0;
@@ -206,6 +196,12 @@ namespace LearningEnglish.Application.Service
                 response.Data = courseResponseDto;
                 response.Message = "Tạo khóa học thành công";
                 response.Success = true;
+
+                // Sync to AI if it's a system course (Admin-created courses are usually system)
+                if (course.Type == CourseType.System)
+                {
+                    await _knowledgeSyncService.SyncCourseAsync(course.CourseId);
+                }
 
                 _logger.LogInformation("Admin created course: {CourseTitle} (ID: {CourseId})", requestDto.Title, course.CourseId);
             }
@@ -299,16 +295,6 @@ namespace LearningEnglish.Application.Service
                     return response;
                 }
 
-                // Cập nhật embedding (try-catch để không rollback course)
-                try
-                {
-                    await _embeddingIngestionService.UpsertCourseEmbeddingAsync(course);
-                }
-                catch (Exception embedEx)
-                {
-                    _logger.LogWarning(embedEx, "Embedding cập nhật thất bại cho CourseId {CourseId}", course.CourseId);
-                }
-
                 // Delete old image after successful DB update
                 if (oldImageKey != null && newImageKey != null)
                 {
@@ -332,6 +318,12 @@ namespace LearningEnglish.Application.Service
                 response.Data = courseResponseDto;
                 response.Success = true;
                 response.Message = "Cập nhật khóa học thành công";
+
+                // Sync to AI if it's a system course
+                if (course.Type == CourseType.System)
+                {
+                    await _knowledgeSyncService.SyncCourseAsync(courseId);
+                }
 
                 _logger.LogInformation("Admin updated course {CourseId}", courseId);
             }
@@ -371,8 +363,10 @@ namespace LearningEnglish.Application.Service
                 }
 
                 await _courseRepository.DeleteCourse(courseId);
-                await _embeddingIngestionService.DeleteCourseEmbeddingsAsync(courseId);
                 _cache.RemoveByPrefix(CacheKeys.CoursesPrefix);
+
+                // Tự động xóa kiến thức khỏi AI (RAG)
+                await _knowledgeSyncService.RemoveCourseKnowledgeAsync(courseId);
 
                 response.Success = true;
                 response.StatusCode = 200;

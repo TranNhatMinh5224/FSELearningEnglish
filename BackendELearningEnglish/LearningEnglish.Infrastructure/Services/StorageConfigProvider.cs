@@ -3,10 +3,9 @@ using LearningEnglish.Infrastructure.Common.Constants;
 
 namespace LearningEnglish.Infrastructure.Services;
 
-/// <summary>
-/// Implementation của IStorageConfigProvider
-/// Cung cấp bucket names từ StorageConstants
-/// </summary>
+// Implementation của IStorageConfigProvider
+// Cung cấp bucket names từ StorageConstants
+
 public class StorageConfigProvider : IStorageConfigProvider
 {
     // Danh sách tất cả buckets cần cleanup temp files

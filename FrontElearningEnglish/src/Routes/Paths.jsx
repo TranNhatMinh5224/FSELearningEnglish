@@ -88,6 +88,7 @@ export const ROUTE_PATHS = {
     SUBMISSION_MANAGEMENT: "/admin/submission-management",
     ASSET_MANAGEMENT: "/admin/asset-management",
     PAYMENT_MONITORING: "/admin/payment-monitoring",
+    POLICY_MANAGEMENT: "/admin/policy",
   },
 
   // Info, Guide, Policy routes

@@ -2,7 +2,6 @@ using Microsoft.EntityFrameworkCore;
 using LearningEnglish.Domain.Entities;
 using LearningEnglish.Domain.Enums;
 using LearningEnglish.Infrastructure.Data;
-using Pgvector;
 
 namespace LearningEnglish.Infrastructure.Data
 {
@@ -47,10 +46,10 @@ namespace LearningEnglish.Infrastructure.Data
         public DbSet<TeacherPackage> TeacherPackages => Set<TeacherPackage>();
         public DbSet<TeacherSubscription> TeacherSubscriptions => Set<TeacherSubscription>();
         public DbSet<ExternalLogin> ExternalLogins => Set<ExternalLogin>();
-
-        // AI & Embedding Support
-        public DbSet<CourseEmbedding> CourseEmbeddings => Set<CourseEmbedding>();
-        public DbSet<TeacherPackageEmbedding> TeacherPackageEmbeddings => Set<TeacherPackageEmbedding>();
+        public DbSet<CourseKnowledge> CourseKnowledges => Set<CourseKnowledge>();
+        public DbSet<TeacherPackageKnowledge> TeacherPackageKnowledges => Set<TeacherPackageKnowledge>();
+        public DbSet<Policy> Policies => Set<Policy>();
+        public DbSet<PolicyKnowledge> PolicyKnowledges => Set<PolicyKnowledge>();
 
         // Frontend Management
         public DbSet<AssetFrontend> AssetsFrontend => Set<AssetFrontend>();
@@ -268,6 +267,31 @@ namespace LearningEnglish.Infrastructure.Data
                  .OnDelete(DeleteBehavior.SetNull);
 
             });
+
+            // CourseKnowledge (AI Wiki 1-1)
+            modelBuilder.Entity<CourseKnowledge>(e =>
+            {
+                e.ToTable("CourseKnowledges");
+                e.HasKey(ck => ck.Id);
+                
+                e.Property(ck => ck.MarkdownContent)
+                 .IsRequired()
+                 .HasColumnType("text");
+
+                e.Property(ck => ck.ContentHash)
+                 .IsRequired()
+                 .HasMaxLength(64);
+
+                // Configure Vector for pgvector (Gemini gemini-embedding-001 is 3072)
+                e.Property(ck => ck.Embedding)
+                 .HasColumnType("vector(3072)");
+
+                e.HasOne(ck => ck.Course)
+                 .WithOne(c => c.CourseKnowledge)
+                 .HasForeignKey<CourseKnowledge>(ck => ck.CourseId)
+                 .OnDelete(DeleteBehavior.Cascade);
+            });
+
   
             modelBuilder.Entity<Lesson>(e =>
             {
@@ -664,6 +688,30 @@ namespace LearningEnglish.Infrastructure.Data
 
                 e.Property(tp => tp.Price)
                  .HasPrecision(18, 2);
+            });
+
+            // TeacherPackageKnowledge (AI Wiki 1-1)
+            modelBuilder.Entity<TeacherPackageKnowledge>(e =>
+            {
+                e.ToTable("TeacherPackageKnowledges");
+                e.HasKey(tpk => tpk.Id);
+
+                e.Property(tpk => tpk.MarkdownContent)
+                 .IsRequired()
+                 .HasColumnType("text");
+
+                e.Property(tpk => tpk.ContentHash)
+                 .IsRequired()
+                 .HasMaxLength(64);
+
+                // Configure Vector for pgvector (Gemini gemini-embedding-001 is 3072)
+                e.Property(tpk => tpk.Embedding)
+                 .HasColumnType("vector(3072)");
+
+                e.HasOne(tpk => tpk.TeacherPackage)
+                 .WithOne(tp => tp.TeacherPackageKnowledge)
+                 .HasForeignKey<TeacherPackageKnowledge>(tpk => tpk.TeacherPackageId)
+                 .OnDelete(DeleteBehavior.Cascade);
             });
 
             // TeacherSubscription
@@ -1156,63 +1204,35 @@ namespace LearningEnglish.Infrastructure.Data
                 e.HasIndex(w => new { w.Status, w.NextRetryAt }); // Composite for retry queries
                 e.HasIndex(w => w.CreatedAt);
             });
+
+            // Policy
+            modelBuilder.Entity<Policy>(e =>
+            {
+                e.ToTable("Policies");
+                e.HasKey(p => p.Id);
+                e.HasIndex(p => p.Slug).IsUnique();
+                
+                e.Property(p => p.Title).IsRequired().HasMaxLength(255);
+                e.Property(p => p.ContentMarkdown).IsRequired().HasColumnType("text");
+            });
+
+            // PolicyKnowledge (AI Wiki 1-1)
+            modelBuilder.Entity<PolicyKnowledge>(e =>
+            {
+                e.ToTable("PolicyKnowledges");
+                e.HasKey(pk => pk.Id);
+                
+                e.Property(pk => pk.MarkdownContent).IsRequired().HasColumnType("text");
+                e.Property(pk => pk.ContentHash).IsRequired().HasMaxLength(64);
+                e.Property(pk => pk.Embedding).HasColumnType("vector(3072)");
+
+                e.HasOne(pk => pk.Policy)
+                 .WithOne(p => p.PolicyKnowledge)
+                 .HasForeignKey<PolicyKnowledge>(pk => pk.PolicyId)
+                 .OnDelete(DeleteBehavior.Cascade);
+            });
         
          // ===== SEED   DATA =====
-
-
-
-            // CourseEmbedding
-            modelBuilder.Entity<CourseEmbedding>(e =>
-            {
-                e.ToTable("CourseEmbeddings");
-                e.HasKey(ce => ce.CourseEmbeddingId);
-
-                e.Property(ce => ce.Title).HasMaxLength(255);
-                e.Property(ce => ce.EmbeddingModel).IsRequired().HasMaxLength(100);
-                e.Property(ce => ce.ContentHash).HasMaxLength(100);
-                
-                     // pgvector: map float[] to vector(dimension)
-                     // Current standard dimension for configured embedding model: 3072
-                e.Property(ce => ce.EmbeddingVector)
-                      .HasColumnType("vector(3072)")
-                 .HasConversion(
-                    v => new Vector(v),
-                    v => v.ToArray()
-                 ); 
-
-                e.HasOne(ce => ce.Course)
-                 .WithMany(c => c.CourseEmbeddings)
-                 .HasForeignKey(ce => ce.CourseId)
-                 .OnDelete(DeleteBehavior.Cascade);
-
-                // Note: Index removed because 3072 dimensions exceed PostgreSQL page size for HNSW/IVFFlat indexes.
-                // Sequential scan will be used, which is sufficient for current data scale.
-            });
-
-            // TeacherPackageEmbedding
-            modelBuilder.Entity<TeacherPackageEmbedding>(e =>
-            {
-                e.ToTable("TeacherPackageEmbeddings");
-                e.HasKey(tpe => tpe.TeacherPackageEmbeddingId);
-
-                e.Property(tpe => tpe.PackageName).HasMaxLength(100);
-                e.Property(tpe => tpe.EmbeddingModel).IsRequired().HasMaxLength(100);
-                e.Property(tpe => tpe.ContentHash).HasMaxLength(100);
-
-                e.Property(tpe => tpe.EmbeddingVector)
-                      .HasColumnType("vector(3072)")
-                 .HasConversion(
-                    v => new Vector(v),
-                    v => v.ToArray()
-                 );
-
-                e.HasOne(tpe => tpe.TeacherPackage)
-                 .WithMany(tp => tp.TeacherPackageEmbeddings)
-                 .HasForeignKey(tpe => tpe.TeacherPackageId)
-                 .OnDelete(DeleteBehavior.Cascade);
-
-                // Note: Index removed due to dimension limits.
-            });
 
             SeedData(modelBuilder);
         }

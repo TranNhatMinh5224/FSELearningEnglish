@@ -50,6 +50,7 @@ TestResults/
 *.sqlite
 *.sqlite3
 
+
 # File cấu hình môi trường chứa SECRET
 **/appsettings.Development.json
 **/appsettings.Production.json

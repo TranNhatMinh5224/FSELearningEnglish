@@ -6,7 +6,6 @@ using LearningEnglish.Application.Common.Constants;
 using LearningEnglish.Application.Common.Utils;
 using LearningEnglish.Application.Common.Helpers;
 using LearningEnglish.Application.Common.Pagination;
-using LearningEnglish.Application.Interface.Infrastructure.ChatBotAI;
 using LearningEnglish.Application.Interface.Infrastructure;
 using LearningEnglish.Application.Interface.Infrastructure.MediaService;
 using AutoMapper;
@@ -24,7 +23,6 @@ namespace LearningEnglish.Application.Service
         private readonly ILogger<TeacherCourseService> _logger;
         private readonly ITeacherPackageRepository _teacherPackageRepository;
         private readonly ICourseImageService _courseImageService;
-        private readonly IEmbeddingIngestionService _embeddingIngestionService;
         private readonly ICacheService _cache;
 
         public TeacherCourseService(
@@ -34,7 +32,6 @@ namespace LearningEnglish.Application.Service
             ILogger<TeacherCourseService> logger,
             ITeacherPackageRepository teacherPackageRepository,
             ICourseImageService courseImageService,
-            IEmbeddingIngestionService embeddingIngestionService,
             ICacheService cache)
         {
             _courseRepository = courseRepository;
@@ -43,7 +40,6 @@ namespace LearningEnglish.Application.Service
             _logger = logger;
             _teacherPackageRepository = teacherPackageRepository;
             _courseImageService = courseImageService;
-            _embeddingIngestionService = embeddingIngestionService;
             _cache = cache;
         }
         // Tạo Khóa học 
@@ -151,16 +147,6 @@ namespace LearningEnglish.Application.Service
                     response.StatusCode = 500;
                     response.Message = "Lỗi database khi tạo khóa học";
                     return response;
-                }
-
-                // Chạy embedding riêng rẽ để không throw error nếu DB đã commit
-                try
-                {
-                    await _embeddingIngestionService.UpsertCourseEmbeddingAsync(course);
-                }
-                catch (Exception embedEx)
-                {
-                    _logger.LogWarning(embedEx, "Embedding tạo thất bại nhưng khóa học đã được tạo thành công (CourseId {CourseId})", course.CourseId);
                 }
 
                 // Map response và generate URL từ key
@@ -312,16 +298,6 @@ namespace LearningEnglish.Application.Service
                     return response;
                 }
 
-                // Xử lý embedding độc lập, không quăng lỗi DB/image nếu thất bại
-                try
-                {
-                    await _embeddingIngestionService.UpsertCourseEmbeddingAsync(course);
-                }
-                catch (Exception embedEx)
-                {
-                    _logger.LogWarning(embedEx, "Cập nhật embedding thất bại, nhưng khóa học đã được cập nhật thành công (CourseId {CourseId})", course.CourseId);
-                }
-
                 // Delete old image only after successful DB update
                 if (oldImageKey != null && newImageKey != null)
                 {
@@ -430,7 +406,6 @@ namespace LearningEnglish.Application.Service
                 }
 
                 await _courseRepository.DeleteCourse(courseId);
-                await _embeddingIngestionService.DeleteCourseEmbeddingsAsync(courseId);
                 _cache.RemoveByPrefix(CacheKeys.CoursesPrefix);
 
                 response.Success = true;

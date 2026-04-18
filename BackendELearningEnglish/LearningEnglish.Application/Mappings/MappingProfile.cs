@@ -545,6 +545,14 @@ namespace LearningEnglish.Application.Mappings
 
 
 
+            // Policy mappings
+            CreateMap<Policy, AdminPolicyResponseDto>();
+            CreateMap<AdminCreatePolicyRequestDto, Policy>()
+                .ForMember(dest => dest.Id, opt => opt.Ignore())
+                .ForMember(dest => dest.CreatedAt, opt => opt.MapFrom(src => DateTime.UtcNow))
+                .ForMember(dest => dest.UpdatedAt, opt => opt.MapFrom(src => DateTime.UtcNow));
+            CreateMap<AdminUpdatePolicyRequestDto, Policy>()
+                .ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
         }
 
 

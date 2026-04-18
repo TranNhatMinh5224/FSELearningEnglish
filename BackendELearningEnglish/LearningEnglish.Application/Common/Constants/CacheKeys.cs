@@ -1,8 +1,6 @@
 namespace LearningEnglish.Application.Common.Constants;
 
-/// <summary>
-/// Centralized cache key constants to avoid magic strings across services.
-/// </summary>
+
 public static class CacheKeys
 {
     // ── Course ────────────────────────────────────────────────────────────
@@ -26,10 +24,6 @@ public static class CacheKeys
 
     // ── Landing Page & Assets ─────────────────────────────────────────────
     public const string LandingPageAssets = "landing:assets";
-
-    // ── Chatbot ───────────────────────────────────────────────────────────
-    public const string ChatBotPrefix = "chatbot:";
-    public static string ChatBotConsult(string promptHash) => $"chatbot:consult:{promptHash}";
 
     // ── Assessments & Quizzes ───────────────────────────────────────────
     public const string AssessmentsPrefix = "assessments:";

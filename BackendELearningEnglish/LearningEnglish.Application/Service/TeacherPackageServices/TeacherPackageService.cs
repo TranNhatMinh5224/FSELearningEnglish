@@ -4,7 +4,7 @@ using LearningEnglish.Application.Common;
 using LearningEnglish.Application.Common.Constants;
 using LearningEnglish.Application.Interface;
 using LearningEnglish.Application.Interface.Infrastructure;
-using LearningEnglish.Application.Interface.Infrastructure.ChatBotAI;
+using LearningEnglish.Application.Interface.IKnowledgeSyncService;
 
 using LearningEnglish.Domain.Entities;
 using AutoMapper;
@@ -18,21 +18,21 @@ namespace LearningEnglish.Application.Service
         private readonly ITeacherPackageRepository _teacherPackageRepository;
         private readonly IMapper _mapper;
         private readonly ILogger<TeacherPackageService> _logger;
-        private readonly IEmbeddingIngestionService _embeddingIngestionService;
         private readonly ICacheService _cache;
+        private readonly IKnowledgeSyncService _knowledgeSyncService;
 
         public TeacherPackageService(
             ITeacherPackageRepository teacherPackageRepository,
             IMapper mapper,
             ILogger<TeacherPackageService> logger,
-            IEmbeddingIngestionService embeddingIngestionService,
-            ICacheService cache)
+            ICacheService cache,
+            IKnowledgeSyncService knowledgeSyncService)
         {
             _teacherPackageRepository = teacherPackageRepository;
             _mapper = mapper;
             _logger = logger;
-            _embeddingIngestionService = embeddingIngestionService;
             _cache = cache;
+            _knowledgeSyncService = knowledgeSyncService;
         }
 
         // Chỉ Admin mới có thể CRUD (đã có Permission check ở controller)
@@ -108,18 +108,9 @@ namespace LearningEnglish.Application.Service
                 // Invalidate list cache ngay sau khi CRUD để tránh cache giữ dữ liệu cũ
                 _cache.RemoveByPrefix(CacheKeys.TeacherPackagesPrefix);
 
-                // Embedding ingestion chỉ phục vụ chatbot/search, không nên làm fail CRUD.
-                try
-                {
-                    await _embeddingIngestionService.UpsertTeacherPackageEmbeddingAsync(teacherPackage);
-                }
-                catch (Exception ex)
-                {
-                    _logger.LogWarning(ex,
-                        "Teacher package {TeacherPackageId} created but embedding upsert failed",
-                        teacherPackage.TeacherPackageId);
-                    response.Message = "Tạo gói giáo viên thành công nhưng cập nhật embedding thất bại";
-                }
+                // Tự động đồng bộ lên AI
+                await _knowledgeSyncService.SyncPackageAsync(teacherPackage.TeacherPackageId);
+
                 response.StatusCode = 201;
                 response.Data = _mapper.Map<TeacherPackageDto>(teacherPackage);
                 response.Success = true;
@@ -183,17 +174,8 @@ namespace LearningEnglish.Application.Service
                 await _teacherPackageRepository.UpdateTeacherPackageAsync(existingPackage);
                 _cache.RemoveByPrefix(CacheKeys.TeacherPackagesPrefix);
 
-                try
-                {
-                    await _embeddingIngestionService.UpsertTeacherPackageEmbeddingAsync(existingPackage);
-                }
-                catch (Exception ex)
-                {
-                    _logger.LogWarning(ex,
-                        "Teacher package {TeacherPackageId} updated but embedding upsert failed",
-                        existingPackage.TeacherPackageId);
-                    // Không fail update nếu embedding lỗi.
-                }
+                // Cập nhật lại kiến thức AI
+                await _knowledgeSyncService.SyncPackageAsync(id);
 
                 var result = _mapper.Map<TeacherPackageDto>(existingPackage);
                 return new ServiceResponse<TeacherPackageDto>
@@ -245,17 +227,9 @@ namespace LearningEnglish.Application.Service
                 await _teacherPackageRepository.DeleteTeacherPackageAsync(id);
                 _cache.RemoveByPrefix(CacheKeys.TeacherPackagesPrefix);
 
-                try
-                {
-                    await _embeddingIngestionService.DeleteTeacherPackageEmbeddingsAsync(id);
-                }
-                catch (Exception ex)
-                {
-                    _logger.LogWarning(ex,
-                        "Teacher package {TeacherPackageId} deleted but embedding cleanup failed",
-                        id);
-                    // Không fail delete nếu embedding cleanup lỗi.
-                }
+                // Tự động xóa kiến thức khỏi AI (RAG) 
+                await _knowledgeSyncService.RemovePackageKnowledgeAsync(id);
+
                 response.StatusCode = 200;
                 response.Data = true;
                 response.Success = true;
