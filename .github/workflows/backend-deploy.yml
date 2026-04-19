@@ -77,7 +77,7 @@ jobs:
         shell: bash
         run: |
           sudo -n systemctl daemon-reload
-          sudo -n systemctl try-restart "${{ secrets.VPS_BACKEND_SERVICE }}"
+          sudo -n systemctl restart "${{ secrets.VPS_BACKEND_SERVICE }}"
           sudo -n systemctl is-active "${{ secrets.VPS_BACKEND_SERVICE }}"
 
       - name: Health Check
