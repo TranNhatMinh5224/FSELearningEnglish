@@ -138,7 +138,16 @@ export default function QuizHistory() {
                         </div>
                     </div>
 
-                    {attempts.length === 0 ? (
+                    {error ? (
+                        <div className="error-state text-center mt-5">
+                            <div className="error-icon text-danger mb-3" style={{ fontSize: "3rem" }}>⚠️</div>
+                            <h4 className="text-danger fw-bold">{error}</h4>
+                            <p className="text-secondary">Vui lòng thử lại sau hoặc liên hệ hỗ trợ nếu lỗi vẫn tiếp diễn.</p>
+                            <button className="btn btn-primary mt-3" onClick={() => window.location.reload()}>
+                                Tải lại trang
+                            </button>
+                        </div>
+                    ) : attempts.length === 0 ? (
                         <div className="empty-state">
                             <div className="empty-icon">📝</div>
                             <p className="empty-title">Chưa có dữ liệu học tập</p>

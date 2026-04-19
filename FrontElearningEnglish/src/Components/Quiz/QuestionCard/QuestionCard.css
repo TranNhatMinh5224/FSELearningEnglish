@@ -121,83 +121,38 @@
     border-radius: 2px;
 }
 
-.question-navigation-bar-v4 {
+/* Integrated Points Badge */
+.points-badge-v4-compact {
     display: flex;
-    justify-content: space-between;
     align-items: center;
-    background: #f8fafc;
-    padding: 0.75rem 1.25rem;
-    border-radius: 12px;
+    gap: 0.35rem;
+    background: #f1f5f9;
+    padding: 0.35rem 0.85rem;
+    border-radius: 10px;
     border: 1px solid #e2e8f0;
-}
-
-.nav-sequence-v4 {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-}
-
-.nav-item-v4 {
-    width: 32px;
-    height: 32px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 8px;
-    font-size: 0.85rem;
-    font-weight: 600;
-    color: #64748b;
-    background: white;
-    border: 1px solid #e2e8f0;
-    cursor: default;
-}
-
-.nav-item-v4.active {
-    background: var(--color-primary, #2563eb);
-    color: white;
-    border-color: var(--color-primary, #2563eb);
-    transform: scale(1.15);
-    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
-}
-
-.nav-dot-v4 {
-    color: #94a3b8;
-    margin: 0 2px;
-}
-
-.nav-total-v4 {
-    margin-left: 0.75rem;
-    font-size: 0.85rem;
-    font-weight: 600;
-    color: #64748b;
-}
-
-.points-badge-v4 {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    background: rgba(37, 99, 235, 0.1);
-    padding: 0.4rem 1rem;
-    border-radius: 20px;
-    color: var(--color-primary, #2563eb);
+    color: #475569;
+    flex-shrink: 0;
+    margin-left: 1.5rem;
 }
 
 .points-value {
     font-weight: 800;
-    font-size: 1.1rem;
+    font-size: 1rem;
+    color: var(--color-primary, #2563eb);
 }
 
 .points-label {
-    font-size: 0.75rem;
+    font-size: 0.7rem;
     text-transform: uppercase;
     font-weight: 700;
 }
 
 .question-headline-v4 {
     font-size: 1.35rem;
-    line-height: 1.5;
+    line-height: 1.6;
     color: #0f172a;
     font-weight: 600;
+    flex-grow: 1;
 }
 
 .question-number-prefix {
@@ -216,13 +171,9 @@
     .question-headline-v4 {
         font-size: 1.15rem;
     }
-    .question-navigation-bar-v4 {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 1rem;
-    }
-    .points-badge-v4 {
-        align-self: flex-end;
+    .points-badge-v4-compact {
+        padding: 0.25rem 0.65rem;
+        margin-left: 1rem;
     }
 }
 

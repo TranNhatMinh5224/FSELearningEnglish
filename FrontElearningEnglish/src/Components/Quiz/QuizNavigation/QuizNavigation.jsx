@@ -2,11 +2,18 @@ import { FaCheck } from "react-icons/fa";
 import { Card, Row, Col } from "react-bootstrap";
 import "./QuizNavigation.css";
 
-export default function QuizNavigation({ questions, currentIndex, answers, onGoToQuestion }) {
+export default function QuizNavigation({ questions, currentPagedItem, answers, onGoToQuestion }) {
     const getQuestionStatus = (question, index) => {
         const questionId = question.questionId || question.QuestionId;
         const hasAnswer = answers[questionId] !== undefined && answers[questionId] !== null;
-        const isCurrent = index === currentIndex;
+        
+        // Check if this question index (0-based) falls within the current paged item range
+        let isCurrent = false;
+        if (currentPagedItem) {
+            const startIdx = currentPagedItem._startNumber - 1;
+            const endIdx = startIdx + currentPagedItem._itemCount - 1;
+            isCurrent = index >= startIdx && index <= endIdx;
+        }
         
         if (isCurrent) return "current";
         if (hasAnswer) return "answered";

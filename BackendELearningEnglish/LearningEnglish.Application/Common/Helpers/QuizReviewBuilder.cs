@@ -219,12 +219,21 @@ namespace LearningEnglish.Application.Common.Helpers
                         return answer.ToString() ?? "N/A";
 
                     case QuestionType.Matching:
-                        if (answer is JsonElement jsonElement && jsonElement.ValueKind == JsonValueKind.Object)
+                        if (answer is JsonElement jsonMatching && jsonMatching.ValueKind == JsonValueKind.Object)
                         {
                             var pairs = new List<string>();
-                            foreach (var prop in jsonElement.EnumerateObject())
+                            foreach (var prop in jsonMatching.EnumerateObject())
                             {
                                 pairs.Add($"{prop.Name}→{prop.Value}");
+                            }
+                            return string.Join(", ", pairs);
+                        }
+                        if (answer is System.Collections.IDictionary dict)
+                        {
+                            var pairs = new List<string>();
+                            foreach (System.Collections.DictionaryEntry entry in dict)
+                            {
+                                pairs.Add($"{entry.Key}→{entry.Value}");
                             }
                             return string.Join(", ", pairs);
                         }
@@ -234,7 +243,35 @@ namespace LearningEnglish.Application.Common.Helpers
                         if (answer is JsonElement jsonArr && jsonArr.ValueKind == JsonValueKind.Array)
                         {
                             var items = jsonArr.EnumerateArray().Select(e => e.ToString()).ToList();
-                            return string.Join(", ", items);
+                            // Try to map to option text if items are IDs
+                            var mappedItems = new List<string>();
+                            foreach (var item in items)
+                            {
+                                var itemStr = item;
+                                if (int.TryParse(item, out int optId) && question.Options != null)
+                                {
+                                    var opt = question.Options.FirstOrDefault(o => o.AnswerOptionId == optId);
+                                    if (opt != null) itemStr = opt.Text ?? itemStr;
+                                }
+                                mappedItems.Add(itemStr);
+                            }
+                            return string.Join(", ", mappedItems);
+                        }
+                        if (answer is System.Collections.IEnumerable enumArr && !(answer is string))
+                        {
+                            var listItems = new List<string>();
+                            foreach (var item in enumArr)
+                            {
+                                if (item == null) continue;
+                                var itemStr = item.ToString() ?? "";
+                                if (int.TryParse(itemStr, out int optId) && question.Options != null)
+                                {
+                                    var opt = question.Options.FirstOrDefault(o => o.AnswerOptionId == optId);
+                                    if (opt != null) itemStr = opt.Text ?? itemStr;
+                                }
+                                listItems.Add(itemStr);
+                            }
+                            return string.Join(", ", listItems);
                         }
                         return answer.ToString() ?? "N/A";
 

@@ -41,18 +41,15 @@ export default function QuizDetail() {
     const saveAnswerTimeoutRef = useRef({}); // Debounce timers cho từng questionId
     const savingAnswersRef = useRef(new Set()); // Track các answer đang được save
 
-    // Flatten all questions from sections and groups
-    const getAllQuestions = () => {
-        if (!quizAttempt) {
-            return [];
-        }
+    // Get paged items (stand-alone questions or entire groups)
+    const getPagedItems = () => {
+        if (!quizAttempt) return [];
 
         const sections = quizAttempt.QuizSections || quizAttempt.quizSections || [];
-        if (!sections || sections.length === 0) {
-            return [];
-        }
+        if (!sections || sections.length === 0) return [];
 
-        const allQuestions = [];
+        const pagedItems = [];
+        let globalNumber = 1;
         sections.forEach((section, sectionIdx) => {
             const sectionInfo = {
                 sectionId: section.SectionId || section.sectionId || section.QuizSectionId,
@@ -61,87 +58,102 @@ export default function QuizDetail() {
                 sectionIndex: sectionIdx + 1
             };
 
-            // New Structure: QuizSections -> Items (Group/Question)
             const items = section.Items || section.items || [];
 
             if (items.length > 0) {
                 items.forEach(item => {
                     const type = item.ItemType || item.itemType;
-
                     if (type === "Question") {
                         if (item.QuestionId || item.questionId) {
-                            allQuestions.push({
+                            pagedItems.push({
                                 ...item,
-                                _sectionInfo: sectionInfo
+                                _itemType: "Question",
+                                _sectionInfo: sectionInfo,
+                                _startNumber: globalNumber,
+                                _itemCount: 1
                             });
+                            globalNumber++;
                         }
                     } else if (type === "Group") {
-                        const groupQuestions = item.Questions || item.questions || [];
-                        if (Array.isArray(groupQuestions)) {
-                            const groupInfo = {
+                        const questionsInGroup = item.Questions || item.questions || [];
+                        pagedItems.push({
+                            ...item,
+                            _itemType: "Group",
+                            _sectionInfo: sectionInfo,
+                            questions: questionsInGroup,
+                            _startNumber: globalNumber,
+                            _itemCount: questionsInGroup.length,
+                            groupInfo: {
                                 groupName: item.Name || item.name,
                                 groupTitle: item.Title || item.title,
                                 groupDescription: item.Description || item.description,
                                 groupImgUrl: item.ImgUrl || item.imgUrl,
                                 groupVideoUrl: item.VideoUrl || item.videoUrl,
                                 groupSumScore: item.SumScore || item.sumScore
-                            };
-
-                            groupQuestions.forEach(q => {
-                                allQuestions.push({
-                                    ...q,
-                                    _groupInfo: groupInfo,
-                                    _sectionInfo: sectionInfo
-                                });
-                            });
-                        }
+                            }
+                        });
+                        globalNumber += questionsInGroup.length;
                     }
                 });
             } else {
-                // Fallback: Legacy/Alternative Structure
-                const questions = section.Questions || section.questions || [];
-                const groups = section.QuizGroups || section.quizGroups || [];
+                // Fallback for legacy structure
+                const qs = section.Questions || section.questions || [];
+                const gs = section.QuizGroups || section.quizGroups || [];
 
-                if (Array.isArray(questions) && questions.length > 0) {
-                    questions.forEach(q => {
-                        allQuestions.push({
-                            ...q,
-                            _sectionInfo: sectionInfo
-                        });
+                qs.forEach(q => {
+                    pagedItems.push({
+                        ...q,
+                        _itemType: "Question",
+                        _sectionInfo: sectionInfo,
+                        _startNumber: globalNumber,
+                        _itemCount: 1
                     });
-                }
+                    globalNumber++;
+                });
 
-                if (Array.isArray(groups) && groups.length > 0) {
-                    groups.forEach((group) => {
-                        const groupQuestions = group.Questions || group.questions || [];
-                        if (Array.isArray(groupQuestions) && groupQuestions.length > 0) {
-                            const groupInfo = {
-                                groupName: group.Name || group.name,
-                                groupTitle: group.Title || group.title,
-                                groupDescription: group.Description || group.description,
-                                groupImgUrl: group.ImgUrl || group.imgUrl,
-                                groupVideoUrl: group.VideoUrl || group.videoUrl,
-                                groupSumScore: group.SumScore || group.sumScore
-                            };
-
-                            groupQuestions.forEach(q => {
-                                allQuestions.push({
-                                    ...q,
-                                    _groupInfo: groupInfo,
-                                    _sectionInfo: sectionInfo
-                                });
-                            });
+                gs.forEach(g => {
+                    const questionsInGroup = g.Questions || g.questions || [];
+                    pagedItems.push({
+                        ...g,
+                        _itemType: "Group",
+                        _sectionInfo: sectionInfo,
+                        questions: questionsInGroup,
+                        _startNumber: globalNumber,
+                        _itemCount: questionsInGroup.length,
+                        groupInfo: {
+                            groupName: g.Name || g.name,
+                            groupTitle: g.Title || g.title,
+                            groupDescription: g.Description || g.description,
+                            groupImgUrl: g.ImgUrl || g.imgUrl,
+                            groupVideoUrl: g.VideoUrl || g.videoUrl,
+                            groupSumScore: g.SumScore || g.sumScore
                         }
                     });
-                }
+                    globalNumber += questionsInGroup.length;
+                });
             }
         });
 
-        return allQuestions;
+        return pagedItems;
     };
 
-    const questions = getAllQuestions();
-    const currentQuestion = questions[currentQuestionIndex];
+    const pagedItems = getPagedItems();
+    const currentPagedItem = pagedItems[currentQuestionIndex];
+
+    // Derived flattened questions for count and sidebar
+    const questions = (() => {
+        const all = [];
+        pagedItems.forEach(item => {
+            if (item._itemType === "Group") {
+                (item.questions || []).forEach(q => {
+                    all.push({ ...q, _groupInfo: item.groupInfo, _sectionInfo: item._sectionInfo });
+                });
+            } else {
+                all.push(item);
+            }
+        });
+        return all;
+    })();
 
     useEffect(() => {
         // Tạo key duy nhất cho quizId và attemptId hiện tại
@@ -486,13 +498,25 @@ export default function QuizDetail() {
             await waitForSaving();
 
             // Submit answer của câu hiện tại trước khi nộp bài (nếu chưa được save)
-            if (currentQuestion) {
-                const questionId = currentQuestion.questionId || currentQuestion.QuestionId;
-                const currentAnswer = answers[questionId];
+            if (currentPagedItem) {
+                if (currentPagedItem._itemType === "Group") {
+                    const groupQuestions = currentPagedItem.questions || [];
+                    for (const q of groupQuestions) {
+                        const qId = q.questionId || q.QuestionId;
+                        const currentAnswer = answers[qId];
+                        // Nếu có đáp án và chưa được save, submit ngay
+                        if (currentAnswer !== undefined && currentAnswer !== null && !savingAnswersRef.current.has(qId)) {
+                            await handleSubmitAnswer(qId, currentAnswer);
+                        }
+                    }
+                } else {
+                    const questionId = currentPagedItem.questionId || currentPagedItem.QuestionId;
+                    const currentAnswer = answers[questionId];
 
-                // Nếu có đáp án và chưa được save, submit ngay
-                if (currentAnswer !== undefined && currentAnswer !== null && !savingAnswersRef.current.has(questionId)) {
-                    await handleSubmitAnswer(questionId, currentAnswer);
+                    // Nếu có đáp án và chưa được save, submit ngay
+                    if (currentAnswer !== undefined && currentAnswer !== null && !savingAnswersRef.current.has(questionId)) {
+                        await handleSubmitAnswer(questionId, currentAnswer);
+                    }
                 }
             }
 
@@ -536,12 +560,12 @@ export default function QuizDetail() {
                         localStorage.removeItem(`quiz_in_progress_${quizIdToRemove}`);
                     }
 
-                    // Navigate to results page with result data
+                    // Navigate to results page with result data promptly
                     setTimeout(() => {
                         navigate(`/course/${courseId}/lesson/${lessonId}/module/${moduleId}/quiz/${quizId}/attempt/${currentAttemptId}/results`, {
                             state: { result: resultData }
                         });
-                    }, 1500);
+                    }, 500);
                 } else {
                     console.error("✗ Submit failed - Response not successful");
                     console.error("Response data:", response.data);
@@ -583,12 +607,12 @@ export default function QuizDetail() {
         } finally {
             setShowSubmitModal(false);
         }
-    }, [submitting, currentQuestion, answers, handleSubmitAnswer, quizAttempt, attemptId, quizId, courseId, lessonId, moduleId, navigate]);
+    }, [submitting, currentPagedItem, answers, handleSubmitAnswer, quizAttempt, attemptId, quizId, courseId, lessonId, moduleId, navigate]);
 
     const handleEnterFocusMode = () => {
         setIsFocusMode(true);
         setShowFocusPrompt(false);
-        
+
         // Bật fullscreen
         if (document.documentElement.requestFullscreen) {
             document.documentElement.requestFullscreen().catch(err => {
@@ -786,100 +810,77 @@ export default function QuizDetail() {
     };
 
     const handleNext = async () => {
-        // Clear debounce timer cho câu hiện tại và đợi save hoàn thành
-        if (currentQuestion) {
-            const questionId = currentQuestion.questionId || currentQuestion.QuestionId;
+        // Clear debounce timer for current paged item questions
+        if (currentPagedItem) {
+            const itemQuestions = currentPagedItem._itemType === "Group" ? currentPagedItem.questions : [currentPagedItem];
 
-            // Clear debounce timer nếu có
-            if (saveAnswerTimeoutRef.current[questionId]) {
-                clearTimeout(saveAnswerTimeoutRef.current[questionId]);
-                delete saveAnswerTimeoutRef.current[questionId];
-            }
-
-            // Đợi answer này save xong (nếu đang save)
-            if (savingAnswersRef.current.has(questionId)) {
-                let retries = 0;
-                while (savingAnswersRef.current.has(questionId) && retries < 10) {
-                    await new Promise(resolve => setTimeout(resolve, 100));
-                    retries++;
+            for (const q of itemQuestions) {
+                const questionId = q.questionId || q.QuestionId;
+                if (saveAnswerTimeoutRef.current[questionId]) {
+                    clearTimeout(saveAnswerTimeoutRef.current[questionId]);
+                    delete saveAnswerTimeoutRef.current[questionId];
                 }
-            }
-
-            // Nếu answer chưa được save, save ngay
-            const currentAnswer = answers[questionId];
-            if (currentAnswer !== undefined && currentAnswer !== null && !savingAnswersRef.current.has(questionId)) {
-                await handleSubmitAnswer(questionId, currentAnswer);
+                const currentAnswer = answers[questionId];
+                if (currentAnswer !== undefined && currentAnswer !== null) {
+                    await handleSubmitAnswer(questionId, currentAnswer);
+                }
             }
         }
 
-        // Chuyển sang câu tiếp theo
-        if (currentQuestionIndex < questions.length - 1) {
+        // Chuyển sang item tiếp theo
+        if (currentQuestionIndex < pagedItems.length - 1) {
             setCurrentQuestionIndex(prev => prev + 1);
         }
     };
 
     const handlePrevious = async () => {
-        // Clear debounce timer cho câu hiện tại và đợi save hoàn thành
-        if (currentQuestion) {
-            const questionId = currentQuestion.questionId || currentQuestion.QuestionId;
-
-            // Clear debounce timer nếu có
-            if (saveAnswerTimeoutRef.current[questionId]) {
-                clearTimeout(saveAnswerTimeoutRef.current[questionId]);
-                delete saveAnswerTimeoutRef.current[questionId];
-            }
-
-            // Đợi answer này save xong (nếu đang save)
-            if (savingAnswersRef.current.has(questionId)) {
-                let retries = 0;
-                while (savingAnswersRef.current.has(questionId) && retries < 10) {
-                    await new Promise(resolve => setTimeout(resolve, 100));
-                    retries++;
+        if (currentPagedItem) {
+            const itemQuestions = currentPagedItem._itemType === "Group" ? currentPagedItem.questions : [currentPagedItem];
+            for (const q of itemQuestions) {
+                const questionId = q.questionId || q.QuestionId;
+                if (saveAnswerTimeoutRef.current[questionId]) {
+                    clearTimeout(saveAnswerTimeoutRef.current[questionId]);
+                    delete saveAnswerTimeoutRef.current[questionId];
                 }
-            }
-
-            // Nếu answer chưa được save, save ngay
-            const currentAnswer = answers[questionId];
-            if (currentAnswer !== undefined && currentAnswer !== null && !savingAnswersRef.current.has(questionId)) {
-                await handleSubmitAnswer(questionId, currentAnswer);
+                const currentAnswer = answers[questionId];
+                if (currentAnswer !== undefined && currentAnswer !== null) {
+                    await handleSubmitAnswer(questionId, currentAnswer);
+                }
             }
         }
 
-        // Chuyển sang câu trước
+        // Chuyển sang item trước
         if (currentQuestionIndex > 0) {
             setCurrentQuestionIndex(prev => prev - 1);
         }
     };
 
-    const handleGoToQuestion = async (index) => {
-        // Clear debounce timer cho câu hiện tại và đợi save hoàn thành
-        if (currentQuestion && index !== currentQuestionIndex) {
-            const questionId = currentQuestion.questionId || currentQuestion.QuestionId;
+    const handleGoToQuestion = async (fullIndex) => {
+        // fullIndex is 0 to (totalQuestions - 1)
+        const qNumber = fullIndex + 1;
+        const targetPagedIdx = pagedItems.findIndex(item =>
+            qNumber >= item._startNumber &&
+            qNumber < item._startNumber + item._itemCount
+        );
 
-            // Clear debounce timer nếu có
-            if (saveAnswerTimeoutRef.current[questionId]) {
-                clearTimeout(saveAnswerTimeoutRef.current[questionId]);
-                delete saveAnswerTimeoutRef.current[questionId];
-            }
+        if (targetPagedIdx === -1) return;
 
-            // Đợi answer này save xong (nếu đang save)
-            if (savingAnswersRef.current.has(questionId)) {
-                let retries = 0;
-                while (savingAnswersRef.current.has(questionId) && retries < 10) {
-                    await new Promise(resolve => setTimeout(resolve, 100));
-                    retries++;
+        if (targetPagedIdx !== currentQuestionIndex && currentPagedItem) {
+            const itemQuestions = currentPagedItem._itemType === "Group" ? currentPagedItem.questions : [currentPagedItem];
+            for (const q of itemQuestions) {
+                const questionId = q.questionId || q.QuestionId;
+                if (saveAnswerTimeoutRef.current[questionId]) {
+                    clearTimeout(saveAnswerTimeoutRef.current[questionId]);
+                    delete saveAnswerTimeoutRef.current[questionId];
                 }
-            }
-
-            // Nếu answer chưa được save, save ngay
-            const currentAnswer = answers[questionId];
-            if (currentAnswer !== undefined && currentAnswer !== null && !savingAnswersRef.current.has(questionId)) {
-                await handleSubmitAnswer(questionId, currentAnswer);
+                const currentAnswer = answers[questionId];
+                if (currentAnswer !== undefined && currentAnswer !== null) {
+                    await handleSubmitAnswer(questionId, currentAnswer);
+                }
             }
         }
 
-        // Chuyển sang câu được chọn
-        setCurrentQuestionIndex(index);
+        setCurrentQuestionIndex(targetPagedIdx);
     };
 
     if (loading) {
@@ -1009,12 +1010,13 @@ export default function QuizDetail() {
                                         <p>Đang tải câu hỏi...</p>
                                         <p className="text-muted">Vui lòng đợi trong giây lát.</p>
                                     </div>
-                                ) : currentQuestion ? (
+                                ) : currentPagedItem ? (
                                     <QuestionCard
-                                        question={currentQuestion}
-                                        answer={answers[currentQuestion.questionId || currentQuestion.QuestionId]}
-                                        onChange={(answer) => handleAnswerChange(currentQuestion.questionId || currentQuestion.QuestionId, answer)}
-                                        questionNumber={currentQuestionIndex + 1}
+                                        question={currentPagedItem}
+                                        allAnswers={answers}
+                                        answer={currentPagedItem._itemType === "Question" ? answers[currentPagedItem.questionId || currentPagedItem.QuestionId] : null}
+                                        onChange={(qId, val) => handleAnswerChange(qId, val)}
+                                        questionNumber={currentPagedItem._startNumber}
                                         totalQuestions={questions.length}
                                     />
                                 ) : (
@@ -1023,27 +1025,28 @@ export default function QuizDetail() {
                                     </div>
                                 )}
 
-                                <div className="quiz-navigation-buttons d-flex justify-content-between">
+                                <div className="quiz-navigation-buttons d-flex justify-content-between mt-4">
                                     <Button
                                         variant="outline-secondary"
                                         onClick={handlePrevious}
                                         disabled={currentQuestionIndex === 0}
                                     >
-                                        Câu trước
+                                        <span className="me-2">←</span> Trang trước
                                     </Button>
-                                    {currentQuestionIndex < questions.length - 1 ? (
+                                    {currentQuestionIndex < pagedItems.length - 1 ? (
                                         <Button
-                                            className="btn-next-question"
+                                            className="btn-next-question px-4"
                                             onClick={handleNext}
                                         >
-                                            Câu tiếp theo
+                                            Trang tiếp theo <span className="ms-2">→</span>
                                         </Button>
                                     ) : (
                                         <Button
-                                            className="btn-complete-quiz"
+                                            className="btn-complete-quiz px-4"
+                                            variant="success"
                                             onClick={() => setShowSubmitModal(true)}
                                         >
-                                            Hoàn thành
+                                            Hoàn thành & Nộp bài
                                         </Button>
                                     )}
                                 </div>
@@ -1070,7 +1073,7 @@ export default function QuizDetail() {
 
                                 <QuizNavigation
                                     questions={questions}
-                                    currentIndex={currentQuestionIndex}
+                                    currentPagedItem={currentPagedItem}
                                     answers={answers}
                                     onGoToQuestion={handleGoToQuestion}
                                 />
