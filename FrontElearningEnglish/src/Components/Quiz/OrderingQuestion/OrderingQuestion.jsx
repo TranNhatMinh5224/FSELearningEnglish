@@ -42,6 +42,7 @@ export default function OrderingQuestion({ question, answer, onChange }) {
     // Reset state when question changes (critical for groups)
     const questionIdNum = Number(question.questionId || question.QuestionId);
     const isResettingRef = React.useRef(false);
+    const [draggingIndex, setDraggingIndex] = useState(null);
 
     useEffect(() => {
         if (!options || options.length === 0) return;
@@ -108,8 +109,30 @@ export default function OrderingQuestion({ question, answer, onChange }) {
     };
 
     const handleDragStart = (e, index) => {
+        setDraggingIndex(index);
         e.dataTransfer.effectAllowed = 'move';
-        e.dataTransfer.setData('text/plain', index);
+        // Add a small delay so the ghost image is created before we add the dragging class
+        setTimeout(() => {
+            e.target.classList.add('is-dragging');
+        }, 0);
+    };
+
+    const handleDragEnter = (e, index) => {
+        if (draggingIndex === null || draggingIndex === index) return;
+        
+        // Perform the swap in the state for "live" reordering
+        const newOrder = [...orderedOptions];
+        const draggedItem = newOrder[draggingIndex];
+        newOrder.splice(draggingIndex, 1);
+        newOrder.splice(index, 0, draggedItem);
+        
+        setDraggingIndex(index);
+        setOrderedOptions(newOrder);
+    };
+
+    const handleDragEnd = (e) => {
+        setDraggingIndex(null);
+        e.target.classList.remove('is-dragging');
     };
 
     const handleDragOver = (e) => {
@@ -117,19 +140,9 @@ export default function OrderingQuestion({ question, answer, onChange }) {
         e.dataTransfer.dropEffect = 'move';
     };
 
-    const handleDrop = (e, dropIndex) => {
+    const handleDrop = (e) => {
         e.preventDefault();
-        const dragIndexStr = e.dataTransfer.getData('text/plain');
-        if (!dragIndexStr) return;
-        
-        const dragIndex = parseInt(dragIndexStr);
-        if (isNaN(dragIndex) || dragIndex === dropIndex) return;
-
-        const newOrder = [...orderedOptions];
-        const draggedItem = newOrder[dragIndex];
-        newOrder.splice(dragIndex, 1);
-        newOrder.splice(dropIndex, 0, draggedItem);
-        setOrderedOptions(newOrder);
+        // Drop logic handled by live swapping in onDragEnter
     };
 
     if (!orderedOptions || orderedOptions.length === 0) {
@@ -138,64 +151,63 @@ export default function OrderingQuestion({ question, answer, onChange }) {
 
     return (
         <div className="ordering-question">
-            <Alert variant="info" className="ordering-instructions py-2 px-3 mb-3 border-0 shadow-sm">
-                <p className="mb-0 small"><FaQuestionCircle className="me-2"/>Sắp xếp các mục theo thứ tự đúng bằng cách kéo thả hoặc sử dụng nút mũi tên</p>
-            </Alert>
+            <div className="ordering-instructions mb-4">
+                <FaQuestionCircle className="me-3 text-cyan fs-5" />
+                <p className="mb-0 small">Kéo thả các mục hoặc dùng nút mũi tên để sắp xếp theo thứ tự đúng.</p>
+            </div>
             <div className="ordering-list">
                 {orderedOptions.map((option, index) => {
-                    if (!option) return null; // Ultimate safety check
+                    if (!option) return null;
                     
                     const optionId = option.optionId || option.OptionId || option.answerOptionId || option.AnswerOptionId;
                     const optionText = option.optionText || option.OptionText || option.text || option.Text || "---";
                     const optionMedia = option.mediaUrl || option.MediaUrl;
+                    const isDraggingThis = draggingIndex === index;
                     
                     return (
                         <Card
                             key={optionId || `idx-${index}`}
-                            className="ordering-item mb-2 border-0 shadow-sm"
+                            className={`ordering-item ${isDraggingThis ? 'is-dragging' : ''}`}
                             draggable
                             onDragStart={(e) => handleDragStart(e, index)}
+                            onDragEnter={(e) => handleDragEnter(e, index)}
                             onDragOver={handleDragOver}
-                            onDrop={(e) => handleDrop(e, index)}
-                            style={{ cursor: "move" }}
+                            onDragEnd={handleDragEnd}
+                            onDrop={handleDrop}
                         >
-                            <Card.Body className="ordering-item-content d-flex align-items-center p-2">
+                            <Card.Body className="ordering-item-content d-flex align-items-center p-0">
                                 <div className="d-flex align-items-center w-100 gap-3">
-                                    <div className="ordering-item-handle text-muted">
+                                    <div className="ordering-item-handle">
                                         <FaGripVertical />
                                     </div>
-                                    <div className="ordering-item-number d-flex align-items-center justify-content-center fw-bold text-primary">
+                                    <div className="ordering-item-number">
                                         {index + 1}
                                     </div>
-                                    <div className="ordering-item-text flex-grow-1">
+                                    <div className="ordering-item-text">
                                         {optionText}
                                         {optionMedia && (
                                             <div className="ordering-item-media mt-2">
                                                 {optionMedia.includes('.mp4') || optionMedia.includes('.webm') ? (
-                                                    <video src={optionMedia} controls className="ordering-media-element w-100" style={{maxHeight: '150px'}} />
+                                                    <video src={optionMedia} controls className="ordering-media-element" />
                                                 ) : optionMedia.includes('.mp3') || optionMedia.includes('.wav') ? (
                                                     <audio src={optionMedia} controls className="ordering-media-element w-100" />
                                                 ) : (
-                                                    <img src={optionMedia} alt="Option media" className="ordering-media-element rounded" style={{maxHeight: '100px'}} />
+                                                    <img src={optionMedia} alt="Option media" className="ordering-media-element" />
                                                 )}
                                             </div>
                                         )}
                                     </div>
-                                    <div className="ordering-item-actions d-flex flex-column gap-1">
+                                    <div className="ordering-item-actions pe-3">
                                         <Button
                                             variant="light"
-                                            size="sm"
-                                            className="p-1"
-                                            onClick={() => moveUp(index)}
+                                            onClick={(e) => { e.stopPropagation(); moveUp(index); }}
                                             disabled={index === 0}
                                         >
                                             <FaArrowUp />
                                         </Button>
                                         <Button
                                             variant="light"
-                                            size="sm"
-                                            className="p-1"
-                                            onClick={() => moveDown(index)}
+                                            onClick={(e) => { e.stopPropagation(); moveDown(index); }}
                                             disabled={index === orderedOptions.length - 1}
                                         >
                                             <FaArrowDown />

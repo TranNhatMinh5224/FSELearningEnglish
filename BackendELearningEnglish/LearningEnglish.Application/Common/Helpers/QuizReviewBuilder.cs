@@ -225,8 +225,9 @@ namespace LearningEnglish.Application.Common.Helpers
                             foreach (var prop in jsonMatching.EnumerateObject())
                             {
                                 // Resolve option IDs → text labels
-                                if (int.TryParse(prop.Name, out int leftId)
-                                    && AnswerNormalizer.TryGetInt(prop.Value, out int rightId)
+                                int leftId, rightId;
+                                if (int.TryParse(prop.Name, out leftId)
+                                    && AnswerNormalizer.TryGetInt(prop.Value, out rightId)
                                     && question.Options != null)
                                 {
                                     var leftOpt = question.Options.FirstOrDefault(o => o.AnswerOptionId == leftId);
@@ -271,7 +272,8 @@ namespace LearningEnglish.Application.Common.Helpers
                             foreach (var element in jsonArr.EnumerateArray())
                             {
                                 var itemStr = element.ToString();
-                                if (AnswerNormalizer.TryGetInt(element, out int optId) && question.Options != null)
+                                int optId;
+                                if (AnswerNormalizer.TryGetInt(element, out optId) && question.Options != null)
                                 {
                                     var opt = question.Options.FirstOrDefault(o => o.AnswerOptionId == optId);
                                     if (opt != null) itemStr = opt.Text ?? itemStr;

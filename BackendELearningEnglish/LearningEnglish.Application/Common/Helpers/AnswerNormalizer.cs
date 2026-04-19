@@ -246,7 +246,7 @@ namespace LearningEnglish.Application.Common.Helpers
         public static Dictionary<int, object?> DeserializeAnswersJson(string? json)
         {
             if (string.IsNullOrEmpty(json))
-            return new Dictionary<int, object?>();
+                return new Dictionary<int, object?>();
 
             try
             {
@@ -269,6 +269,18 @@ namespace LearningEnglish.Application.Common.Helpers
             {
                 return new Dictionary<int, object?>();
             }
+        }
+
+        public static bool TryGetInt(object? value, out int result)
+        {
+            result = 0;
+            var val = NormalizeToInt(value);
+            if (val.HasValue)
+            {
+                result = val.Value;
+                return true;
+            }
+            return false;
         }
     }
 }
