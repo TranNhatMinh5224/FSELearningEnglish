@@ -65,6 +65,9 @@ namespace LearningEnglish.Infrastructure.Repositories
         {
             return await _context.QuizAttempts
                 .Include(qa => qa.Quiz)
+                    .ThenInclude(q => q.Assessment)
+                        .ThenInclude(a => a.Module)
+                            .ThenInclude(m => m.Lesson)
                 .Include(qa => qa.User)
                 .Where(qa => qa.UserId == userId)
                 .OrderByDescending(qa => qa.StartedAt)

@@ -87,63 +87,66 @@ export default function QuestionCard({ question, answer, onChange, questionNumbe
 
     // Extract group info if available
     const groupInfo = question._groupInfo;
+    const questionText = question.questionText || question.QuestionText || question.stemText || question.StemText || "Câu hỏi";
 
     return (
         <Card className="question-card">
             <Card.Body>
-                <Row className="question-header align-items-center mb-3">
-                    <Col>
-                        {question._sectionInfo && (
-                            <div className="part-breadcrumb mb-1">
-                                <span className="part-tag-mini text-uppercase fw-bold text-primary">
-                                    {question._sectionInfo.sectionTitle || `Part ${question._sectionInfo.sectionIndex}`}
-                                </span>
-                                {question._sectionInfo.sectionDescription && (
-                                    <span className="ms-2 text-muted x-small fst-italic">
-                                        • {question._sectionInfo.sectionDescription}
-                                    </span>
-                                )}
-                            </div>
+                {/* 1. Part Title - Prominent & Large */}
+                {question._sectionInfo && (
+                    <div className="section-header-v4 mb-3">
+                        <h4 className="section-title-v4 text-uppercase fw-800">
+                            {question._sectionInfo.sectionTitle || `Part ${question._sectionInfo.sectionIndex}`}
+                        </h4>
+                        {question._sectionInfo.sectionDescription && (
+                            <p className="section-description-v4 text-muted small mb-0">
+                                {question._sectionInfo.sectionDescription}
+                            </p>
                         )}
-                        <div className="question-navigation-header">
-                            <div className="current-question-badge">
-                                Câu {questionNumber}
-                            </div>
-                            <div className="question-progress-trail">
-                                {(() => {
-                                    const items = [];
-                                    const total = totalQuestions;
-                                    const current = questionNumber;
-                                    const range = 2; // Neighbors
-                                    
-                                    for (let i = 1; i <= total; i++) {
-                                        if (i === 1 || i === total || (i >= current - range && i <= current + range)) {
-                                            items.push(
-                                                <span 
-                                                    key={i} 
-                                                    className={`trail-item ${i === current ? 'active' : ''}`}
-                                                >
-                                                    {i}
-                                                </span>
-                                            );
-                                        } else if (i === current - range - 1 || i === current + range + 1) {
-                                            items.push(<span key={`dot-${i}`} className="trail-dot">...</span>);
-                                        }
-                                    }
-                                    return items;
-                                })()}
-                            </div>
-                            <div className="total-questions-count">
-                                của {totalQuestions}
-                            </div>
-                        </div>
-                    </Col>
-                    <Col xs="auto" className="question-points">
-                        <Badge bg="info" className="px-3 py-2">
-                            {question.points || question.Points || 0} điểm
-                        </Badge>
-                    </Col>
-                </Row>
+                        <div className="section-divider-v4"></div>
+                    </div>
+                )}
+
+                {/* 2. Navigation & Points Bar */}
+                <div className="question-navigation-bar-v4 mb-4">
+                    <div className="nav-sequence-v4">
+                        {(() => {
+                            const items = [];
+                            const total = totalQuestions;
+                            const current = questionNumber;
+                            const range = 2; 
+                            
+                            for (let i = 1; i <= total; i++) {
+                                if (i === 1 || i === total || (i >= current - range && i <= current + range)) {
+                                    items.push(
+                                        <div 
+                                            key={i} 
+                                            className={`nav-item-v4 ${i === current ? 'active' : ''}`}
+                                        >
+                                            {i}
+                                        </div>
+                                    );
+                                } else if (i === current - range - 1 || i === current + range + 1) {
+                                    items.push(<div key={`dot-${i}`} className="nav-dot-v4">...</div>);
+                                }
+                            }
+                            return items;
+                        })()}
+                        <span className="nav-total-v4">của {totalQuestions} câu</span>
+                    </div>
+                    <div className="points-badge-v4">
+                        <span className="points-value">{(question.points || question.Points || 0).toFixed(2)}</span>
+                        <span className="points-label">điểm</span>
+                    </div>
+                </div>
+
+                {/* 3. Question Title: Câu X: [Content] */}
+                <div className="question-main-header-v4 mb-4">
+                    <h5 className="question-headline-v4">
+                        <span className="question-number-prefix">Câu {questionNumber}:</span>
+                        <span className="question-text-content ms-2">{questionText}</span>
+                    </h5>
+                </div>
                 
                 {/* Display Group Information if available */}
                 {groupInfo && (groupInfo.groupName || groupInfo.groupTitle || groupInfo.groupDescription || groupInfo.groupImgUrl || groupInfo.groupVideoUrl) && (
@@ -192,11 +195,6 @@ export default function QuestionCard({ question, answer, onChange, questionNumbe
                 )}
                 
                 <div className="question-content">
-                    {questionType !== 4 && (
-                        <div className="question-text">
-                            {question.questionText || question.QuestionText || question.stemText || question.StemText || "Câu hỏi"}
-                        </div>
-                    )}
                     {(question.mediaUrl || question.MediaUrl) && (
                         <div className="question-media">
                             {(() => {

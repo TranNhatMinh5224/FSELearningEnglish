@@ -11,6 +11,11 @@ namespace LearningEnglish.Application.DTOs
         public int UserId { get; set; }
         public string? UserName { get; set; }  // Họ tên học sinh
         public int AttemptNumber { get; set; }  // Lần làm thứ mấy
+        
+        // Context IDs for navigation
+        public int? CourseId { get; set; }
+        public int? LessonId { get; set; }
+        public int? ModuleId { get; set; }
 
         public DateTime StartedAt { get; set; }
         public DateTime? SubmittedAt { get; set; }

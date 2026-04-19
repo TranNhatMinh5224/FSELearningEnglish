@@ -55,22 +55,35 @@ export default function QuizHistory() {
     };
 
     const getStatusBadge = (status) => {
-        // Status: 0=InProgress, 1=Submitted
-        switch (status) {
-            case 0:
-                return <Badge bg="warning" className="status-badge-custom">Đang làm</Badge>;
+        // Status: 1=InProgress, 2=Submitted, 3=Graded, 4=TimeExpired, 5=Abandoned
+        const statusCode = Number(status);
+        switch (statusCode) {
             case 1:
+                return <Badge bg="warning" className="status-badge-custom">Đang làm</Badge>;
+            case 2:
+            case 3:
                 return <Badge bg="success" className="status-badge-custom">Đã hoàn thành</Badge>;
+            case 4:
+                return <Badge bg="danger" className="status-badge-custom">Hết giờ</Badge>;
             default:
                 return <Badge bg="secondary" className="status-badge-custom">Chưa rõ</Badge>;
         }
     };
 
     const handleReview = (attempt) => {
-        // Simplified navigation - will need a different approach if course/lesson IDs are not available
-        console.log("Reviewing attempt:", attempt.attemptId);
-        // For now, if we don't have the context IDs, we can't easily jump to the detailed review page
-        // as it requires courseId/lessonId/moduleId
+        const aId = attempt.attemptId || attempt.AttemptId;
+        const cId = attempt.courseId || attempt.CourseId;
+        const lId = attempt.lessonId || attempt.LessonId;
+        const mId = attempt.moduleId || attempt.ModuleId;
+        const qId = attempt.quizId || attempt.QuizId;
+
+        if (aId && cId && lId && mId && qId) {
+            navigate(`/course/${cId}/lesson/${lId}/module/${mId}/quiz/${qId}/attempt/${aId}/results`);
+        } else {
+            console.warn("Missing IDs for navigation:", { aId, cId, lId, mId, qId });
+            // Fallback: If we don't have all IDs, we could potentially use a different route
+            // for viewing results, but for now we log it.
+        }
     };
 
     // Pagination logic
@@ -155,37 +168,46 @@ export default function QuizHistory() {
                             </Row>
 
                             <div className="quiz-list-body">
-                                {currentItems.map((attempt) => (
-                                    <div 
-                                        key={attempt.attemptId} 
-                                        className="quiz-history-item-row"
-                                        onClick={() => handleReview(attempt)}
-                                    >
-                                        <Row className="g-0 align-items-center">
-                                            <Col xs={12} md={4} className="quiz-info">
-                                                <div className="quiz-title-wrapper">
-                                                    <FaRegClipboard className="item-icon-small" />
-                                                    <span className="quiz-name">{attempt.quizTitle || "Bài kiểm tra"}</span>
+                                        {currentItems.map((attempt) => {
+                                            const aId = attempt.attemptId || attempt.AttemptId;
+                                            const title = attempt.quizTitle || attempt.QuizTitle || "Bài kiểm tra";
+                                            const aNumber = attempt.attemptNumber || attempt.AttemptNumber;
+                                            const score = attempt.totalScore ?? attempt.TotalScore ?? 0;
+                                            const status = attempt.status ?? attempt.Status;
+                                            const startedAt = attempt.startedAt || attempt.StartedAt;
+
+                                            return (
+                                                <div 
+                                                    key={aId} 
+                                                    className="quiz-history-item-row"
+                                                    onClick={() => handleReview(attempt)}
+                                                >
+                                                    <Row className="g-0 align-items-center">
+                                                        <Col xs={12} md={4} className="quiz-info">
+                                                            <div className="quiz-title-wrapper">
+                                                                <FaRegClipboard className="item-icon-small" />
+                                                                <span className="quiz-name">{title}</span>
+                                                            </div>
+                                                        </Col>
+                                                        <Col xs={4} md={2} className="attempt-info text-center">
+                                                            <span className="label d-md-none">Lần: </span>
+                                                            <span className="attempt-badge">#{aNumber}</span>
+                                                        </Col>
+                                                        <Col xs={4} md={2} className="score-info text-center">
+                                                            <span className="label d-md-none">Điểm: </span>
+                                                            <span className="score-value-text">{score}</span>
+                                                            <span className="score-max">/10</span>
+                                                        </Col>
+                                                        <Col xs={4} md={2} className="status-info text-center">
+                                                            {getStatusBadge(status)}
+                                                        </Col>
+                                                        <Col xs={12} md={2} className="date-info text-center">
+                                                            <span className="date-text-small">{formatDate(startedAt)}</span>
+                                                        </Col>
+                                                    </Row>
                                                 </div>
-                                            </Col>
-                                            <Col xs={4} md={2} className="attempt-info text-center">
-                                                <span className="label d-md-none">Lần: </span>
-                                                <span className="attempt-badge">#{attempt.attemptNumber}</span>
-                                            </Col>
-                                            <Col xs={4} md={2} className="score-info text-center">
-                                                <span className="label d-md-none">Điểm: </span>
-                                                <span className="score-value-text">{attempt.totalScore}</span>
-                                                <span className="score-max">/10</span>
-                                            </Col>
-                                            <Col xs={4} md={2} className="status-info text-center">
-                                                {getStatusBadge(attempt.status)}
-                                            </Col>
-                                            <Col xs={12} md={2} className="date-info text-center">
-                                                <span className="date-text-small">{formatDate(attempt.startedAt)}</span>
-                                            </Col>
-                                        </Row>
-                                    </div>
-                                ))}
+                                            );
+                                        })}
                             </div>
 
                             {totalPages > 1 && (

@@ -520,6 +520,13 @@ export default function QuizDetail() {
                         message: "Nộp bài thành công!"
                     });
 
+                    // Hide overlay and exit focus mode immediately
+                    setSubmitting(false);
+                    setIsFocusMode(false);
+                    if (document.fullscreenElement) {
+                        document.exitFullscreen().catch(err => console.warn("Exit fullscreen failed:", err));
+                    }
+
                     // Save result to localStorage
                     localStorage.setItem(`quiz_result_${currentAttemptId}`, JSON.stringify(resultData));
 

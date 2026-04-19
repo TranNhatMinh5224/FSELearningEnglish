@@ -9,7 +9,7 @@ namespace LearningEnglish.API.Controller.User
 {
     [ApiController]
     [Route("api/user/quiz-attempts")]
-    [Authorize(Roles = "Student,SuperAdmin,ContentAdmin,FinanceAdmin")]
+    [Authorize(Roles = "Student,Teacher,SuperAdmin,ContentAdmin,FinanceAdmin")]
     public class UserQuizAttemptController : ControllerBase
     {
         private readonly IQuizAttemptService _quizAttemptService;

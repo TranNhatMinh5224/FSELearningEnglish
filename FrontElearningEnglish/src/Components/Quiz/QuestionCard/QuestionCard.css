@@ -92,3 +92,137 @@
     }
 }
 
+/* ===========================
+   v4 REDESIGN: Premium Hierarchy
+=========================== */
+
+.section-header-v4 {
+    position: relative;
+    padding-bottom: 0.5rem;
+}
+
+.section-title-v4 {
+    font-size: 1.5rem;
+    color: var(--color-primary, #2563eb);
+    margin-bottom: 0.25rem;
+    letter-spacing: -0.01em;
+}
+
+.section-description-v4 {
+    font-size: 0.9rem;
+    opacity: 0.8;
+}
+
+.section-divider-v4 {
+    height: 3px;
+    width: 60px;
+    background: var(--color-primary, #2563eb);
+    margin-top: 0.75rem;
+    border-radius: 2px;
+}
+
+.question-navigation-bar-v4 {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #f8fafc;
+    padding: 0.75rem 1.25rem;
+    border-radius: 12px;
+    border: 1px solid #e2e8f0;
+}
+
+.nav-sequence-v4 {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.nav-item-v4 {
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 8px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #64748b;
+    background: white;
+    border: 1px solid #e2e8f0;
+    cursor: default;
+}
+
+.nav-item-v4.active {
+    background: var(--color-primary, #2563eb);
+    color: white;
+    border-color: var(--color-primary, #2563eb);
+    transform: scale(1.15);
+    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
+}
+
+.nav-dot-v4 {
+    color: #94a3b8;
+    margin: 0 2px;
+}
+
+.nav-total-v4 {
+    margin-left: 0.75rem;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #64748b;
+}
+
+.points-badge-v4 {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: rgba(37, 99, 235, 0.1);
+    padding: 0.4rem 1rem;
+    border-radius: 20px;
+    color: var(--color-primary, #2563eb);
+}
+
+.points-value {
+    font-weight: 800;
+    font-size: 1.1rem;
+}
+
+.points-label {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    font-weight: 700;
+}
+
+.question-headline-v4 {
+    font-size: 1.35rem;
+    line-height: 1.5;
+    color: #0f172a;
+    font-weight: 600;
+}
+
+.question-number-prefix {
+    color: var(--color-primary, #2563eb);
+    font-weight: 800;
+}
+
+.question-text-content {
+    font-weight: 500;
+}
+
+@media (max-width: 768px) {
+    .section-title-v4 {
+        font-size: 1.25rem;
+    }
+    .question-headline-v4 {
+        font-size: 1.15rem;
+    }
+    .question-navigation-bar-v4 {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+    }
+    .points-badge-v4 {
+        align-self: flex-end;
+    }
+}
+
