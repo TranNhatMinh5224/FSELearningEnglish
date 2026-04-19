@@ -9,55 +9,58 @@ const MatchingFields = ({ matchingPairs, handlePairChange, removePair, addPair }
         <FaQuestionCircle className="me-2" />
         Nối từ (Matching)
       </div>
-      <div className="mt-3">
-        <div className="alert alert-info py-2 small mb-3">
-          <FaQuestionCircle className="me-2" />Nhập các cặp tương ứng. Backend sẽ dùng Text để đối chiếu ID.
+      <div className="matching-table-container">
+        <div className="matching-header-row">
+          <div style={{ flex: 1 }}>Vế A (Trái)</div>
+          <div style={{ width: '40px' }}></div>
+          <div style={{ flex: 1 }}>Vế B (Phải)</div>
+          <div style={{ width: '40px' }}></div>
         </div>
+        
         {matchingPairs.map((pair, index) => (
-          <div key={`pair-${index}`} className="option-item mb-2">
-            <Row className="align-items-center g-2">
-              <Col md={5}>
-                <InputGroup>
-                  <InputGroup.Text className="bg-light text-muted small fw-bold" style={{ width: '40px' }}>
-                    {index + 1}A
-                  </InputGroup.Text>
-                  <Form.Control 
-                    type="text" 
-                    value={pair.key} 
-                    onChange={(e) => handlePairChange(index, "key", e.target.value)} 
-                    placeholder="Vế trái" 
-                    className="border-0 shadow-none" 
-                  />
-                </InputGroup>
-              </Col>
-              <Col md={1} className="text-center text-primary matching-arrow">
-                <FaArrowDown style={{ transform: 'rotate(-90deg)' }} />
-              </Col>
-              <Col md={5}>
-                <InputGroup>
-                  <InputGroup.Text className="bg-light text-muted small fw-bold" style={{ width: '40px' }}>
-                    {index + 1}B
-                  </InputGroup.Text>
-                  <Form.Control 
-                    type="text" 
-                    value={pair.value} 
-                    onChange={(e) => handlePairChange(index, "value", e.target.value)} 
-                    placeholder="Vế phải" 
-                    className="border-0 shadow-none" 
-                  />
-                </InputGroup>
-              </Col>
-              <Col md={1} className="text-end">
-                <Button variant="outline-danger" size="sm" className="border-0" onClick={() => removePair(index)}>
-                  <FaTimes />
-                </Button>
-              </Col>
-            </Row>
+          <div key={`pair-${index}`} className="matching-row">
+            <div className="matching-col-input">
+              <Form.Control 
+                type="text" 
+                value={pair.key} 
+                onChange={(e) => handlePairChange(index, "key", e.target.value)} 
+                placeholder="Nhập phần vế trái..." 
+                className="shadow-none" 
+              />
+            </div>
+            
+            <div className="matching-col-arrow">
+              <FaArrowDown style={{ transform: 'rotate(-90deg)' }} />
+            </div>
+            
+            <div className="matching-col-input">
+              <Form.Control 
+                type="text" 
+                value={pair.value} 
+                onChange={(e) => handlePairChange(index, "value", e.target.value)} 
+                placeholder="Nhập phần vế phải..." 
+                className="shadow-none" 
+              />
+            </div>
+            
+            <div className="matching-col-action">
+              <button 
+                type="button"
+                className="remove-pair-btn" 
+                onClick={() => removePair(index)}
+                title="Xóa cặp này"
+              >
+                <FaTimes />
+              </button>
+            </div>
           </div>
         ))}
-        <Button variant="outline-primary" size="sm" onClick={addPair} className="mt-2">
-          <FaPlus className="me-1" /> Thêm cặp nối
-        </Button>
+        
+        <div className="add-pair-footer">
+          <Button variant="outline-primary" size="sm" onClick={addPair} className="border-0 fw-bold">
+            <FaPlus className="me-2" /> Thêm cặp nối mới
+          </Button>
+        </div>
       </div>
     </div>
   );

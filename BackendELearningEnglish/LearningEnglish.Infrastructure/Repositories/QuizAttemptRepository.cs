@@ -60,6 +60,16 @@ namespace LearningEnglish.Infrastructure.Repositories
                 .ToListAsync();
 
         }
+
+        public async Task<List<QuizAttempt>> GetByUserIdAsync(int userId)
+        {
+            return await _context.QuizAttempts
+                .Include(qa => qa.Quiz)
+                .Include(qa => qa.User)
+                .Where(qa => qa.UserId == userId)
+                .OrderByDescending(qa => qa.StartedAt)
+                .ToListAsync();
+        }
         public async Task<QuizAttempt?> GetActiveAttemptAsync(int userId, int quizId)
         {
             return await _context.QuizAttempts

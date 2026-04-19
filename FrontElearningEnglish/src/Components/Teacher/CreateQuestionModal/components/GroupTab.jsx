@@ -76,9 +76,15 @@ const GroupTab = ({
             <Form.Group className="mb-3">
               <Form.Label>Tổng điểm nhóm</Form.Label>
               <Form.Control 
-                type="number" 
+                type="text" 
+                inputMode="decimal"
                 value={gFormData.sumScore} 
-                onChange={e => setGFormData({ ...gFormData, sumScore: e.target.value })} 
+                onChange={e => {
+                  const val = e.target.value.replace(/,/g, '.').replace(/[^\d.]/g, '');
+                  if (val.split('.').length <= 2) {
+                    setGFormData({ ...gFormData, sumScore: val });
+                  }
+                }} 
               />
             </Form.Group>
 

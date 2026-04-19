@@ -28,6 +28,8 @@ export default function QuizDetail() {
     const [submitting, setSubmitting] = useState(false);
     const [showSubmitModal, setShowSubmitModal] = useState(false);
     const [notification, setNotification] = useState({ isOpen: false, type: "info", message: "" });
+    const [showFocusPrompt, setShowFocusPrompt] = useState(false);
+    const [isFocusMode, setIsFocusMode] = useState(false);
 
     const timeSpentRef = useRef(0);
     const timerIntervalRef = useRef(null);
@@ -404,6 +406,11 @@ export default function QuizDetail() {
 
             setLoading(false);
 
+            // Hiển thị prompt bật chế độ tập trung nếu là mới vào
+            if (!isFocusMode) {
+                setShowFocusPrompt(true);
+            }
+
         } catch (err) {
             console.error("Fetch error:", err);
             setError("Không thể tải thông tin quiz.");
@@ -454,6 +461,7 @@ export default function QuizDetail() {
 
         try {
             setSubmitting(true);
+            autoSubmitCalledRef.current = true; // Mark as submitting immediately to stop all other logic
 
             // Stop timer
             if (timerIntervalRef.current) {
@@ -570,9 +578,38 @@ export default function QuizDetail() {
         }
     }, [submitting, currentQuestion, answers, handleSubmitAnswer, quizAttempt, attemptId, quizId, courseId, lessonId, moduleId, navigate]);
 
+    const handleEnterFocusMode = () => {
+        setIsFocusMode(true);
+        setShowFocusPrompt(false);
+        
+        // Bật fullscreen
+        if (document.documentElement.requestFullscreen) {
+            document.documentElement.requestFullscreen().catch(err => {
+                console.warn("Fullscreen request failed:", err);
+            });
+        }
+    };
+
+    const handleSkipFocusMode = () => {
+        setShowFocusPrompt(false);
+    };
+
+    // Theo dõi sự kiện thoát fullscreen để tắt focusMode nếu cần
+    useEffect(() => {
+        const handleFullscreenChange = () => {
+            if (!document.fullscreenElement && isFocusMode) {
+                // Nếu user chủ động thoát fullscreen (Esc), có thể giữ focusMode hoặc tắt tùy ý
+                // Ở đây ta giữ focusMode để ẩn header cho đến khi nộp bài
+            }
+        };
+
+        document.addEventListener('fullscreenchange', handleFullscreenChange);
+        return () => document.removeEventListener('fullscreenchange', handleFullscreenChange);
+    }, [isFocusMode]);
+
     const calculateAndUpdateRemainingTime = useCallback(() => {
-        if (!endTimeRef.current) {
-            setRemainingTime(null);
+        if (!endTimeRef.current || submitting) {
+            if (!endTimeRef.current) setRemainingTime(null);
             return;
         }
 
@@ -671,7 +708,7 @@ export default function QuizDetail() {
 
     // Calculate endTime when quizAttempt or quiz changes
     useEffect(() => {
-        if (quizAttempt && quiz) {
+        if (quizAttempt && quiz && !submitting) {
             calculateEndTime();
             // Calculate remaining time immediately
             calculateAndUpdateRemainingTime();
@@ -927,20 +964,28 @@ export default function QuizDetail() {
 
     return (
         <>
-            <MainHeader />
-            <div className="quiz-detail-page">
-                <Container>
-                    <Breadcrumb
-                        items={[
-                            { label: "Khóa học của tôi", path: "/my-courses" },
-                            { label: course?.title || "Khóa học", path: `/course/${courseId}` },
-                            { label: "Lesson", path: `/course/${courseId}/learn` },
-                            { label: lesson?.title || "Bài học", path: `/course/${courseId}/lesson/${lessonId}` },
-                            { label: "Bài tập", path: `/course/${courseId}/lesson/${lessonId}/module/${moduleId}/assignment` },
-                            { label: quizAttempt?.quiz?.title || quiz?.title || "Quiz", isCurrent: true }
-                        ]}
-                    />
-                </Container>
+            {!isFocusMode && <MainHeader />}
+            {submitting && (
+                <div className="submitting-overlay">
+                    <div className="submitting-spinner"></div>
+                    <div className="submitting-text">Đang nộp bài...</div>
+                </div>
+            )}
+            <div className={`quiz-detail-page ${isFocusMode ? "focus-mode-active" : ""}`}>
+                {!isFocusMode && (
+                    <Container>
+                        <Breadcrumb
+                            items={[
+                                { label: "Khóa học của tôi", path: "/my-courses" },
+                                { label: course?.title || "Khóa học", path: `/course/${courseId}` },
+                                { label: "Lesson", path: `/course/${courseId}/learn` },
+                                { label: lesson?.title || "Bài học", path: `/course/${courseId}/lesson/${lessonId}` },
+                                { label: "Bài tập", path: `/course/${courseId}/lesson/${lessonId}/module/${moduleId}/assignment` },
+                                { label: quizAttempt?.quiz?.title || quiz?.title || "Quiz", isCurrent: true }
+                            ]}
+                        />
+                    </Container>
+                )}
                 <Container className="py-4">
                     <Row>
                         <Col lg={9}>
@@ -1048,6 +1093,17 @@ export default function QuizDetail() {
                 confirmText="Nộp bài"
                 cancelText="Hủy"
                 type="warning"
+            />
+
+            <ConfirmModal
+                isOpen={showFocusPrompt}
+                onClose={handleSkipFocusMode}
+                onConfirm={handleEnterFocusMode}
+                title="Chế độ tập trung"
+                message="Bạn có muốn bật chế độ tập trung? Hệ thống sẽ chuyển sang toàn màn hình và ẩn các chỉ dẫn không cần thiết để bạn làm bài tốt nhất."
+                confirmText="Đồng ý"
+                cancelText="Để sau"
+                type="info"
             />
 
             <NotificationModal

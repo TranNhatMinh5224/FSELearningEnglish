@@ -19,6 +19,7 @@ import PaymentSuccess from "../Pages/Payment/PaymentSuccess";
 import PaymentFailed from "../Pages/Payment/PaymentFailed";
 import PaymentPending from "../Pages/Payment/PaymentPending";
 import PaymentHistory from "../Pages/PaymentHistory/PaymentHistory";
+import QuizHistory from "../Pages/QuizHistory/QuizHistory";
 import VocabularyReview from "../Pages/VocabularyReview/VocabularyReview";
 import FlashCardReviewSession from "../Pages/FlashCardReviewSession/FlashCardReviewSession";
 import VocabularyNotebook from "../Pages/VocabularyNotebook/VocabularyNotebook";
@@ -100,6 +101,7 @@ export default function AppRoutes() {
       <Route path="/payment-failed" element={<PaymentFailed />} />
       <Route path={ROUTE_PATHS.PAYMENT_PENDING} element={<PaymentPending />} />
       <Route path={ROUTE_PATHS.PAYMENT_HISTORY} element={<PaymentHistory />} />
+      <Route path={ROUTE_PATHS.QUIZ_HISTORY} element={<QuizHistory />} />
       <Route path={ROUTE_PATHS.VOCABULARY_REVIEW} element={<VocabularyReview />} />
       <Route path="/vocabulary-review/session" element={<FlashCardReviewSession />} />
       <Route path={ROUTE_PATHS.VOCABULARY_NOTEBOOK} element={<VocabularyNotebook />} />

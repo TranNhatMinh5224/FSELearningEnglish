@@ -55,16 +55,44 @@ export default function MatchingQuestion({ question, answer, onChange }) {
         rightOptions = options.slice(half);
     }
 
-    // Map sang định dạng UI đồng nhất
-    const finalLeft = leftOptions.map(opt => ({
-        id: opt.optionId || opt.OptionId || opt.answerOptionId || opt.AnswerOptionId,
-        text: opt.optionText || opt.OptionText || opt.text || opt.Text
-    }));
+    // Helper to shuffle array with a seed for consistency
+    const shuffleWithSeed = (array, seed) => {
+        const newArray = [...array];
+        let m = newArray.length, t, i;
+        // Use a simple LCG-like pseudo-random generator based on seed
+        let currentSeed = seed;
+        const nextRand = () => {
+            currentSeed = (currentSeed * 1103515245 + 12345) & 0x7fffffff;
+            return currentSeed / 0x7fffffff;
+        };
 
-    const finalRight = rightOptions.map(opt => ({
-        id: opt.optionId || opt.OptionId || opt.answerOptionId || opt.AnswerOptionId,
-        text: opt.optionText || opt.OptionText || opt.text || opt.Text
-    }));
+        while (m) {
+            i = Math.floor(nextRand() * m--);
+            t = newArray[m];
+            newArray[m] = newArray[i];
+            newArray[i] = t;
+        }
+        return newArray;
+    };
+
+    // Shuffle cả 2 cột để tăng tính thử thách (Sử dụng QuestionId làm seed)
+    const qId = question.questionId || question.QuestionId || 0;
+    // Dùng memo để tránh shuffle lại mỗi lần render nếu không cần
+    const finalLeft = React.useMemo(() => {
+        const mapped = leftOptions.map(opt => ({
+            id: opt.optionId || opt.OptionId || opt.answerOptionId || opt.AnswerOptionId,
+            text: opt.optionText || opt.OptionText || opt.text || opt.Text
+        }));
+        return shuffleWithSeed(mapped, qId + 123);
+    }, [leftOptions, qId]);
+
+    const finalRight = React.useMemo(() => {
+        const mapped = rightOptions.map(opt => ({
+            id: opt.optionId || opt.OptionId || opt.answerOptionId || opt.AnswerOptionId,
+            text: opt.optionText || opt.OptionText || opt.text || opt.Text
+        }));
+        return shuffleWithSeed(mapped, qId + 456);
+    }, [rightOptions, qId]);
 
     const [matches, setMatches] = useState(() => {
         if (answer && typeof answer === 'object') {

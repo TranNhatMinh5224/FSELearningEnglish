@@ -26,11 +26,6 @@
     font-size: 0.7rem;
 }
 
-.question-number {
-    font-size: var(--font-size-lg, clamp(1.125rem, 1rem + 0.625vw, 1.25rem));
-    font-weight: 600;
-    color: var(--color-text-primary, #1f2937);
-}
 
 .question-points {
     font-size: var(--font-size-sm, clamp(0.875rem, 0.8rem + 0.375vw, 1rem));

@@ -204,6 +204,8 @@ export const API_ENDPOINTS = {
         GET_BY_ID: (attemptId) => `/user/quiz-attempts/${attemptId}`,
         RESUME: (attemptId) => `/user/quiz-attempts/resume/${attemptId}`,
         MY_ATTEMPTS: "/user/quiz-attempts/my-attempts",
+        HISTORY: (quizId) => `/user/quiz-attempts/history/${quizId}`,
+        HISTORY_ALL: "/user/quiz-attempts/history/all",
     },
     // Flashcards
     FLASHCARDS: {

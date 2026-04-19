@@ -28,5 +28,11 @@ namespace LearningEnglish.Application.Interface
 
         // Kiểm tra bất kỳ bài làm nào đang thực hiện của user
         Task<ServiceResponse<ActiveAttemptDto>> GetAnyActiveAttemptAsync(int userId);
+
+        // Lấy lịch sử các lần làm bài của user cho một quiz cụ thể
+        Task<ServiceResponse<List<QuizAttemptDto>>> GetUserAttemptsForQuizAsync(int quizId, int userId);
+
+        // Lấy toàn bộ lịch sử làm quiz của user
+        Task<ServiceResponse<List<QuizAttemptDto>>> GetUserQuizHistoryAsync(int userId);
     }
 }

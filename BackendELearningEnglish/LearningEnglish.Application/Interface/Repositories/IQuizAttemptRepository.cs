@@ -23,6 +23,9 @@ namespace LearningEnglish.Application.Interface
         // Lấy tất cả bài làm của user cho quiz
         Task<List<QuizAttempt>> GetByUserAndQuizAsync(int userId, int quizId);
 
+        // Lấy tất cả bài làm của user (tất cả các quiz)
+        Task<List<QuizAttempt>> GetByUserIdAsync(int userId);
+
         // Lấy bài làm đang thực hiện
         Task<QuizAttempt?> GetActiveAttemptAsync(int userId, int quizId);
 

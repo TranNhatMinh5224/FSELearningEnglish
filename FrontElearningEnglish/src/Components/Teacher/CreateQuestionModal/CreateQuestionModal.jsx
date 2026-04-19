@@ -173,8 +173,15 @@ export default function CreateQuestionModal({
     if (result.success) {
       setBulkSuccessCount(count);
       setShowBulkConfirm(false);
+      
+      // Close the main modal form first to improve UX
+      onClose();
+      
+      // Then show the success notification
       setShowBulkSuccess(true);
-      // Clear history of created questions too if the user wants it "clean"
+      
+      // Clear pending/created to reset for next time if component isn't unmounted
+      bulkQuestions.setPendingQuestions([]);
       bulkQuestions.setCreatedQuestions([]);
     } else if (result.message) {
       qForm.setQErrors({ submit: result.message });
@@ -279,10 +286,10 @@ export default function CreateQuestionModal({
       <SuccessModal
         isOpen={showBulkSuccess}
         onClose={() => setShowBulkSuccess(false)}
-        title="Thành công"
-        message={`Đã tạo thành công ${bulkSuccessCount} câu hỏi hàng loạt!`}
+        title="🎉 Chúc mừng!"
+        message={`Bạn đã tạo thành công ${bulkSuccessCount} câu hỏi hàng loạt!`}
         autoClose={true}
-        autoCloseDelay={2000}
+        autoCloseDelay={2500}
       />
     </>
   );

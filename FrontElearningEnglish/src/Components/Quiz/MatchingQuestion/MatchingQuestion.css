@@ -56,16 +56,6 @@
 }
 
 /* Bootstrap utilities: d-flex, align-items-center */
-.matching-item {
-    gap: 12px;
-    padding: 14px 16px;
-    border: 2px solid var(--color-border-light, #e5e7eb);
-    border-radius: 12px;
-    background: var(--color-bg-primary, white);
-    cursor: pointer;
-    transition: all 0.2s ease;
-    min-height: 60px;
-}
 
 .matching-item:hover {
     border-color: var(--color-secondary-cyan, #41d6e3);

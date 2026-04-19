@@ -47,10 +47,12 @@ const QuestionHeader = ({
               value={qFormData.points || ''}
               onChange={(e) => {
                 const value = e.target.value;
-                const numValue = value.replace(/[^\d.]/g, '');
+                // Allow both . and , and replace , with .
+                const normalizedValue = value.replace(/,/g, '.');
+                // Keep only numbers and a single dot
+                const numValue = normalizedValue.replace(/[^\d.]/g, '');
                 const parts = numValue.split('.');
                 if (parts.length <= 2) {
-                  // Direct update since we have qFormData setter-like access via local logic or passed handlers
                   handlePointsChange(numValue);
                 }
               }}

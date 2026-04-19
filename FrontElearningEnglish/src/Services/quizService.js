@@ -9,6 +9,10 @@ export const quizService = {
     
     getByAssessment: (assessmentId) => axiosClient.get(API_ENDPOINTS.QUIZZES.GET_BY_ASSESSMENT(assessmentId)),
     
+    getHistoryByQuiz: (quizId) => axiosClient.get(API_ENDPOINTS.QUIZ_ATTEMPTS.HISTORY(quizId)),
+    
+    getAllHistory: () => axiosClient.get(API_ENDPOINTS.QUIZ_ATTEMPTS.HISTORY_ALL),
+    
     // Teacher endpoints
     createQuiz: (data) => axiosClient.post(API_ENDPOINTS.TEACHER.CREATE_QUIZ, data),
     

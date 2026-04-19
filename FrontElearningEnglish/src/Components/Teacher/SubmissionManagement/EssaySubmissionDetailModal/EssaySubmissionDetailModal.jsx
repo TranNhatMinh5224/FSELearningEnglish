@@ -206,12 +206,15 @@ export default function EssaySubmissionDetailModal({ show, onClose, submission, 
             <Form.Group className="mb-3">
               <Form.Label>Điểm số (tối đa: {maxScore})</Form.Label>
               <Form.Control
-                type="number"
-                min="0"
-                max={maxScore}
-                step="0.1"
+                type="text"
+                inputMode="decimal"
                 value={score}
-                onChange={(e) => setScore(e.target.value)}
+                onChange={(e) => {
+                  const val = e.target.value.replace(/,/g, '.').replace(/[^\d.]/g, '');
+                  if (val.split('.').length <= 2) {
+                    setScore(val);
+                  }
+                }}
                 placeholder="Nhập điểm"
               />
             </Form.Group>

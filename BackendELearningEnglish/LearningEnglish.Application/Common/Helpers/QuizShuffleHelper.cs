@@ -21,12 +21,12 @@ namespace LearningEnglish.Application.Common.Helpers
         {
             return type switch
             {
-                QuestionType.MultipleChoice => true,   // Chọn 1 đáp án - shuffle OK
-                QuestionType.MultipleAnswers => true,  // Chọn nhiều đáp án - shuffle OK
-                QuestionType.TrueFalse => false,       // True/False cố định vị trí
-                QuestionType.FillBlank => false,       // Không có options để shuffle
-                QuestionType.Matching => false,        // Nối cặp - KHÔNG shuffle để giữ thứ tự đề bài
-                QuestionType.Ordering => false,        // Sắp xếp - shuffle = mất đề bài
+                QuestionType.MultipleChoice => true,
+                QuestionType.MultipleAnswers => true,
+                QuestionType.Matching => true,
+                QuestionType.Ordering => true,
+                QuestionType.TrueFalse => false,
+                QuestionType.FillBlank => false,
                 _ => false
             };
         }

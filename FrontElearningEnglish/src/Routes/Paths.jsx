@@ -31,6 +31,7 @@ export const ROUTE_PATHS = {
   VOCABULARY_REVIEW: "/vocabulary-review",
   VOCABULARY_NOTEBOOK: "/vocabulary-notebook",
   SEARCH: "/search",
+  QUIZ_HISTORY: "/quiz-history",
 
   // Course routes
   COURSE_DETAIL: (courseId) => `/course/${courseId}`,

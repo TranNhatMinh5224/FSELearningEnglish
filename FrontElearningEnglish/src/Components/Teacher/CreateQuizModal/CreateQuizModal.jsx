@@ -165,9 +165,15 @@ export default function CreateQuizModal({ show, onClose, onSuccess, assessmentId
                     <FormInput
                       label="Điểm đạt (Passing)"
                       name="passingScore"
-                      type="number"
+                      type="text"
+                      inputMode="decimal"
                       value={formData.passingScore}
-                      onChange={handleChange}
+                      onChange={(e) => {
+                        const val = e.target.value.replace(/,/g, '.').replace(/[^\d.]/g, '');
+                        if (val.split('.').length <= 2) {
+                          setFieldValue("passingScore", val);
+                        }
+                      }}
                       onBlur={handleBlur}
                       error={errors.passingScore}
                       touched={touched.passingScore}

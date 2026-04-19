@@ -82,5 +82,23 @@ namespace LearningEnglish.API.Controller.User
             var result = await _quizAttemptService.GetAnyActiveAttemptAsync(userId);
             return result.Success ? Ok(result) : StatusCode(result.StatusCode, result);
         }
+
+        // GET: api/user/quiz-attempts/history/{quizId} - lấy lịch sử làm bài của quiz cụ thể
+        [HttpGet("history/{quizId}")]
+        public async Task<IActionResult> GetUserAttemptsForQuiz(int quizId)
+        {
+            var userId = User.GetUserId();
+            var result = await _quizAttemptService.GetUserAttemptsForQuizAsync(quizId, userId);
+            return result.Success ? Ok(result) : StatusCode(result.StatusCode, result);
+        }
+
+        // GET: api/user/quiz-attempts/history/all - lấy toàn bộ lịch sử làm quiz của user
+        [HttpGet("history/all")]
+        public async Task<IActionResult> GetUserQuizHistory()
+        {
+            var userId = User.GetUserId();
+            var result = await _quizAttemptService.GetUserQuizHistoryAsync(userId);
+            return result.Success ? Ok(result) : StatusCode(result.StatusCode, result);
+        }
     }
 }

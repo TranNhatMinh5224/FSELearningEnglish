@@ -105,8 +105,37 @@ export default function QuestionCard({ question, answer, onChange, questionNumbe
                                 )}
                             </div>
                         )}
-                        <div className="question-number">
-                            Câu {questionNumber}/{totalQuestions}
+                        <div className="question-navigation-header">
+                            <div className="current-question-badge">
+                                Câu {questionNumber}
+                            </div>
+                            <div className="question-progress-trail">
+                                {(() => {
+                                    const items = [];
+                                    const total = totalQuestions;
+                                    const current = questionNumber;
+                                    const range = 2; // Neighbors
+                                    
+                                    for (let i = 1; i <= total; i++) {
+                                        if (i === 1 || i === total || (i >= current - range && i <= current + range)) {
+                                            items.push(
+                                                <span 
+                                                    key={i} 
+                                                    className={`trail-item ${i === current ? 'active' : ''}`}
+                                                >
+                                                    {i}
+                                                </span>
+                                            );
+                                        } else if (i === current - range - 1 || i === current + range + 1) {
+                                            items.push(<span key={`dot-${i}`} className="trail-dot">...</span>);
+                                        }
+                                    }
+                                    return items;
+                                })()}
+                            </div>
+                            <div className="total-questions-count">
+                                của {totalQuestions}
+                            </div>
                         </div>
                     </Col>
                     <Col xs="auto" className="question-points">

@@ -1025,5 +1025,73 @@ namespace LearningEnglish.Application.Service
                 return response;
             }
         }
+
+        public async Task<ServiceResponse<List<QuizAttemptDto>>> GetUserAttemptsForQuizAsync(int quizId, int userId)
+        {
+            var response = new ServiceResponse<List<QuizAttemptDto>>();
+
+            try
+            {
+                var attempts = await _quizAttemptRepository.GetByUserAndQuizAsync(userId, quizId);
+                var attemptDtos = _mapper.Map<List<QuizAttemptDto>>(attempts);
+
+                // Calculate EndTime for each attempt if it's InProgress 
+                // Normally history only shows submitted ones but we'll be safety
+                foreach (var dto in attemptDtos)
+                {
+                    if (dto.Status == QuizAttemptStatus.InProgress && dto.Duration.HasValue)
+                    {
+                        dto.EndTime = dto.StartedAt.AddMinutes(dto.Duration.Value);
+                    }
+                }
+
+                response.Success = true;
+                response.Data = attemptDtos;
+                response.StatusCode = 200;
+                response.Message = $"Found {attempts.Count} attempts for quiz {quizId}";
+                return response;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error getting attempts for user {UserId} and quiz {QuizId}", userId, quizId);
+                response.Success = false;
+                response.Message = ex.Message;
+                response.StatusCode = 500;
+                return response;
+            }
+        }
+
+        public async Task<ServiceResponse<List<QuizAttemptDto>>> GetUserQuizHistoryAsync(int userId)
+        {
+            var response = new ServiceResponse<List<QuizAttemptDto>>();
+
+            try
+            {
+                var attempts = await _quizAttemptRepository.GetByUserIdAsync(userId);
+                var attemptDtos = _mapper.Map<List<QuizAttemptDto>>(attempts);
+
+                foreach (var dto in attemptDtos)
+                {
+                    if (dto.Status == QuizAttemptStatus.InProgress && dto.Duration.HasValue)
+                    {
+                        dto.EndTime = dto.StartedAt.AddMinutes(dto.Duration.Value);
+                    }
+                }
+
+                response.Success = true;
+                response.Data = attemptDtos;
+                response.StatusCode = 200;
+                response.Message = $"Found {attempts.Count} quiz attempts for user {userId}";
+                return response;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error getting quiz history for user {UserId}", userId);
+                response.Success = false;
+                response.Message = ex.Message;
+                response.StatusCode = 500;
+                return response;
+            }
+        }
     }
 }
