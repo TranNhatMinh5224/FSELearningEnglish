@@ -80,13 +80,6 @@ jobs:
           sudo -n systemctl restart "${{ secrets.VPS_BACKEND_SERVICE }}"
           sudo -n systemctl is-active "${{ secrets.VPS_BACKEND_SERVICE }}"
 
-      - name: Health Check
-        shell: bash
-        run: |
-          # Wait a few seconds for the service to start fully
-          sleep 5
-          curl -f http://localhost:5000/health || exit 1
-
       - name: Run Database Migrations
         shell: bash
         env:

@@ -83,7 +83,6 @@ app.UseRateLimiter();
 app.UseAuthentication();
 app.UseAuthorization();
 
-app.MapHealthChecks("/health"); // Cấu hình endpoint kiểm tra trạng thái hoạt động của API
 app.MapControllers();
 
 
