@@ -2,8 +2,7 @@ using System.Text; // Thư viện dùng để xử lý văn bản, mã hóa (ví
 using FluentValidation; // Thư viện dùng để kiểm tra tính hợp lệ của dữ liệu đầu vào (Validation)
 using FluentValidation.AspNetCore; // Tích hợp FluentValidation vào luồng xử lý của ASP.NET Core
 using LearningEnglish.API.Authorization; // Namespace chứa các xử lý phân quyền (Authorization)
-using LearningEnglish.Application.Configurations; // Namespace chứa các lớp cấu hình của Application
-using LearningEnglish.Application.Configurations; // AzureSpeechOptions
+using LearningEnglish.Application.Configurations; // Namespace chứa các lớp cấu hình của Application (AzureSpeechOptions, v.v.)
 using LearningEnglish.Application.Interface; // Namespace chứa các interface dùng chung
 using LearningEnglish.Application.Interface.AdminManagement; // Interface cho quản lý admin
 using LearningEnglish.Application.Interface.Auth; // Interface cho xác thực (Authentication)

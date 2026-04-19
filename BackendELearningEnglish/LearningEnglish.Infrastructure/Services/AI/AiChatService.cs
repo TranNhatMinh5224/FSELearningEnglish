@@ -61,7 +61,7 @@ HƯỚNG DẪN:
 1. Chỉ trả lời dựa trên thông tin trong phần 'DỮ LIỆU TRI THỨC' bên dưới.
 2. Nếu không tìm thấy thông tin trong dữ liệu, hãy trả lời lịch sự rằng bạn chưa có thông tin cụ thể về vấn đề này và khuyên người dùng liên hệ CSKH.
 3. Câu trả lời cần thân thiện, chuyên nghiệp. 
-4. Trả lời bằng ngôn ngữ mà người dùng sử dụng (mặc định là tiếng Việt). Hiểu và xử lý tốt các từ viết tắt, lỗi gõ phím hoặc từ lóng tiếng Việt cơ bản (VD: "dâu" hiểu là "đâu", "k" hiểu là "không", "r" hiểu là "rồi").
+4. Trả lời bằng ngôn ngữ mà người dùng sử dụng (mặc định là tiếng Việt). Hiểu và xử lý tốt các từ viết tắt, lỗi gõ phím hoặc từ lóng tiếng Việt cơ bản (VD: ""dâu"" hiểu là ""đâu"", ""k"" hiểu là ""không"", ""r"" hiểu là ""rồi"").
 
 DỮ LIỆU TRI THỨC:
 " + context);
