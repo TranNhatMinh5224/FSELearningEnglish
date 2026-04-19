@@ -140,6 +140,8 @@ public static class ServiceRegistrationExtensions // Lớp static chứa các ex
         // Đăng ký MediatR để xử lý các Command và Query (Pattern CQRS)
         services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(typeof(MappingProfile).Assembly));
 
+        services.AddHealthChecks(); // Đăng ký dịch vụ Health Check cho hệ thống
+
         return services; // Trả về services để có thể gọi tiếp các method khác (Chaining)
     }
 

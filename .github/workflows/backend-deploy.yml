@@ -17,7 +17,7 @@ concurrency:
 
 jobs:
   build-and-deploy:
-    runs-on: [self-hosted, Linux, X64]
+    runs-on: [self-hosted, linux, x64]
 
     env:
       DOTNET_INSTALL_DIR: ${{ github.workspace }}/.dotnet
@@ -77,8 +77,15 @@ jobs:
         shell: bash
         run: |
           sudo -n systemctl daemon-reload
-          sudo -n systemctl restart "${{ secrets.VPS_BACKEND_SERVICE }}"
+          sudo -n systemctl try-restart "${{ secrets.VPS_BACKEND_SERVICE }}"
           sudo -n systemctl is-active "${{ secrets.VPS_BACKEND_SERVICE }}"
+
+      - name: Health Check
+        shell: bash
+        run: |
+          # Wait a few seconds for the service to start fully
+          sleep 5
+          curl -f http://localhost:5000/health || exit 1
 
       - name: Run Database Migrations
         shell: bash
