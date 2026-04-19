@@ -485,13 +485,13 @@ export default function CreateQuizGroupModal({ show, onClose, onSuccess, quizSec
                   <FileUpload
                     bucket={QUIZ_GROUP_BUCKET}
                     accept="video/*"
-                    maxSize={100}
+                    maxSize={5120}
                     existingUrl={videoUrl}
                     onUploadSuccess={handleVideoUploadSuccess}
                     onRemove={handleVideoRemove}
                     onError={handleVideoError}
                     label="Chọn video hoặc kéo thả vào đây"
-                    hint="Hỗ trợ: MP4, WebM, MOV (tối đa 100MB)"
+                    hint="Hỗ trợ: MP4, WebM, MOV (tối đa 5GB)"
                   />
                   {errors.video && <div className="text-danger small mt-1">{errors.video}</div>}
                   <div className="form-text">Không bắt buộc. Video minh họa cho nhóm câu hỏi (thời lượng sẽ tự động được tính)</div>

@@ -151,7 +151,7 @@ export default function CreateLectureModal({ show, onClose, onSuccess, moduleId,
                   <FileUpload
                     bucket={LECTURE_MEDIA_BUCKET}
                     accept={parseInt(formData.lectureType) === 3 ? "video/*,.mp4,.mkv,.mov,.avi,.wmv,.webm" : ".pdf,.doc,.docx,.txt"}
-                    maxSize={parseInt(formData.lectureType) === 3 ? 100 : 10}
+                    maxSize={parseInt(formData.lectureType) === 3 ? 5120 : 10}
                     existingUrl={existingMediaUrl}
                     onUploadSuccess={handleMediaUploadSuccess}
                     onRemove={() => setExistingMediaUrl(null)}

@@ -18,6 +18,7 @@ using LearningEnglish.Application.Interface.Services.Module; // Interface cho se
 using LearningEnglish.Application.Interface.Services.TeacherPackage; // Interface cho gói giảng viên
 using LearningEnglish.Application.Interface.Services.AI;
 using LearningEnglish.Application.Interface.Strategies; // Interface cho các chiến lược (Strategy pattern)
+using Microsoft.AspNetCore.Http.Features; // Thư viện cấu hình các đặc tính của HTTP (ví dụ: FormOptions)
 using LearningEnglish.Application.Mappings; // Namespace chứa cấu hình ánh xạ AutoMapper
 using LearningEnglish.Infrastructure.Services.AI;
 using Microsoft.SemanticKernel.Connectors.Google;
@@ -70,6 +71,13 @@ public static class ServiceRegistrationExtensions // Lớp static chứa các ex
     public static IServiceCollection AddApiCore(this IServiceCollection services, IConfiguration configuration, string frontendUrl)
     {
         services.AddControllers(); // Đăng ký các Controller để xử lý request API
+        
+        // Cấu hình giới hạn kích thước upload file (ví dụ: 5GB cho video)
+        services.Configure<FormOptions>(options =>
+        {
+            options.MultipartBodyLengthLimit = 5368709120; // 5GB
+        });
+
         services.AddEndpointsApiExplorer(); // Hỗ trợ hiển thị API lên Swagger
 
         services.AddSwaggerGen(c => // Cấu hình Swagger UI

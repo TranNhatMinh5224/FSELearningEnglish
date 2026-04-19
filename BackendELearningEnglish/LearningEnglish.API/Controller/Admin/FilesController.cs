@@ -18,7 +18,7 @@ namespace LearningEnglish.API.Controller.AdminAndTeacher
         // File size limits (in bytes)
         private const long MAX_IMAGE_SIZE = 5_242_880;      // 5MB
         private const long MAX_AUDIO_SIZE = 10_485_760;     // 10MB
-        private const long MAX_VIDEO_SIZE = 104_857_600;    // 100MB
+        private const long MAX_VIDEO_SIZE = 5_368_709_120;    // 5GB (Tăng từ 100MB)
         private const long MAX_DOCUMENT_SIZE = 20_971_520;  // 20MB
 
         public FilesController(IMinioFileStorage minioFileStorage, ILogger<FilesController> logger)
@@ -31,7 +31,7 @@ namespace LearningEnglish.API.Controller.AdminAndTeacher
         // Note: File validation được xử lý bởi FluentValidation (UploadTempFileRequestDtoValidator)
         // Query parameters validation được xử lý bởi FluentValidation (UploadTempFileQueryDtoValidator)
         [HttpPost("temp-file")]
-        [RequestSizeLimit(104_857_600)]  // Max 100MB
+        [DisableRequestSizeLimit] // Cho phép upload file lớn không giới hạn request size (giới hạn thực tế nằm ở FormOptions)
         public async Task<IActionResult> UploadTemplateFile(
             IFormFile file, 
             [FromQuery] UploadTempFileQueryDto queryDto)
@@ -80,7 +80,7 @@ namespace LearningEnglish.API.Controller.AdminAndTeacher
             {
                 maxSize = MAX_VIDEO_SIZE;
                 fileType = "Video";
-                maxSizeReadable = "100MB";
+                maxSizeReadable = "5GB";
             }
             else
             {

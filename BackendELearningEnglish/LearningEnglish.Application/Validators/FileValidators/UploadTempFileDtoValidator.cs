@@ -7,7 +7,7 @@ namespace LearningEnglish.Application.Validators.FileValidators
     {
         private const long MAX_IMAGE_SIZE = 5_242_880;      // 5MB
         private const long MAX_AUDIO_SIZE = 10_485_760;     // 10MB
-        private const long MAX_VIDEO_SIZE = 104_857_600;    // 100MB
+        private const long MAX_VIDEO_SIZE = 5_368_709_120;    // 5GB (Tăng từ 100MB)
         private const long MAX_DOCUMENT_SIZE = 20_971_520;  // 20MB
 
         public UploadTempFileDtoValidator()
@@ -77,7 +77,7 @@ namespace LearningEnglish.Application.Validators.FileValidators
             {
                 maxSize = MAX_VIDEO_SIZE;
                 fileType = "Video";
-                maxSizeReadable = "100MB";
+                maxSizeReadable = "5GB";
             }
             else
             {

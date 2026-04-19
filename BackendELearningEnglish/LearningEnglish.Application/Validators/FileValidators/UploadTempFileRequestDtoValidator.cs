@@ -12,7 +12,7 @@ namespace LearningEnglish.Application.Validators.FileValidators
     {
         private const long MAX_IMAGE_SIZE = 2_097_152;      // 2MB
         private const long MAX_AUDIO_SIZE = 5_242_880;      // 5MB
-        private const long MAX_VIDEO_SIZE = 52_428_800;     // 50MB
+        private const long MAX_VIDEO_SIZE = 5_368_709_120;     // 5GB (Tăng từ 50MB)
         private const long MAX_DOCUMENT_SIZE = 10_485_760;  // 10MB
 
         public UploadTempFileRequestDtoValidator()
@@ -88,7 +88,7 @@ namespace LearningEnglish.Application.Validators.FileValidators
             else if (contentType.StartsWith("video/"))
             {
                 fileType = "Video";
-                maxSizeReadable = "50MB";
+                maxSizeReadable = "5GB";
             }
             else
             {
