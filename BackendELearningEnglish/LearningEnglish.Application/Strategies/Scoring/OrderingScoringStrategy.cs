@@ -13,15 +13,20 @@ namespace LearningEnglish.Application.Strategies.Scoring
         {
             if (userAnswer == null) return 0m;
 
-            // Tự normalize answer về List<int>
+            // Normalize user answer to List<int> (list of Option IDs)
             var userOrder = AnswerNormalizer.NormalizeToListInt(userAnswer);
             if (userOrder == null || userOrder.Count == 0) return 0m;
 
+            // Correct order from JSON (list of texts) mapped to list of Option IDs
             var correctOrder = ScoringHelper.ParseCorrectOrder(question.CorrectAnswersJson, question.Options);
-            if (correctOrder != null && userOrder.SequenceEqual(correctOrder))
-                return question.Points;  // Đúng thứ tự: full điểm
+            
+            if (correctOrder == null || correctOrder.Count == 0) return 0m;
 
-            return 0;  // Sai: 0 điểm
+            // Compare sequence
+            if (userOrder.SequenceEqual(correctOrder))
+                return question.Points;
+
+            return 0m;
         }
     }
 }

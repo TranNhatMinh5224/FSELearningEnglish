@@ -11,18 +11,33 @@ namespace LearningEnglish.Application.Strategies.Scoring
             if (string.IsNullOrEmpty(json) || options == null) return null;
             try
             {
-                // Parse correctAnswersJson: ["Wake up", "Brush teeth", "Eat breakfast", "Go to school"]
+                // Try to parse as list of IDs first
+                try
+                {
+                    var idList = JsonSerializer.Deserialize<List<int>>(json);
+                    if (idList != null && idList.Count > 0 && idList.All(id => options.Any(o => o.AnswerOptionId == id)))
+                    {
+                        return idList;
+                    }
+                }
+                catch { /* Ignore and try strings */ }
+
+                // Parse correctAnswersJson as list of strings: ["Wake up", "Brush teeth", ...]
                 var correctOrderStrings = JsonSerializer.Deserialize<List<string>>(json);
                 if (correctOrderStrings == null) return null;
 
-                // Convert text list thành option ID list
+                // Process strings and match with options
+                // To handle duplicate texts, we maintain a list of available options
+                var availableOptions = options.ToList();
                 var result = new List<int>();
+
                 foreach (var text in correctOrderStrings)
                 {
-                    var option = options.FirstOrDefault(o => o.Text == text);
+                    var option = availableOptions.FirstOrDefault(o => o.Text == text);
                     if (option != null)
                     {
                         result.Add(option.AnswerOptionId);
+                        availableOptions.Remove(option); // Ensure we don't pick the same option twice if it's used once in key
                     }
                 }
 

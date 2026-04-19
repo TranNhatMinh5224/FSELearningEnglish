@@ -95,7 +95,7 @@ export default function MatchingQuestion({ question, answer, onChange }) {
     }, [rightOptions, qId]);
 
     const [matches, setMatches] = useState(() => {
-        if (answer && typeof answer === 'object') {
+        if (answer && typeof answer === 'object' && !Array.isArray(answer)) {
             return answer;
         }
         return {};
@@ -104,9 +104,30 @@ export default function MatchingQuestion({ question, answer, onChange }) {
     const [selectedLeft, setSelectedLeft] = useState(null);
     const [selectedRight, setSelectedRight] = useState(null);
 
+    // Ref để tránh gọi onChange khi đang reset state
+    const isResettingRef = React.useRef(false);
+
+    // 🔑 Reset state khi chuyển sang câu hỏi khác (fix: useState chỉ chạy 1 lần)
     useEffect(() => {
+        isResettingRef.current = true;
+        if (answer && typeof answer === 'object' && !Array.isArray(answer)) {
+            setMatches(answer);
+        } else {
+            setMatches({});
+        }
+        setSelectedLeft(null);
+        setSelectedRight(null);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [qId]); // Reset khi questionId thay đổi
+
+    useEffect(() => {
+        if (isResettingRef.current) {
+            isResettingRef.current = false;
+            return; // Bỏ qua lần gọi onChange ngay sau khi reset
+        }
         onChange(matches);
     }, [matches, onChange]);
+
 
     const handleLeftClick = (leftId) => {
         const lid = Number(leftId);

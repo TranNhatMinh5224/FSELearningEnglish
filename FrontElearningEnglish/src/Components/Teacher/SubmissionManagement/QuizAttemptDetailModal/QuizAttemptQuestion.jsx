@@ -74,17 +74,35 @@ export default function QuizAttemptQuestion({ question, index, getQuestionTypeLa
 
   // Render Matching Review
   const renderMatchingReview = () => {
+    // Dùng raw UserAnswer (object {leftId: rightId}) thay vì userAnswerText đã format
+    const rawUserAnswer = question.userAnswer ?? question.UserAnswer;
+    const rawCorrectAnswer = question.correctAnswer ?? question.CorrectAnswer;
+
+    // Parse studentMatches: {leftOptionId(string|int): rightOptionId}
     let studentMatches = {};
     try {
-      studentMatches = typeof userAnswerText === 'string' ? JSON.parse(userAnswerText || "{}") : (userAnswerText || {});
+      if (rawUserAnswer && typeof rawUserAnswer === 'object' && !Array.isArray(rawUserAnswer)) {
+        studentMatches = rawUserAnswer;
+      } else if (typeof rawUserAnswer === 'string') {
+        studentMatches = JSON.parse(rawUserAnswer || "{}");
+      }
     } catch (e) {}
 
-    let correctMatches = {};
+    // Parse correctMatches từ CorrectAnswersJson (backend trả về dạng object hoặc array text)
+    let correctMatchesById = {}; // {leftId: rightId}
     try {
-      correctMatches = typeof correctAnswerText === 'string' ? JSON.parse(correctAnswerText || "{}") : (correctAnswerText || {});
+      if (rawCorrectAnswer && typeof rawCorrectAnswer === 'object' && !Array.isArray(rawCorrectAnswer)) {
+        correctMatchesById = rawCorrectAnswer;
+      } else if (typeof rawCorrectAnswer === 'string') {
+        correctMatchesById = JSON.parse(rawCorrectAnswer || "{}");
+      }
     } catch (e) {}
 
-    // Identify left and right options from metadata if available
+    // Lấy left/right options dựa trên isCorrect
+    // Backend trả về answerOptionId (không phải optionId)
+    const getOptId = (o) => o.answerOptionId || o.AnswerOptionId || o.optionId || o.OptionId;
+    const getOptText = (o) => o.optionText || o.OptionText || o.text || o.Text || "";
+
     let leftOptions = options.filter(o => o.isCorrect === true || o.IsCorrect === true);
     let rightOptions = options.filter(o => o.isCorrect === false || o.IsCorrect === false);
 
@@ -97,23 +115,26 @@ export default function QuizAttemptQuestion({ question, index, getQuestionTypeLa
     return (
       <div className="matching-review-v3">
         {leftOptions.map((left) => {
-          const leftId = left.optionId || left.OptionId;
-          const sMatchId = studentMatches[leftId];
-          const cMatchId = correctMatches[leftId];
-          
-          const sMatchedRight = rightOptions.find(r => (r.optionId || r.OptionId) === Number(sMatchId));
-          const cMatchedRight = rightOptions.find(r => (r.optionId || r.OptionId) === Number(cMatchId));
-          
-          const isMatchCorrect = Number(sMatchId) === Number(cMatchId);
+          const leftId = getOptId(left);
+
+          // Tìm ID phía phải học sinh chọn cho leftId này
+          const sMatchId = studentMatches[leftId] ?? studentMatches[String(leftId)];
+          // Tìm ID phía phải đúng cho leftId này  
+          const cMatchId = correctMatchesById[leftId] ?? correctMatchesById[String(leftId)];
+
+          const sMatchedRight = rightOptions.find(r => Number(getOptId(r)) === Number(sMatchId));
+          const cMatchedRight = rightOptions.find(r => Number(getOptId(r)) === Number(cMatchId));
+
+          const isMatchCorrect = sMatchId != null && Number(sMatchId) === Number(cMatchId);
 
           return (
             <div key={leftId} className="match-pair-v3">
-              <div className="match-left-v3">{left.optionText || left.OptionText}</div>
+              <div className="match-left-v3">{getOptText(left)}</div>
               <div className="match-arrow-v3">➜</div>
               <div className={`match-right-v3 ${isMatchCorrect ? 'is-correct' : 'is-wrong'}`}>
-                <span className="student-match">{sMatchedRight ? (sMatchedRight.optionText || sMatchedRight.OptionText) : "Chưa nối"}</span>
+                <span className="student-match">{sMatchedRight ? getOptText(sMatchedRight) : "Chưa nối"}</span>
                 {!isMatchCorrect && cMatchedRight && (
-                  <span className="correct-match-hint">Đúng: {cMatchedRight.optionText || cMatchedRight.OptionText}</span>
+                  <span className="correct-match-hint">Đúng: {getOptText(cMatchedRight)}</span>
                 )}
               </div>
             </div>
@@ -123,41 +144,69 @@ export default function QuizAttemptQuestion({ question, index, getQuestionTypeLa
     );
   };
 
+
   // Render Ordering Review
   const renderOrderingReview = () => {
+    const rawUserAnswer = question.userAnswer ?? question.UserAnswer;
+    const getOptId = (o) => o.answerOptionId || o.AnswerOptionId || o.optionId || o.OptionId;
+    const getOptText = (o) => o.optionText || o.OptionText || o.text || o.Text || "";
+
+    // Parse student's order as list of option IDs
     let studentOrderIds = [];
     try {
-      studentOrderIds = Array.isArray(userAnswerText) ? userAnswerText : JSON.parse(userAnswerText || "[]");
-    } catch (e) {
-      studentOrderIds = [];
-    }
+      if (Array.isArray(rawUserAnswer)) {
+        studentOrderIds = rawUserAnswer.map(Number);
+      } else if (typeof rawUserAnswer === 'string') {
+        studentOrderIds = JSON.parse(rawUserAnswer || "[]").map(Number);
+      }
+    } catch (e) { studentOrderIds = []; }
 
+    // Parse correct order as list of option IDs (from backend CorrectAnswer)
+    const rawCorrectAnswer = question.correctAnswer ?? question.CorrectAnswer;
     let correctOrderIds = [];
     try {
-      correctOrderIds = Array.isArray(correctAnswerText) ? correctAnswerText : JSON.parse(correctAnswerText || "[]");
-    } catch (e) {
-      correctOrderIds = [];
-    }
+      if (Array.isArray(rawCorrectAnswer)) {
+        correctOrderIds = rawCorrectAnswer.map(Number);
+      } else if (typeof rawCorrectAnswer === 'string') {
+        // Backend có thể trả về array of text strings hoặc array of IDs
+        const parsed = JSON.parse(rawCorrectAnswer || "[]");
+        if (parsed.length > 0 && typeof parsed[0] === 'number') {
+          correctOrderIds = parsed;
+        } else {
+          // Convert text to IDs
+          correctOrderIds = parsed.map(text => {
+            const opt = options.find(o => getOptText(o) === text);
+            return opt ? Number(getOptId(opt)) : -1;
+          });
+        }
+      }
+    } catch (e) { correctOrderIds = []; }
 
-    const studentOrderedOptions = studentOrderIds.map(id => options.find(o => (o.optionId || o.OptionId) === Number(id))).filter(Boolean);
+    // Map student's order IDs to option objects
+    const studentOrderedOptions = studentOrderIds
+      .map(id => options.find(o => Number(getOptId(o)) === id))
+      .filter(Boolean);
 
     return (
       <div className="ordering-review-v3">
         {studentOrderedOptions.map((opt, idx) => {
-          const optId = opt.optionId || opt.OptionId;
-          const correctIdx = correctOrderIds.indexOf(Number(optId));
+          const optId = Number(getOptId(opt));
+          const correctIdx = correctOrderIds.indexOf(optId);
           const isPosCorrect = correctIdx === idx;
 
           return (
             <div key={optId} className={`order-item-v3 ${isPosCorrect ? 'is-correct' : 'is-wrong'}`}>
               <div className="order-number-v3">{idx + 1}</div>
-              <div className="order-text-v3">{opt.optionText || opt.OptionText}</div>
-              {!isPosCorrect && (
+              <div className="order-text-v3">{getOptText(opt)}</div>
+              {!isPosCorrect && correctIdx >= 0 && (
                 <div className="order-correct-pos-v3">Vị trí đúng: {correctIdx + 1}</div>
               )}
             </div>
           );
         })}
+        {studentOrderedOptions.length === 0 && (
+          <div className="text-muted fst-italic">Chưa trả lời</div>
+        )}
       </div>
     );
   };

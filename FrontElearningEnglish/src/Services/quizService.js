@@ -11,7 +11,16 @@ export const quizService = {
     
     getHistoryByQuiz: (quizId) => axiosClient.get(API_ENDPOINTS.QUIZ_ATTEMPTS.HISTORY(quizId)),
     
-    getAllHistory: () => axiosClient.get(API_ENDPOINTS.QUIZ_ATTEMPTS.HISTORY_ALL),
+    getAllHistory: async () => {
+        try {
+            return await axiosClient.get(API_ENDPOINTS.QUIZ_ATTEMPTS.HISTORY_ALL);
+        } catch (error) {
+            if (error?.response?.status === 404) {
+                return await axiosClient.get(API_ENDPOINTS.QUIZ_ATTEMPTS.MY_ATTEMPTS);
+            }
+            throw error;
+        }
+    },
     
     // Teacher endpoints
     createQuiz: (data) => axiosClient.post(API_ENDPOINTS.TEACHER.CREATE_QUIZ, data),

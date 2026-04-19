@@ -61,6 +61,7 @@ public class QuizAttemptMapperService : IQuizAttemptMapper
                 VideoDuration = g.VideoDuration,  // Độ dài video (seconds)
                 SumScore = g.SumScore,  // Tổng điểm của group
                 Questions = g.Questions
+                    .DistinctBy(q => q.QuestionId)
                     .Select(q => MapToQuestionDto(q, attemptId, quiz.ShuffleAnswers.GetValueOrDefault(false)))
                     .ToList()
             }).ToList();
@@ -68,6 +69,7 @@ public class QuizAttemptMapperService : IQuizAttemptMapper
             // 2. Map standalone questions sang QuizItemDto
             var standaloneQuestionItems = section.Questions
                 .Where(q => q.QuizGroupId == null)
+                .DistinctBy(q => q.QuestionId)
                 .Select(q => MapToStandaloneQuestionItemDto(q, attemptId, quiz.ShuffleAnswers.GetValueOrDefault(false)))
                 .ToList();
 

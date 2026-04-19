@@ -24,7 +24,7 @@ namespace LearningEnglish.Application.Common.Helpers
                 allQuestions.AddRange(section.Questions.Where(q => q.QuizGroupId == null));
             }
 
-            return allQuestions.OrderBy(q => q.QuestionId)
+            return allQuestions.DistinctBy(q => q.QuestionId).OrderBy(q => q.QuestionId)
                 .Select(q => BuildQuestionReviewDto(q, userAnswers, scores))
                 .ToList();
         }
@@ -224,18 +224,42 @@ namespace LearningEnglish.Application.Common.Helpers
                             var pairs = new List<string>();
                             foreach (var prop in jsonMatching.EnumerateObject())
                             {
+                                // Resolve option IDs → text labels
+                                if (int.TryParse(prop.Name, out int leftId)
+                                    && prop.Value.TryGetInt32(out int rightId)
+                                    && question.Options != null)
+                                {
+                                    var leftOpt = question.Options.FirstOrDefault(o => o.AnswerOptionId == leftId);
+                                    var rightOpt = question.Options.FirstOrDefault(o => o.AnswerOptionId == rightId);
+                                    if (leftOpt != null && rightOpt != null)
+                                    {
+                                        pairs.Add($"{leftOpt.Text}→{rightOpt.Text}");
+                                        continue;
+                                    }
+                                }
                                 pairs.Add($"{prop.Name}→{prop.Value}");
                             }
-                            return string.Join(", ", pairs);
+                            return pairs.Count > 0 ? string.Join(", ", pairs) : "Chưa trả lời";
                         }
                         if (answer is System.Collections.IDictionary dict)
                         {
                             var pairs = new List<string>();
                             foreach (System.Collections.DictionaryEntry entry in dict)
                             {
+                                if (entry.Key is int leftIdInt && entry.Value is int rightIdInt
+                                    && question.Options != null)
+                                {
+                                    var leftOpt = question.Options.FirstOrDefault(o => o.AnswerOptionId == leftIdInt);
+                                    var rightOpt = question.Options.FirstOrDefault(o => o.AnswerOptionId == rightIdInt);
+                                    if (leftOpt != null && rightOpt != null)
+                                    {
+                                        pairs.Add($"{leftOpt.Text}→{rightOpt.Text}");
+                                        continue;
+                                    }
+                                }
                                 pairs.Add($"{entry.Key}→{entry.Value}");
                             }
-                            return string.Join(", ", pairs);
+                            return pairs.Count > 0 ? string.Join(", ", pairs) : "Chưa trả lời";
                         }
                         return answer.ToString() ?? "N/A";
 

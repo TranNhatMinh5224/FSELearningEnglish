@@ -14,21 +14,24 @@ namespace LearningEnglish.Application.Strategies.Scoring
         {
             if (userAnswer == null) return 0m;
 
-            // Tự normalize answer về Dictionary<int, int>
+            // Normalize answer về Dictionary<int, int> {leftOptionId: rightOptionId}
             var userMatches = AnswerNormalizer.NormalizeToDictionaryIntInt(userAnswer);
             if (userMatches == null || userMatches.Count == 0) return 0m;
 
             var correctMatches = ScoringHelper.ParseCorrectMatches(question.CorrectAnswersJson, question.MetadataJson, question.Options);
-            if (correctMatches != null && userMatches.Count == correctMatches.Count)
+            if (correctMatches == null || correctMatches.Count == 0) return 0m;
+
+            // Phải đủ số cặp (không thừa, không thiếu)
+            if (userMatches.Count != correctMatches.Count) return 0m;
+
+            // Kiểm tra từng cặp đúng (so sánh từ correctMatches để không bỏ sót)
+            foreach (var pair in correctMatches)
             {
-                foreach (var pair in userMatches)
-                {
-                    if (!correctMatches.TryGetValue(pair.Key, out var correctRight) || correctRight != pair.Value)
-                        return 0;  // Sai cặp: 0 điểm
-                }
-                return question.Points;  // Tất cả đúng: full điểm
+                if (!userMatches.TryGetValue(pair.Key, out var userRight) || userRight != pair.Value)
+                    return 0m;  // Sai cặp hoặc thiếu → 0 điểm
             }
-            return 0;
+
+            return question.Points;  // Tất cả đúng → full điểm
         }
     }
 }

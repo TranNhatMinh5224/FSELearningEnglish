@@ -92,6 +92,15 @@ namespace LearningEnglish.API.Controller.User
             return result.Success ? Ok(result) : StatusCode(result.StatusCode, result);
         }
 
+        // GET: api/user/quiz-attempts/my-attempts - alias tương thích cho các bản frontend cũ
+        [HttpGet("my-attempts")]
+        public async Task<IActionResult> GetUserQuizHistoryAlias()
+        {
+            var userId = User.GetUserId();
+            var result = await _quizAttemptService.GetUserQuizHistoryAsync(userId);
+            return result.Success ? Ok(result) : StatusCode(result.StatusCode, result);
+        }
+
         // GET: api/user/quiz-attempts/history/{quizId} - lấy lịch sử làm bài của quiz cụ thể
         [HttpGet("history/{quizId:int}")]
         public async Task<IActionResult> GetUserAttemptsForQuiz(int quizId)

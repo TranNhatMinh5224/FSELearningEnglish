@@ -90,8 +90,10 @@ namespace LearningEnglish.Application.Common.Helpers
                 var list = new List<int>();
                 foreach (var item in jeArray.EnumerateArray())
                 {
-                    if (item.TryGetInt32(out int itemInt))
+                    if (item.ValueKind == JsonValueKind.Number && item.TryGetInt32(out int itemInt))
                         list.Add(itemInt);
+                    else if (item.ValueKind == JsonValueKind.String && int.TryParse(item.GetString(), out int parsedInt))
+                        list.Add(parsedInt);
                 }
                 return list;
             }
