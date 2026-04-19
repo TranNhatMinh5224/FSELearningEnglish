@@ -40,6 +40,7 @@ export default function QuizDetail() {
     const autoSubmitCalledRef = useRef(false); // Để tránh gọi auto-submit nhiều lần
     const saveAnswerTimeoutRef = useRef({}); // Debounce timers cho từng questionId
     const savingAnswersRef = useRef(new Set()); // Track các answer đang được save
+    const pendingNavigationRef = useRef(null); // URL để navigate sau khi đóng notification
 
     // Get paged items (stand-alone questions or entire groups)
     const getPagedItems = () => {
@@ -541,8 +542,12 @@ export default function QuizDetail() {
                     setNotification({
                         isOpen: true,
                         type: "success",
-                        message: "Nộp bài thành công!"
+                        message: "Nộp bài thành công! ✓",
+                        autoClose: true
                     });
+
+                    // Lưu URL navigate để thực hiện sau khi modal đóng
+                    pendingNavigationRef.current = `/course/${courseId}/lesson/${lessonId}/module/${moduleId}/quiz/${quizId}/attempt/${currentAttemptId}/results`;
 
                     // Hide overlay and exit focus mode immediately
                     setSubmitting(false);
@@ -559,13 +564,6 @@ export default function QuizDetail() {
                     if (quizIdToRemove) {
                         localStorage.removeItem(`quiz_in_progress_${quizIdToRemove}`);
                     }
-
-                    // Navigate to results page with result data promptly
-                    setTimeout(() => {
-                        navigate(`/course/${courseId}/lesson/${lessonId}/module/${moduleId}/quiz/${quizId}/attempt/${currentAttemptId}/results`, {
-                            state: { result: resultData }
-                        });
-                    }, 500);
                 } else {
                     console.error("✗ Submit failed - Response not successful");
                     console.error("Response data:", response.data);
@@ -1120,11 +1118,18 @@ export default function QuizDetail() {
                 isOpen={notification.isOpen}
                 onClose={() => {
                     setNotification(prev => ({ ...prev, isOpen: false }));
-                    if (notification.isTerminal) navigate(-1);
+                    if (notification.isTerminal) {
+                        navigate(-1);
+                    } else if (pendingNavigationRef.current) {
+                        const url = pendingNavigationRef.current;
+                        pendingNavigationRef.current = null;
+                        navigate(url);
+                    }
                 }}
                 type={notification.type}
                 message={notification.message}
                 autoClose={notification.type === "success"}
+                autoCloseDelay={1200}
             />
         </>
     );

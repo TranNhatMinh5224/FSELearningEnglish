@@ -122,8 +122,15 @@ export default function QuizAttemptQuestion({ question, index, getQuestionTypeLa
           // Tìm ID phía phải đúng cho leftId này  
           const cMatchId = correctMatchesById[leftId] ?? correctMatchesById[String(leftId)];
 
-          const sMatchedRight = rightOptions.find(r => Number(getOptId(r)) === Number(sMatchId));
-          const cMatchedRight = rightOptions.find(r => Number(getOptId(r)) === Number(cMatchId));
+          // Tìm option tương ứng (ưu tiên trong rightOptions, fallback toàn bộ options)
+          const findOpt = (id) => {
+            if (id == null) return null;
+            return rightOptions.find(r => Number(getOptId(r)) === Number(id)) 
+                   || options.find(o => Number(getOptId(o)) === Number(id));
+          };
+
+          const sMatchedRight = findOpt(sMatchId);
+          const cMatchedRight = findOpt(cMatchId);
 
           const isMatchCorrect = sMatchId != null && Number(sMatchId) === Number(cMatchId);
 
@@ -184,7 +191,7 @@ export default function QuizAttemptQuestion({ question, index, getQuestionTypeLa
 
     // Map student's order IDs to option objects
     const studentOrderedOptions = studentOrderIds
-      .map(id => options.find(o => Number(getOptId(o)) === id))
+      .map(id => options.find(o => Number(getOptId(o)) === Number(id)))
       .filter(Boolean);
 
     return (

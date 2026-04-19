@@ -16,14 +16,14 @@ export default function OrderingQuestion({ question, answer, onChange }) {
                 const ordered = answer.map(id => {
                     return options.find(opt => {
                         const optId = opt.optionId || opt.OptionId || opt.answerOptionId || opt.AnswerOptionId;
-                        return optId === id;
+                        return Number(optId) === Number(id);
                     });
-                }).filter(item => item !== undefined && item !== null);
+                }).filter(Boolean);
 
                 // Add any missing options that weren't in the answer array
-                const orderedIds = new Set(ordered.map(opt => opt.optionId || opt.OptionId || opt.answerOptionId || opt.AnswerOptionId));
+                const orderedIds = new Set(ordered.map(opt => Number(opt.optionId || opt.OptionId || opt.answerOptionId || opt.AnswerOptionId)));
                 options.forEach(opt => {
-                    const optId = opt.optionId || opt.OptionId || opt.answerOptionId || opt.AnswerOptionId;
+                    const optId = Number(opt.optionId || opt.OptionId || opt.answerOptionId || opt.AnswerOptionId);
                     if (!orderedIds.has(optId)) {
                         ordered.push(opt);
                     }
@@ -39,7 +39,44 @@ export default function OrderingQuestion({ question, answer, onChange }) {
         return [...options];
     });
 
+    // Reset state when question changes (critical for groups)
+    const questionIdNum = Number(question.questionId || question.QuestionId);
+    const isResettingRef = React.useRef(false);
+
     useEffect(() => {
+        if (!options || options.length === 0) return;
+        
+        isResettingRef.current = true;
+        
+        // Logical reset
+        let initialOrder = [...options];
+        if (Array.isArray(answer) && answer.length > 0) {
+            try {
+                const ordered = answer.map(id => 
+                    options.find(opt => Number(opt.optionId || opt.OptionId || opt.answerOptionId || opt.AnswerOptionId) === Number(id))
+                ).filter(Boolean);
+                
+                const orderedIds = new Set(ordered.map(opt => Number(opt.optionId || opt.OptionId || opt.answerOptionId || opt.AnswerOptionId)));
+                options.forEach(opt => {
+                    const optId = Number(opt.optionId || opt.OptionId || opt.answerOptionId || opt.AnswerOptionId);
+                    if (!orderedIds.has(optId)) ordered.push(opt);
+                });
+                if (ordered.length > 0) initialOrder = ordered;
+            } catch (e) {}
+        }
+        
+        setOrderedOptions(initialOrder);
+        
+        // Brief timeout to let the reset complete before useEffect for onChange triggers
+        setTimeout(() => {
+            isResettingRef.current = false;
+        }, 10);
+    }, [questionIdNum]); // Only dependent on questionId to re-init
+
+    useEffect(() => {
+        // Skip onChange during initialization/reset
+        if (isResettingRef.current) return;
+
         // Update answer when order changes
         if (orderedOptions && orderedOptions.length > 0) {
             const orderedIds = orderedOptions

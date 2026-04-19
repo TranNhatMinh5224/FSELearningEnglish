@@ -226,7 +226,7 @@ namespace LearningEnglish.Application.Common.Helpers
                             {
                                 // Resolve option IDs → text labels
                                 if (int.TryParse(prop.Name, out int leftId)
-                                    && prop.Value.TryGetInt32(out int rightId)
+                                    && AnswerNormalizer.TryGetInt(prop.Value, out int rightId)
                                     && question.Options != null)
                                 {
                                     var leftOpt = question.Options.FirstOrDefault(o => o.AnswerOptionId == leftId);
@@ -266,13 +266,12 @@ namespace LearningEnglish.Application.Common.Helpers
                     case QuestionType.Ordering:
                         if (answer is JsonElement jsonArr && jsonArr.ValueKind == JsonValueKind.Array)
                         {
-                            var items = jsonArr.EnumerateArray().Select(e => e.ToString()).ToList();
-                            // Try to map to option text if items are IDs
+                            // Map to option text if items are IDs
                             var mappedItems = new List<string>();
-                            foreach (var item in items)
+                            foreach (var element in jsonArr.EnumerateArray())
                             {
-                                var itemStr = item;
-                                if (int.TryParse(item, out int optId) && question.Options != null)
+                                var itemStr = element.ToString();
+                                if (AnswerNormalizer.TryGetInt(element, out int optId) && question.Options != null)
                                 {
                                     var opt = question.Options.FirstOrDefault(o => o.AnswerOptionId == optId);
                                     if (opt != null) itemStr = opt.Text ?? itemStr;
