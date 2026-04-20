@@ -1,19 +1,19 @@
 .status-badge-custom.status-completed {
-    color: #219653;
-    background: rgba(33, 150, 83, 0.10);
-    border-color: #b7eac7;
+    color: #059669;
+    background: rgba(5, 150, 105, 0.08);
+    border: 1px solid rgba(5, 150, 105, 0.2);
 }
 
 .status-badge-custom.status-inprogress {
-    color: #eab308;
-    background: rgba(234, 179, 8, 0.10);
-    border-color: #f7e7b7;
+    color: #d97706;
+    background: rgba(217, 119, 6, 0.08);
+    border: 1px solid rgba(217, 119, 6, 0.2);
 }
 
 .status-badge-custom.status-expired {
-    color: #d32f2f;
-    background: rgba(211, 47, 47, 0.10);
-    border-color: #f7b7b7;
+    color: #dc2626;
+    background: rgba(220, 38, 38, 0.08);
+    border: 1px solid rgba(220, 38, 38, 0.2);
 }
 
 .status-badge-custom.status-abandoned {
@@ -42,7 +42,7 @@
     position: absolute;
     width: 400px;
     height: 400px;
-    background: rgba(207, 38, 150, 0.08); /* Project primary color */
+    background: rgba(116, 207, 222, 0.08); /* Project Cyan color */
     border-radius: 50%;
     filter: blur(100px);
     top: -150px;
@@ -55,7 +55,7 @@
     position: absolute;
     width: 500px;
     height: 500px;
-    background: rgba(111, 213, 224, 0.1);
+    background: rgba(207, 79, 185, 0.1); /* Project Magenta color */
     border-radius: 50%;
     filter: blur(120px);
     bottom: -200px;
@@ -88,7 +88,7 @@
 }
 
 .count-badge {
-    background: linear-gradient(135deg, #cf2696 0%, #a21b76 100%);
+    background: linear-gradient(135deg, #CF4FB9 0%, #a21b76 100%);
     color: white;
     padding: 2px 12px;
     border-radius: 999px;
@@ -124,13 +124,13 @@
 .btn-go-check {
     margin-top: 2rem;
     padding: 12px 32px;
-    background: linear-gradient(135deg, #cf2696 0%, #a21b76 100%);
+    background: linear-gradient(135deg, #74CFDE 0%, #5bb9c9 100%);
     color: white;
     border: none;
     border-radius: 14px;
     font-weight: 600;
     font-size: 1.1rem;
-    box-shadow: 0 10px 25px rgba(207, 38, 150, 0.25);
+    box-shadow: 0 10px 25px rgba(116, 207, 222, 0.25);
     transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
@@ -196,12 +196,12 @@
     width: 50px;
     height: 50px;
     background: #f1f5f9;
-    color: #cf2696;
+    color: #CF4FB9;
     border-radius: 50%;
     font-weight: 800;
     font-size: 1.2rem;
     border: 2px solid #fff;
-    box-shadow: 0 2px 10px rgba(207, 38, 150, 0.1);
+    box-shadow: 0 2px 10px rgba(207, 79, 185, 0.1);
 }
 
 .status-info .badge {
@@ -246,6 +246,7 @@
 .quiz-list-body {
     display: flex;
     flex-direction: column;
+    min-height: 540px; /* Prevent layout shift on pagination (6 items * ~90px) */
 }
 
 .quiz-history-item-row {
@@ -272,7 +273,7 @@
 
 .item-icon-small {
     font-size: 1.25rem;
-    color: #cf2696;
+    color: #74CFDE;
     opacity: 0.8;
 }
 
@@ -292,7 +293,7 @@
 }
 
 .score-value-text {
-    color: #cf2696;
+    color: #CF4FB9;
     font-weight: 800;
     font-size: 1.25rem;
 }
@@ -359,13 +360,22 @@
     margin-bottom: 32px;
 }
 
-/* Stats Highlight */
 .stats-highlight {
-    background: white;
-    padding: 12px 24px;
-    border-radius: 16px;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.03);
-    border: 1px solid rgba(0,0,0,0.02);
+    background: rgba(255, 255, 255, 0.7);
+    backdrop-filter: blur(10px);
+    padding: 16px 32px;
+    border-radius: 20px;
+    box-shadow: 0 8px 32px rgba(116, 207, 222, 0.1);
+    border: 1px solid rgba(116, 207, 222, 0.2);
+    display: flex;
+    align-items: center;
+    transition: all 0.3s ease;
+}
+
+.stats-highlight:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 12px 40px rgba(116, 207, 222, 0.15);
+    border-color: #74CFDE;
 }
 
 .stat-card {
@@ -383,7 +393,7 @@
     display: block;
     font-size: 1.75rem;
     font-weight: 800;
-    color: #cf2696;
+    color: #74CFDE;
     line-height: 1.2;
 }
 
@@ -434,14 +444,14 @@
 }
 
 .pagination .page-item.active .page-link {
-    background: linear-gradient(135deg, #cf2696 0%, #a21b76 100%);
+    background: linear-gradient(135deg, #74CFDE 0%, #5bb9c9 100%);
     color: white;
-    box-shadow: 0 8px 20px rgba(207, 38, 150, 0.3);
+    box-shadow: 0 8px 20px rgba(116, 207, 222, 0.3);
 }
 
 .pagination .page-link:hover:not(.active) {
     background: #f1f5f9;
-    color: #cf2696;
+    color: #74CFDE;
 }
 
 /* Loading - Modernized */
@@ -458,7 +468,7 @@
     width: 3.5rem;
     height: 3.5rem;
     border-width: 0.3em;
-    color: #cf2696 !important;
+    color: #74CFDE !important;
 }
 
 /* Responsive */
