@@ -17,6 +17,7 @@ public class ChatBotController : ControllerBase
     {
         _aiChatService = aiChatService;
     }
+    // POST: api/user/chatbot/chat hỗ trợ mua khóa học ....
 
     [HttpPost("chat")]
     public async Task<IActionResult> Chat([FromBody] ChatRequestDto request)

@@ -59,16 +59,16 @@ export default function QuizHistory() {
         const statusCode = Number(status);
         switch (statusCode) {
             case 1:
-                return <Badge bg="warning" className="status-badge-custom">Đang làm</Badge>;
+                return <Badge className="status-badge-custom status-inprogress">Đang làm</Badge>;
             case 2:
             case 3:
-                return <Badge bg="success" className="status-badge-custom">Đã hoàn thành</Badge>;
+                return <Badge className="status-badge-custom status-completed">Đã hoàn thành</Badge>;
             case 4:
-                return <Badge bg="danger" className="status-badge-custom">Hết giờ</Badge>;
+                return <Badge className="status-badge-custom status-expired">Hết giờ</Badge>;
             case 5:
-                return <Badge bg="secondary" className="status-badge-custom">Bỏ dở</Badge>;
+                return <Badge className="status-badge-custom status-abandoned">Bỏ dở</Badge>;
             default:
-                return <Badge bg="secondary" className="status-badge-custom">Chưa rõ</Badge>;
+                return <Badge className="status-badge-custom status-unknown">Chưa rõ</Badge>;
         }
     };
 
