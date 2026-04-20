@@ -50,7 +50,7 @@ namespace LearningEnglish.Application.Mappings
 
             // Streak mapping
             CreateMap<Streak, StreakDto>()
-                .ForMember(dest => dest.IsActiveToday, opt => opt.MapFrom<IsActiveTodayResolver>());
+                .ForMember(dest => dest.IsActiveToday, opt => opt.MapFrom(new IsActiveTodayResolver()));
 
             // Notification mapping
             CreateMap<Notification, NotificationDto>();
