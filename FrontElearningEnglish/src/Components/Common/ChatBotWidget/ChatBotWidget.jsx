@@ -78,7 +78,8 @@ export default function ChatBotWidget() {
           const serverMsg = err?.response?.data?.message || err?.response?.data?.Message;
           setError(serverMsg || "Bạn gửi quá nhanh. Vui lòng đợi một chút rồi thử lại.");
         } else if (status === 400) {
-          setError("Câu hỏi chưa hợp lệ hoặc quá dài. Vui lòng thử lại.");
+          const serverMsg = err?.response?.data?.message || err?.response?.data?.Message || "Câu hỏi chưa hợp lệ hoặc quá dài. Vui lòng thử lại.";
+          setError(serverMsg);
         } else {
           setError("Không thể kết nối đến AI. Vui lòng thử lại.");
         }

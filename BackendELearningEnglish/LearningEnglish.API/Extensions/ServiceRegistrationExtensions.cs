@@ -535,11 +535,11 @@ public static class ServiceRegistrationExtensions // Lớp static chứa các ex
     
     
         services.AddKernel() ;
-        services.AddSingleton<ITextEmbeddingGenerationService > (
+        services.AddSingleton<ITextEmbeddingGenerationService>(
             sp => {
-                var options = sp.GetRequiredService<IOptions<GeminiOptions>>().Value; // : Nó tạo ra một đối tượng kết nối thực sự của Google và đưa cái Key vào
+                var options = sp.GetRequiredService<IOptions<GeminiOptions>>().Value;
 #pragma warning disable SKEXP0070
-                return new GoogleAITextEmbeddingGenerationService("gemini-embedding-001", options.ApiKey);
+                return new GoogleAITextEmbeddingGenerationService(options.EmbeddingModel, options.ApiKey);
             }
         );
 
@@ -547,7 +547,7 @@ public static class ServiceRegistrationExtensions // Lớp static chứa các ex
         services.AddSingleton<IChatCompletionService>(
             sp => {
                 var options = sp.GetRequiredService<IOptions<GeminiOptions>>().Value;
-                return new GoogleAIGeminiChatCompletionService("gemini-2.5-flash", options.ApiKey);
+                return new GoogleAIGeminiChatCompletionService(options.ChatModel, options.ApiKey);
 #pragma warning restore SKEXP0070
             }
         );
