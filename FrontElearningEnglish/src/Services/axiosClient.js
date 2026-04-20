@@ -9,14 +9,13 @@ const axiosClient = axios.create({
   },
 });
 
-// ===== REQUEST =====
+// ==== REQUEST ====
 axiosClient.interceptors.request.use(
   (config) => {
     const token = tokenStorage.getAccessToken();
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
-      // Fallback: some reverse proxies accidentally drop the Authorization header.
-      // This keeps auth working without changing UX.
+
       config.headers["X-Access-Token"] = token;
     }
     return config;
