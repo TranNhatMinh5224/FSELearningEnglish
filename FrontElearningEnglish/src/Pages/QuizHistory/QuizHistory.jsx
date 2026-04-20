@@ -65,6 +65,8 @@ export default function QuizHistory() {
                 return <Badge bg="success" className="status-badge-custom">Đã hoàn thành</Badge>;
             case 4:
                 return <Badge bg="danger" className="status-badge-custom">Hết giờ</Badge>;
+            case 5:
+                return <Badge bg="secondary" className="status-badge-custom">Bỏ dở</Badge>;
             default:
                 return <Badge bg="secondary" className="status-badge-custom">Chưa rõ</Badge>;
         }
@@ -182,6 +184,8 @@ export default function QuizHistory() {
                                             const title = attempt.quizTitle || attempt.QuizTitle || "Bài kiểm tra";
                                             const aNumber = attempt.attemptNumber || attempt.AttemptNumber;
                                             const score = attempt.totalScore ?? attempt.TotalScore ?? 0;
+                                            const maxScoreRaw = attempt.totalPossibleScore ?? attempt.TotalPossibleScore;
+                                            const maxScore = Number(maxScoreRaw) > 0 ? maxScoreRaw : 10;
                                             const status = attempt.status ?? attempt.Status;
                                             const startedAt = attempt.startedAt || attempt.StartedAt;
 
@@ -205,7 +209,7 @@ export default function QuizHistory() {
                                                         <Col xs={4} md={2} className="score-info text-center">
                                                             <span className="label d-md-none">Điểm: </span>
                                                             <span className="score-value-text">{score}</span>
-                                                            <span className="score-max">/10</span>
+                                                            <span className="score-max">/{maxScore}</span>
                                                         </Col>
                                                         <Col xs={4} md={2} className="status-info text-center">
                                                             {getStatusBadge(status)}

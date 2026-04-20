@@ -23,6 +23,7 @@ namespace LearningEnglish.Application.DTOs
 
         public int TimeSpentSeconds { get; set; }  // Thời gian làm bài
         public decimal TotalScore { get; set; }    // Điểm tổng
+        public decimal TotalPossibleScore { get; set; } // Thang điểm tối đa của quiz
 
         // JSON điểm từng câu (optional, nếu cần show chi tiết)
         public string? ScoresJson { get; set; }

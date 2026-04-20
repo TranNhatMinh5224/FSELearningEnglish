@@ -63,7 +63,7 @@ axiosClient.interceptors.response.use(
       try {
         const refreshToken = tokenStorage.getRefreshToken();
         const expiredAccessToken = tokenStorage.getAccessToken();
-        
+
         if (!refreshToken) {
           console.warn("[Axios] No refresh token found, skipping refresh attempt");
           throw error;
@@ -93,14 +93,14 @@ axiosClient.interceptors.response.use(
       } catch (err) {
         console.error("[Axios] Token refresh failed:", err.response?.status, err.message);
         processQueue(err, null);
-        
+
         const hadTokens = tokenStorage.getAccessToken() || tokenStorage.getRefreshToken();
-        
+
         // Chỉ xóa token và redirect nếu lỗi là 401/403 (Token thực sự vô hiệu)
         if (err.response?.status === 401 || err.response?.status === 403) {
           console.error("[Axios] Refresh token revoked or expired, clearing tokens");
           tokenStorage.clear();
-          
+
           if (hadTokens) {
             const currentPath = window.location.pathname;
             const publicPaths = ['/welcome', '/login', '/register', '/home'];
@@ -109,7 +109,7 @@ axiosClient.interceptors.response.use(
             }
           }
         }
-        
+
         return Promise.reject(err);
       } finally {
         isRefreshing = false;
@@ -122,7 +122,7 @@ axiosClient.interceptors.response.use(
       const currentPath = window.location.pathname;
       const allowedPaths = ['/welcome', '/login', '/register', '/home'];
       const hasToken = tokenStorage.getAccessToken();
-      
+
       // If no token and on allowed path, don't redirect (guest user)
       if (!hasToken && allowedPaths.includes(currentPath)) {
         return Promise.reject(error);

@@ -1033,7 +1033,11 @@ namespace LearningEnglish.Application.Service
             try
             {
                 var attempts = await _quizAttemptRepository.GetByUserAndQuizAsync(userId, quizId);
-                var attemptDtos = _mapper.Map<List<QuizAttemptDto>>(attempts);
+                var completedAttempts = attempts
+                    .Where(a => a.Status != QuizAttemptStatus.InProgress)
+                    .ToList();
+
+                var attemptDtos = _mapper.Map<List<QuizAttemptDto>>(completedAttempts);
 
                 // Calculate EndTime for each attempt if it's InProgress 
                 // Normally history only shows submitted ones but we'll be safety
@@ -1048,7 +1052,7 @@ namespace LearningEnglish.Application.Service
                 response.Success = true;
                 response.Data = attemptDtos;
                 response.StatusCode = 200;
-                response.Message = $"Found {attempts.Count} attempts for quiz {quizId}";
+                response.Message = $"Found {completedAttempts.Count} attempts for quiz {quizId}";
                 return response;
             }
             catch (Exception ex)
@@ -1068,7 +1072,11 @@ namespace LearningEnglish.Application.Service
             try
             {
                 var attempts = await _quizAttemptRepository.GetByUserIdAsync(userId);
-                var attemptDtos = _mapper.Map<List<QuizAttemptDto>>(attempts);
+                var completedAttempts = attempts
+                    .Where(a => a.Status != QuizAttemptStatus.InProgress)
+                    .ToList();
+
+                var attemptDtos = _mapper.Map<List<QuizAttemptDto>>(completedAttempts);
 
                 foreach (var dto in attemptDtos)
                 {
@@ -1081,7 +1089,7 @@ namespace LearningEnglish.Application.Service
                 response.Success = true;
                 response.Data = attemptDtos;
                 response.StatusCode = 200;
-                response.Message = $"Found {attempts.Count} quiz attempts for user {userId}";
+                response.Message = $"Found {completedAttempts.Count} quiz attempts for user {userId}";
                 return response;
             }
             catch (Exception ex)

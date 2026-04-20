@@ -497,6 +497,7 @@ namespace LearningEnglish.Application.Mappings
                 .ForMember(dest => dest.QuizId, opt => opt.MapFrom(src => src.QuizId))
                 .ForMember(dest => dest.QuizTitle, opt => opt.MapFrom(src => src.Quiz != null ? src.Quiz.Title : null))
                 .ForMember(dest => dest.Duration, opt => opt.MapFrom(src => src.Quiz != null ? src.Quiz.Duration : null))
+                .ForMember(dest => dest.TotalPossibleScore, opt => opt.MapFrom(src => src.Quiz != null ? src.Quiz.TotalPossibleScore : 0))
                 .ForMember(dest => dest.UserName, opt => opt.MapFrom(src => src.User != null ? src.User.FullName : "N/A"))
                 .ForMember(dest => dest.ModuleId, opt => opt.MapFrom(src => src.Quiz != null && src.Quiz.Assessment != null ? src.Quiz.Assessment.ModuleId : (int?)null))
                 .ForMember(dest => dest.LessonId, opt => opt.MapFrom(src => src.Quiz != null && src.Quiz.Assessment != null && src.Quiz.Assessment.Module != null ? src.Quiz.Assessment.Module.LessonId : (int?)null))
