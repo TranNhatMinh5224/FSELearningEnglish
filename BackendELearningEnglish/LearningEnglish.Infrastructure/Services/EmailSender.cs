@@ -49,7 +49,7 @@ namespace LearningEnglish.Infrastructure.Services
             }
             catch (Exception ex)
             {
-                throw new Exception($"Lỗi khi gửi email: {ex.Message}", ex);
+                throw new Exception($"Lỗi khi gửi email qua {_smtpOptions.Host}:{_smtpOptions.Port}. Chi tiết: {ex.Message}", ex);
             }
         }
     }

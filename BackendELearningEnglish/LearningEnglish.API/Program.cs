@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.HttpOverrides;
 using LearningEnglish.API.Extensions;
 using LearningEnglish.Application.Common;
 using LearningEnglish.Infrastructure.Common.Helpers;
@@ -73,6 +74,10 @@ BuildPublicUrl.Configure(builder.Configuration); //
 var app = builder.Build();
 
 // Middleware pipeline
+app.UseForwardedHeaders(new ForwardedHeadersOptions
+{
+    ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto
+});
 
 app.UseSwagger();
 app.UseSwaggerUI();
