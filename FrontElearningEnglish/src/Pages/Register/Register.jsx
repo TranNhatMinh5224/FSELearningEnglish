@@ -54,7 +54,7 @@ export default function Register() {
     const trimmed = email.trim();
     const lower = trimmed.toLowerCase();
       // Allow common TLDs (longer variants first)
-      const emailRegex = /^[a-z0-9._%+-]+@[a-z0-9.-]+\.(?:com\.vn|org\.vn|edu\.vn|co\.uk|com|net|org|info|io|co|gov|edu|vn)$/i;
+      const emailRegex = /^[a-z0-9._%+\-]+@[a-z0-9.\-]+\.(?:com\.vn|org\.vn|edu\.vn|co\.uk|com|net|org|info|io|co|gov|edu|vn)$/i;
       if (!emailRegex.test(lower)) {
         return "Email không hợp lệ. Chấp nhận .com, .net, .org, .io, .vn, .com.vn, .co.uk...";
     }
@@ -347,7 +347,7 @@ export default function Register() {
                     error={errors.email}
                     disabled={loading}
                     required
-                    pattern="^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.(com\.vn|org\.vn|edu\.vn|co\.uk|com|net|org|info|io|co|gov|edu|vn)$"
+                    pattern="[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.(?:com\.vn|org\.vn|edu\.vn|co\.uk|com|net|org|info|io|co|gov|edu|vn)"
                     title="Email phải có đuôi hợp lệ (ví dụ: .com, .net, .org, .io, .vn, .com.vn)"
                   />
                 </Form.Group>
