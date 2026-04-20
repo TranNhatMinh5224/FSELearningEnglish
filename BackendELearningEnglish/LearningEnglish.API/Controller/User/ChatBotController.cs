@@ -37,7 +37,7 @@ public class ChatBotController : ControllerBase
 
         if (!response.Success)
         {
-            return BadRequest(response.Message);
+            return BadRequest(response);
         }
 
         return Ok(response.Data);
