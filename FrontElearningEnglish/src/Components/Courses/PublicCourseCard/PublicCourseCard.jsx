@@ -3,7 +3,7 @@ import "./PublicCourseCard.css";
 
 export default function PublicCourseCard({ course, onStart }) {
     const {
-        title = "IELTS 6.5",
+        title = "Khóa học",
         imageUrl = "https://images.unsplash.com/photo-1507525428034-b723cf961d3e",
     } = course || {};
 

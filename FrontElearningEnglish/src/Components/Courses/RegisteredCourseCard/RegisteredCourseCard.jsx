@@ -5,7 +5,7 @@ import { useAssets } from "../../../Context/AssetContext";
 export default function RegisteredCourseCard({ course, onContinue }) {
     const { getDefaultCourseImage } = useAssets();
     const {
-        title = "IELTS 6.5",
+        title = "Khóa học",
         imageUrl,
         progress = 40,
     } = course || {};

@@ -22,6 +22,7 @@ export default function ImageWithIconFallback({
     style = {},
     onError,
     imageKey,
+    fallbackImageUrl,
     ...props
 }) {
     const [imageError, setImageError] = useState(false);

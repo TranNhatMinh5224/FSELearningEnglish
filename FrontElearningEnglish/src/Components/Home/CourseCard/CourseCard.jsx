@@ -13,14 +13,14 @@ export default function CourseCard({ course }) {
         id,
         courseId,
         CourseId,
-        title = "IELTS 6.5",
+        title = "Khóa học",
         Title,
         imageUrl,
         ImageUrl,
     } = course || {};
 
     const finalId = id || courseId || CourseId;
-    const finalTitle = title || Title || "IELTS 6.5";
+    const finalTitle = title || Title || "Khóa học";
     const defaultImage = getDefaultCourseImage() || APP_CONSTANTS.DEFAULT_COURSE_IMAGE;
     const customImageUrl = imageUrl || ImageUrl;
 
