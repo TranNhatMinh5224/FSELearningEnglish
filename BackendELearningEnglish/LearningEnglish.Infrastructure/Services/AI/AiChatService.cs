@@ -3,6 +3,7 @@ using LearningEnglish.Application.DTOs.Common;
 using LearningEnglish.Application.Interface.Repositories;
 using LearningEnglish.Application.Interface.Services.AI;
 using LearningEnglish.Domain.Entities;
+using Microsoft.Extensions.Logging;
 using Microsoft.SemanticKernel;
 using Microsoft.SemanticKernel.ChatCompletion;
 using System.Text;
@@ -11,6 +12,7 @@ namespace LearningEnglish.Infrastructure.Services.AI;
 
 public class AiChatService : IAiChatService
 {
+    private readonly ILogger<AiChatService> _logger;
     private readonly IChatCompletionService _chatCompletionService;
     private readonly IEmbeddingService _embeddingService;
     private readonly ICourseKnowledgeRepository _courseKnowledgeRepository;
@@ -18,12 +20,14 @@ public class AiChatService : IAiChatService
     private readonly IPolicyKnowledgeRepository _policyKnowledgeRepository;
 
     public AiChatService(
+        ILogger<AiChatService> logger,
         IChatCompletionService chatCompletionService,
         IEmbeddingService embeddingService,
         ICourseKnowledgeRepository courseKnowledgeRepository,
         ITeacherPackageKnowledgeRepository packageKnowledgeRepository,
         IPolicyKnowledgeRepository policyKnowledgeRepository)
     {
+        _logger = logger;
         _chatCompletionService = chatCompletionService;
         _embeddingService = embeddingService;
         _courseKnowledgeRepository = courseKnowledgeRepository;
@@ -91,6 +95,7 @@ DỮ LIỆU TRI THỨC:
         }
         catch (Exception ex)
         {
+            _logger.LogError(ex, "Lỗi khi gọi AI Chat cho User {UserId}: {Message}", userId, ex.Message);
             response.Success = false;
             response.Message = "Có lỗi xảy ra khi xử lý câu hỏi: " + ex.Message;
         }
