@@ -24,7 +24,7 @@ namespace LearningEnglish.Application.Common.Helpers
                 var field = enumType.GetField(name);
                 var displayName = name;
 
-                // Lấy Description attribute nếu có
+                // Lấy Description attribute nếu có .
                 var descriptionAttribute = field?.GetCustomAttribute<DescriptionAttribute>();
                 if (descriptionAttribute != null)
                 {
