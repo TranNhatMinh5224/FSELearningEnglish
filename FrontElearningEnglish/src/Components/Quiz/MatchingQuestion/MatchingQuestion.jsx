@@ -7,46 +7,64 @@ export default function MatchingQuestion({ question, answer, onChange }) {
     const { user } = useAuth();
     const options = question.options || question.Options || [];
     
-    // --- Column Separation Logic ---
+    // --- Column Separation Logic (Pair-Driven Fallback) ---
     let leftOptions = [];
     let rightOptions = [];
 
-    // 1. Try isCorrect property first (Canonical way)
-    const correctlyFlaggedLeft = options.filter(o => o.isCorrect === true || o.IsCorrect === true);
-    const correctlyFlaggedRight = options.filter(o => o.isCorrect === false || o.IsCorrect === false);
-    
-    if (correctlyFlaggedLeft.length > 0 && correctlyFlaggedRight.length > 0 && 
-        Math.abs(correctlyFlaggedLeft.length - correctlyFlaggedRight.length) <= 1) {
-        leftOptions = correctlyFlaggedLeft;
-        rightOptions = correctlyFlaggedRight;
-    } else {
-        // 2. Fallback: Use CorrectAnswersJson keys to identify Left side
-        try {
-            const rawCorrect = question.correctAnswersJson || question.CorrectAnswersJson;
-            const correctMap = typeof rawCorrect === 'string' ? JSON.parse(rawCorrect || "{}") : (rawCorrect || {});
-            const leftKeys = Object.keys(correctMap);
-            
-            if (leftKeys.length > 0) {
-                const usedIndices = new Set();
-                // Pick options matching keys for Left
-                leftKeys.forEach(key => {
-                    const idx = options.findIndex((o, i) => !usedIndices.has(i) && (o.text || o.optionText || o.Text || "").trim() === key.trim());
-                    if (idx !== -1) {
-                        leftOptions.push(options[idx]);
-                        usedIndices.add(idx);
-                    }
-                });
-                // Remaining go to Right
-                options.forEach((o, i) => {
-                    if (!usedIndices.has(i)) rightOptions.push(o);
-                });
-            }
-        } catch (e) {
-            console.error("Error splitting columns via CorrectAnswersJson:", e);
-        }
+    try {
+        const rawCorrect = question.correctAnswersJson || question.CorrectAnswersJson;
+        const correctMap = typeof rawCorrect === 'string' ? JSON.parse(rawCorrect || "{}") : (rawCorrect || {});
+        
+        // Nếu có mapping chính xác từ Backend, ta dùng nó để cưỡng bức tách đôi các cặp
+        if (Object.keys(correctMap).length > 0) {
+            const processedIndices = new Set();
+            const leftSide = [];
+            const rightSide = [];
 
-        // 3. Last fallback: Interleaved split (L, R, L, R)
-        if (leftOptions.length === 0 || rightOptions.length === 0) {
+            // Duyệt qua từng cặp (L -> R) trong đáp án đúng
+            Object.entries(correctMap).forEach(([lText, rText]) => {
+                // Tìm object tương ứng cho vế trái
+                const lIdx = options.findIndex((o, i) => 
+                    !processedIndices.has(i) && 
+                    (o.text || o.optionText || o.Text || "").trim() === String(lText).trim()
+                );
+                if (lIdx !== -1) {
+                    leftSide.push(options[lIdx]);
+                    processedIndices.add(lIdx);
+                }
+
+                // Tìm object tương ứng cho vế phải
+                const rIdx = options.findIndex((o, i) => 
+                    !processedIndices.has(i) && 
+                    (o.text || o.optionText || o.Text || "").trim() === String(rText).trim()
+                );
+                if (rIdx !== -1) {
+                    rightSide.push(options[rIdx]);
+                    processedIndices.add(rIdx);
+                }
+            });
+
+            // Gộp các option còn sót lại (nếu có)
+            options.forEach((o, i) => {
+                if (!processedIndices.has(i)) {
+                    if (leftSide.length <= rightSide.length) leftSide.push(o);
+                    else rightSide.push(o);
+                }
+            });
+
+            leftOptions = leftSide;
+            rightOptions = rightSide;
+        }
+    } catch (e) {
+        console.error("Critical error in pair-driven separation:", e);
+    }
+
+    // Fallback cuối cùng nếu logic trên thất bại hoặc không có correctMap
+    if (leftOptions.length === 0 || rightOptions.length === 0) {
+        leftOptions = options.filter(o => o.isCorrect === true || o.IsCorrect === true);
+        rightOptions = options.filter(o => o.isCorrect === false || o.IsCorrect === false);
+        
+        if (leftOptions.length === 0 || rightOptions.length === 0 || leftOptions.length !== rightOptions.length) {
             leftOptions = options.filter((_, idx) => idx % 2 === 0);
             rightOptions = options.filter((_, idx) => idx % 2 !== 0);
         }

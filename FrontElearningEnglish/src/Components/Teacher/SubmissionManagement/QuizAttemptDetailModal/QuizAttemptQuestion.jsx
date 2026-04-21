@@ -110,38 +110,56 @@ export default function QuizAttemptQuestion({ question, index, getQuestionTypeLa
 
     // Lấy left/right options dựa trên isCorrect
     // Backend trả về answerOptionId (không phải optionId)
-    const getOptId = (o) => o.answerOptionId || o.AnswerOptionId || o.optionId || o.OptionId;
-    const getOptText = (o) => o.optionText || o.OptionText || o.text || o.Text || "";
+    // Robust Column Separation (Pair-Driven Fallback - Synced with MatchingQuestion.jsx)
+    let leftOptions = [];
+    let rightOptions = [];
 
-    // Robust Column Separation (Synced with MatchingQuestion.jsx)
-    let leftOptions = options.filter(o => o.isCorrect === true || o.IsCorrect === true);
-    let rightOptions = options.filter(o => o.isCorrect === false || o.IsCorrect === false);
+    try {
+      const rawCorrect = question.correctAnswer ?? question.CorrectAnswer;
+      const correctMap = typeof rawCorrect === 'string' ? JSON.parse(rawCorrect || "{}") : (rawCorrect || {});
+      
+      if (Object.keys(correctMap).length > 0) {
+        const processedIndices = new Set();
+        const leftSide = [];
+        const rightSide = [];
 
-    if (leftOptions.length === 0 || rightOptions.length === 0 || leftOptions.length !== rightOptions.length) {
-      // Fallback: Use correctness map keys to identify Left
-      const usedIds = new Set();
-      const leftKeys = Object.keys(correctMatchesById);
-      if (leftKeys.length > 0) {
-        const potentialLeft = [];
-        const potentialRight = [];
-        leftKeys.forEach(lId => {
-          const opt = options.find(o => String(getOptId(o)) === String(lId));
-          if (opt) {
-            potentialLeft.push(opt);
-            usedIds.add(getOptId(opt));
+        Object.entries(correctMap).forEach(([lKey, rValue]) => {
+          // Identify Left side (key)
+          // Note: correctMatchesById might have text or IDs. We try to find by ID (lKey) first, then text
+          const lOpt = options.find((o, i) => !processedIndices.has(i) && (String(getOptId(o)) === String(lKey) || getOptText(o).trim() === String(lKey).trim()));
+          if (lOpt) {
+            leftSide.push(lOpt);
+            processedIndices.add(options.indexOf(lOpt));
+          }
+
+          // Identify Right side (value)
+          const rOpt = options.find((o, i) => !processedIndices.has(i) && (String(getOptId(o)) === String(rValue) || getOptText(o).trim() === String(rValue).trim()));
+          if (rOpt) {
+            rightSide.push(rOpt);
+            processedIndices.add(options.indexOf(rOpt));
           }
         });
-        options.forEach(o => {
-          if (!usedIds.has(getOptId(o))) potentialRight.push(o);
+
+        // Residuals
+        options.forEach((o, i) => {
+          if (!processedIndices.has(i)) {
+            if (leftSide.length <= rightSide.length) leftSide.push(o);
+            else rightSide.push(o);
+          }
         });
-        if (potentialLeft.length > 0) {
-          leftOptions = potentialLeft;
-          rightOptions = potentialRight;
-        }
+
+        leftOptions = leftSide;
+        rightOptions = rightSide;
       }
+    } catch (e) {
+      console.error("Error in pair-driven review separation:", e);
+    }
+
+    if (leftOptions.length === 0 || rightOptions.length === 0) {
+      leftOptions = options.filter(o => o.isCorrect === true || o.IsCorrect === true);
+      rightOptions = options.filter(o => o.isCorrect === false || o.IsCorrect === false);
       
-      // Secondary fallback: Interleaved
-      if (leftOptions.length === 0 || rightOptions.length === 0) {
+      if (leftOptions.length === 0 || rightOptions.length === 0 || leftOptions.length !== rightOptions.length) {
         leftOptions = options.filter((_, idx) => idx % 2 === 0);
         rightOptions = options.filter((_, idx) => idx % 2 !== 0);
       }
