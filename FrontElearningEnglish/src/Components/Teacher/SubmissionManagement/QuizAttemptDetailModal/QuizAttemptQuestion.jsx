@@ -110,6 +110,10 @@ export default function QuizAttemptQuestion({ question, index, getQuestionTypeLa
 
     // Lấy left/right options dựa trên isCorrect
     // Backend trả về answerOptionId (không phải optionId)
+    // Helpers for extracting IDs and text from options
+    const getOptId = (o) => o?.answerOptionId || o?.AnswerOptionId || o?.optionId || o?.OptionId;
+    const getOptText = (o) => o?.optionText || o?.OptionText || o?.text || o?.Text || "";
+
     // Robust Column Separation (Pair-Driven Fallback - Synced with MatchingQuestion.jsx)
     let leftOptions = [];
     let rightOptions = [];
