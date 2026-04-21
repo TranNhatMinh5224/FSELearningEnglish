@@ -40,10 +40,10 @@ export const useBulkQuestions = (isAdmin, onSuccess) => {
     setBulkLoading(true);
     try {
       const bulkPayload = {
-        questions: pendingQuestions.map(q => ({
+        Questions: pendingQuestions.map(q => ({
           ...q.payload,
-          quizSectionId: sectionId || null,
-          quizGroupId: internalGroupId || null
+          QuizSectionId: sectionId || null,
+          QuizGroupId: internalGroupId || null
         }))
       };
 

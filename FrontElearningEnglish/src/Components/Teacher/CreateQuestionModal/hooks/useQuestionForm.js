@@ -260,35 +260,55 @@ export const useQuestionForm = (show, questionToUpdate) => {
       : qFormData.points;
 
     const payload = {
-      stemText: qFormData.stemText.trim(),
-      explanation: qFormData.explanation || "",
-      points: pointsValue || 0,
-      type: qFormData.type,
-      quizSectionId: sectionId || null,
-      quizGroupId: internalGroupId || null,
-      mediaTempKey: qMediaTempKey || null,
-      mediaType: qMediaType || null,
-      options: []
+      StemText: qFormData.stemText.trim(),
+      Explanation: qFormData.explanation || "",
+      Points: pointsValue || 0,
+      Type: qFormData.type,
+      QuizSectionId: sectionId || null,
+      QuizGroupId: internalGroupId || null,
+      MediaTempKey: qMediaTempKey || null,
+      MediaType: qMediaType || null,
+      Options: []
     };
 
-    if (qFormData.type === QUESTION_TYPES.Matching) {
+    // Helper for robust type checking
+    const checkType = (t, target) => {
+        const strT = String(t || "").toLowerCase();
+        const strTarget = String(target).toLowerCase();
+        const typeNames = {
+            "3": ["matching", "3", "nối"],
+            "2": ["ordering", "2", "sắp xếp"],
+            "4": ["fillblank", "4", "điền"],
+            "5": ["truefalse", "5", "đúng sai"]
+        };
+        return strT === strTarget || (typeNames[strTarget] && typeNames[strTarget].includes(strT));
+    };
+
+    if (checkType(qFormData.type, QUESTION_TYPES.Matching)) {
       const correctMatchesMap = {};
-      const leftTexts = []; const rightTexts = [];
-      qFormData.matchingPairs.forEach(p => {
-        const leftText = (p.key || "").trim();
-        const rightText = (p.value || "").trim();
-        if (leftText && rightText) {
-          correctMatchesMap[leftText] = rightText;
-          leftTexts.push(leftText); rightTexts.push(rightText);
+      const leftTexts = [];
+      const rightTexts = [];
+
+      qFormData.matchingPairs.forEach(pair => {
+        if (pair.key && pair.value) {
+          correctMatchesMap[pair.key] = pair.value;
+          leftTexts.push(pair.key);
+          rightTexts.push(pair.value);
         }
       });
-      payload.correctAnswersJson = JSON.stringify(correctMatchesMap);
-      payload.metadataJson = JSON.stringify({ left: leftTexts, right: rightTexts });
-      payload.options = [
-        ...leftTexts.map(t => ({ text: t, isCorrect: true })),
-        ...rightTexts.map(t => ({ text: t, isCorrect: false }))
+      payload.CorrectAnswersJson = JSON.stringify(correctMatchesMap);
+      payload.correctAnswersJson = payload.CorrectAnswersJson;
+      payload.MetadataJson = JSON.stringify({ left: leftTexts, right: rightTexts });
+      payload.metadataJson = payload.MetadataJson;
+      payload.Options = [
+        ...leftTexts.map(t => ({ Text: t, IsCorrect: true, text: t, isCorrect: true })),
+        ...rightTexts.map(t => ({ Text: t, IsCorrect: false, text: t, isCorrect: false }))
       ];
-    } else if (qFormData.type === QUESTION_TYPES.FillBlank) {
+      payload.Options = payload.Options || [];
+
+      // Diagnostics removed for production
+      payload.options = payload.Options;
+    } else if (checkType(qFormData.type, QUESTION_TYPES.FillBlank)) {
       // Support all markers: [...], {...}, (...) and ___
       const matches = [...qFormData.stemText.matchAll(/\[(.*?)\]|\{(.*?)\}|\((.*?)\)/g)];
       const extractedAnswers = matches.map(m => {

@@ -7,82 +7,92 @@ export default function MatchingQuestion({ question, answer, onChange }) {
     const { user } = useAuth();
     const options = question.options || question.Options || [];
     
-    // --- Column Separation Logic (Robust Metadata & Pair-Driven) ---
+    // --- Column Logic ---
+    let leftOptions = [];
+    let rightOptions = [];
+    const superClean = (s) => String(s || "").replace(/\s+/g, "").toLowerCase();
+
+    const questionType = question.type || question.Type;
+    
+    // --- Column Reconstruction Logic (Total Control Version) ---
     let leftSide = [];
     let rightSide = [];
-    const processedIndices = new Set();
 
     try {
-        const rawMeta = question.metadataJson || question.MetadataJson;
+        const getProp = (obj, ...names) => {
+            for (let name of names) {
+                if (obj[name] !== undefined && obj[name] !== null) return obj[name];
+            }
+            return null;
+        };
+
+        const rawMeta = getProp(question, "metadataJson", "MetadataJson", "metadata_json", "metadata");
         const meta = typeof rawMeta === 'string' ? JSON.parse(rawMeta || "{}") : (rawMeta || {});
         
-        // Priority 1: MetadataJson (Explicitly stores left/right arrays from Teacher UI)
-        if (meta.left && meta.right && Array.isArray(meta.left)) {
+        const rawCorrect = getProp(question, "correctAnswersJson", "CorrectAnswersJson", "correct_answers_json", "correct_answers", "correctAnswers");
+        const correctMap = typeof rawCorrect === 'string' ? JSON.parse(rawCorrect || "{}") : (rawCorrect || {});
+
+        const processedIndices = new Set();
+
+        // Strategy A: Reconstruct from Metadata (Most accurate)
+        if (meta.left && meta.right && meta.left.length > 0) {
             meta.left.forEach(lText => {
-                const idx = options.findIndex((o, i) => !processedIndices.has(i) && (o.text || o.optionText || o.Text || "").trim() === String(lText).trim());
-                if (idx !== -1) {
-                    leftSide.push(options[idx]);
-                    processedIndices.add(idx);
-                }
+                const idx = options.findIndex((o, i) => !processedIndices.has(i) && superClean(o.text || o.optionText || o.Text) === superClean(lText));
+                if (idx !== -1) { leftSide.push(options[idx]); processedIndices.add(idx); }
             });
             meta.right.forEach(rText => {
-                const idx = options.findIndex((o, i) => !processedIndices.has(i) && (o.text || o.optionText || o.Text || "").trim() === String(rText).trim());
-                if (idx !== -1) {
-                    rightSide.push(options[idx]);
-                    processedIndices.add(idx);
-                }
+                const idx = options.findIndex((o, i) => !processedIndices.has(i) && superClean(o.text || o.optionText || o.Text) === superClean(rText));
+                if (idx !== -1) { rightSide.push(options[idx]); processedIndices.add(idx); }
             });
         }
 
-        // Priority 2: CorrectAnswersJson (Dictionary of pairs)
+        // Strategy B: Reconstruct from CorrectMap (If metadata incomplete)
+        if (leftSide.length === 0 && Object.keys(correctMap).length > 0) {
+            Object.entries(correctMap).forEach(([lKey, rVal]) => {
+                const lIdx = options.findIndex((o, i) => !processedIndices.has(i) && (superClean(o.text || o.optionText || o.Text) === superClean(lKey)));
+                if (lIdx !== -1) { leftSide.push(options[lIdx]); processedIndices.add(lIdx); }
+                const rIdx = options.findIndex((o, i) => !processedIndices.has(i) && (superClean(o.text || o.optionText || o.Text) === superClean(rVal)));
+                if (rIdx !== -1) { rightSide.push(options[rIdx]); processedIndices.add(rIdx); }
+            });
+        }
+
+        // Strategy C: Fallback to Flags
         if (leftSide.length === 0) {
-            const rawCorrect = question.correctAnswersJson || question.CorrectAnswersJson;
-            const correctMap = typeof rawCorrect === 'string' ? JSON.parse(rawCorrect || "{}") : (rawCorrect || {});
-            
-            Object.entries(correctMap).forEach(([lText, rText]) => {
-                const lIdx = options.findIndex((o, i) => !processedIndices.has(i) && (o.text || o.optionText || o.Text || "").trim() === String(lText).trim());
-                if (lIdx !== -1) {
-                    leftSide.push(options[lIdx]);
-                    processedIndices.add(lIdx);
-                }
-                const rIdx = options.findIndex((o, i) => !processedIndices.has(i) && (o.text || o.optionText || o.Text || "").trim() === String(rText).trim());
-                if (rIdx !== -1) {
-                    rightSide.push(options[rIdx]);
-                    processedIndices.add(rIdx);
+            const flaggedLeft = options.filter(o => {
+                const val = o.isCorrect !== undefined ? o.isCorrect : o.IsCorrect;
+                return val === true || val === "true" || val === 1;
+            });
+            const flaggedRight = options.filter(o => {
+                const val = o.isCorrect !== undefined ? o.isCorrect : o.IsCorrect;
+                return val === false || val === "false" || val === 0 || val === null;
+            });
+            if (flaggedLeft.length > 0) {
+                leftSide = flaggedLeft;
+                rightSide = flaggedRight;
+                options.forEach((o, i) => processedIndices.add(i));
+            }
+        }
+
+        // Final Fallback: Interleaved
+        if (processedIndices.size < options.length) {
+            options.forEach((o, i) => {
+                if (!processedIndices.has(i)) {
+                    if (leftSide.length <= rightSide.length) leftSide.push(o);
+                    else rightSide.push(o);
                 }
             });
         }
     } catch (e) {
-        console.error("Error in complex separation:", e);
+        console.error("[Matching] Reconstruction Error:", e);
     }
-
-    // Residual mapping for items not found in logic above
-    options.forEach((o, i) => {
-        if (!processedIndices.has(i)) {
-            if (leftSide.length <= rightSide.length) leftSide.push(o);
-            else rightSide.push(o);
-        }
-    });
 
     leftOptions = leftSide;
     rightOptions = rightSide;
 
-    // Fallback cuối cùng nếu logic trên thất bại hoặc không có correctMap
-    if (leftOptions.length === 0 || rightOptions.length === 0) {
-        leftOptions = options.filter(o => o.isCorrect === true || o.IsCorrect === true);
-        rightOptions = options.filter(o => o.isCorrect === false || o.IsCorrect === false);
-        
-        if (leftOptions.length === 0 || rightOptions.length === 0 || leftOptions.length !== rightOptions.length) {
-            leftOptions = options.filter((_, idx) => idx % 2 === 0);
-            rightOptions = options.filter((_, idx) => idx % 2 !== 0);
-        }
-    }
-
-    // Helper to shuffle array with a seed for consistency
+    // Helper to shuffle array with a seed for consistency (Fisher-Yates)
     const shuffleWithSeed = (array, seed) => {
         const newArray = [...array];
         let m = newArray.length, t, i;
-        // Use a simple LCG-like pseudo-random generator based on seed
         let currentSeed = seed;
         const nextRand = () => {
             currentSeed = (currentSeed * 1103515245 + 12345) & 0x7fffffff;
@@ -98,16 +108,15 @@ export default function MatchingQuestion({ question, answer, onChange }) {
         return newArray;
     };
 
-    // Shuffle cả 2 cột để tăng tính thử thách (Sử dụng QuestionId + UserId làm seed)
     const qId = question.questionId || question.QuestionId || 0;
     const uId = user?.userId || user?.Id || 0;
     const seedBase = qId + uId;
 
-    // Dùng memo để tránh shuffle lại mỗi lần render nếu không cần
     const finalLeft = React.useMemo(() => {
         const mapped = leftOptions.map(opt => ({
             id: opt.optionId || opt.OptionId || opt.answerOptionId || opt.AnswerOptionId,
-            text: opt.optionText || opt.OptionText || opt.text || opt.Text
+            text: opt.optionText || opt.OptionText || opt.text || opt.Text,
+            isCorrect: opt.isCorrect !== undefined ? opt.isCorrect : opt.IsCorrect
         }));
         return shuffleWithSeed(mapped, seedBase + 123);
     }, [leftOptions, seedBase]);
@@ -115,7 +124,8 @@ export default function MatchingQuestion({ question, answer, onChange }) {
     const finalRight = React.useMemo(() => {
         const mapped = rightOptions.map(opt => ({
             id: opt.optionId || opt.OptionId || opt.answerOptionId || opt.AnswerOptionId,
-            text: opt.optionText || opt.OptionText || opt.text || opt.Text
+            text: opt.optionText || opt.OptionText || opt.text || opt.Text,
+            isCorrect: opt.isCorrect !== undefined ? opt.isCorrect : opt.IsCorrect
         }));
         return shuffleWithSeed(mapped, seedBase + 456);
     }, [rightOptions, seedBase]);
@@ -129,11 +139,8 @@ export default function MatchingQuestion({ question, answer, onChange }) {
 
     const [selectedLeft, setSelectedLeft] = useState(null);
     const [selectedRight, setSelectedRight] = useState(null);
-
-    // Ref để tránh gọi onChange khi đang reset state
     const isResettingRef = React.useRef(false);
 
-    // 🔑 Reset state khi chuyển sang câu hỏi khác (fix: useState chỉ chạy 1 lần)
     useEffect(() => {
         isResettingRef.current = true;
         if (answer && typeof answer === 'object' && !Array.isArray(answer)) {
@@ -143,13 +150,12 @@ export default function MatchingQuestion({ question, answer, onChange }) {
         }
         setSelectedLeft(null);
         setSelectedRight(null);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [qId]); // Reset khi questionId thay đổi
+    }, [qId]);
 
     useEffect(() => {
         if (isResettingRef.current) {
             isResettingRef.current = false;
-            return; // Bỏ qua lần gọi onChange ngay sau khi reset
+            return;
         }
         onChange(matches);
     }, [matches, onChange]);
@@ -185,13 +191,8 @@ export default function MatchingQuestion({ question, answer, onChange }) {
         }
     };
 
-    const getMatchedRight = (leftId) => {
-        return matches[leftId] || null;
-    };
-
-    const isRightMatched = (rightId) => {
-        return Object.values(matches).map(Number).includes(Number(rightId));
-    };
+    const getMatchedRight = (leftId) => matches[leftId] || null;
+    const isRightMatched = (rightId) => Object.values(matches).map(Number).includes(Number(rightId));
 
     const removeMatch = (leftId) => {
         const newMatches = { ...matches };
@@ -217,8 +218,6 @@ export default function MatchingQuestion({ question, answer, onChange }) {
                             {finalLeft.map((option, index) => {
                                 const matchedRightId = getMatchedRight(option.id);
                                 const isSelected = selectedLeft === option.id;
-                                
-                                // Tìm text của vế phải đã nối để hiển thị preview
                                 const matchedOption = finalRight.find(r => r.id === matchedRightId);
 
                                 return (
@@ -264,9 +263,11 @@ export default function MatchingQuestion({ question, answer, onChange }) {
                                         }}
                                         style={{ cursor: isMatched ? "default" : "pointer", minHeight: '50px' }}
                                     >
-                                        <Card.Body className="p-2 d-flex align-items-center">
-                                            <Badge bg="secondary" className="me-2">{String.fromCharCode(65 + index)}</Badge>
-                                            <span className="fw-medium">{option.text}</span>
+                                        <Card.Body className="p-2 d-flex align-items-center justify-content-between">
+                                            <div className="d-flex align-items-center">
+                                                <Badge bg="secondary" className="me-2">{String.fromCharCode(65 + index)}</Badge>
+                                                <span className="fw-medium">{option.text}</span>
+                                            </div>
                                         </Card.Body>
                                     </Card>
                                 );
@@ -274,7 +275,7 @@ export default function MatchingQuestion({ question, answer, onChange }) {
                         </div>
                     </Col>
                 </Row>
-                <div className="matches-summary mt-4 d-flex justify-content-center">
+                <div className="matches-summary mt-4 d-flex flex-column align-items-center gap-2 w-100">
                     <Badge bg="info" className="p-2 px-3">
                         Đã nối: {Object.keys(matches).length} / {finalLeft.length} cặp
                     </Badge>
@@ -283,4 +284,3 @@ export default function MatchingQuestion({ question, answer, onChange }) {
         </Card>
     );
 }
-

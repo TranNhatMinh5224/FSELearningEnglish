@@ -107,6 +107,8 @@ namespace LearningEnglish.Application.DTOs
         public bool? IsAnswered { get; set; }
         public decimal? CurrentScore { get; set; }
         public object? UserAnswer { get; set; }
+        public string? MetadataJson { get; set; }
+        public string? CorrectAnswersJson { get; set; }
         public List<AnswerOptionDto>? Options { get; set; }
     }
 
@@ -123,6 +125,8 @@ namespace LearningEnglish.Application.DTOs
         public bool IsAnswered { get; set; } = false;  // Đánh dấu đã trả lời
         public decimal? CurrentScore { get; set; }     // Điểm hiện tại (nếu đã trả lời)
         public object? UserAnswer { get; set; }         // Câu trả lời của user (để hiển thị khi resume)
+        public string? MetadataJson { get; set; }
+        public string? CorrectAnswersJson { get; set; }
         public List<AnswerOptionDto> Options { get; set; } = new();
     }
 
@@ -217,6 +221,8 @@ namespace LearningEnglish.Application.DTOs
         // Đáp án đúng
         public object? CorrectAnswer { get; set; }
         public string? CorrectAnswerText { get; set; }  // Human-readable format
+        public string? MetadataJson { get; set; }
+        public string? CorrectAnswersJson { get; set; }
         
         // Danh sách options (cho MCQ, Matching)
         public List<AnswerOptionReviewDto> Options { get; set; } = new();

@@ -107,6 +107,8 @@ namespace LearningEnglish.Application.Common.Helpers
                 IsCorrect = scores.ContainsKey(question.QuestionId) && scores[question.QuestionId] >= question.Points,
                 UserAnswer = userAnswers.ContainsKey(question.QuestionId) ? userAnswers[question.QuestionId] : null,
                 CorrectAnswer = ParseCorrectAnswer(question),
+                MetadataJson = question.MetadataJson,
+                CorrectAnswersJson = question.CorrectAnswersJson,
                 Options = new List<AnswerOptionReviewDto>()
             };
 

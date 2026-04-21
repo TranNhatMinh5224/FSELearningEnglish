@@ -1,4 +1,5 @@
 using LearningEnglish.Domain.Enums;
+using System.Text.Json.Serialization;
 
 namespace LearningEnglish.Application.DTOs
 {
@@ -17,7 +18,7 @@ namespace LearningEnglish.Application.DTOs
         // Điểm & chiến lược chấm
         public decimal Points { get; set; } = 10m;
         public string? CorrectAnswersJson { get; set; }
-
+ 
         public string MetadataJson { get; set; } = "{}";
 
         public string? Explanation { get; set; }
@@ -56,7 +57,11 @@ namespace LearningEnglish.Application.DTOs
         public int? QuizSectionId { get; set; }
 
         public decimal Points { get; set; }
+        
+        [JsonPropertyName("correctAnswersJson")]
         public string? CorrectAnswersJson { get; set; }
+        
+        [JsonPropertyName("metadataJson")]
         public string MetadataJson { get; set; } = "{}";
 
         public string? Explanation { get; set; }

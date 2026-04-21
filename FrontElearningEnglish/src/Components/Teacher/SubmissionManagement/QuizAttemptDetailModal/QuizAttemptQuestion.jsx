@@ -19,6 +19,8 @@ export default function QuizAttemptQuestion({ question, index, getQuestionTypeLa
   const isMatching = typeLabel.includes("match") || typeLabel.includes("nối");
   const isOrdering = typeLabel.includes("order") || typeLabel.includes("sắp xếp");
   const isTF = typeLabel.includes("true") || typeLabel.includes("đúng sai");
+  
+  const superClean = (s) => String(s || "").replace(/\s+/g, "").toLowerCase();
 
   // Render Fill in the Blank Review
   const renderFillBlankReview = () => {
@@ -115,47 +117,62 @@ export default function QuizAttemptQuestion({ question, index, getQuestionTypeLa
     const getOptText = (o) => o?.optionText || o?.OptionText || o?.text || o?.Text || "";
 
     // Robust Column Separation (Robust Metadata & Pair-Driven fallbacks)
+    let leftOptions = [];
+    let rightOptions = [];
     let leftSide = [];
     let rightSide = [];
     const processedIndices = new Set();
 
     try {
-      const rawMeta = question.metadataJson || question.MetadataJson;
-      const meta = typeof rawMeta === 'string' ? JSON.parse(rawMeta || "{}") : (rawMeta || {});
+      // Priority 1: isCorrect flags (Newly created/saved questions)
+      // Teachers mark Left side as "Correct" (true) and Right side as "Incorrect" (false) in useQuestionForm.js
+      const flaggedLeft = options.filter(o => o.isCorrect === true || o.IsCorrect === true);
+      const flaggedRight = options.filter(o => o.isCorrect === false || o.IsCorrect === false);
       
-      // Priority 1: MetadataJson (Explicitly stores left/right arrays)
-      if (meta.left && meta.right && Array.isArray(meta.left)) {
-          meta.left.forEach(lText => {
-              const idx = options.findIndex((o, i) => !processedIndices.has(i) && getOptText(o).trim() === String(lText).trim());
-              if (idx !== -1) {
-                  leftSide.push(options[idx]);
-                  processedIndices.add(idx);
-              }
-          });
-          meta.right.forEach(rText => {
-              const idx = options.findIndex((o, i) => !processedIndices.has(i) && getOptText(o).trim() === String(rText).trim());
-              if (idx !== -1) {
-                  rightSide.push(options[idx]);
-                  processedIndices.add(idx);
-              }
-          });
+      if (flaggedLeft.length > 0 && flaggedRight.length > 0 && flaggedLeft.length === flaggedRight.length) {
+          leftSide = [...flaggedLeft];
+          rightSide = [...flaggedRight];
+          options.forEach((o, i) => processedIndices.add(i));
       }
 
-      // Priority 2: CorrectAnswersJson (Dictionary of pairs)
+      // Priority 2: MetadataJson (Explicitly stores left/right text arrays)
+      if (leftSide.length === 0) {
+        const rawMeta = question.metadataJson || question.MetadataJson;
+        const meta = typeof rawMeta === 'string' ? JSON.parse(rawMeta || "{}") : (rawMeta || {});
+        
+        if (meta.left && meta.right && Array.isArray(meta.left)) {
+            meta.left.forEach(lText => {
+                const idx = options.findIndex((o, i) => !processedIndices.has(i) && superClean(getOptText(o)) === superClean(lText));
+                if (idx !== -1) {
+                    leftSide.push(options[idx]);
+                    processedIndices.add(idx);
+                }
+            });
+            meta.right.forEach(rText => {
+                const idx = options.findIndex((o, i) => !processedIndices.has(i) && superClean(getOptText(o)) === superClean(rText));
+                if (idx !== -1) {
+                    rightSide.push(options[idx]);
+                    processedIndices.add(idx);
+                }
+            });
+        }
+      }
+
+      // Priority 3: CorrectAnswersJson (Dictionary of pairs)
       if (leftSide.length === 0) {
         const rawCorrect = question.correctAnswer ?? question.CorrectAnswer;
         const correctMap = typeof rawCorrect === 'string' ? JSON.parse(rawCorrect || "{}") : (rawCorrect || {});
         
         Object.entries(correctMap).forEach(([lKey, rValue]) => {
           // Identify Left side (key)
-          const lOpt = options.find((o, i) => !processedIndices.has(i) && (String(getOptId(o)) === String(lKey) || getOptText(o).trim() === String(lKey).trim()));
+          const lOpt = options.find((o, i) => !processedIndices.has(i) && (String(getOptId(o)) === String(lKey) || superClean(getOptText(o)) === superClean(String(lKey))));
           if (lOpt) {
             leftSide.push(lOpt);
             processedIndices.add(options.indexOf(lOpt));
           }
 
           // Identify Right side (value)
-          const rOpt = options.find((o, i) => !processedIndices.has(i) && (String(getOptId(o)) === String(rValue) || getOptText(o).trim() === String(rValue).trim()));
+          const rOpt = options.find((o, i) => !processedIndices.has(i) && (String(getOptId(o)) === String(rValue) || superClean(getOptText(o)) === superClean(String(rValue))));
           if (rOpt) {
             rightSide.push(rOpt);
             processedIndices.add(options.indexOf(rOpt));
@@ -163,7 +180,7 @@ export default function QuizAttemptQuestion({ question, index, getQuestionTypeLa
         });
       }
     } catch (e) {
-      console.error("Error in complex review separation:", e);
+      console.error("Error in complex review separation logic:", e);
     }
 
     // Residual mapping

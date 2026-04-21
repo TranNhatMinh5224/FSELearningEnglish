@@ -114,6 +114,8 @@ public class QuizAttemptMapperService : IQuizAttemptMapper
             DisplayOrder = q.DisplayOrder,  // Thứ tự hiển thị
             IsAnswered = false,
             CurrentScore = null,
+            MetadataJson = q.MetadataJson,
+            CorrectAnswersJson = q.CorrectAnswersJson,
             Options = MapToOptionDtos(q, attemptId, shuffleAnswers)
         };
     }
@@ -135,6 +137,8 @@ public class QuizAttemptMapperService : IQuizAttemptMapper
             Points = q.Points,
             IsAnswered = false,
             CurrentScore = null,
+            MetadataJson = q.MetadataJson,
+            CorrectAnswersJson = q.CorrectAnswersJson,
             Options = MapToOptionDtos(q, attemptId, shuffleAnswers)
         };
     }

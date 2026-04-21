@@ -211,6 +211,11 @@ namespace LearningEnglish.Application.Service
 
                 // Map DTO to Entity
                 var question = _mapper.Map<Question>(questionCreateDto);
+                
+                // Manual field bypass to ensure persistence regardless of AutoMapper/JSON naming weirdness
+                question.MetadataJson = questionCreateDto.MetadataJson ?? "{}";
+                question.CorrectAnswersJson = questionCreateDto.CorrectAnswersJson;
+                
                 question.CreatedAt = DateTime.UtcNow;
                 question.UpdatedAt = DateTime.UtcNow;
 
@@ -376,6 +381,13 @@ namespace LearningEnglish.Application.Service
 
                 // Map changes from DTO to entity (không làm mất backup)
                 _mapper.Map(questionUpdateDto, existingQuestion);
+                
+                // Manual field bypass to ensure persistence regardless of AutoMapper/JSON naming weirdness
+                if (questionUpdateDto.MetadataJson != null) 
+                    existingQuestion.MetadataJson = questionUpdateDto.MetadataJson;
+                if (questionUpdateDto.CorrectAnswersJson != null)
+                    existingQuestion.CorrectAnswersJson = questionUpdateDto.CorrectAnswersJson;
+
                 existingQuestion.UpdatedAt = DateTime.UtcNow;
 
                 string? newQuestionMediaKey = null;

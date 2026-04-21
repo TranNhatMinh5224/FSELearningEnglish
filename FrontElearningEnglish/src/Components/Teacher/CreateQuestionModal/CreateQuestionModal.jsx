@@ -144,7 +144,7 @@ export default function CreateQuestionModal({
     qForm.setQErrors({});
     try {
       const payload = qForm.buildQuestionPayload(sectionId, internalGroupId);
-      if (questionToUpdate) payload.questionId = questionToUpdate.questionId;
+      if (questionToUpdate) payload.QuestionId = questionToUpdate.questionId;
 
       let response = questionToUpdate
         ? (isAdmin ? await questionService.updateAdminQuestion(questionToUpdate.questionId, payload) : await questionService.updateQuestion(questionToUpdate.questionId, payload))
