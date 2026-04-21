@@ -22,7 +22,17 @@ export default function QuizAttemptQuestion({ question, index, getQuestionTypeLa
 
   // Render Fill in the Blank Review
   const renderFillBlankReview = () => {
-    const parts = questionText.split(/(_+|\[.*?\])/g);
+    // Robust regex supporting [], {}, (), ___
+    const parts = questionText.split(/(_+|\[.*?\]|\{.*?\}|\(.*?\))/g);
+    
+    const isBlankLabel = (p) => {
+        if (!p) return false;
+        const t = p.trim();
+        return t.startsWith('_') || 
+               (t.startsWith('[') && t.endsWith(']')) ||
+               (t.startsWith('{') && t.endsWith('}')) ||
+               (t.startsWith('(') && t.endsWith(')'));
+    };
     let studentAnswers = [];
     try {
       if (userAnswerText && userAnswerText.startsWith('[')) {
@@ -53,7 +63,7 @@ export default function QuizAttemptQuestion({ question, index, getQuestionTypeLa
     return (
       <div className="fb-review-text-v3">
         {parts.map((part, i) => {
-          if (part.startsWith('_') || (part.startsWith('[') && part.endsWith(']'))) {
+          if (isBlankLabel(part)) {
             const idx = blankIdx++;
             const sAns = (studentAnswers[idx] || "").trim();
             const cAns = (correctAnswers[idx] || "").trim();
@@ -103,13 +113,38 @@ export default function QuizAttemptQuestion({ question, index, getQuestionTypeLa
     const getOptId = (o) => o.answerOptionId || o.AnswerOptionId || o.optionId || o.OptionId;
     const getOptText = (o) => o.optionText || o.OptionText || o.text || o.Text || "";
 
+    // Robust Column Separation (Synced with MatchingQuestion.jsx)
     let leftOptions = options.filter(o => o.isCorrect === true || o.IsCorrect === true);
     let rightOptions = options.filter(o => o.isCorrect === false || o.IsCorrect === false);
 
-    if (leftOptions.length === 0) {
-      const half = Math.ceil(options.length / 2);
-      leftOptions = options.slice(0, half);
-      rightOptions = options.slice(half);
+    if (leftOptions.length === 0 || rightOptions.length === 0 || leftOptions.length !== rightOptions.length) {
+      // Fallback: Use correctness map keys to identify Left
+      const usedIds = new Set();
+      const leftKeys = Object.keys(correctMatchesById);
+      if (leftKeys.length > 0) {
+        const potentialLeft = [];
+        const potentialRight = [];
+        leftKeys.forEach(lId => {
+          const opt = options.find(o => String(getOptId(o)) === String(lId));
+          if (opt) {
+            potentialLeft.push(opt);
+            usedIds.add(getOptId(opt));
+          }
+        });
+        options.forEach(o => {
+          if (!usedIds.has(getOptId(o))) potentialRight.push(o);
+        });
+        if (potentialLeft.length > 0) {
+          leftOptions = potentialLeft;
+          rightOptions = potentialRight;
+        }
+      }
+      
+      // Secondary fallback: Interleaved
+      if (leftOptions.length === 0 || rightOptions.length === 0) {
+        leftOptions = options.filter((_, idx) => idx % 2 === 0);
+        rightOptions = options.filter((_, idx) => idx % 2 !== 0);
+      }
     }
 
     return (
