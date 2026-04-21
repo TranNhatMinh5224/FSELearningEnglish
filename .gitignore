@@ -1,6 +1,8 @@
 ########################################
 # Full Stack .gitignore (Corrected for your Project)
 ########################################
+tmp/
+**/tmp/
 
 # ===========================================
 # 1. HỆ ĐIỀU HÀNH & EDITOR (Rác hệ thống)
@@ -43,6 +45,7 @@ TestResults/
 *.coverage
 *.coveragexml
 
+
 # File Database thực tế
 *.mdf
 *.ldf
@@ -74,7 +77,7 @@ TestResults/
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
-
+tmp/ 
 # ===========================================
 # 4. ENVIRONMENT VARIABLES (QUAN TRỌNG)
 # ===========================================
