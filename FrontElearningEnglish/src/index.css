@@ -90,3 +90,9 @@ code {
   width: 125vw !important;
   height: 125vh !important;
 }
+
+/* Fix jitter: Prevent body shift when modal opens under zoom: 0.8 */
+body.modal-open {
+  padding-right: 0 !important;
+  overflow: hidden !important;
+}
