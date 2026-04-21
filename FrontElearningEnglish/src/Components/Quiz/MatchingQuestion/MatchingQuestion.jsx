@@ -7,57 +7,65 @@ export default function MatchingQuestion({ question, answer, onChange }) {
     const { user } = useAuth();
     const options = question.options || question.Options || [];
     
-    // --- Column Separation Logic (Pair-Driven Fallback) ---
-    let leftOptions = [];
-    let rightOptions = [];
+    // --- Column Separation Logic (Robust Metadata & Pair-Driven) ---
+    let leftSide = [];
+    let rightSide = [];
+    const processedIndices = new Set();
 
     try {
-        const rawCorrect = question.correctAnswersJson || question.CorrectAnswersJson;
-        const correctMap = typeof rawCorrect === 'string' ? JSON.parse(rawCorrect || "{}") : (rawCorrect || {});
+        const rawMeta = question.metadataJson || question.MetadataJson;
+        const meta = typeof rawMeta === 'string' ? JSON.parse(rawMeta || "{}") : (rawMeta || {});
         
-        // Nếu có mapping chính xác từ Backend, ta dùng nó để cưỡng bức tách đôi các cặp
-        if (Object.keys(correctMap).length > 0) {
-            const processedIndices = new Set();
-            const leftSide = [];
-            const rightSide = [];
+        // Priority 1: MetadataJson (Explicitly stores left/right arrays from Teacher UI)
+        if (meta.left && meta.right && Array.isArray(meta.left)) {
+            meta.left.forEach(lText => {
+                const idx = options.findIndex((o, i) => !processedIndices.has(i) && (o.text || o.optionText || o.Text || "").trim() === String(lText).trim());
+                if (idx !== -1) {
+                    leftSide.push(options[idx]);
+                    processedIndices.add(idx);
+                }
+            });
+            meta.right.forEach(rText => {
+                const idx = options.findIndex((o, i) => !processedIndices.has(i) && (o.text || o.optionText || o.Text || "").trim() === String(rText).trim());
+                if (idx !== -1) {
+                    rightSide.push(options[idx]);
+                    processedIndices.add(idx);
+                }
+            });
+        }
 
-            // Duyệt qua từng cặp (L -> R) trong đáp án đúng
+        // Priority 2: CorrectAnswersJson (Dictionary of pairs)
+        if (leftSide.length === 0) {
+            const rawCorrect = question.correctAnswersJson || question.CorrectAnswersJson;
+            const correctMap = typeof rawCorrect === 'string' ? JSON.parse(rawCorrect || "{}") : (rawCorrect || {});
+            
             Object.entries(correctMap).forEach(([lText, rText]) => {
-                // Tìm object tương ứng cho vế trái
-                const lIdx = options.findIndex((o, i) => 
-                    !processedIndices.has(i) && 
-                    (o.text || o.optionText || o.Text || "").trim() === String(lText).trim()
-                );
+                const lIdx = options.findIndex((o, i) => !processedIndices.has(i) && (o.text || o.optionText || o.Text || "").trim() === String(lText).trim());
                 if (lIdx !== -1) {
                     leftSide.push(options[lIdx]);
                     processedIndices.add(lIdx);
                 }
-
-                // Tìm object tương ứng cho vế phải
-                const rIdx = options.findIndex((o, i) => 
-                    !processedIndices.has(i) && 
-                    (o.text || o.optionText || o.Text || "").trim() === String(rText).trim()
-                );
+                const rIdx = options.findIndex((o, i) => !processedIndices.has(i) && (o.text || o.optionText || o.Text || "").trim() === String(rText).trim());
                 if (rIdx !== -1) {
                     rightSide.push(options[rIdx]);
                     processedIndices.add(rIdx);
                 }
             });
-
-            // Gộp các option còn sót lại (nếu có)
-            options.forEach((o, i) => {
-                if (!processedIndices.has(i)) {
-                    if (leftSide.length <= rightSide.length) leftSide.push(o);
-                    else rightSide.push(o);
-                }
-            });
-
-            leftOptions = leftSide;
-            rightOptions = rightSide;
         }
     } catch (e) {
-        console.error("Critical error in pair-driven separation:", e);
+        console.error("Error in complex separation:", e);
     }
+
+    // Residual mapping for items not found in logic above
+    options.forEach((o, i) => {
+        if (!processedIndices.has(i)) {
+            if (leftSide.length <= rightSide.length) leftSide.push(o);
+            else rightSide.push(o);
+        }
+    });
+
+    leftOptions = leftSide;
+    rightOptions = rightSide;
 
     // Fallback cuối cùng nếu logic trên thất bại hoặc không có correctMap
     if (leftOptions.length === 0 || rightOptions.length === 0) {
