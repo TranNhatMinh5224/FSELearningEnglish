@@ -289,8 +289,11 @@ export const useQuestionForm = (show, questionToUpdate) => {
         ...rightTexts.map(t => ({ text: t, isCorrect: false }))
       ];
     } else if (qFormData.type === QUESTION_TYPES.FillBlank) {
-      const matches = [...qFormData.stemText.matchAll(/\[(.*?)\]/g)];
-      const extractedAnswers = matches.map(m => m[1].trim());
+      // Support all markers: [...], {...}, (...) and ___
+      const matches = [...qFormData.stemText.matchAll(/\[(.*?)\]|\{(.*?)\}|\((.*?)\)/g)];
+      const extractedAnswers = matches.map(m => {
+          return (m[1] || m[2] || m[3] || "").trim();
+      }).filter(Boolean);
       payload.correctAnswersJson = JSON.stringify(extractedAnswers);
       payload.options = extractedAnswers.map(ans => ({ text: ans, isCorrect: true }));
     } else if (qFormData.type === QUESTION_TYPES.Ordering) {

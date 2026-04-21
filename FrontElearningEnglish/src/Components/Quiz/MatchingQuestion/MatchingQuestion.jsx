@@ -7,16 +7,49 @@ export default function MatchingQuestion({ question, answer, onChange }) {
     const { user } = useAuth();
     const options = question.options || question.Options || [];
     
-    // Separate options into Left and Right columns
-    // Priority 1: Use isCorrect property if it provides a balanced split
-    let leftOptions = options.filter(o => o.isCorrect === true || o.IsCorrect === true);
-    let rightOptions = options.filter(o => o.isCorrect === false || o.IsCorrect === false);
+    // --- Column Separation Logic ---
+    let leftOptions = [];
+    let rightOptions = [];
+
+    // 1. Try isCorrect property first (Canonical way)
+    const correctlyFlaggedLeft = options.filter(o => o.isCorrect === true || o.IsCorrect === true);
+    const correctlyFlaggedRight = options.filter(o => o.isCorrect === false || o.IsCorrect === false);
     
-    // Priority 2: If isCorrect is inconsistent (one side empty or unbalanced), use Interleaved pattern
-    // (Common for Matching data: L1, R1, L2, R2...)
-    if (leftOptions.length === 0 || rightOptions.length === 0 || leftOptions.length !== rightOptions.length) {
-        leftOptions = options.filter((_, idx) => idx % 2 === 0);
-        rightOptions = options.filter((_, idx) => idx % 2 !== 0);
+    if (correctlyFlaggedLeft.length > 0 && correctlyFlaggedRight.length > 0 && 
+        Math.abs(correctlyFlaggedLeft.length - correctlyFlaggedRight.length) <= 1) {
+        leftOptions = correctlyFlaggedLeft;
+        rightOptions = correctlyFlaggedRight;
+    } else {
+        // 2. Fallback: Use CorrectAnswersJson keys to identify Left side
+        try {
+            const rawCorrect = question.correctAnswersJson || question.CorrectAnswersJson;
+            const correctMap = typeof rawCorrect === 'string' ? JSON.parse(rawCorrect || "{}") : (rawCorrect || {});
+            const leftKeys = Object.keys(correctMap);
+            
+            if (leftKeys.length > 0) {
+                const usedIndices = new Set();
+                // Pick options matching keys for Left
+                leftKeys.forEach(key => {
+                    const idx = options.findIndex((o, i) => !usedIndices.has(i) && (o.text || o.optionText || o.Text || "").trim() === key.trim());
+                    if (idx !== -1) {
+                        leftOptions.push(options[idx]);
+                        usedIndices.add(idx);
+                    }
+                });
+                // Remaining go to Right
+                options.forEach((o, i) => {
+                    if (!usedIndices.has(i)) rightOptions.push(o);
+                });
+            }
+        } catch (e) {
+            console.error("Error splitting columns via CorrectAnswersJson:", e);
+        }
+
+        // 3. Last fallback: Interleaved split (L, R, L, R)
+        if (leftOptions.length === 0 || rightOptions.length === 0) {
+            leftOptions = options.filter((_, idx) => idx % 2 === 0);
+            rightOptions = options.filter((_, idx) => idx % 2 !== 0);
+        }
     }
 
     // Helper to shuffle array with a seed for consistency
