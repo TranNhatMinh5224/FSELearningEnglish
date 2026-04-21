@@ -18,6 +18,7 @@ const FormTextArea = forwardRef(({
   rows = 4,
   disabled = false,
   className = "",
+  containerClassName = "",
   hint,
 }, ref) => {
   const hasError = touched && error;
@@ -30,7 +31,7 @@ const FormTextArea = forwardRef(({
         </label>
       )}
 
-      <div className={showMarkdownPreview ? "markdown-editor-container" : ""}>
+      <div className={`${showMarkdownPreview ? "markdown-editor-container" : ""} ${containerClassName}`}>
         <div className={showMarkdownPreview ? "markdown-editor-left" : "input-container-custom"}>
           <textarea
             ref={ref}

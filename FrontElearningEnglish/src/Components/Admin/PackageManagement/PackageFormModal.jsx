@@ -86,7 +86,7 @@ export default function PackageFormModal({ show, onClose, onSuccess, packageToEd
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        
+
         const allTouched = { packageName: true, price: true, maxCourses: true, maxLessons: true, maxStudents: true };
         const newErrors = {
             packageName: validateField("packageName", formData.packageName),
@@ -103,10 +103,10 @@ export default function PackageFormModal({ show, onClose, onSuccess, packageToEd
         const maxCourses = parseInt(formData.maxCourses, 10);
         const maxLessons = parseInt(formData.maxLessons, 10);
         const maxStudents = parseInt(formData.maxStudents, 10);
-        
+
         setLoading(true);
         setErrors({});
-        
+
         try {
             // Prepare data matching backend DTO exactly
             const dataToSend = {
@@ -147,10 +147,10 @@ export default function PackageFormModal({ show, onClose, onSuccess, packageToEd
     };
 
     return (
-        <Modal 
-            show={show} 
-            onHide={onClose} 
-            centered 
+        <Modal
+            show={show}
+            onHide={onClose}
+            centered
             className="modal-modern package-form-modal"
             dialogClassName="package-form-modal-dialog"
         >
@@ -227,15 +227,15 @@ export default function PackageFormModal({ show, onClose, onSuccess, packageToEd
                             <Form.Group>
                                 <Form.Label>Max Khóa học</Form.Label>
                                 <Form.Control
-                                        type="number"
-                                        name="maxCourses"
-                                        value={formData.maxCourses}
-                                        onChange={handleChange}
-                                        onBlur={handleBlur}
-                                        min="1"
-                                        max="100"
-                                        isInvalid={!!errors.maxCourses}
-                                    />
+                                    type="number"
+                                    name="maxCourses"
+                                    value={formData.maxCourses}
+                                    onChange={handleChange}
+                                    onBlur={handleBlur}
+                                    min="1"
+                                    max="100"
+                                    isInvalid={!!errors.maxCourses}
+                                />
                                 {errors.maxCourses && (
                                     <Form.Control.Feedback type="invalid">
                                         {errors.maxCourses}
@@ -250,15 +250,15 @@ export default function PackageFormModal({ show, onClose, onSuccess, packageToEd
                             <Form.Group>
                                 <Form.Label>Max Bài học</Form.Label>
                                 <Form.Control
-                                        type="number"
-                                        name="maxLessons"
-                                        value={formData.maxLessons}
-                                        onChange={handleChange}
-                                        onBlur={handleBlur}
-                                        min="1"
-                                        max="1000"
-                                        isInvalid={!!errors.maxLessons}
-                                    />
+                                    type="number"
+                                    name="maxLessons"
+                                    value={formData.maxLessons}
+                                    onChange={handleChange}
+                                    onBlur={handleBlur}
+                                    min="1"
+                                    max="1000"
+                                    isInvalid={!!errors.maxLessons}
+                                />
                                 {errors.maxLessons && (
                                     <Form.Control.Feedback type="invalid">
                                         {errors.maxLessons}
@@ -273,15 +273,15 @@ export default function PackageFormModal({ show, onClose, onSuccess, packageToEd
                             <Form.Group>
                                 <Form.Label>Max Học viên</Form.Label>
                                 <Form.Control
-                                        type="number"
-                                        name="maxStudents"
-                                        value={formData.maxStudents}
-                                        onChange={handleChange}
-                                        onBlur={handleBlur}
-                                        min="1"
-                                        max="10000"
-                                        isInvalid={!!errors.maxStudents}
-                                    />
+                                    type="number"
+                                    name="maxStudents"
+                                    value={formData.maxStudents}
+                                    onChange={handleChange}
+                                    onBlur={handleBlur}
+                                    min="1"
+                                    max="10000"
+                                    isInvalid={!!errors.maxStudents}
+                                />
                                 {errors.maxStudents && (
                                     <Form.Control.Feedback type="invalid">
                                         {errors.maxStudents}

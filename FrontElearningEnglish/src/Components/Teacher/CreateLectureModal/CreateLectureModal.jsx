@@ -121,7 +121,7 @@ export default function CreateLectureModal({ show, onClose, onSuccess, moduleId,
                   <div className="form-section-title mb-3 fw-bold text-primary">
                     <FaMarkdown className="me-2" /> Nội dung văn bản (Markdown)
                   </div>
-                  <div className="clm-markdown-toolbar mb-2">
+                  <div className="clm-markdown-toolbar">
                     <button type="button" className="clm-toolbar-btn" onClick={() => insertMarkdown('bold')} title="In đậm"><FaBold /></button>
                     <button type="button" className="clm-toolbar-btn" onClick={() => insertMarkdown('italic')} title="In nghiêng"><FaItalic /></button>
                     <button type="button" className="clm-toolbar-btn" onClick={() => insertMarkdown('heading')} title="Tiêu đề"><FaHeading /></button>
@@ -138,6 +138,7 @@ export default function CreateLectureModal({ show, onClose, onSuccess, moduleId,
                     placeholder="Viết nội dung bài giảng tại đây..."
                     showMarkdownPreview={true}
                     rows={12}
+                    containerClassName="clm-markdown-container-merged"
                   />
                 </div>
               )}

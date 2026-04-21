@@ -3,6 +3,20 @@
     border: none;
     box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
     overflow: hidden;
+    /* Stabilize height to prevent jitter when content loads */
+    min-height: 600px;
+}
+
+/* Local fix for Bootstrap scrollbar padding jitter under zoom: 0.8 */
+.teacher-package-detail-modal.modal {
+    padding-right: 0 !important;
+}
+
+.teacher-package-detail-modal .modal-dialog {
+    max-width: 800px;
+    width: 95%;
+    margin-left: auto;
+    margin-right: auto;
 }
 
 .teacher-package-detail-modal .modal-header {

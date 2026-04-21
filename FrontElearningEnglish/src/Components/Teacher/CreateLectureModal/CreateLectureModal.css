@@ -185,7 +185,10 @@
   background: #f1f5f9;
   border: 1px solid #cbd5e1;
   border-bottom: none;
-  border-radius: 8px 8px 0 0;
+  border-radius: 12px 12px 0 0;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+  position: relative;
+  z-index: 2;
 }
 
 .clm-toolbar-btn {
@@ -225,10 +228,23 @@
 }
 
 .clm-markdown-preview {
-  padding: 1rem;
+  padding: 1.25rem;
   background: #fff;
   max-height: 500px;
   overflow-y: auto;
+}
+
+/* Merged Container Fixes */
+.clm-markdown-container-merged {
+  border-top: none !important;
+  border-radius: 0 0 12px 12px !important;
+  padding-top: 5px !important; /* Minimal gap inside content */
+  margin-top: 0 !important;
+}
+
+.clm-markdown-container-merged .markdown-editor-left .textarea-custom,
+.clm-markdown-container-merged .markdown-editor-right .markdown-preview {
+  padding-top: 10px !important; /* Extra breathing room at the top */
 }
 
 .clm-char-count {
