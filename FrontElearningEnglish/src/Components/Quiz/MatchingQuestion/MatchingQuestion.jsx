@@ -3,17 +3,17 @@ import { Card, Row, Col, Badge } from "react-bootstrap";
 import { useAuth } from "../../../Context/AuthContext";
 import "./MatchingQuestion.css";
 
-export default function MatchingQuestion({ question, answer, onChange }) {
+export default function MatchingQuestion({ question, answer, onChange, attemptId }) {
     const { user } = useAuth();
     const options = question.options || question.Options || [];
-    
+
     // --- Column Logic ---
     let leftOptions = [];
     let rightOptions = [];
     const superClean = (s) => String(s || "").replace(/\s+/g, "").toLowerCase();
 
     const questionType = question.type || question.Type;
-    
+
     // --- Column Reconstruction Logic (Total Control Version) ---
     let leftSide = [];
     let rightSide = [];
@@ -28,7 +28,7 @@ export default function MatchingQuestion({ question, answer, onChange }) {
 
         const rawMeta = getProp(question, "metadataJson", "MetadataJson", "metadata_json", "metadata");
         const meta = typeof rawMeta === 'string' ? JSON.parse(rawMeta || "{}") : (rawMeta || {});
-        
+
         const rawCorrect = getProp(question, "correctAnswersJson", "CorrectAnswersJson", "correct_answers_json", "correct_answers", "correctAnswers");
         const correctMap = typeof rawCorrect === 'string' ? JSON.parse(rawCorrect || "{}") : (rawCorrect || {});
 
@@ -110,7 +110,7 @@ export default function MatchingQuestion({ question, answer, onChange }) {
 
     const qId = question.questionId || question.QuestionId || 0;
     const uId = user?.userId || user?.Id || 0;
-    const seedBase = qId + uId;
+    const seedBase = Number(qId) + Number(uId) + Number(attemptId || 0);
 
     const finalLeft = React.useMemo(() => {
         const mapped = leftOptions.map(opt => ({

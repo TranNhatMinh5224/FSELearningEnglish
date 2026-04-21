@@ -1016,6 +1016,7 @@ export default function QuizDetail() {
                                         onChange={(qId, val) => handleAnswerChange(qId, val)}
                                         questionNumber={currentPagedItem._startNumber}
                                         totalQuestions={questions.length}
+                                        attemptId={attemptId}
                                     />
                                 ) : (
                                     <div className="no-question-message">

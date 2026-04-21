@@ -140,10 +140,8 @@ export default function CreateCourseModal({ show, onClose, onSuccess, courseData
                 onRemove={() => setImageUrl(null)}
                 onUploadingChange={setUploadingImage}
                 label={isUpdateMode ? "Thay đổi ảnh lớp học" : "Chọn ảnh đại diện cho lớp học"}
-                hint="Khuyến nghị tỉ lệ 16:9 (VD: 1200x675). Ảnh sẽ được cắt để vừa khung hiển thị."
+                hint="Khuyến nghị tỉ lệ 16:9 (VD: 1200x675) để hiển thị đẹp nhất."
                 previewClassName="course-image-preview"
-                enableImageCrop={true}
-                cropAspect={16 / 9}
               />
             </div>
 

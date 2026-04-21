@@ -1,6 +1,5 @@
 import React, { useState, useRef, useEffect, useCallback } from "react";
-import { Button, Modal } from "react-bootstrap";
-import Cropper from "react-easy-crop";
+import { Button } from "react-bootstrap";
 import { FaFileUpload, FaTimes, FaImage, FaMusic, FaVideo, FaFileAlt } from "react-icons/fa";
 import { fileService } from "../../../Services/fileService";
 import "./FileUpload.css";
@@ -22,8 +21,6 @@ import "./FileUpload.css";
  * @param {boolean} props.enablePaste - Enable paste from clipboard (default: true)
  * @param {string} props.previewClassName - Custom class for preview container
  * @param {boolean} props.showPreview - Show preview (default: true)
- * @param {boolean} props.enableImageCrop - Enable image cropping before upload (default: false)
- * @param {number} props.cropAspect - Crop aspect ratio (default: 16/9)
  */
 export default function FileUpload({
     bucket,
@@ -39,8 +36,6 @@ export default function FileUpload({
     enablePaste = true,
     previewClassName = "",
     showPreview = true,
-    enableImageCrop = false,
-    cropAspect = 16 / 9,
 }) {
     const fileInputRef = useRef(null);
     const [preview, setPreview] = useState(existingUrl || null);
@@ -48,14 +43,6 @@ export default function FileUpload({
     const [uploadProgress, setUploadProgress] = useState(0);
     const [error, setError] = useState(null);
     const [isDragging, setIsDragging] = useState(false);
-
-    // Cropper state
-    const [showCropper, setShowCropper] = useState(false);
-    const [crop, setCrop] = useState({ x: 0, y: 0 });
-    const [zoom, setZoom] = useState(1);
-    const [croppedAreaPixels, setCroppedAreaPixels] = useState(null);
-    const [pendingFile, setPendingFile] = useState(null);
-    const [pendingPreview, setPendingPreview] = useState(null);
 
     // Determine file type icon
     const getFileTypeIcon = () => {
@@ -141,23 +128,11 @@ export default function FileUpload({
     }, []);
 
     // Upload file
-    const uploadFile = useCallback(async (file, options = {}) => {
-        const { skipCrop = false } = options;
+    const uploadFile = useCallback(async (file) => {
         const validationError = validateFile(file);
         if (validationError) {
             setError(validationError);
             if (onError) onError(validationError);
-            return;
-        }
-
-        if (!skipCrop && enableImageCrop && file.type.startsWith("image/")) {
-            const previewUrl = URL.createObjectURL(file);
-            setPendingFile(file);
-            setPendingPreview(previewUrl);
-            setCrop({ x: 0, y: 0 });
-            setZoom(1);
-            setCroppedAreaPixels(null);
-            setShowCropper(true);
             return;
         }
 
@@ -217,7 +192,6 @@ export default function FileUpload({
             let errorMessage = error.message || "Lỗi upload file";
             
             if (error.response?.data) {
-                // Backend returns: { success: false, message: "...", maxSize: "100MB" }
                 if (error.response.data.message) {
                     errorMessage = error.response.data.message;
                 } else if (error.response.data.error) {
@@ -235,81 +209,13 @@ export default function FileUpload({
                 if (onUploadingChange) onUploadingChange(false);
             }, 600);
         }
-    }, [bucket, showPreview, existingUrl, onUploadSuccess, onError, onUploadingChange, validateFile, extractDuration, enableImageCrop]);
+    }, [bucket, showPreview, existingUrl, onUploadSuccess, onError, onUploadingChange, validateFile, extractDuration]);
 
     // Process file
     const processFile = useCallback(async (file) => {
         if (!file) return;
         await uploadFile(file);
     }, [uploadFile]);
-
-    const onCropComplete = useCallback((_croppedArea, croppedPixels) => {
-        setCroppedAreaPixels(croppedPixels);
-    }, []);
-
-    const createImage = (url) =>
-        new Promise((resolve, reject) => {
-            const image = new Image();
-            image.addEventListener("load", () => resolve(image));
-            image.addEventListener("error", (error) => reject(error));
-            image.setAttribute("crossOrigin", "anonymous");
-            image.src = url;
-        });
-
-    const getCroppedBlob = async (imageSrc, pixelCrop, fileType) => {
-        const image = await createImage(imageSrc);
-        const canvas = document.createElement("canvas");
-        const ctx = canvas.getContext("2d");
-
-        canvas.width = pixelCrop.width;
-        canvas.height = pixelCrop.height;
-
-        ctx.drawImage(
-            image,
-            pixelCrop.x,
-            pixelCrop.y,
-            pixelCrop.width,
-            pixelCrop.height,
-            0,
-            0,
-            pixelCrop.width,
-            pixelCrop.height
-        );
-
-        return new Promise((resolve) => {
-            canvas.toBlob((blob) => resolve(blob), fileType || "image/jpeg", 0.92);
-        });
-    };
-
-    const handleCropCancel = () => {
-        if (pendingPreview && pendingPreview.startsWith("blob:")) {
-            URL.revokeObjectURL(pendingPreview);
-        }
-        setPendingFile(null);
-        setPendingPreview(null);
-        setShowCropper(false);
-    };
-
-    const handleCropConfirm = async () => {
-        if (!pendingFile || !pendingPreview || !croppedAreaPixels) {
-            handleCropCancel();
-            return;
-        }
-        try {
-            const croppedBlob = await getCroppedBlob(pendingPreview, croppedAreaPixels, pendingFile.type);
-            if (!croppedBlob) {
-                throw new Error("Không thể cắt ảnh");
-            }
-            const croppedFile = new File([croppedBlob], pendingFile.name, { type: pendingFile.type });
-            handleCropCancel();
-            await uploadFile(croppedFile, { skipCrop: true });
-        } catch (cropError) {
-            const errorMessage = cropError.message || "Lỗi khi cắt ảnh";
-            setError(errorMessage);
-            if (onError) onError(errorMessage);
-            handleCropCancel();
-        }
-    };
 
     // Handle file input change
     const handleFileChange = (e) => {
@@ -398,48 +304,6 @@ export default function FileUpload({
 
     return (
         <div className="file-upload-container">
-            <Modal
-                show={showCropper}
-                onHide={handleCropCancel}
-                centered
-                size="lg"
-                dialogClassName="image-cropper-modal"
-            >
-                <Modal.Header closeButton>
-                    <Modal.Title>Căn chỉnh ảnh</Modal.Title>
-                </Modal.Header>
-                <Modal.Body>
-                    <div className="cropper-container">
-                        {pendingPreview && (
-                            <Cropper
-                                image={pendingPreview}
-                                crop={crop}
-                                zoom={zoom}
-                                aspect={cropAspect}
-                                onCropChange={setCrop}
-                                onZoomChange={setZoom}
-                                onCropComplete={onCropComplete}
-                            />
-                        )}
-                    </div>
-                    <div className="cropper-controls">
-                        <label htmlFor="zoom" className="cropper-zoom-label">Zoom</label>
-                        <input
-                            id="zoom"
-                            type="range"
-                            min={1}
-                            max={3}
-                            step={0.05}
-                            value={zoom}
-                            onChange={(e) => setZoom(Number(e.target.value))}
-                        />
-                    </div>
-                </Modal.Body>
-                <Modal.Footer>
-                    <Button variant="secondary" onClick={handleCropCancel}>Hủy</Button>
-                    <Button variant="primary" onClick={handleCropConfirm}>Dùng ảnh này</Button>
-                </Modal.Footer>
-            </Modal>
             {preview && showPreview ? (
                 <div className={`file-preview-wrapper ${previewClassName}`}>
                     {preview.startsWith("blob:") || preview.startsWith("http") || preview.startsWith("document:") ? (

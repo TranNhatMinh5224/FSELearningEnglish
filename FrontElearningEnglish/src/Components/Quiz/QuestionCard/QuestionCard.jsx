@@ -7,7 +7,7 @@ import TrueFalseQuestion from "../TrueFalseQuestion/TrueFalseQuestion";
 import { Card, Row, Col, Badge } from "react-bootstrap";
 import "./QuestionCard.css";
 
-export default function QuestionCard({ question, answer, onChange, questionNumber, totalQuestions, allAnswers }) {
+export default function QuestionCard({ question, answer, onChange, questionNumber, totalQuestions, allAnswers, attemptId }) {
     // Handle both camelCase and PascalCase for standalone or sub-questions
     const getQuestionType = (q) => q?.type !== undefined ? q.type : (q?.Type !== undefined ? q.Type : 0);
 
@@ -25,7 +25,7 @@ export default function QuestionCard({ question, answer, onChange, questionNumbe
             case 4: // FillBlank
                 return <FillBlankQuestion question={q} answer={qAns} onChange={qChange} />;
             case 5: // Matching
-                return <MatchingQuestion question={q} answer={qAns} onChange={qChange} />;
+                return <MatchingQuestion question={q} answer={qAns} onChange={qChange} attemptId={attemptId} />;
             case 6: // Ordering
                 return <OrderingQuestion question={q} answer={qAns} onChange={qChange} />;
             default:
