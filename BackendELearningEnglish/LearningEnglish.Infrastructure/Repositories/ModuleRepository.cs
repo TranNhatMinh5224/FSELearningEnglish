@@ -54,7 +54,8 @@ namespace LearningEnglish.Infrastructure.Repositories
             return await _context.Modules
                 .AsNoTracking()
                 .Where(m => m.LessonId == lessonId)
-                .OrderBy(m => m.OrderIndex)
+                .OrderBy(m => m.ContentType)
+                .ThenBy(m => m.OrderIndex)
                 .ToListAsync();
         }
 
@@ -67,7 +68,8 @@ namespace LearningEnglish.Infrastructure.Repositories
                 .Include(m => m.FlashCards)
                 .Include(m => m.Assessments)
                 .Where(m => m.LessonId == lessonId)
-                .OrderBy(m => m.OrderIndex)
+                .OrderBy(m => m.ContentType)
+                .ThenBy(m => m.OrderIndex)
                 .ToListAsync();
         }
 
@@ -85,7 +87,8 @@ namespace LearningEnglish.Infrastructure.Repositories
                     (ml, c) => new { ml.Module, ml.Lesson, Course = c })
                 .Where(x => x.Module.LessonId == lessonId && x.Course.TeacherId == teacherId)
                 .Select(x => x.Module)
-                .OrderBy(m => m.OrderIndex)
+                .OrderBy(m => m.ContentType)
+                .ThenBy(m => m.OrderIndex)
                 .ToListAsync();
         }
 

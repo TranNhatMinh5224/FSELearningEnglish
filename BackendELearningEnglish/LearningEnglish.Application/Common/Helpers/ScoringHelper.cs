@@ -75,17 +75,26 @@ namespace LearningEnglish.Application.Strategies.Scoring
 
                 // Tạo mapping từ left option ID sang right option ID
                 var result = new Dictionary<int, int>();
+                var availableOptions = options.ToList(); // Dùng list để handle trùng text
+
                 foreach (var leftText in leftTexts)
                 {
                     if (correctMatches.TryGetValue(leftText, out var rightText))
                     {
-                        // Tìm option ID cho left text
-                        var leftOption = options.FirstOrDefault(o => o.Text == leftText);
+                        // Tìm option ID cho left text (đúng vế và đúng text)
+                        var leftOption = availableOptions.FirstOrDefault(o => 
+                            (o.Text == leftText) && (o.IsCorrect == true));
                         if (leftOption == null) continue;
+                        availableOptions.Remove(leftOption);
 
-                        // Tìm option ID cho right text
-                        var rightOption = options.FirstOrDefault(o => o.Text == rightText);
+                        // Tìm option ID cho right text (đúng vế và đúng text)
+                        var rightOption = availableOptions.FirstOrDefault(o => 
+                            (o.Text == rightText) && (o.IsCorrect == false));
                         if (rightOption == null) continue;
+                        // Note: Cùng 1 right option có thể được nối bởi nhiều left option? 
+                        // Thường thì Matching là 1-1, nhưng nếu 1-nhiều thì không nên remove rightOption.
+                        // Trong hệ thống này ta coi là 1-1.
+                        availableOptions.Remove(rightOption);
 
                         result[leftOption.AnswerOptionId] = rightOption.AnswerOptionId;
                     }

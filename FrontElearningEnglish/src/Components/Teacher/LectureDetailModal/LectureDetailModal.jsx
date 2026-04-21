@@ -79,9 +79,6 @@ export default function LectureDetailModal({
           {lecture && getLectureIcon(lecture.type || lecture.Type)}
           <span>Chi tiết Lecture</span>
         </Modal.Title>
-        <Button variant="link" className="text-muted p-0" onClick={onClose}>
-          <FaTimes />
-        </Button>
       </Modal.Header>
 
       <Modal.Body>

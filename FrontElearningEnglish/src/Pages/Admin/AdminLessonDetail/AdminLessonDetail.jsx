@@ -140,7 +140,18 @@ export default function AdminLessonDetail() {
           })
         );
 
-        setModules(modulesWithImages);
+        // Sort by contentType then orderIndex
+        const sortedModules = modulesWithImages.sort((a, b) => {
+          const typeA = a.contentType || a.ContentType || 0;
+          const typeB = b.contentType || b.ContentType || 0;
+          if (typeA !== typeB) return typeA - typeB;
+
+          const orderA = a.orderIndex || a.OrderIndex || 0;
+          const orderB = b.orderIndex || b.OrderIndex || 0;
+          return orderA - orderB;
+        });
+
+        setModules(sortedModules);
       } else {
         setModules([]);
       }

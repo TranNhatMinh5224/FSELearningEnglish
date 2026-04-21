@@ -63,7 +63,10 @@ export default function EssayCard({ assessment, onClick, submission, onViewResul
                             <div className="d-flex align-items-center gap-3">
                                 <div className="essay-score-badge">
                                     <FaStar className="text-warning me-1" />
-                                    <span className="fw-bold">Điểm: {submission.teacherScore || submission.TeacherScore || submission.score || submission.Score}/10</span>
+                                    <span className="fw-bold">
+                                        Điểm: {submission.teacherScore || submission.TeacherScore || submission.score || submission.Score}/
+                                        {submission.maxScore || submission.MaxScore || assessment.totalPoints || assessment.TotalPoints || 10}
+                                    </span>
                                 </div>
                                 <Button
                                     variant="success"

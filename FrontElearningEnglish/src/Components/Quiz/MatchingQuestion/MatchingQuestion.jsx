@@ -1,8 +1,8 @@
-import React, { useState, useEffect } from "react";
-import { Card, Row, Col, Badge } from "react-bootstrap";
+import { useAuth } from "../../../Context/AuthContext";
 import "./MatchingQuestion.css";
 
 export default function MatchingQuestion({ question, answer, onChange }) {
+    const { user } = useAuth();
     const options = question.options || question.Options || [];
     
     // Parse metadata
@@ -10,7 +10,6 @@ export default function MatchingQuestion({ question, answer, onChange }) {
     let rightTexts = [];
     try {
         const rawMeta = question.metadataJson || question.MetadataJson;
-        console.log("📦 [MatchingQuestion] Raw Metadata:", rawMeta);
         const metadata = typeof rawMeta === 'string' ? JSON.parse(rawMeta || "{}") : (rawMeta || {});
         leftTexts = metadata.left || [];
         rightTexts = metadata.right || [];
@@ -75,24 +74,27 @@ export default function MatchingQuestion({ question, answer, onChange }) {
         return newArray;
     };
 
-    // Shuffle cả 2 cột để tăng tính thử thách (Sử dụng QuestionId làm seed)
+    // Shuffle cả 2 cột để tăng tính thử thách (Sử dụng QuestionId + UserId làm seed)
     const qId = question.questionId || question.QuestionId || 0;
+    const uId = user?.userId || user?.Id || 0;
+    const seedBase = qId + uId;
+
     // Dùng memo để tránh shuffle lại mỗi lần render nếu không cần
     const finalLeft = React.useMemo(() => {
         const mapped = leftOptions.map(opt => ({
             id: opt.optionId || opt.OptionId || opt.answerOptionId || opt.AnswerOptionId,
             text: opt.optionText || opt.OptionText || opt.text || opt.Text
         }));
-        return shuffleWithSeed(mapped, qId + 123);
-    }, [leftOptions, qId]);
+        return shuffleWithSeed(mapped, seedBase + 123);
+    }, [leftOptions, seedBase]);
 
     const finalRight = React.useMemo(() => {
         const mapped = rightOptions.map(opt => ({
             id: opt.optionId || opt.OptionId || opt.answerOptionId || opt.AnswerOptionId,
             text: opt.optionText || opt.OptionText || opt.text || opt.Text
         }));
-        return shuffleWithSeed(mapped, qId + 456);
-    }, [rightOptions, qId]);
+        return shuffleWithSeed(mapped, seedBase + 456);
+    }, [rightOptions, seedBase]);
 
     const [matches, setMatches] = useState(() => {
         if (answer && typeof answer === 'object' && !Array.isArray(answer)) {

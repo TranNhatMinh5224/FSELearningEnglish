@@ -217,7 +217,9 @@ export default function EssaySubmissionList({ essayId, essayTitle, onBack, isAdm
                                   (submission.TeacherScore !== undefined ? submission.TeacherScore :
                                   (submission.score !== undefined ? submission.score :
                                   (submission.Score !== undefined ? submission.Score : null)));
-                    const hasAttachment = submission.attachmentUrl || submission.AttachmentUrl || submission.attachmentKey || submission.AttachmentKey;
+                    const hasAttachment = submission.hasAttachment || submission.HasAttachment || 
+                                          submission.attachmentUrl || submission.AttachmentUrl || 
+                                          submission.attachmentKey || submission.AttachmentKey;
 
                     return (
                       <tr key={submissionId}>

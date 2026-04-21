@@ -21,17 +21,20 @@ namespace LearningEnglish.Application.Strategies.Scoring
             var correctMatches = ScoringHelper.ParseCorrectMatches(question.CorrectAnswersJson, question.MetadataJson, question.Options);
             if (correctMatches == null || correctMatches.Count == 0) return 0m;
 
-            // Phải đủ số cặp (không thừa, không thiếu)
-            if (userMatches.Count != correctMatches.Count) return 0m;
-
-            // Kiểm tra từng cặp đúng (so sánh từ correctMatches để không bỏ sót)
+            // Tính điểm từng phần (Partial Credit)
+            int correctCount = 0;
             foreach (var pair in correctMatches)
             {
-                if (!userMatches.TryGetValue(pair.Key, out var userRight) || userRight != pair.Value)
-                    return 0m;  // Sai cặp hoặc thiếu → 0 điểm
+                if (userMatches.TryGetValue(pair.Key, out var userRight) && userRight == pair.Value)
+                {
+                    correctCount++;
+                }
             }
 
-            return question.Points;  // Tất cả đúng → full điểm
+            // Điểm = (Số câu đúng / Tổng câu) * Tổng điểm câu hỏi
+            decimal partialScore = ((decimal)correctCount / correctMatches.Count) * question.Points;
+
+            return Math.Round(partialScore, 2);
         }
     }
 }

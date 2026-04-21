@@ -1,48 +1,50 @@
-.fill-blank-question {
-    margin-top: 16px;
+.fill-blank-question-container {
+    transition: all 0.3s ease;
+    border-radius: 16px !important;
 }
 
-/* Bootstrap utilities: d-flex, flex-column */
-.fill-blank-question .options-list {
-    gap: 12px;
+.fill-blank-sentence {
+    line-height: 2.8;
 }
 
-
-
-
-
-
-
-/* Bootstrap utilities: d-flex, flex-column */
-.fill-blank-question .option-content {
-    gap: 12px;
-    width: 100%;
-}
-
-.fill-blank-question .option-label {
-    font-size: 16px;
-    color: var(--color-text-primary, #1f2937);
-    line-height: 1.5;
-}
-
-.fill-blank-input {
-    border: 2px solid var(--color-border-light, #e5e7eb);
-    border-radius: 12px;
-    padding: 16px;
-    font-size: 16px;
-    color: var(--color-text-primary, #1f2937);
-    transition: all 0.2s ease;
-    resize: vertical;
-    min-height: 120px;
-}
-
-.fill-blank-input:focus {
-    border-color: var(--color-secondary-cyan, #41d6e3);
-    box-shadow: 0 0 0 3px rgba(65, 214, 227, 0.1);
+.fill-blank-inline-input {
+    border: none;
+    border-bottom: 2px solid #e2e8f0;
+    background-color: #f8fafc;
+    text-align: center;
+    margin: 0 4px;
+    padding: 2px 8px;
     outline: none;
+    font-weight: 600;
+    color: #2563eb;
+    border-radius: 4px 4px 0 0;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    font-family: inherit;
 }
 
-.fill-blank-input::placeholder {
-    color: var(--color-text-tertiary, #9ca3af);
+.fill-blank-inline-input:focus {
+    border-bottom: 2px solid #38bdf8;
+    background-color: #f0f9ff;
+    box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.05);
+    transform: translateY(-1px);
+}
+
+.fill-blank-inline-input:hover {
+    background-color: #f1f5f9;
+    border-bottom-color: #cbd5e1;
+}
+
+.fill-blank-inline-input::placeholder {
+    color: #94a3b8;
+    opacity: 0.5;
+}
+
+/* Tip box styling */
+.fill-blank-question-container .badge {
+    padding: 6px 12px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    font-size: 0.7rem;
 }
 

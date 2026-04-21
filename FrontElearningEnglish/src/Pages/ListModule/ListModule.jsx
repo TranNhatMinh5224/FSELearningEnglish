@@ -42,8 +42,12 @@ export default function ListModule() {
                 const modulesResponse = await moduleService.getModulesByLessonId(lessonId);
                 if (modulesResponse.data?.success && modulesResponse.data?.data) {
                     const modulesData = modulesResponse.data.data;
-                    // Sort by orderIndex
+                    // Sort by contentType then orderIndex
                     const sortedModules = modulesData.sort((a, b) => {
+                        const typeA = a.contentType || a.ContentType || 0;
+                        const typeB = b.contentType || b.ContentType || 0;
+                        if (typeA !== typeB) return typeA - typeB;
+
                         const orderA = a.orderIndex || 0;
                         const orderB = b.orderIndex || 0;
                         return orderA - orderB;
@@ -133,8 +137,12 @@ export default function ListModule() {
                 const modulesResponse = await moduleService.getModulesByLessonId(lessonId);
                 if (modulesResponse.data?.success && modulesResponse.data?.data) {
                     const modulesData = modulesResponse.data.data;
-                    // Sort by orderIndex
+                    // Sort by contentType then orderIndex
                     const sortedModules = modulesData.sort((a, b) => {
+                        const typeA = a.contentType || a.ContentType || 0;
+                        const typeB = b.contentType || b.ContentType || 0;
+                        if (typeA !== typeB) return typeA - typeB;
+
                         const orderA = a.orderIndex || 0;
                         const orderB = b.orderIndex || 0;
                         return orderA - orderB;

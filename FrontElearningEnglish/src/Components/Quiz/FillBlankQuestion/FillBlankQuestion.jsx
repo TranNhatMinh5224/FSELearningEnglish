@@ -84,6 +84,11 @@ export default function FillBlankQuestion({ question, answer, onChange }) {
                     // Nếu part là cụm [đáp án] hoặc _ (bất kỳ độ dài nào)
                     if (part.startsWith('_') || (part.startsWith('[') && part.endsWith(']'))) {
                         const index = currentBlankIdx++;
+                        // Tính toán độ rộng dựa trên nội dung trong ngoặc (Fix UX: Adaptive Width)
+                        const expectedAnswer = part.slice(1, -1); // Bỏ [ và ]
+                        const charCount = Math.max(expectedAnswer.length, 1);
+                        const adaptiveWidth = Math.min(Math.max(charCount * 14 + 20, 40), 400);
+
                         return (
                             <input
                                 key={i}
@@ -91,20 +96,9 @@ export default function FillBlankQuestion({ question, answer, onChange }) {
                                 className="fill-blank-inline-input"
                                 value={inputs[index] || ""}
                                 onChange={(e) => handleInputChange(index, e.target.value)}
-                                placeholder="........"
                                 autoComplete="off"
                                 style={{
-                                    width: '150px',
-                                    border: 'none',
-                                    borderBottom: '3px solid #41d6e3',
-                                    backgroundColor: '#f8f9fa',
-                                    textAlign: 'center',
-                                    margin: '0 8px',
-                                    padding: '2px 10px',
-                                    outline: 'none',
-                                    fontWeight: 'bold',
-                                    color: '#0d6efd',
-                                    transition: 'all 0.3s'
+                                    width: `${adaptiveWidth}px`
                                 }}
                             />
                         );

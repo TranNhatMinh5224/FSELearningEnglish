@@ -154,6 +154,7 @@ export default function EssaySubmissionDetailModal({ show, onClose, submission, 
   const userEmail = submission.userEmail || submission.UserEmail || "N/A";
   const textContent = submission.textContent || submission.TextContent || "";
   const attachmentUrl = submission.attachmentUrl || submission.AttachmentUrl;
+  const hasAttachment = submission.hasAttachment || submission.HasAttachment || !!attachmentUrl || !!submission.attachmentKey || !!submission.AttachmentKey;
   const maxScore = submission.maxScore !== undefined ? submission.maxScore : (submission.MaxScore !== undefined ? submission.MaxScore : 100);
   const teacherScore = submission.teacherScore !== undefined ? submission.teacherScore : (submission.TeacherScore !== undefined ? submission.TeacherScore : null);
 
@@ -185,11 +186,11 @@ export default function EssaySubmissionDetailModal({ show, onClose, submission, 
             </div>
           )}
 
-          {attachmentUrl && (
+          {hasAttachment && (
             <div className="mb-3">
-              <Button variant="outline-primary" size="sm" onClick={handleDownload}>
-                <FaDownload className="me-2" />
-                Tải file đính kèm
+              <Button variant="outline-primary" size="sm" onClick={handleDownload} className="d-flex align-items-center gap-2">
+                <FaDownload />
+                Tải file bài làm của học sinh
               </Button>
             </div>
           )}
