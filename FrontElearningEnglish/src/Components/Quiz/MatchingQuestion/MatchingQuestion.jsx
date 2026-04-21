@@ -1,3 +1,5 @@
+import React, { useState, useEffect } from "react";
+import { Card, Row, Col, Badge } from "react-bootstrap";
 import { useAuth } from "../../../Context/AuthContext";
 import "./MatchingQuestion.css";
 
