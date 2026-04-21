@@ -7,50 +7,14 @@ export default function MatchingQuestion({ question, answer, onChange }) {
     const { user } = useAuth();
     const options = question.options || question.Options || [];
     
-    // Parse metadata
-    let leftTexts = [];
-    let rightTexts = [];
-    try {
-        const rawMeta = question.metadataJson || question.MetadataJson;
-        const metadata = typeof rawMeta === 'string' ? JSON.parse(rawMeta || "{}") : (rawMeta || {});
-        leftTexts = metadata.left || [];
-        rightTexts = metadata.right || [];
-    } catch (e) {
-        console.error("Error parsing metadata for Matching:", e);
-    }
-
-    // Logic phân loại cực mạnh:
-    // Thử dùng metadata trước, nếu không được thì dùng isCorrect, nếu không được thì chia đôi.
-    let leftOptions = [];
-    let rightOptions = [];
-
-    if (leftTexts.length > 0) {
-        // Cách 1: Dựa trên Metadata + isCorrect để đảm bảo chính xác (Fix bug trùng text)
-        leftOptions = leftTexts.map(text => {
-            return options.find(o => {
-                const t = (o.optionText || o.text || o.Text || "").trim();
-                const isTrue = o.isCorrect === true || o.IsCorrect === true;
-                return t === text.trim() && isTrue;
-            });
-        }).filter(Boolean);
-
-        rightOptions = rightTexts.map(text => {
-            return options.find(o => {
-                const t = (o.optionText || o.text || o.Text || "").trim();
-                const isFalse = o.isCorrect === false || o.IsCorrect === false;
-                return t === text.trim() && isFalse;
-            });
-        }).filter(Boolean);
-    }
-
-    // Nếu vẫn rỗng (do text không khớp hoặc metadata lỗi) -> Dùng logic isCorrect
-    if (leftOptions.length === 0) {
-        leftOptions = options.filter(o => o.isCorrect === true || o.IsCorrect === true);
-        rightOptions = options.filter(o => o.isCorrect === false || o.IsCorrect === false);
-    }
-
-    // Nếu vẫn rỗng -> Chia đôi mảng (Fallback cuối cùng)
-    if (leftOptions.length === 0) {
+    // Separate options into Left and Right columns based strictly on isCorrect
+    // isCorrect === true -> Left Column
+    // isCorrect === false -> Right Column
+    let leftOptions = options.filter(o => o.isCorrect === true || o.IsCorrect === true);
+    let rightOptions = options.filter(o => o.isCorrect === false || o.IsCorrect === false);
+    
+    // Fallback if isCorrect is not set correctly or one column is empty
+    if (leftOptions.length === 0 || rightOptions.length === 0) {
         const half = Math.ceil(options.length / 2);
         leftOptions = options.slice(0, half);
         rightOptions = options.slice(half);
