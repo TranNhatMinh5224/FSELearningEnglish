@@ -18,11 +18,26 @@ export default function FillBlankQuestion({ question, answer, onChange }) {
     }, [question]);
 
     // Parse nội dung để tìm các ô trống (hỗ trợ cả [...] và ___)
-    const parts = useMemo(() => text.split(/(_+|\[.*?\])/g), [text]);
+    // Parse nội dung để tìm các ô trống (hỗ trợ [...], {...}, (...) và ___)
+    const parts = useMemo(() => {
+        // Regex này bắt cụm ____, [đáp án], {đáp án} hoặc (đáp án)
+        return text.split(/(_+|\[.*?\]|\{.*?\}|\(.*?\))/g);
+    }, [text]);
     
+    const isBlankPart = (p) => {
+        if (!p) return false;
+        const trimmed = p.trim();
+        return (
+            trimmed.startsWith('_') || 
+            (trimmed.startsWith('[') && trimmed.endsWith(']')) ||
+            (trimmed.startsWith('{') && trimmed.endsWith('}')) ||
+            (trimmed.startsWith('(') && trimmed.endsWith(')'))
+        );
+    };
+
     // Đếm số lượng ô trống thực tế
     const blanksCount = useMemo(() => {
-        return parts.filter(p => p.startsWith('_') || (p.startsWith('[') && p.endsWith(']'))).length;
+        return parts.filter(isBlankPart).length;
     }, [parts]);
 
     // Parse answer helper
@@ -81,11 +96,12 @@ export default function FillBlankQuestion({ question, answer, onChange }) {
         <div className="fill-blank-question-container mt-3 p-4 bg-white rounded shadow-sm border">
             <div className="fill-blank-sentence" style={{ lineHeight: '3.5rem', fontSize: '1.25rem', color: '#333' }}>
                 {parts.map((part, i) => {
-                    // Nếu part là cụm [đáp án] hoặc _ (bất kỳ độ dài nào)
-                    if (part.startsWith('_') || (part.startsWith('[') && part.endsWith(']'))) {
+                    // Kiểm tra xem part này có phải là ô trống không
+                    if (isBlankPart(part)) {
                         const index = currentBlankIdx++;
-                        // Tính toán độ rộng dựa trên nội dung trong ngoặc (Fix UX: Adaptive Width)
-                        const expectedAnswer = part.slice(1, -1); // Bỏ [ và ]
+                        // Tính toán độ rộng dựa trên nội dung trong ngoặc
+                        // Loại bỏ các ký tự bao quanh để lấy đáp án mẫu tính độ rộng
+                        const expectedAnswer = part.replace(/^(_+|\[|\{|\()|(\]|\}|\)|_+)$/g, '');
                         const charCount = Math.max(expectedAnswer.length, 1);
                         const adaptiveWidth = Math.min(Math.max(charCount * 14 + 20, 40), 400);
 

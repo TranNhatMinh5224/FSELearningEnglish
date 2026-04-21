@@ -7,17 +7,16 @@ export default function MatchingQuestion({ question, answer, onChange }) {
     const { user } = useAuth();
     const options = question.options || question.Options || [];
     
-    // Separate options into Left and Right columns based strictly on isCorrect
-    // isCorrect === true -> Left Column
-    // isCorrect === false -> Right Column
+    // Separate options into Left and Right columns
+    // Priority 1: Use isCorrect property if it provides a balanced split
     let leftOptions = options.filter(o => o.isCorrect === true || o.IsCorrect === true);
     let rightOptions = options.filter(o => o.isCorrect === false || o.IsCorrect === false);
     
-    // Fallback if isCorrect is not set correctly or one column is empty
-    if (leftOptions.length === 0 || rightOptions.length === 0) {
-        const half = Math.ceil(options.length / 2);
-        leftOptions = options.slice(0, half);
-        rightOptions = options.slice(half);
+    // Priority 2: If isCorrect is inconsistent (one side empty or unbalanced), use Interleaved pattern
+    // (Common for Matching data: L1, R1, L2, R2...)
+    if (leftOptions.length === 0 || rightOptions.length === 0 || leftOptions.length !== rightOptions.length) {
+        leftOptions = options.filter((_, idx) => idx % 2 === 0);
+        rightOptions = options.filter((_, idx) => idx % 2 !== 0);
     }
 
     // Helper to shuffle array with a seed for consistency

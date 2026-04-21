@@ -88,7 +88,10 @@ export default function AdminModuleFlashCardDetail() {
     if (!flashcardToDelete) return;
     try {
       // Backend returns FlashCardId (capital C)
-      const cardId = flashcardToDelete.flashCardId || flashcardToDelete.FlashCardId || flashcardToDelete.flashcardId;
+      const cardId = flashcardToDelete.flashCardId || 
+                     flashcardToDelete.FlashCardId || 
+                     flashcardToDelete.flashcardId || 
+                     flashcardToDelete.FlashcardId;
       
       if (!cardId) {
         console.error("Flashcard ID not found. Available keys:", Object.keys(flashcardToDelete));
@@ -157,7 +160,7 @@ export default function AdminModuleFlashCardDetail() {
         ) : (
            <Row xs={1} md={2} lg={3} className="g-4">
                {flashcards.map((card, idx) => (
-                   <Col key={card.flashcardId || idx}>
+                   <Col key={card.flashCardId || card.FlashCardId || card.flashcardId || card.FlashcardId || idx}>
                       <Card className="h-100 border-0 shadow-sm flashcard-item">
                           <div className="position-relative">
                               <Card.Img 

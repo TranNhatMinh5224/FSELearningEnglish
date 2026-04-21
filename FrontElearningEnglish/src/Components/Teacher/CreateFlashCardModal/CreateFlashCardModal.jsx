@@ -383,7 +383,10 @@ export default function CreateFlashCardModal({ show, onClose, onSuccess, moduleI
 
       let res;
       if (isEditMode) {
-        const flashcardId = flashcardToUpdate.flashcardId || flashcardToUpdate.FlashcardId;
+        const flashcardId = flashcardToUpdate.flashCardId || 
+                           flashcardToUpdate.FlashCardId || 
+                           flashcardToUpdate.flashcardId || 
+                           flashcardToUpdate.FlashcardId;
         res = isAdmin
           ? await flashcardService.updateAdminFlashcard(flashcardId, payload)
           : await flashcardService.updateFlashcard(flashcardId, payload);
