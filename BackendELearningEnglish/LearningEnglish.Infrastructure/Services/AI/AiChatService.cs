@@ -44,9 +44,9 @@ public class AiChatService : IAiChatService
             var queryVector = await _embeddingService.GenerateEmbeddingAsync(request.Message);
 
             // 2. Retrieval: Tìm kiếm kiến thức liên quan từ 3 nguồn tri thức
-            var courseContexts = await _courseKnowledgeRepository.SearchSimilarAsync(queryVector, 3);
-            var packageContexts = await _packageKnowledgeRepository.SearchSimilarAsync(queryVector, 2);
-            var policyContexts = await _policyKnowledgeRepository.SearchSimilarAsync(queryVector, 2);
+            var courseContexts = await _courseKnowledgeRepository.SearchSimilarAsync(queryVector, 4);
+            var packageContexts = await _packageKnowledgeRepository.SearchSimilarAsync(queryVector, 5);
+            var policyContexts = await _policyKnowledgeRepository.SearchSimilarAsync(queryVector, 3);
 
             // 3. Tổng hợp Context
             var contextBuilder = new StringBuilder();
