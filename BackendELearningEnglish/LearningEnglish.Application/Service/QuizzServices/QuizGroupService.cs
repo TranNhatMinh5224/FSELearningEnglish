@@ -41,6 +41,7 @@ namespace LearningEnglish.Application.Service
                 var quizGroup = _mapper.Map<QuizGroup>(createDto);
                 string? committedImgKey = null;
                 string? committedVideoKey = null;
+                string? committedAudioKey = null;
 
                 // Commit ImgTempKey nếu có
                 if (!string.IsNullOrWhiteSpace(createDto.ImgTempKey))
@@ -69,13 +70,30 @@ namespace LearningEnglish.Application.Service
                     catch (Exception)
                     {
                         // Rollback img nếu đã commit
-                        if (committedImgKey != null)
-                        {
-                            await _quizGroupMediaService.DeleteImageAsync(committedImgKey);
-                        }
+                        if (committedImgKey != null) await _quizGroupMediaService.DeleteImageAsync(committedImgKey);
 
                         response.Success = false;
                         response.Message = "Không thể lưu video";
+                        return response;
+                    }
+                }
+
+                // Commit AudioTempKey nếu có
+                if (!string.IsNullOrWhiteSpace(createDto.AudioTempKey))
+                {
+                    try
+                    {
+                        committedAudioKey = await _quizGroupMediaService.CommitAudioAsync(createDto.AudioTempKey);
+                        quizGroup.AudioKey = committedAudioKey;
+                    }
+                    catch (Exception)
+                    {
+                        // Rollback media cũ
+                        if (committedImgKey != null) await _quizGroupMediaService.DeleteImageAsync(committedImgKey);
+                        if (committedVideoKey != null) await _quizGroupMediaService.DeleteVideoAsync(committedVideoKey);
+
+                        response.Success = false;
+                        response.Message = "Không thể lưu âm thanh";
                         return response;
                     }
                 }
@@ -89,14 +107,9 @@ namespace LearningEnglish.Application.Service
                 catch (Exception dbEx)
                 {
                     // Rollback MinIO files
-                    if (committedImgKey != null)
-                    {
-                        await _quizGroupMediaService.DeleteImageAsync(committedImgKey);
-                    }
-                    if (committedVideoKey != null)
-                    {
-                        await _quizGroupMediaService.DeleteVideoAsync(committedVideoKey);
-                    }
+                    if (committedImgKey != null) await _quizGroupMediaService.DeleteImageAsync(committedImgKey);
+                    if (committedVideoKey != null) await _quizGroupMediaService.DeleteVideoAsync(committedVideoKey);
+                    if (committedAudioKey != null) await _quizGroupMediaService.DeleteAudioAsync(committedAudioKey);
 
                     response.Success = false;
                     response.Message = $"Lỗi database: {dbEx.Message}";
@@ -106,14 +119,9 @@ namespace LearningEnglish.Application.Service
                 var quizGroupDto = _mapper.Map<QuizGroupDto>(createdQuizGroup);
 
                 // Generate URLs cho response
-                if (!string.IsNullOrWhiteSpace(quizGroupDto.ImgUrl))
-                {
-                    quizGroupDto.ImgUrl = _quizGroupMediaService.BuildImageUrl(quizGroupDto.ImgUrl);
-                }
-                if (!string.IsNullOrWhiteSpace(quizGroupDto.VideoUrl))
-                {
-                    quizGroupDto.VideoUrl = _quizGroupMediaService.BuildVideoUrl(quizGroupDto.VideoUrl);
-                }
+                if (!string.IsNullOrWhiteSpace(quizGroupDto.ImgUrl)) quizGroupDto.ImgUrl = _quizGroupMediaService.BuildImageUrl(quizGroupDto.ImgUrl);
+                if (!string.IsNullOrWhiteSpace(quizGroupDto.VideoUrl)) quizGroupDto.VideoUrl = _quizGroupMediaService.BuildVideoUrl(quizGroupDto.VideoUrl);
+                if (!string.IsNullOrWhiteSpace(quizGroupDto.AudioUrl)) quizGroupDto.AudioUrl = _quizGroupMediaService.BuildAudioUrl(quizGroupDto.AudioUrl);
 
                 response.Data = quizGroupDto;
                 response.Success = true;
@@ -145,14 +153,9 @@ namespace LearningEnglish.Application.Service
                 var quizGroupDto = _mapper.Map<QuizGroupDto>(quizGroup);
 
                 // Generate URLs từ keys
-                if (!string.IsNullOrWhiteSpace(quizGroupDto.ImgUrl))
-                {
-                    quizGroupDto.ImgUrl = _quizGroupMediaService.BuildImageUrl(quizGroupDto.ImgUrl);
-                }
-                if (!string.IsNullOrWhiteSpace(quizGroupDto.VideoUrl))
-                {
-                    quizGroupDto.VideoUrl = _quizGroupMediaService.BuildVideoUrl(quizGroupDto.VideoUrl);
-                }
+                if (!string.IsNullOrWhiteSpace(quizGroupDto.ImgUrl)) quizGroupDto.ImgUrl = _quizGroupMediaService.BuildImageUrl(quizGroupDto.ImgUrl);
+                if (!string.IsNullOrWhiteSpace(quizGroupDto.VideoUrl)) quizGroupDto.VideoUrl = _quizGroupMediaService.BuildVideoUrl(quizGroupDto.VideoUrl);
+                if (!string.IsNullOrWhiteSpace(quizGroupDto.AudioUrl)) quizGroupDto.AudioUrl = _quizGroupMediaService.BuildAudioUrl(quizGroupDto.AudioUrl);
 
                 response.Data = quizGroupDto;
                 response.Success = true;
@@ -179,14 +182,9 @@ namespace LearningEnglish.Application.Service
                 // Generate URLs cho tất cả quiz groups
                 foreach (var dto in quizGroupDtos)
                 {
-                    if (!string.IsNullOrWhiteSpace(dto.ImgUrl))
-                    {
-                        dto.ImgUrl = _quizGroupMediaService.BuildImageUrl(dto.ImgUrl);
-                    }
-                    if (!string.IsNullOrWhiteSpace(dto.VideoUrl))
-                    {
-                        dto.VideoUrl = _quizGroupMediaService.BuildVideoUrl(dto.VideoUrl);
-                    }
+                    if (!string.IsNullOrWhiteSpace(dto.ImgUrl)) dto.ImgUrl = _quizGroupMediaService.BuildImageUrl(dto.ImgUrl);
+                    if (!string.IsNullOrWhiteSpace(dto.VideoUrl)) dto.VideoUrl = _quizGroupMediaService.BuildVideoUrl(dto.VideoUrl);
+                    if (!string.IsNullOrWhiteSpace(dto.AudioUrl)) dto.AudioUrl = _quizGroupMediaService.BuildAudioUrl(dto.AudioUrl);
                 }
 
                 response.Data = quizGroupDtos;
@@ -222,13 +220,16 @@ namespace LearningEnglish.Application.Service
                 existingQuizGroup.Title = updateDto.Title;
                 existingQuizGroup.ImgType = updateDto.ImgType;
                 existingQuizGroup.VideoType = updateDto.VideoType;
+                existingQuizGroup.AudioType = updateDto.AudioType;
                 existingQuizGroup.VideoDuration = updateDto.VideoDuration;
                 existingQuizGroup.SumScore = updateDto.SumScore;
 
                 string? newImgKey = null;
                 string? newVideoKey = null;
+                string? newAudioKey = null;
                 string? oldImgKey = existingQuizGroup.ImgKey;
                 string? oldVideoKey = existingQuizGroup.VideoKey;
+                string? oldAudioKey = existingQuizGroup.AudioKey;
 
                 // Xử lý cập nhật ImgUrl
                 if (!string.IsNullOrWhiteSpace(updateDto.ImgTempKey))
@@ -269,6 +270,26 @@ namespace LearningEnglish.Application.Service
                     }
                 }
 
+                // Xử lý cập nhật AudioUrl
+                if (!string.IsNullOrWhiteSpace(updateDto.AudioTempKey))
+                {
+                    try
+                    {
+                        newAudioKey = await _quizGroupMediaService.CommitAudioAsync(updateDto.AudioTempKey);
+                        existingQuizGroup.AudioKey = newAudioKey;
+                    }
+                    catch (Exception)
+                    {
+                        // Rollback media mới
+                        if (newImgKey != null) { await _quizGroupMediaService.DeleteImageAsync(newImgKey); existingQuizGroup.ImgKey = oldImgKey; }
+                        if (newVideoKey != null) { await _quizGroupMediaService.DeleteVideoAsync(newVideoKey); existingQuizGroup.VideoKey = oldVideoKey; }
+
+                        response.Success = false;
+                        response.Message = "Không thể lưu âm thanh mới";
+                        return response;
+                    }
+                }
+
                 // Update database with rollback
                 QuizGroup updatedQuizGroup;
                 try
@@ -278,14 +299,9 @@ namespace LearningEnglish.Application.Service
                 catch (Exception dbEx)
                 {
                     // Rollback new files
-                    if (newImgKey != null)
-                    {
-                        await _quizGroupMediaService.DeleteImageAsync(newImgKey);
-                    }
-                    if (newVideoKey != null)
-                    {
-                        await _quizGroupMediaService.DeleteVideoAsync(newVideoKey);
-                    }
+                    if (newImgKey != null) await _quizGroupMediaService.DeleteImageAsync(newImgKey);
+                    if (newVideoKey != null) await _quizGroupMediaService.DeleteVideoAsync(newVideoKey);
+                    if (newAudioKey != null) await _quizGroupMediaService.DeleteAudioAsync(newAudioKey);
 
                     response.Success = false;
                     response.Message = $"Lỗi database: {dbEx.Message}";
@@ -293,26 +309,16 @@ namespace LearningEnglish.Application.Service
                 }
 
                 // Only delete old files after successful DB update
-                if (newImgKey != null && !string.IsNullOrWhiteSpace(oldImgKey))
-                {
-                    await _quizGroupMediaService.DeleteImageAsync(oldImgKey);
-                }
-                if (newVideoKey != null && !string.IsNullOrWhiteSpace(oldVideoKey))
-                {
-                    await _quizGroupMediaService.DeleteVideoAsync(oldVideoKey);
-                }
+                if (newImgKey != null && !string.IsNullOrWhiteSpace(oldImgKey)) await _quizGroupMediaService.DeleteImageAsync(oldImgKey);
+                if (newVideoKey != null && !string.IsNullOrWhiteSpace(oldVideoKey)) await _quizGroupMediaService.DeleteVideoAsync(oldVideoKey);
+                if (newAudioKey != null && !string.IsNullOrWhiteSpace(oldAudioKey)) await _quizGroupMediaService.DeleteAudioAsync(oldAudioKey);
 
                 var quizGroupDto = _mapper.Map<QuizGroupDto>(updatedQuizGroup);
 
                 // Generate URLs cho response
-                if (!string.IsNullOrWhiteSpace(quizGroupDto.ImgUrl))
-                {
-                    quizGroupDto.ImgUrl = _quizGroupMediaService.BuildImageUrl(quizGroupDto.ImgUrl);
-                }
-                if (!string.IsNullOrWhiteSpace(quizGroupDto.VideoUrl))
-                {
-                    quizGroupDto.VideoUrl = _quizGroupMediaService.BuildVideoUrl(quizGroupDto.VideoUrl);
-                }
+                if (!string.IsNullOrWhiteSpace(quizGroupDto.ImgUrl)) quizGroupDto.ImgUrl = _quizGroupMediaService.BuildImageUrl(quizGroupDto.ImgUrl);
+                if (!string.IsNullOrWhiteSpace(quizGroupDto.VideoUrl)) quizGroupDto.VideoUrl = _quizGroupMediaService.BuildVideoUrl(quizGroupDto.VideoUrl);
+                if (!string.IsNullOrWhiteSpace(quizGroupDto.AudioUrl)) quizGroupDto.AudioUrl = _quizGroupMediaService.BuildAudioUrl(quizGroupDto.AudioUrl);
 
                 response.Data = quizGroupDto;
                 response.Success = true;

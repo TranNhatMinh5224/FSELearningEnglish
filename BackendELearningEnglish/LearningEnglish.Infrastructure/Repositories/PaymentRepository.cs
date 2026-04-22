@@ -125,6 +125,46 @@ namespace LearningEnglish.Infrastructure.Repositories
                            p.ExpiredAt.Value < cutoffTime)
                 .ToListAsync();
         }
+
+        public async Task<(IEnumerable<Payment> Items, int TotalCount)> GetAllTransactionsPagedAsync(
+            int pageNumber, 
+            int pageSize, 
+            PaymentStatus? status = null, 
+            PaymentGateway? gateway = null,
+            string? searchTerm = null)
+        {
+            var query = _context.Payments.Include(p => p.User).AsQueryable();
+
+            if (status.HasValue)
+            {
+                query = query.Where(p => p.Status == status.Value);
+            }
+
+            if (gateway.HasValue)
+            {
+                query = query.Where(p => p.Gateway == gateway.Value);
+            }
+
+            if (!string.IsNullOrEmpty(searchTerm))
+            {
+                var lowerSearch = searchTerm.ToLower();
+                query = query.Where(p => 
+                    p.User.Email.ToLower().Contains(lowerSearch) || 
+                    p.User.FullName.ToLower().Contains(lowerSearch) || 
+                    p.ProviderTransactionId.ToLower().Contains(lowerSearch) ||
+                    p.OrderCode.ToString().Contains(searchTerm));
+            }
+
+            var totalCount = await query.CountAsync();
+
+            var items = await query
+                .OrderByDescending(p => p.CreatedAt)
+                .Skip((pageNumber - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+
+            return (items, totalCount);
+        }
     }
 }
 

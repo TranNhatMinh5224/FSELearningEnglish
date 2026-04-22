@@ -1,17 +1,21 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { adminService } from "../../../Services/adminService";
+import { useAuth } from "../../../Context/AuthContext";
 import UserStatsCards from "../../../Components/Admin/UserManagement/UserStatsCards/UserStatsCards";
 import UserFilters from "../../../Components/Admin/UserManagement/UserFilters/UserFilters";
 import UserTable from "../../../Components/Admin/UserManagement/UserTable/UserTable";
 import UpgradeUserModal from "../../../Components/Admin/UserManagement/UpgradeUserModal/UpgradeUserModal";
 import UserDetailModal from "../../../Components/Admin/UserManagement/UserDetailModal/UserDetailModal";
+import AdjustBalanceModal from "../../../Components/Admin/UserManagement/AdjustBalanceModal/AdjustBalanceModal";
 import "./AdminUserList.css";
 import SuccessModal from "../../../Components/Common/SuccessModal/SuccessModal";
 import ConfirmModal from "../../../Components/Common/ConfirmModal/ConfirmModal";
 import NotificationModal from "../../../Components/Common/NotificationModal/NotificationModal";
 
 export default function AdminUserList() {
-  const [activeTab, setActiveTab] = useState("all"); 
+  const { user: currentUser } = useAuth();
+  const canAdjustBalance = currentUser?.roles?.includes('SuperAdmin') || currentUser?.roles?.includes('FinanceAdmin');
+  const [activeTab, setActiveTab] = useState("all");
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
@@ -21,16 +25,17 @@ export default function AdminUserList() {
   // Modal State
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
   const [showDetailModal, setShowDetailModal] = useState(false);
+  const [showAdjustBalanceModal, setShowAdjustBalanceModal] = useState(false);
   const [selectedUser, setSelectedUser] = useState(null);
-  const [upgradePackageId, setUpgradePackageId] = useState(1); 
+  const [upgradePackageId, setUpgradePackageId] = useState(1);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [successMessage, setSuccessMessage] = useState("");
-  
+
   // Confirm Modal State
   const [showConfirmBlockModal, setShowConfirmBlockModal] = useState(false);
   const [userToBlock, setUserToBlock] = useState(null);
   const [isBlocking, setIsBlocking] = useState(false);
-  
+
   // Notification Modal State
   const [notification, setNotification] = useState({
     isOpen: false,
@@ -99,7 +104,7 @@ export default function AdminUserList() {
         setShowDetailModal(true);
         return;
       }
-      
+
       // Gọi API để lấy chi tiết user với đầy đủ thông tin (bao gồm avatar)
       const response = await adminService.getUserById(userId);
       if (response.data && response.data.success) {
@@ -126,11 +131,11 @@ export default function AdminUserList() {
 
   const confirmToggleStatus = async () => {
     if (!userToBlock) return;
-    
+
     const isBlocked = userToBlock.status === 'Inactive' || userToBlock.status === 0;
     const action = isBlocked ? 'Unblock' : 'Block';
     const actionText = isBlocked ? 'Mở khóa' : 'Khóa';
-    
+
     setIsBlocking(true);
     try {
       if (isBlocked) {
@@ -138,14 +143,14 @@ export default function AdminUserList() {
       } else {
         await adminService.blockUser(userToBlock.userId || userToBlock.id);
       }
-      
+
       setNotification({
         isOpen: true,
         type: "success",
         message: `${actionText} tài khoản thành công!`
       });
-      
-      fetchUsers(); 
+
+      fetchUsers();
       fetchUserStats();
     } catch (error) {
       setNotification({
@@ -168,7 +173,7 @@ export default function AdminUserList() {
 
   const handleUpgradeUser = async () => {
     if (!selectedUser) return;
-    
+
     try {
       await adminService.upgradeUserToTeacher({
         email: selectedUser.email,
@@ -189,84 +194,122 @@ export default function AdminUserList() {
     }
   };
 
-  return (
-    <div className="user-management-container">
-      {/* HEADER */}
-      <div className="page-header">
-        <h1 className="page-title">User Management</h1>
-        <button className="btn-refresh" onClick={fetchUsers}>
-          Refresh Data
-        </button>
-      </div>
+  const openAdjustBalanceModal = (user) => {
+    setSelectedUser(user);
+    setShowAdjustBalanceModal(true);
+  };
 
-      {/* STATS */}
-      <UserStatsCards stats={stats} />
+  const handleAdjustBalance = async (userId, data) => {
+    try {
+      const response = await adminService.adjustBalance(userId, data);
+      if (response.data && response.data.success) {
+        setNotification({
+          isOpen: true,
+          type: "success",
+          message: "Điều chỉnh số dư thành công!"
+        });
+        setShowAdjustBalanceModal(false);
+        fetchUsers();
+      } else {
+        throw new Error(response.data?.message || "Lỗi khi điều chỉnh số dư");
+      }
+    } catch (error) {
+      setNotification({
+        isOpen: true,
+        type: "error",
+        message: error.response?.data?.message || error.message || "Lỗi khi điều chỉnh số dư"
+      });
+      console.error(error);
+    }
+  };
 
-      {/* FILTERS */}
-      <UserFilters 
-        activeTab={activeTab}
-        setActiveTab={setActiveTab}
-        searchTerm={searchTerm}
-        setSearchTerm={setSearchTerm}
-      />
-
-      {/* USER TABLE */}
-      <UserTable 
-        users={users}
-        loading={loading}
-        onViewDetail={handleViewDetail}
-        onUpgrade={openUpgradeModal}
-        onToggleStatus={handleToggleStatus}
-      />
-
-      {/* MODALS */}
-      <UpgradeUserModal 
-        show={showUpgradeModal}
-        onClose={() => setShowUpgradeModal(false)}
-        user={selectedUser}
-        packageId={upgradePackageId}
-        setPackageId={setUpgradePackageId}
-        onConfirm={handleUpgradeUser}
-      />
-
-      <UserDetailModal 
-        show={showDetailModal} 
-        onClose={() => setShowDetailModal(false)} 
-        user={selectedUser} 
-      />
-      <SuccessModal
-        isOpen={showSuccessModal}
-        onClose={() => setShowSuccessModal(false)}
-        title="Thành công"
-        message={successMessage}
-      />
-      
-      {/* Confirm Block/Unblock Modal */}
-      <ConfirmModal
-        isOpen={showConfirmBlockModal}
-        onClose={() => {
-          setShowConfirmBlockModal(false);
-          setUserToBlock(null);
-        }}
-        onConfirm={confirmToggleStatus}
-        title={userToBlock ? (userToBlock.status === 'Inactive' || userToBlock.status === 0 ? "Mở khóa tài khoản" : "Khóa tài khoản") : "Xác nhận"}
-        message={userToBlock ? `Bạn có chắc chắn muốn ${userToBlock.status === 'Inactive' || userToBlock.status === 0 ? 'mở khóa' : 'khóa'} tài khoản ${userToBlock.email || userToBlock.Email || ''}?` : ""}
-        confirmText={userToBlock ? (userToBlock.status === 'Inactive' || userToBlock.status === 0 ? "Mở khóa" : "Khóa") : "Xác nhận"}
-        cancelText="Hủy"
-        type={userToBlock && (userToBlock.status === 'Inactive' || userToBlock.status === 0) ? "warning" : "danger"}
-        loading={isBlocking}
-        disabled={isBlocking}
-      />
-      
-      {/* Notification Modal */}
-      <NotificationModal
-        isOpen={notification.isOpen}
-        onClose={() => setNotification({ ...notification, isOpen: false })}
-        type={notification.type}
-        message={notification.message}
-        autoClose={true}
-        autoCloseDelay={3000}
-      />
+return (
+  <div className="user-management-container">
+    {/* HEADER */}
+    <div className="page-header">
+      <h1 className="page-title">User Management</h1>
+      <button className="btn-refresh" onClick={fetchUsers}>
+        Refresh Data
+      </button>
     </div>
-  );
+
+    {/* STATS */}
+    <UserStatsCards stats={stats} />
+
+    {/* FILTERS */}
+    <UserFilters
+      activeTab={activeTab}
+      setActiveTab={setActiveTab}
+      searchTerm={searchTerm}
+      setSearchTerm={setSearchTerm}
+    />
+
+    {/* USER TABLE */}
+    <UserTable
+      users={users}
+      loading={loading}
+      onViewDetail={handleViewDetail}
+      onUpgrade={openUpgradeModal}
+      onToggleStatus={handleToggleStatus}
+      onAdjustBalance={openAdjustBalanceModal}
+      canAdjustBalance={canAdjustBalance}
+    />
+
+    {/* MODALS */}
+    <UpgradeUserModal
+      show={showUpgradeModal}
+      onClose={() => setShowUpgradeModal(false)}
+      user={selectedUser}
+      packageId={upgradePackageId}
+      setPackageId={setUpgradePackageId}
+      onConfirm={handleUpgradeUser}
+    />
+
+    <UserDetailModal
+      show={showDetailModal}
+      onClose={() => setShowDetailModal(false)}
+      user={selectedUser}
+    />
+
+    <AdjustBalanceModal
+      show={showAdjustBalanceModal}
+      onClose={() => setShowAdjustBalanceModal(false)}
+      user={selectedUser}
+      onConfirm={handleAdjustBalance}
+    />
+    <SuccessModal
+      isOpen={showSuccessModal}
+      onClose={() => setShowSuccessModal(false)}
+      title="Thành công"
+      message={successMessage}
+    />
+
+    {/* Confirm Block/Unblock Modal */}
+    <ConfirmModal
+      isOpen={showConfirmBlockModal}
+      onClose={() => {
+        setShowConfirmBlockModal(false);
+        setUserToBlock(null);
+      }}
+      onConfirm={confirmToggleStatus}
+      title={userToBlock ? (userToBlock.status === 'Inactive' || userToBlock.status === 0 ? "Mở khóa tài khoản" : "Khóa tài khoản") : "Xác nhận"}
+      message={userToBlock ? `Bạn có chắc chắn muốn ${userToBlock.status === 'Inactive' || userToBlock.status === 0 ? 'mở khóa' : 'khóa'} tài khoản ${userToBlock.email || userToBlock.Email || ''}?` : ""}
+      confirmText={userToBlock ? (userToBlock.status === 'Inactive' || userToBlock.status === 0 ? "Mở khóa" : "Khóa") : "Xác nhận"}
+      cancelText="Hủy"
+      type={userToBlock && (userToBlock.status === 'Inactive' || userToBlock.status === 0) ? "warning" : "danger"}
+      loading={isBlocking}
+      disabled={isBlocking}
+    />
+
+    {/* Notification Modal */}
+    <NotificationModal
+      isOpen={notification.isOpen}
+      onClose={() => setNotification({ ...notification, isOpen: false })}
+      type={notification.type}
+      message={notification.message}
+      autoClose={true}
+      autoCloseDelay={3000}
+    />
+  </div>
+);
 }

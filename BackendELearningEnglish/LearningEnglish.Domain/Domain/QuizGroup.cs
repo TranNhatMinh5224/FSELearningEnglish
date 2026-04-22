@@ -10,9 +10,11 @@ namespace LearningEnglish.Domain.Entities
         public string Title { get; set; } = string.Empty;
         public string? ImgKey { get; set; }
         public string? VideoKey { get; set; }
+        public string? AudioKey { get; set; }
 
         public string? ImgType { get; set; }
         public string? VideoType { get; set; }
+        public string? AudioType { get; set; }
         public int? VideoDuration { get; set; }
 
         public float SumScore { get; set; }

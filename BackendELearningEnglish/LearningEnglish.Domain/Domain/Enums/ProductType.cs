@@ -4,5 +4,6 @@ public enum ProductType
 
 {
     Course = 1,
-    TeacherPackage = 2
+    TeacherPackage = 2,
+    TopUp = 3
 }

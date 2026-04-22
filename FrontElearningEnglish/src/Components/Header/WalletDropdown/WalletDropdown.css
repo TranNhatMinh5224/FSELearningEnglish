@@ -1,0 +1,99 @@
+.wallet-wrapper {
+    position: relative;
+    cursor: pointer;
+}
+
+.wallet-badge {
+    background: rgba(255, 193, 7, 0.1);
+    color: #ffc107;
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-weight: 600;
+    font-size: 0.9rem;
+    border: 1px solid rgba(255, 193, 7, 0.2);
+    transition: all 0.3s ease;
+    gap: 8px;
+}
+
+.wallet-badge:hover {
+    background: rgba(255, 193, 7, 0.2);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(255, 193, 7, 0.15);
+}
+
+.wallet-icon {
+    font-size: 1.1rem;
+}
+
+.wallet-dropdown-menu {
+    border: none;
+    border-radius: 16px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+    padding: 16px;
+    min-width: 260px;
+    background: var(--bg-card, #ffffff);
+    margin-top: 10px !important;
+    animation: slideDown 0.3s ease;
+}
+
+.wallet-header {
+    text-align: center;
+    padding: 10px 0;
+}
+
+.wallet-title {
+    font-size: 0.85rem;
+    color: var(--text-muted, #6c757d);
+    margin-bottom: 4px;
+}
+
+.wallet-balance-large {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #28a745;
+}
+
+.wallet-action-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 16px !important;
+    border-radius: 8px !important;
+    font-weight: 500;
+    transition: background 0.2s ease;
+    border: none !important;
+}
+
+.wallet-action-item:hover {
+    background-color: var(--bg-hover, #f8f9fa) !important;
+    color: var(--primary-color, #007bff) !important;
+}
+
+.action-icon {
+    font-size: 1.1rem;
+}
+
+.topup-icon {
+    color: #ffc107;
+}
+
+.history-icon {
+    color: #17a2b8;
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Dark mode adjustments if needed */
+[data-theme='dark'] .wallet-dropdown-menu {
+    background: #1e1e1e;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4);
+}

@@ -18,6 +18,7 @@ import Payment from "../Pages/Payment/Payment";
 import PaymentSuccess from "../Pages/Payment/PaymentSuccess";
 import PaymentFailed from "../Pages/Payment/PaymentFailed";
 import PaymentPending from "../Pages/Payment/PaymentPending";
+import TopUp from "../Pages/Payment/TopUp";
 import PaymentHistory from "../Pages/PaymentHistory/PaymentHistory";
 import QuizHistory from "../Pages/QuizHistory/QuizHistory";
 import VocabularyReview from "../Pages/VocabularyReview/VocabularyReview";
@@ -96,6 +97,7 @@ export default function AppRoutes() {
       <Route path={ROUTE_PATHS.PROFILE} element={<Profile />} />
       <Route path={ROUTE_PATHS.PROFILE_EDIT} element={<EditProfile />} />
       <Route path={ROUTE_PATHS.PROFILE_CHANGE_PASSWORD} element={<ChangePassword />} />
+      <Route path={ROUTE_PATHS.TOPUP} element={<TopUp />} />
       <Route path={ROUTE_PATHS.PAYMENT} element={<Payment />} />
       <Route path="/payment-success" element={<PaymentSuccess />} />
       <Route path="/payment-failed" element={<PaymentFailed />} />

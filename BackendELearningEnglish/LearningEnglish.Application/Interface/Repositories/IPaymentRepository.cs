@@ -44,6 +44,14 @@ namespace LearningEnglish.Application.Interface
         // Lấy thanh toán theo transaction ID
         Task<Payment?> GetPaymentByTransactionIdAsync(string transactionId);
         
+        // Lấy tất cả giao dịch trong hệ thống (Dành cho Admin)
+        Task<(IEnumerable<Payment> Items, int TotalCount)> GetAllTransactionsPagedAsync(
+            int pageNumber, 
+            int pageSize,
+            PaymentStatus? status = null,
+            PaymentGateway? gateway = null,
+            string? searchTerm = null);
+
         // Lấy các payment Pending đã hết hạn (ExpiredAt < cutoffTime)
         Task<IEnumerable<Payment>> GetExpiredPendingPaymentsAsync(DateTime cutoffTime);
     }

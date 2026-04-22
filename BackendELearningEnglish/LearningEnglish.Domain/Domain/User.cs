@@ -28,6 +28,7 @@ public class User
 
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
+    public decimal Balance { get; set; } = 0;
     public AccountStatus Status { get; set; } = AccountStatus.Active;
     public int? CurrentTeacherSubscriptionId { get; set; }
 
@@ -48,7 +49,7 @@ public class User
     public List<EssaySubmission> EssaySubmissions { get; set; } = new();
     public List<PronunciationProgress> PronunciationProgresses { get; set; } = new();
     public List<Notification> Notifications { get; set; } = new();
-
+    public List<WalletTransaction> WalletTransactions { get; set; } = new();
     public List<ExternalLogin> ExternalLogins { get; set; } = new();
 
     // ===== Password Methods =====

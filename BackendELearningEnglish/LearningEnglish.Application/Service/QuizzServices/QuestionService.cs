@@ -18,6 +18,7 @@ namespace LearningEnglish.Application.Service
         private readonly IMapper _mapper;
         private readonly ILogger<QuestionService> _logger;
         private readonly IQuestionMediaService _questionMediaService;
+        private readonly IQuizGroupMediaService _quizGroupMediaService;
 
         public QuestionService(
             IQuestionRepository questionRepository,
@@ -26,7 +27,8 @@ namespace LearningEnglish.Application.Service
             IQuizRepository quizRepository,
             IMapper mapper,
             ILogger<QuestionService> logger,
-            IQuestionMediaService questionMediaService)
+            IQuestionMediaService questionMediaService,
+            IQuizGroupMediaService quizGroupMediaService)
         {
             _questionRepository = questionRepository;
             _quizGroupRepository = quizGroupRepository;
@@ -35,6 +37,7 @@ namespace LearningEnglish.Application.Service
             _mapper = mapper;
             _logger = logger;
             _questionMediaService = questionMediaService;
+            _quizGroupMediaService = quizGroupMediaService;
         }
 
         /// <summary>
@@ -653,19 +656,85 @@ namespace LearningEnglish.Application.Service
                     quizSectionMap[sectionId] = quizSection.QuizId;
                 }
 
-                // Map all DTOs to entities
+                // Map all DTOs to entities and handle media
                 var questions = new List<Question>();
-                foreach (var questionDto in questionBulkCreateDto.Questions)
-                {
-                    var question = _mapper.Map<Question>(questionDto);
-                    question.CreatedAt = DateTime.UtcNow;
-                    question.UpdatedAt = DateTime.UtcNow;
+                var allCommittedMediaKeys = new List<string>();
 
-                    questions.Add(question);
+                try
+                {
+                    for (int i = 0; i < questionBulkCreateDto.Questions.Count; i++)
+                    {
+                        var questionDto = questionBulkCreateDto.Questions[i];
+                        var question = _mapper.Map<Question>(questionDto);
+                        
+                        // Manual field bypass
+                        question.MetadataJson = questionDto.MetadataJson ?? "{}";
+                        question.CorrectAnswersJson = questionDto.CorrectAnswersJson;
+                        
+                        question.CreatedAt = DateTime.UtcNow;
+                        question.UpdatedAt = DateTime.UtcNow;
+
+                        // Commit Question Media if exists
+                        if (!string.IsNullOrWhiteSpace(questionDto.MediaTempKey))
+                        {
+                            var mediaKey = await _questionMediaService.CommitMediaAsync(questionDto.MediaTempKey);
+                            question.MediaKey = mediaKey;
+                            allCommittedMediaKeys.Add(mediaKey);
+                        }
+
+                        // Commit AnswerOption Media if exists
+                        for (int j = 0; j < questionDto.Options.Count; j++)
+                        {
+                            var optionDto = questionDto.Options[j];
+                            if (!string.IsNullOrWhiteSpace(optionDto.MediaTempKey))
+                            {
+                                var optionMediaKey = await _questionMediaService.CommitMediaAsync(optionDto.MediaTempKey);
+                                allCommittedMediaKeys.Add(optionMediaKey);
+                                
+                                if (question.Options.Count > j)
+                                {
+                                    question.Options[j].MediaKey = optionMediaKey;
+                                }
+                            }
+                        }
+
+                        questions.Add(question);
+                    }
+                }
+                catch (Exception mediaEx)
+                {
+                    _logger.LogError(mediaEx, "Error committing media during bulk creation");
+                    
+                    // Rollback media
+                    foreach (var key in allCommittedMediaKeys)
+                    {
+                        await _questionMediaService.DeleteMediaAsync(key);
+                    }
+
+                    response.Success = false;
+                    response.Message = "Lỗi xử lý file media khi tạo hàng loạt.";
+                    response.StatusCode = 400;
+                    return response;
                 }
 
                 // Bulk insert với transaction
-                var createdQuestionIds = await _questionRepository.AddBulkQuestionsWithTransactionAsync(questions);
+                List<int> createdQuestionIds;
+                try
+                {
+                    createdQuestionIds = await _questionRepository.AddBulkQuestionsWithTransactionAsync(questions);
+                }
+                catch (Exception dbEx)
+                {
+                    _logger.LogError(dbEx, "Database error during bulk question creation");
+                    
+                    // Rollback media
+                    foreach (var key in allCommittedMediaKeys)
+                    {
+                        await _questionMediaService.DeleteMediaAsync(key);
+                    }
+
+                    throw; // Re-throw to be caught by the outer catch
+                }
 
                 var quizIdsToUpdate = new HashSet<int>();
                 foreach (var questionDto in questionBulkCreateDto.Questions)
@@ -709,6 +778,7 @@ namespace LearningEnglish.Application.Service
         public async Task<ServiceResponse<QuizSectionDto>> CreateQuizSectionBulkAsync(QuizSectionBulkCreateDto sectionBulkCreateDto)
         {
             var response = new ServiceResponse<QuizSectionDto>();
+            var allCommittedMediaKeys = new List<string>();
 
             try
             {
@@ -757,19 +827,41 @@ namespace LearningEnglish.Application.Service
                 var createdQuestionIds = new List<int>();
 
                 // 4. Create each QuizGroup and its Questions
-                foreach (var groupDto in sectionBulkCreateDto.QuizGroups)
-                {
-                    // 4.1. Create QuizGroup using AutoMapper
-                    var quizGroup = _mapper.Map<QuizGroup>(groupDto);
-                    quizGroup.QuizSectionId = quizSection.QuizSectionId;
-                    quizGroup.CreatedAt = DateTime.UtcNow;
-                    quizGroup.UpdatedAt = DateTime.UtcNow;
+                    foreach (var groupDto in sectionBulkCreateDto.QuizGroups)
+                    {
+                        // 4.1. Create QuizGroup using AutoMapper
+                        var quizGroup = _mapper.Map<QuizGroup>(groupDto);
+                        quizGroup.QuizSectionId = quizSection.QuizSectionId;
+                        quizGroup.CreatedAt = DateTime.UtcNow;
+                        quizGroup.UpdatedAt = DateTime.UtcNow;
 
-                    await _quizGroupRepository.AddQuizGroupAsync(quizGroup);
-                    await _quizGroupRepository.SaveChangesAsync();
+                        // Commit Group Media (Images/Video/Audio) using QuizGroupMediaService
+                        if (!string.IsNullOrWhiteSpace(groupDto.ImgTempKey))
+                        {
+                            var imgKey = await _quizGroupMediaService.CommitImageAsync(groupDto.ImgTempKey);
+                            quizGroup.ImgKey = imgKey;
+                            allCommittedMediaKeys.Add(imgKey);
+                        }
 
-                    createdGroupIds.Add(quizGroup.QuizGroupId);
-                    _logger.LogInformation("Created QuizGroup with ID: {GroupId}", quizGroup.QuizGroupId);
+                        if (!string.IsNullOrWhiteSpace(groupDto.VideoTempKey))
+                        {
+                            var videoKey = await _quizGroupMediaService.CommitVideoAsync(groupDto.VideoTempKey);
+                            quizGroup.VideoKey = videoKey;
+                            allCommittedMediaKeys.Add(videoKey);
+                        }
+
+                        if (!string.IsNullOrWhiteSpace(groupDto.AudioTempKey))
+                        {
+                            var audioKey = await _quizGroupMediaService.CommitAudioAsync(groupDto.AudioTempKey);
+                            quizGroup.AudioKey = audioKey;
+                            allCommittedMediaKeys.Add(audioKey);
+                        }
+
+                        await _quizGroupRepository.AddQuizGroupAsync(quizGroup);
+                        await _quizGroupRepository.SaveChangesAsync();
+
+                        createdGroupIds.Add(quizGroup.QuizGroupId);
+                        _logger.LogInformation("Created QuizGroup with ID: {GroupId}", quizGroup.QuizGroupId);
 
                     // 4.2. Create Questions for this group
                     foreach (var questionDto in groupDto.Questions)
@@ -778,15 +870,28 @@ namespace LearningEnglish.Application.Service
                         var question = _mapper.Map<Question>(questionDto);
                         question.QuizSectionId = quizSection.QuizSectionId;
                         question.QuizGroupId = quizGroup.QuizGroupId;
+                        
+                        // Manual field bypass
+                        question.MetadataJson = questionDto.MetadataJson ?? "{}";
+                        question.CorrectAnswersJson = questionDto.CorrectAnswersJson;
+                        
                         question.CreatedAt = DateTime.UtcNow;
                         question.UpdatedAt = DateTime.UtcNow;
+
+                        // Commit Question Media
+                        if (!string.IsNullOrWhiteSpace(questionDto.MediaTempKey))
+                        {
+                            var mediaKey = await _questionMediaService.CommitMediaAsync(questionDto.MediaTempKey);
+                            question.MediaKey = mediaKey;
+                            allCommittedMediaKeys.Add(mediaKey);
+                        }
 
                         await _questionRepository.AddQuestionAsync(question);
                         await _questionRepository.SaveChangesAsync();
 
                         createdQuestionIds.Add(question.QuestionId);
 
-                        // 4.3. Create AnswerOptions if needed
+                        // 4.3. Create AnswerOptions with Media
                         if (questionDto.Options != null && questionDto.Options.Count > 0)
                         {
                             foreach (var optionDto in questionDto.Options)
@@ -794,9 +899,15 @@ namespace LearningEnglish.Application.Service
                                 var answerOption = _mapper.Map<AnswerOption>(optionDto);
                                 answerOption.QuestionId = question.QuestionId;
 
+                                if (!string.IsNullOrWhiteSpace(optionDto.MediaTempKey))
+                                {
+                                    var optionMediaKey = await _questionMediaService.CommitMediaAsync(optionDto.MediaTempKey);
+                                    answerOption.MediaKey = optionMediaKey;
+                                    allCommittedMediaKeys.Add(optionMediaKey);
+                                }
+
                                 await _questionRepository.AddAnswerOptionAsync(answerOption);
                             }
-
                             await _questionRepository.SaveChangesAsync();
                         }
                     }
@@ -812,21 +923,41 @@ namespace LearningEnglish.Application.Service
                         var question = _mapper.Map<Question>(questionDto);
                         question.QuizSectionId = quizSection.QuizSectionId;
                         question.QuizGroupId = null; // Standalone không thuộc group
+                        
+                        // Manual field bypass
+                        question.MetadataJson = questionDto.MetadataJson ?? "{}";
+                        question.CorrectAnswersJson = questionDto.CorrectAnswersJson;
+                        
                         question.CreatedAt = DateTime.UtcNow;
                         question.UpdatedAt = DateTime.UtcNow;
+
+                        // Commit Question Media
+                        if (!string.IsNullOrWhiteSpace(questionDto.MediaTempKey))
+                        {
+                            var mediaKey = await _questionMediaService.CommitMediaAsync(questionDto.MediaTempKey);
+                            question.MediaKey = mediaKey;
+                            allCommittedMediaKeys.Add(mediaKey);
+                        }
 
                         await _questionRepository.AddQuestionAsync(question);
                         await _questionRepository.SaveChangesAsync();
 
                         createdQuestionIds.Add(question.QuestionId);
 
-                        // Create AnswerOptions
+                        // Create AnswerOptions with Media
                         if (questionDto.Options != null && questionDto.Options.Count > 0)
                         {
                             foreach (var optionDto in questionDto.Options)
                             {
                                 var answerOption = _mapper.Map<AnswerOption>(optionDto);
                                 answerOption.QuestionId = question.QuestionId;
+
+                                if (!string.IsNullOrWhiteSpace(optionDto.MediaTempKey))
+                                {
+                                    var optionMediaKey = await _questionMediaService.CommitMediaAsync(optionDto.MediaTempKey);
+                                    answerOption.MediaKey = optionMediaKey;
+                                    allCommittedMediaKeys.Add(optionMediaKey);
+                                }
 
                                 await _questionRepository.AddAnswerOptionAsync(answerOption);
                             }
@@ -854,6 +985,16 @@ namespace LearningEnglish.Application.Service
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Lỗi khi tạo bulk quiz section");
+
+                // Rollback MinIO media
+                if (allCommittedMediaKeys != null && allCommittedMediaKeys.Count > 0)
+                {
+                    foreach (var key in allCommittedMediaKeys)
+                    {
+                        try { await _questionMediaService.DeleteMediaAsync(key); } catch { /* ignore */ }
+                    }
+                }
+
                 response.Success = false;
                 response.Message = $"Có lỗi xảy ra khi tạo section: {ex.Message}";
                 response.StatusCode = 500;

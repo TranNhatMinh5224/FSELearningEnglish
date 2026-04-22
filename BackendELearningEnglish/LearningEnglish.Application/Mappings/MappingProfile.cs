@@ -2,6 +2,7 @@ using AutoMapper;
 using LearningEnglish.Domain.Entities;
 using LearningEnglish.Application.DTOs;
 using LearningEnglish.Application.DTOs.Admin;
+using LearningEnglish.Application.DTOs.Payment;
 using LearningEnglish.Domain.Enums;
 using LearningEnglish.Application.DTOS.Common;
 using LearningEnglish.Application.Mappings.Converters;
@@ -24,6 +25,7 @@ namespace LearningEnglish.Application.Mappings
             CreateMap<ProductType, EnumMappingDto>().ConvertUsing(new EnumTypeConverter<ProductType>());
             CreateMap<AssetType, EnumMappingDto>().ConvertUsing(new EnumTypeConverter<AssetType>());
             CreateMap<LectureType, EnumMappingDto>().ConvertUsing(new EnumTypeConverter<LectureType>());
+            CreateMap<WalletTransactionType, EnumMappingDto>().ConvertUsing(new EnumTypeConverter<WalletTransactionType>());
 
             // Essay Grading mappings
             CreateMap<EssaySubmission, EssayGradingResultDto>()
@@ -54,6 +56,9 @@ namespace LearningEnglish.Application.Mappings
 
             // Notification mapping
             CreateMap<Notification, NotificationDto>();
+
+            // Wallet mappings
+            CreateMap<WalletTransaction, WalletTransactionDto>();
 
             // ===== ADMIN PERMISSION SYSTEM MAPPINGS =====
             // Permission mappings

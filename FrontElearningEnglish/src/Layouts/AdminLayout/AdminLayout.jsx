@@ -18,7 +18,8 @@ import {
   MdImage,
   MdHome,
   MdLock,
-  MdShield
+  MdShield,
+  MdMonetizationOn
 } from "react-icons/md";
 import { useAuth } from "../../Context/AuthContext";
 
@@ -197,6 +198,19 @@ export default function AdminLayout() {
           >
             <MdAssignment /> Quản lý bài nộp
             {!isAllowed(["SuperAdmin", "ContentAdmin"]) && <MdLock className="lock-icon" />}
+          </NavLink>
+
+          <NavLink
+            to={ROUTE_PATHS.ADMIN.PAYMENT_MONITORING}
+            className={({ isActive }) => {
+              const baseClass = isActive ? "menu-item active" : "menu-item";
+              return !isAllowed(["SuperAdmin", "FinanceAdmin"]) ? `${baseClass} restricted` : baseClass;
+            }}
+            onClick={(e) => handleNavClick(e, ROUTE_PATHS.ADMIN.PAYMENT_MONITORING, ["SuperAdmin", "FinanceAdmin"], "Giám sát thanh toán")}
+            title={!isAllowed(["SuperAdmin", "FinanceAdmin"]) ? "Yêu cầu quyền Finance Admin hoặc Super Admin" : ""}
+          >
+            <MdMonetizationOn /> Giám sát thanh toán
+            {!isAllowed(["SuperAdmin", "FinanceAdmin"]) && <MdLock className="lock-icon" />}
           </NavLink>
 
           <NavLink

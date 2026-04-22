@@ -1,23 +1,18 @@
-import axios from "axios";
-
-const API_URL = process.env.REACT_APP_API_BASE_URL || "http://localhost:5000/api";
-
-const getAuthHeader = () => {
-    const token = localStorage.getItem("token");
-    return {
-        headers: {
-            Authorization: `Bearer ${token}`
-        }
-    };
-};
+import axiosClient from "./axiosClient";
 
 const adminPaymentService = {
     getFailedWebhooks: async () => {
-        return await axios.get(`${API_URL}/admin/payments/failed-webhooks`, getAuthHeader());
+        return await axiosClient.get("/admin/payments/failed-webhooks");
     },
 
     retryWebhook: async (webhookId) => {
-        return await axios.post(`${API_URL}/admin/payments/failed-webhooks/${webhookId}/retry`, {}, getAuthHeader());
+        return await axiosClient.post(`/admin/payments/failed-webhooks/${webhookId}/retry`);
+    },
+
+    getTransactions: async (params) => {
+        return await axiosClient.get("/admin/payments/transactions", {
+            params
+        });
     }
 };
 

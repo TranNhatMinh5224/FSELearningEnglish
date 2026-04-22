@@ -400,3 +400,91 @@
         gap: 20px;
     }
 }
+
+/* Multi-gateway styles */
+.payment-methods {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    width: 100%;
+    margin-bottom: 24px;
+}
+
+.payment-method {
+    padding: 20px;
+    border: 2px solid #e5e7eb;
+    border-radius: 16px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    background: var(--color-bg-secondary, #f9fafb);
+    position: relative;
+    overflow: hidden;
+}
+
+.payment-method:hover {
+    border-color: #667eea;
+}
+
+.payment-method.active {
+    border-color: #667eea;
+    background: #f0f4ff;
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.1);
+}
+
+.payment-method.active::after {
+    content: "✓";
+    position: absolute;
+    top: 10px;
+    right: 15px;
+    background: #667eea;
+    color: white;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    font-weight: bold;
+}
+
+.method-title {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-weight: 700;
+    font-size: 1.1rem;
+    color: var(--color-text-primary, #111827);
+    margin-bottom: 8px;
+}
+
+.method-title svg {
+    font-size: 1.25rem;
+    color: #667eea;
+}
+
+.method-description {
+    font-size: 0.9rem;
+    color: var(--color-text-secondary, #6b7280);
+    margin-bottom: 0;
+    line-height: 1.4;
+}
+
+.wallet-btn {
+    background: linear-gradient(135deg, #28a745 0%, #218838 100%) !important;
+}
+
+.wallet-btn:disabled {
+    background: #ccc !important;
+    cursor: not-allowed;
+}
+
+[data-theme='dark'] .payment-method {
+    background: #2d2d2d;
+    border-color: #444;
+}
+
+[data-theme='dark'] .payment-method.active {
+    background: #33334d;
+    border-color: #667eea;
+}

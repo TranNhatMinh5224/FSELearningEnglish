@@ -80,6 +80,10 @@ export default function ProfileDropdown() {
               Lịch sử thanh toán
             </Dropdown.Item>
 
+            <Dropdown.Item onClick={() => navigate(ROUTE_PATHS.TOPUP)}>
+              Nạp tiền vào ví
+            </Dropdown.Item>
+
             <Dropdown.Item onClick={() => navigate(ROUTE_PATHS.QUIZ_HISTORY)}>
               Lịch sử làm bài
             </Dropdown.Item>

@@ -6,6 +6,9 @@ using Microsoft.AspNetCore.Authorization;
 using LearningEnglish.API.Authorization;
 using LearningEnglish.API.Extensions;
 using Microsoft.Extensions.Logging;
+using LearningEnglish.Application.DTOs.Payment;
+using LearningEnglish.Application.Interface.Services.IPayment;
+using Microsoft.Extensions.DependencyInjection;
 
 
 // Admin quản lý người dùng
@@ -100,6 +103,24 @@ namespace LearningEnglish.API.Controller.Admin
 
             var result = await _userManagementService.GetUserByIdAsync(userId);
             return result.Success ? Ok(result) : StatusCode(result.StatusCode, result);
+        }
+
+        // endpoint Admin điều chỉnh số dư ví của User
+        [HttpPost("{userId:int}/balance/adjust")]
+        [Authorize(Roles = "SuperAdmin,FinanceAdmin")]
+        [RequirePermission("Admin.User.Manage", "Admin.Finance.Manage")]
+        public async Task<IActionResult> AdjustBalance(int userId, [FromBody] AdminAdjustBalanceRequest request)
+        {
+            var adminId = User.GetUserId();
+            request.UserId = userId; // Đảm bảo ID trùng khớp
+
+            _logger.LogInformation("Admin {AdminId} đang điều chỉnh số dư cho user {UserId}: {Amount} VND, Lý do: {Reason}", 
+                adminId, userId, request.Amount, request.Reason);
+
+            var walletService = HttpContext.RequestServices.GetRequiredService<IWalletService>();
+            var result = await walletService.AdminAdjustBalanceAsync(adminId, userId, request.Amount, request.Reason);
+            
+            return result.Success ? Ok(result) : StatusCode(400, result);
         }
     }
 }

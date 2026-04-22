@@ -35,6 +35,9 @@ namespace LearningEnglish.Application.DTOs
         public string? AvatarUrl { get; set; }
         public List<string> Roles { get; set; } = new();  // Danh sách roles: Student, Teacher, Admin, SuperAdmin
 
+        // Wallet info
+        public decimal Balance { get; set; }
+
         // Streak info
         public StreakDto? Streak { get; set; }
 

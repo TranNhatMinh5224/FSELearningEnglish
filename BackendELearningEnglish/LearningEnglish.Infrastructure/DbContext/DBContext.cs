@@ -50,6 +50,7 @@ namespace LearningEnglish.Infrastructure.Data
         public DbSet<TeacherPackageKnowledge> TeacherPackageKnowledges => Set<TeacherPackageKnowledge>();
         public DbSet<Policy> Policies => Set<Policy>();
         public DbSet<PolicyKnowledge> PolicyKnowledges => Set<PolicyKnowledge>();
+        public DbSet<WalletTransaction> WalletTransactions => Set<WalletTransaction>();
 
         // Frontend Management
         public DbSet<AssetFrontend> AssetsFrontend => Set<AssetFrontend>();
@@ -1230,6 +1231,46 @@ namespace LearningEnglish.Infrastructure.Data
                  .WithOne(p => p.PolicyKnowledge)
                  .HasForeignKey<PolicyKnowledge>(pk => pk.PolicyId)
                  .OnDelete(DeleteBehavior.Cascade);
+            });
+
+            // ===== WalletTransaction =====
+            modelBuilder.Entity<WalletTransaction>(e =>
+            {
+                e.ToTable("WalletTransactions");
+                e.HasKey(wt => wt.WalletTransactionId);
+
+                e.Property(wt => wt.Amount)
+                 .HasPrecision(18, 2)
+                 .IsRequired();
+
+                e.Property(wt => wt.BalanceBefore)
+                 .HasPrecision(18, 2)
+                 .IsRequired();
+
+                e.Property(wt => wt.BalanceAfter)
+                 .HasPrecision(18, 2)
+                 .IsRequired();
+
+                e.Property(wt => wt.Type)
+                 .IsRequired();
+
+                e.Property(wt => wt.Description)
+                 .HasMaxLength(500);
+
+                e.Property(wt => wt.ReferenceId)
+                 .HasMaxLength(100);
+
+                e.Property(wt => wt.CreatedAt)
+                 .IsRequired();
+
+                e.HasOne(wt => wt.User)
+                 .WithMany(u => u.WalletTransactions)
+                 .HasForeignKey(wt => wt.UserId)
+                 .OnDelete(DeleteBehavior.Cascade);
+
+                e.HasIndex(wt => wt.UserId);
+                e.HasIndex(wt => wt.CreatedAt);
+                e.HasIndex(wt => wt.Type);
             });
         
          // ===== SEED   DATA =====

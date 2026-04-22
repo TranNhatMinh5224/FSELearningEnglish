@@ -7,6 +7,8 @@ import { courseService } from "../../Services/courseService";
 import { FaCheckCircle, FaLock, FaCopy, FaInfoCircle } from "react-icons/fa";
 import MainHeader from "../../Components/Header/MainHeader";
 import NotificationModal from "../../Components/Common/NotificationModal/NotificationModal";
+import { useAuth } from "../../Context/AuthContext";
+import { FaWallet } from "react-icons/fa";
 
 export default function Payment() {
     const navigate = useNavigate();
@@ -15,6 +17,7 @@ export default function Payment() {
     const packageType = searchParams.get("package"); // fallback: packageType string
     const courseId = searchParams.get("courseId"); // courseId for course payment
     const typeproduct = searchParams.get("typeproduct"); // 1 for Course, 2 for TeacherPackage
+    const paymentIdFromUrl = searchParams.get("paymentId"); // paymentId if already created
 
     const [selectedPackage, setSelectedPackage] = useState(null);
     const [selectedCourse, setSelectedCourse] = useState(null);
@@ -28,6 +31,8 @@ export default function Payment() {
     const [pollingStartTime] = useState(Date.now());
     const [pollingActive, setPollingActive] = useState(true);
     const [isCheckingStatus, setIsCheckingStatus] = useState(false);
+    const { user, refreshUser } = useAuth();
+    const [selectedGateway, setSelectedGateway] = useState(0); // 0: PayOS, 1: InternalWallet
 
     const getPayOsValue = useCallback((camelKey, pascalKey) => {
         if (!payOsDetails) return "";
@@ -86,7 +91,7 @@ export default function Payment() {
 
     const handleManualCheck = async () => {
         if (isCheckingStatus) return;
-        
+
         try {
             setIsCheckingStatus(true);
             const currentPaymentId = getPayOsValue("paymentId", "PaymentId");
@@ -112,85 +117,108 @@ export default function Payment() {
         }
     };
 
+    const handleWalletPayment = async (productId, productType) => {
+        try {
+            setLoading(true);
+            const idempotencyKey = `wallet-${user.userId}-${Date.now()}`;
+
+            const response = await paymentService.processPayment({
+                ProductId: productId,
+                typeproduct: productType,
+                IdempotencyKey: idempotencyKey,
+                Gateway: 2 // InternalWallet
+            });
+
+            if (response.data?.success && response.data?.data) {
+                const pId = response.data.data.paymentId;
+                setIsRedirecting(true);
+                // Refresh user balance in background
+                refreshUser();
+                setTimeout(() => {
+                    navigate(`/payment-success?paymentId=${pId}&status=success&method=wallet`);
+                }, 1500);
+            } else {
+                throw new Error(response.data?.message || "Thanh toán bằng ví thất bại");
+            }
+        } catch (error) {
+            setErrorMessage(error.response?.data?.message || error.message || "Lỗi thanh toán ví");
+            setErrorType("error");
+            setShowErrorModal(true);
+            setLoading(false);
+        }
+    };
+
     useEffect(() => {
         let isCancelled = false; // Flag to prevent state updates after unmount
-        
+
         const processPayment = async () => {
             try {
                 if (isCancelled) return; // Don't proceed if component unmounted
-                
+
                 setLoading(true);
                 setError("");
 
                 let productId = null;
                 let productType = null;
 
-                // Check if this is a course payment
+                // CASE 1: Payment already created (e.g. from TopUp)
+                if (paymentIdFromUrl) {
+                    setLoading(false);
+                    const payOsResponse = await paymentService.createPayOsLink(paymentIdFromUrl);
+                    if (isCancelled) return;
+
+                    if (!payOsResponse.data?.success || !payOsResponse.data?.data) {
+                        throw new Error(payOsResponse.data?.message || "Không thể lấy thông tin thanh toán");
+                    }
+
+                    setPayOsDetails(payOsResponse.data.data);
+                    return;
+                }
+
+                // CASE 2: New payment creation
                 if (courseId && typeproduct === "1") {
                     const courseResponse = await courseService.getCourseById(courseId);
-                    if (isCancelled) return; // Check after async operation
-                    
+                    if (isCancelled) return;
                     if (courseResponse.data?.success && courseResponse.data?.data) {
                         setSelectedCourse(courseResponse.data.data);
                         productId = parseInt(courseId);
-                        productType = 1; // ProductType.Course = 1
-                    } else {
-                        setError("Không tìm thấy khóa học");
-                        setLoading(false);
-                        return;
+                        productType = 1;
+                    }
+                } else if (packageId || packageType) {
+                    // (Giữ nguyên logic lấy package như cũ...)
+                    let matchedPackage = null;
+                    const packagesResponse = await teacherPackageService.getAll();
+                    if (isCancelled) return;
+                    const packages = packagesResponse.data?.data || [];
+                    if (packageId) {
+                        matchedPackage = packages.find(pkg => pkg.teacherPackageId === parseInt(packageId));
+                    } else if (packageType) {
+                        matchedPackage = packages.find(pkg => pkg.packageName?.toLowerCase().includes(packageType.toLowerCase()));
+                    }
+
+                    if (matchedPackage) {
+                        setSelectedPackage(matchedPackage);
+                        productId = matchedPackage.teacherPackageId;
+                        productType = 2;
                     }
                 }
-                // Check if this is a teacher package payment
-                else if (packageId || packageType) {
-                    let selectedPackage = null;
 
-                    // Nếu có packageId, sử dụng trực tiếp
-                    if (packageId) {
-                        const packagesResponse = await teacherPackageService.getAll();
-                        if (isCancelled) return; // Check after async operation
-                        
-                        const packages = packagesResponse.data?.data || [];
-                        selectedPackage = packages.find(
-                            (pkg) => pkg.teacherPackageId === parseInt(packageId)
-                        );
-                    } 
-                    // Nếu không có packageId, tìm theo packageType (backward compatibility)
-                    else if (packageType) {
-                        const packagesResponse = await teacherPackageService.getAll();
-                        if (isCancelled) return; // Check after async operation
-                        
-                        const packages = packagesResponse.data?.data || [];
-                        selectedPackage = packages.find(
-                            (pkg) => pkg.packageName?.toLowerCase().includes(packageType?.toLowerCase() || "")
-                        );
-                    }
-
-                    if (!selectedPackage) {
-                        setError("Không tìm thấy gói đăng ký");
-                        setLoading(false);
-                        return;
-                    }
-
-                    setSelectedPackage(selectedPackage);
-                    productId = selectedPackage.teacherPackageId;
-                    productType = 2; // ProductType.TeacherPackage = 2
-                } else {
+                if (!productId) {
                     setError("Không tìm thấy sản phẩm cần thanh toán");
                     setLoading(false);
                     return;
                 }
 
-                // Create payment record
-                // Generate unique IdempotencyKey to prevent duplicate payments
+                // Create payment record (PayOS default)
                 const idempotencyKey = `${Date.now()}-${productId}-${productType}`;
-                
                 const paymentResponse = await paymentService.processPayment({
                     ProductId: productId,
                     typeproduct: productType,
-                    IdempotencyKey: idempotencyKey
+                    IdempotencyKey: idempotencyKey,
+                    Gateway: 0 // PayOS
                 });
-                
-                if (isCancelled) return; // Check after async operation
+
+                if (isCancelled) return;
 
                 if (!paymentResponse.data?.success || !paymentResponse.data?.data?.paymentId) {
                     throw new Error(paymentResponse.data?.message || "Không thể tạo thanh toán");
@@ -206,11 +234,8 @@ export default function Payment() {
                     return;
                 }
 
-                // Create PayOS link to get QR code and checkout URL
                 const payOsResponse = await paymentService.createPayOsLink(createdPaymentId);
-                
-                if (isCancelled) return; // Check after async operation
-
+                if (isCancelled) return;
                 if (!payOsResponse.data?.success || !payOsResponse.data?.data) {
                     throw new Error(payOsResponse.data?.message || "Không thể tạo link thanh toán");
                 }
@@ -221,17 +246,17 @@ export default function Payment() {
             } catch (error) {
                 let errorMessage = "Có lỗi xảy ra khi xử lý thanh toán";
                 let errorType = "error";
-                
+
                 if (error.response?.data?.message) {
                     errorMessage = error.response.data.message;
                 } else if (error.message) {
                     errorMessage = error.message;
                 }
-                
+
                 setError(errorMessage);
                 setLoading(false);
                 setIsRedirecting(false);
-                
+
                 setErrorMessage(errorMessage);
                 setErrorType(errorType);
                 setShowErrorModal(true);
@@ -241,7 +266,7 @@ export default function Payment() {
         if (courseId || packageId || packageType) {
             processPayment();
         }
-        
+
         return () => {
             isCancelled = true;
         };
@@ -298,11 +323,11 @@ export default function Payment() {
                             <div className="qr-left">
                                 <div className="qr-image-container">
                                     {resolveQrImageSrc() ? (
-                                    <img 
-                                        src={resolveQrImageSrc()}
-                                        alt="Payment QR code"
-                                        className="qr-image" 
-                                    />
+                                        <img
+                                            src={resolveQrImageSrc()}
+                                            alt="Payment QR code"
+                                            className="qr-image"
+                                        />
                                     ) : (
                                         <div className="text-muted small text-center p-3">
                                             Không lấy được QR từ cổng thanh toán. Vui lòng bấm "Tiến hành thanh toán" để mở trang PayOS.
@@ -327,7 +352,7 @@ export default function Payment() {
                             {/* Right Column: Details */}
                             <div className="qr-right">
                                 <h3 className="qr-title">Thông tin chuyển khoản</h3>
-                                
+
                                 <div className="qr-details-group">
                                     <div className="qr-detail-item">
                                         <span className="label">SỐ TIỀN</span>
@@ -345,8 +370,8 @@ export default function Payment() {
                                         <span className="label">SỐ TÀI KHOẢN</span>
                                         <div className="value-group">
                                             <span className="value highlight">{getPayOsValue("accountNumber", "AccountNumber") || "Đang cập nhật"}</span>
-                                            <button 
-                                                className="copy-btn" 
+                                            <button
+                                                className="copy-btn"
                                                 onClick={() => copyToClipboard(getPayOsValue("accountNumber", "AccountNumber"), "Số tài khoản")}
                                                 title="Sao chép"
                                             >
@@ -364,7 +389,7 @@ export default function Payment() {
                                         <div className="content-box">
                                             <span className="label">NỘI DUNG CHUYỂN KHOẢN</span>
                                             <span className="content-value">{getPayOsValue("description", "Description") || ""}</span>
-                                            <button 
+                                            <button
                                                 className="copy-btn-large"
                                                 onClick={() => copyToClipboard(getPayOsValue("description", "Description"), "Nội dung chuyển khoản")}
                                             >
@@ -380,8 +405,8 @@ export default function Payment() {
                                 </div>
 
                                 <div className="qr-footer">
-                                    <button 
-                                        className={`btn-check-status ${isCheckingStatus ? 'loading' : ''}`} 
+                                    <button
+                                        className={`btn-check-status ${isCheckingStatus ? 'loading' : ''}`}
                                         onClick={handleManualCheck}
                                         disabled={isCheckingStatus}
                                     >
@@ -399,25 +424,53 @@ export default function Payment() {
                         <div className="package-info">
                             <h3>{selectedCourse?.title || selectedPackage?.packageName || "Sản phẩm"}</h3>
                             <p className="package-price">
-                                {selectedCourse 
-                                    ? (selectedCourse.price || 0).toLocaleString("vi-VN") 
+                                {selectedCourse
+                                    ? (selectedCourse.price || 0).toLocaleString("vi-VN")
                                     : (selectedPackage?.price || 0).toLocaleString("vi-VN")
                                 } VNĐ
                             </p>
                         </div>
 
                         <div className="payment-methods">
-                            <div className="payment-method">
+                            {/* Option 1: PayOS */}
+                            <div className={`payment-method ${selectedGateway === 0 ? "active" : ""}`} onClick={() => setSelectedGateway(0)}>
                                 <div className="method-title">
                                     <FaLock /> Thanh toán an toàn qua PayOS
                                 </div>
                                 <p className="method-description">
-                                    Hệ thống hỗ trợ VietQR và chuyển khoản ngân hàng 24/7.
+                                    Hỗ trợ VietQR và chuyển khoản ngân hàng 24/7.
                                 </p>
-                                <button className="btn-checkout" onClick={handleOpenCheckout}>
-                                    Tiến hành thanh toán
-                                </button>
+                                {selectedGateway === 0 && (
+                                    <button className="btn-checkout mt-2" onClick={handleOpenCheckout}>
+                                        Tiến hành thanh toán PayOS
+                                    </button>
+                                )}
                             </div>
+
+                            {/* Option 2: Internal Wallet (Only if not topup) */}
+                            {typeproduct !== "3" && (
+                                <div className={`payment-method ${selectedGateway === 1 ? "active" : ""}`} onClick={() => setSelectedGateway(1)}>
+                                    <div className="method-title">
+                                        <FaWallet /> Thanh toán bằng Ví (Coin)
+                                    </div>
+                                    <p className="method-description">
+                                        Số dư hiện tại: <strong className={user?.balance >= (selectedCourse?.price || selectedPackage?.price) ? "text-success" : "text-danger"}>
+                                            {(user?.balance || 0).toLocaleString("vi-VN")} VNĐ
+                                        </strong>
+                                    </p>
+                                    {selectedGateway === 1 && (
+                                        <button
+                                            className="btn-checkout wallet-btn mt-2"
+                                            onClick={() => handleWalletPayment(selectedCourse?.courseId || selectedPackage?.teacherPackageId, parseInt(typeproduct))}
+                                            disabled={loading || (user?.balance < (selectedCourse?.price || selectedPackage?.price))}
+                                        >
+                                            {user?.balance >= (selectedCourse?.price || selectedPackage?.price)
+                                                ? "Xác nhận thanh toán bằng ví"
+                                                : "Số dư không đủ"}
+                                        </button>
+                                    )}
+                                </div>
+                            )}
                         </div>
 
                         <div className="payment-note">

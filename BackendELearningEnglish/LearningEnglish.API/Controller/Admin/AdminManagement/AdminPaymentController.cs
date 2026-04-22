@@ -1,8 +1,10 @@
+using LearningEnglish.Application.DTOs;
+using LearningEnglish.Application.DTOs.Payment;
 using LearningEnglish.Application.Interface.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
-namespace LearningEnglish.API.Controller.Admin.AdminManagement
+namespace LearningEnglish.API.Controller.Admin
 {
     [ApiController]
     [Route("api/admin/payments")]
@@ -27,6 +29,13 @@ namespace LearningEnglish.API.Controller.Admin.AdminManagement
         public async Task<IActionResult> RetryWebhook(int webhookId)
         {
             var response = await _paymentService.RetryWebhookAsync(webhookId);
+            return StatusCode(response.StatusCode, response);
+        }
+
+        [HttpGet("transactions")]
+        public async Task<IActionResult> GetTransactions([FromQuery] AdminTransactionRequest request)
+        {
+            var response = await _paymentService.GetAllTransactionsAsync(request);
             return StatusCode(response.StatusCode, response);
         }
     }

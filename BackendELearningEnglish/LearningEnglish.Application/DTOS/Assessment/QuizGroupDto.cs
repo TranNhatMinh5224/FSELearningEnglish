@@ -9,9 +9,11 @@ namespace LearningEnglish.Application.DTOs
         public string Title { get; set; } = string.Empty;
         public string? ImgUrl { get; set; }
         public string? VideoUrl { get; set; }
+        public string? AudioUrl { get; set; }
 
         public string? ImgType { get; set; }
         public string? VideoType { get; set; }
+        public string? AudioType { get; set; }
         public int? VideoDuration { get; set; }
 
         public float SumScore { get; set; }
@@ -45,6 +47,9 @@ namespace LearningEnglish.Application.DTOs
 
         public string? VideoTempKey { get; set; }
         public string? VideoType { get; set; }
+
+        public string? AudioTempKey { get; set; }
+        public string? AudioType { get; set; }
         public int? VideoDuration { get; set; }
     }
 
@@ -65,6 +70,9 @@ namespace LearningEnglish.Application.DTOs
 
         public string? VideoTempKey { get; set; }
         public string? VideoType { get; set; }
+
+        public string? AudioTempKey { get; set; }
+        public string? AudioType { get; set; }
         public int? VideoDuration { get; set; }
     }
 
@@ -76,9 +84,11 @@ namespace LearningEnglish.Application.DTOs
         public string Title { get; set; } = string.Empty;
         public string? ImgUrl { get; set; }
         public string? VideoUrl { get; set; }
+        public string? AudioUrl { get; set; }
 
         public string? ImgType { get; set; }
         public string? VideoType { get; set; }
+        public string? AudioType { get; set; }
         
         // Thứ tự hiển thị (dùng cho shuffle logic)
         public int DisplayOrder { get; set; }

@@ -58,6 +58,8 @@ public class QuizAttemptMapperService : IQuizAttemptMapper
                 ImgType = g.ImgType,  // image/jpeg, image/png
                 VideoUrl = _quizGroupMediaService.BuildVideoUrl(g.VideoKey),
                 VideoType = g.VideoType,  // video/mp4
+                AudioUrl = _quizGroupMediaService.BuildAudioUrl(g.AudioKey),
+                AudioType = g.AudioType,  // audio/mpeg
                 VideoDuration = g.VideoDuration,  // Độ dài video (seconds)
                 SumScore = g.SumScore,  // Tổng điểm của group
                 Questions = g.Questions

@@ -17,6 +17,7 @@ using LearningEnglish.Application.Interface.Services.Lesson; // Interface cho se
 using LearningEnglish.Application.Interface.Services.Module; // Interface cho service chương học (Module)
 using LearningEnglish.Application.Interface.Services.TeacherPackage; // Interface cho gói giảng viên
 using LearningEnglish.Application.Interface.Services.AI;
+using LearningEnglish.Application.Interface.Services.IPayment;
 using LearningEnglish.Application.Interface.Strategies; // Interface cho các chiến lược (Strategy pattern)
 using Microsoft.AspNetCore.Http.Features; // Thư viện cấu hình các đặc tính của HTTP (ví dụ: FormOptions)
 using LearningEnglish.Application.Mappings; // Namespace chứa cấu hình ánh xạ AutoMapper
@@ -37,6 +38,7 @@ using LearningEnglish.Application.Service.EssayService; // Dịch vụ bài lu�
 using LearningEnglish.Application.Service.FlashCardService; // Dịch vụ flashcard
 using LearningEnglish.Application.Service.LectureService; // Dịch vụ bài giảng
 using LearningEnglish.Application.Service.PaymentService; // Dịch vụ thanh toán
+using LearningEnglish.Application.Service.WalletService;
 using LearningEnglish.Application.Strategies.Payment; // Chiến lược xử lý thanh toán
 using LearningEnglish.Application.Strategies.Scoring; // Chiến lược chấm điểm
 using LearningEnglish.Domain.Entities; // Namespace chứa các thực thể (Entity) database
@@ -228,6 +230,7 @@ public static class ServiceRegistrationExtensions // Lớp static chứa các ex
         RegisterAssessmentRepositories(services); // Đăng ký repository đánh giá/chấm điểm
         RegisterAuthAndAccessRepositories(services); // Đăng ký repository liên quan đến xác thực/vai trò
         RegisterQuizRepositories(services); // Đăng ký repository bài tập (Quiz) và thanh toán
+        services.AddScoped<IWalletTransactionRepository, WalletTransactionRepository>();
         RegisterMediaRepositories(services); // Đăng ký repository tài sản (Asset)
 
         return services;
@@ -406,6 +409,8 @@ public static class ServiceRegistrationExtensions // Lớp static chứa các ex
         services.AddScoped<IPayOSService, PayOSService>(); // Tích hợp với cổng thanh toán PayOS
         services.AddScoped<IPaymentStrategy, CoursePaymentProcessor>(); // Chiến lược thanh toán mua khóa học
         services.AddScoped<IPaymentStrategy, TeacherPackagePaymentProcessor>(); // Chiến lược thanh toán gói giáo viên
+        services.AddScoped<IPaymentStrategy, TopUpPaymentProcessor>(); // Chiến lược nạp tiền vào ví
+        services.AddScoped<IWalletService, WalletService>(); // Dịch vụ ví điện tử nội bộ
     }
 
     // Nhóm dịch vụ xử lý logic làm Bài tập (Quiz) và Câu hỏi

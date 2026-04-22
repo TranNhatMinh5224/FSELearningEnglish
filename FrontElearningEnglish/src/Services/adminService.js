@@ -103,6 +103,9 @@ export const adminService = {
   upgradeUserToTeacher: (data) => {
       return axiosClient.post(API_ENDPOINTS.ADMIN.USERS.UPGRADE_TEACHER, data);
   },
+  adjustBalance: (userId, data) => {
+      return axiosClient.post(API_ENDPOINTS.ADMIN.USERS.ADJUST_BALANCE(userId), data);
+  },
 
   // --- ESSAY SUBMISSIONS ---
   getEssaySubmissionsByEssay: (essayId, params) => {

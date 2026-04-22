@@ -94,6 +94,8 @@ namespace LearningEnglish.Application.DTOs
         public string? ImgType { get; set; }  // image/jpeg, image/png
         public string? VideoUrl { get; set; }
         public string? VideoType { get; set; }  // video/mp4
+        public string? AudioUrl { get; set; }
+        public string? AudioType { get; set; }  // audio/mpeg
         public int? VideoDuration { get; set; }  // Độ dài video (seconds)
         public float? SumScore { get; set; }  // Tổng điểm của group
         public List<QuestionDto>? Questions { get; set; }  // Questions trong group

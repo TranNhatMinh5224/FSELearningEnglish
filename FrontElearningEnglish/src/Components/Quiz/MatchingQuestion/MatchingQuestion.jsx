@@ -116,6 +116,8 @@ export default function MatchingQuestion({ question, answer, onChange, attemptId
         const mapped = leftOptions.map(opt => ({
             id: opt.optionId || opt.OptionId || opt.answerOptionId || opt.AnswerOptionId,
             text: opt.optionText || opt.OptionText || opt.text || opt.Text,
+            mediaUrl: opt.mediaUrl || opt.MediaUrl,
+            mediaType: opt.mediaType || opt.MediaType,
             isCorrect: opt.isCorrect !== undefined ? opt.isCorrect : opt.IsCorrect
         }));
         return shuffleWithSeed(mapped, seedBase + 123);
@@ -125,6 +127,8 @@ export default function MatchingQuestion({ question, answer, onChange, attemptId
         const mapped = rightOptions.map(opt => ({
             id: opt.optionId || opt.OptionId || opt.answerOptionId || opt.AnswerOptionId,
             text: opt.optionText || opt.OptionText || opt.text || opt.Text,
+            mediaUrl: opt.mediaUrl || opt.MediaUrl,
+            mediaType: opt.mediaType || opt.MediaType,
             isCorrect: opt.isCorrect !== undefined ? opt.isCorrect : opt.IsCorrect
         }));
         return shuffleWithSeed(mapped, seedBase + 456);
@@ -230,12 +234,25 @@ export default function MatchingQuestion({ question, answer, onChange, attemptId
                                             }}
                                             style={{ cursor: "pointer", minHeight: '50px' }}
                                         >
-                                            <Card.Body className="p-2 d-flex align-items-center justify-content-between">
-                                                <div className="d-flex align-items-center">
-                                                    <Badge bg={isSelected ? "light" : "primary"} text={isSelected ? "dark" : "white"} className="me-2">{index + 1}</Badge>
-                                                    <span className="fw-medium">{option.text}</span>
+                                            <Card.Body className="p-2">
+                                                <div className="d-flex align-items-center justify-content-between mb-1">
+                                                    <div className="d-flex align-items-center">
+                                                        <Badge bg={isSelected ? "light" : "primary"} text={isSelected ? "dark" : "white"} className="me-2">{index + 1}</Badge>
+                                                        <span className="fw-medium">{option.text}</span>
+                                                    </div>
+                                                    {matchedRightId && <i className="fa fa-check-circle text-success"></i>}
                                                 </div>
-                                                {matchedRightId && <i className="fa fa-check-circle text-success"></i>}
+                                                {option.mediaUrl && (
+                                                    <div className="matching-item-media w-100 mt-1">
+                                                        {option.mediaUrl.match(/\.(mp4|webm)$/i) ? (
+                                                            <video src={option.mediaUrl} controls className="option-media-element w-100 rounded" style={{maxHeight: '100px'}} />
+                                                        ) : option.mediaUrl.match(/\.(mp3|wav)$/i) ? (
+                                                            <audio src={option.mediaUrl} controls className="option-media-element w-100" />
+                                                        ) : (
+                                                            <img src={option.mediaUrl} alt="Option media" className="option-media-element rounded" style={{ maxWidth: '100%', maxHeight: '80px', objectFit: 'contain' }} />
+                                                        )}
+                                                    </div>
+                                                )}
                                             </Card.Body>
                                         </Card>
                                         {matchedRightId && matchedOption && (
@@ -263,11 +280,22 @@ export default function MatchingQuestion({ question, answer, onChange, attemptId
                                         }}
                                         style={{ cursor: isMatched ? "default" : "pointer", minHeight: '50px' }}
                                     >
-                                        <Card.Body className="p-2 d-flex align-items-center justify-content-between">
-                                            <div className="d-flex align-items-center">
+                                        <Card.Body className="p-2">
+                                            <div className="d-flex align-items-center mb-1">
                                                 <Badge bg="secondary" className="me-2">{String.fromCharCode(65 + index)}</Badge>
                                                 <span className="fw-medium">{option.text}</span>
                                             </div>
+                                            {option.mediaUrl && (
+                                                <div className="matching-item-media w-100 mt-1">
+                                                    {option.mediaUrl.match(/\.(mp4|webm)$/i) ? (
+                                                        <video src={option.mediaUrl} controls className="option-media-element w-100 rounded" style={{maxHeight: '100px'}} />
+                                                    ) : option.mediaUrl.match(/\.(mp3|wav)$/i) ? (
+                                                        <audio src={option.mediaUrl} controls className="option-media-element w-100" />
+                                                    ) : (
+                                                        <img src={option.mediaUrl} alt="Option media" className="option-media-element rounded" style={{ maxWidth: '100%', maxHeight: '80px', objectFit: 'contain' }} />
+                                                    )}
+                                                </div>
+                                            )}
                                         </Card.Body>
                                     </Card>
                                 );

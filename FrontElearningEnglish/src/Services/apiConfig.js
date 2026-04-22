@@ -52,7 +52,8 @@ export const API_ENDPOINTS = {
             USER_STATS: "/admin/statistics/users", // Thêm endpoint thống kê user
             BLOCK: (id) => `/admin/users/block/${id}`,
             UNBLOCK: (id) => `/admin/users/unblock/${id}`,
-            UPGRADE_TEACHER: "/admin/users/upgrade-to-teacher"
+            UPGRADE_TEACHER: "/admin/users/upgrade-to-teacher",
+            ADJUST_BALANCE: (userId) => `/admin/users/${userId}/balance/adjust`,
         },
         PACKAGES: {
             GET_ALL: "/admin/teacher-packages",
@@ -262,6 +263,11 @@ export const API_ENDPOINTS = {
     STREAKS: {
         GET_MY_STREAK: "/user/streaks",
         CHECKIN: "/user/streaks/checkin",
+    },
+    // Wallet
+    WALLET: {
+        GET_BALANCE: "/user/wallet/balance",
+        GET_TRANSACTIONS: "/user/wallet/transactions",
     },
     // Teacher endpoints
     TEACHER: {

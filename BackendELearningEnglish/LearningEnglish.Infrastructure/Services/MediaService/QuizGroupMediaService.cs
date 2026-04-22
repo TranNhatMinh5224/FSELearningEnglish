@@ -79,6 +79,36 @@ public class QuizGroupMediaService : IQuizGroupMediaService
         return result.Data;
     }
 
+    public async Task<string> CommitAudioAsync(string tempKey, CancellationToken cancellationToken = default)
+    {
+        if (string.IsNullOrWhiteSpace(tempKey))
+        {
+            throw new ArgumentException("Temp key cannot be null or empty", nameof(tempKey));
+        }
+
+        var result = await _minioFileStorage.CommitFileAsync(
+            tempKey,
+            StorageConstants.QuizGroupBucket,
+            StorageConstants.QuizGroupFolder);
+
+        if (!result.Success || string.IsNullOrWhiteSpace(result.Data))
+        {
+            _logger.LogError(
+                "Failed to commit quiz group audio. TempKey: {TempKey}, Message: {Message}",
+                tempKey,
+                result.Message);
+
+            throw new InvalidOperationException($"Failed to commit quiz group audio: {result.Message}");
+        }
+
+        _logger.LogInformation(
+            "Quiz group audio committed successfully. TempKey: {TempKey}, AudioKey: {AudioKey}",
+            tempKey,
+            result.Data);
+
+        return result.Data;
+    }
+
     public async Task DeleteImageAsync(string imageKey, CancellationToken cancellationToken = default)
     {
         if (string.IsNullOrWhiteSpace(imageKey))
@@ -137,6 +167,35 @@ public class QuizGroupMediaService : IQuizGroupMediaService
         }
     }
 
+    public async Task DeleteAudioAsync(string audioKey, CancellationToken cancellationToken = default)
+    {
+        if (string.IsNullOrWhiteSpace(audioKey))
+        {
+            return;
+        }
+
+        try
+        {
+            var result = await _minioFileStorage.DeleteFileAsync(
+                audioKey,
+                StorageConstants.QuizGroupBucket);
+
+            if (result.Success)
+            {
+                _logger.LogInformation("Quiz group audio deleted successfully. AudioKey: {AudioKey}", audioKey);
+            }
+            else
+            {
+                _logger.LogWarning("Failed to delete quiz group audio. AudioKey: {AudioKey}, Message: {Message}",
+                    audioKey, result.Message);
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex, "Error deleting quiz group audio. AudioKey: {AudioKey}", audioKey);
+        }
+    }
+
     public string BuildImageUrl(string? imageKey)
     {
         if (string.IsNullOrWhiteSpace(imageKey))
@@ -155,5 +214,15 @@ public class QuizGroupMediaService : IQuizGroupMediaService
         }
 
         return BuildPublicUrl.BuildURL(StorageConstants.QuizGroupBucket, videoKey);
+    }
+
+    public string BuildAudioUrl(string? audioKey)
+    {
+        if (string.IsNullOrWhiteSpace(audioKey))
+        {
+            return string.Empty;
+        }
+
+        return BuildPublicUrl.BuildURL(StorageConstants.QuizGroupBucket, audioKey);
     }
 }

@@ -63,7 +63,10 @@ namespace LearningEnglish.Application.Interface.Services
 
       
         // Thử lại một webhook lỗi - Dành cho Admin
-      
         Task<ServiceResponse<bool>> RetryWebhookAsync(int webhookId);
+
+        // Lấy tất cả giao dịch trong hệ thống - Dành cho Admin
+        Task<ServiceResponse<PagedResult<TransactionHistoryDto>>> GetAllTransactionsAsync(
+            AdminTransactionRequest request);
     }
 }

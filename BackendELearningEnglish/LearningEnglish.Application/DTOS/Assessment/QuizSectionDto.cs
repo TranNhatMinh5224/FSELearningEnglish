@@ -67,6 +67,9 @@ namespace LearningEnglish.Application.DTOs
 
         public string? VideoTempKey { get; set; }
         public string? VideoType { get; set; }
+
+        public string? AudioTempKey { get; set; }
+        public string? AudioType { get; set; }
         public int? VideoDuration { get; set; }
 
         /// <summary>

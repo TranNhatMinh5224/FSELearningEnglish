@@ -23,6 +23,7 @@ export const ROUTE_PATHS = {
   PROFILE: "/profile",
   PROFILE_EDIT: "/profile/edit",
   PROFILE_CHANGE_PASSWORD: "/profile/change-password",
+  TOPUP: "/topup",
   PAYMENT: "/payment",
   PAYMENT_HISTORY: "/payment-history",
   PAYMENT_SUCCESS: "/payment-success",

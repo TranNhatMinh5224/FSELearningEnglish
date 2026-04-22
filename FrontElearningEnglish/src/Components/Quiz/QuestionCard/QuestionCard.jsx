@@ -74,8 +74,8 @@ export default function QuestionCard({ question, answer, onChange, questionNumbe
                 )}
 
                 {/* 2. Group Header Info */}
-                {groupInfo && (groupInfo.groupName || groupInfo.groupTitle || groupInfo.groupDescription || groupInfo.groupImgUrl || groupInfo.groupVideoUrl) && (
-                    <div className="question-group-info mb-4 p-3 bg-light rounded border">
+                {groupInfo && (groupInfo.groupName || groupInfo.groupTitle || groupInfo.groupDescription || groupInfo.groupImgUrl || groupInfo.groupVideoUrl || groupInfo.groupAudioUrl) && (
+                    <div className="question-group-info mb-4 p-4 bg-light rounded border-start border-4 border-primary">
                         {(groupInfo.groupTitle || groupInfo.groupName) && (
                             <div className="group-title mb-2">
                                 <h5 className="mb-1 fw-bold text-primary">
@@ -84,20 +84,40 @@ export default function QuestionCard({ question, answer, onChange, questionNumbe
                             </div>
                         )}
                         {groupInfo.groupDescription && (
-                            <div className="group-description mb-2">
-                                <p className="text-muted mb-0">{groupInfo.groupDescription}</p>
+                            <div className="group-description mb-3">
+                                <p className="text-muted mb-0 lh-lg" style={{ whiteSpace: 'pre-wrap' }}>
+                                    {groupInfo.groupDescription}
+                                </p>
                             </div>
                         )}
-                        {groupInfo.groupImgUrl && (
-                            <div className="group-media mb-2">
-                                <img src={groupInfo.groupImgUrl} alt="Group context" className="img-fluid rounded shadow-sm" style={{ maxWidth: '100%', height: 'auto' }} />
-                            </div>
-                        )}
-                        {groupInfo.groupVideoUrl && (
-                            <div className="group-media mb-2">
-                                <video src={groupInfo.groupVideoUrl} controls className="w-100 rounded shadow-sm" style={{ maxHeight: '400px' }} />
-                            </div>
-                        )}
+                        
+                        <div className="group-media-grid d-flex flex-wrap gap-3 mt-3">
+                            {groupInfo.groupImgUrl && (
+                                <div className="group-media-item group-image-container flex-grow-1">
+                                    <img src={groupInfo.groupImgUrl} alt="Group context" className="img-fluid rounded-3 shadow-md" style={{ maxWidth: '100%', height: 'auto', objectFit: 'cover' }} />
+                                </div>
+                            )}
+                            
+                            {groupInfo.groupVideoUrl && (
+                                <div className="group-media-item group-video-container w-100 mt-2">
+                                    <video src={groupInfo.groupVideoUrl} controls className="w-100 rounded-3 shadow-md" style={{ maxHeight: '450px' }} />
+                                </div>
+                            )}
+
+                            {groupInfo.groupAudioUrl && (
+                                <div className="group-media-item group-audio-container w-100 mt-2 p-3 bg-white rounded-3 shadow-sm border">
+                                    <div className="d-flex align-items-center gap-3">
+                                        <div className="audio-icon-wrapper rounded-circle bg-primary-subtle p-2">
+                                            <i className="bi bi-volume-up-fill text-primary"></i>
+                                        </div>
+                                        <div className="flex-grow-1">
+                                            <p className="small text-muted mb-1 fw-medium">Nghe đoạn hội thoại/bài nghe:</p>
+                                            <audio src={groupInfo.groupAudioUrl} controls className="w-100" style={{ height: '36px' }} />
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
+                        </div>
                     </div>
                 )}
                 

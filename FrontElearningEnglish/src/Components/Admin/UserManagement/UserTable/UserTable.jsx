@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { MdBlock, MdCheckCircle, MdArrowUpward, MdVisibility } from "react-icons/md";
+import { MdBlock, MdCheckCircle, MdArrowUpward, MdVisibility, MdAttachMoney } from "react-icons/md";
 import "./UserTable.css";
 
 // Component để hiển thị avatar - chỉ hiển thị nếu có avatarUrl
@@ -27,7 +27,9 @@ export default function UserTable({
   loading, 
   onViewDetail, 
   onUpgrade, 
-  onToggleStatus 
+  onToggleStatus,
+  onAdjustBalance,
+  canAdjustBalance
 }) {
   const getStatusBadge = (status) => {
     if (status === 'Active' || status === 1) {
@@ -115,6 +117,24 @@ export default function UserTable({
                           <MdArrowUpward />
                         </button>
                       )}
+
+                      {canAdjustBalance && (
+                        <button 
+                          className="btn btn-sm btn-light text-success" 
+                          title="Điều chỉnh số dư"
+                          onClick={() => onAdjustBalance(user)}
+                        >
+                          <MdAttachMoney />
+                        </button>
+                      )}
+
+                      <button 
+                        className="btn btn-sm btn-light text-primary" 
+                        title="Xem lịch sử giao dịch"
+                        onClick={() => window.location.href = `/admin/payment-monitoring?search=${email}`}
+                      >
+                        <MdAttachMoney style={{ transform: 'rotate(15deg)' }} /> {/* Using money icon represent transactions */}
+                      </button>
                       
                       <button 
                         className="btn btn-sm btn-light" 

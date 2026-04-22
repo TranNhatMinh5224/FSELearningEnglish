@@ -5,6 +5,7 @@ import { Container, Navbar, Nav } from "react-bootstrap";
 import "./Header.css";
 import { useAssets } from "../../Context/AssetContext";
 import ProfileDropdown from "./ProfileDropdown";
+import WalletDropdown from "./WalletDropdown/WalletDropdown";
 import { useAuth } from "../../Context/AuthContext";
 import { ROUTE_PATHS } from "../../Routes/Paths";
 import LoginRequiredModal from "../Common/LoginRequiredModal/LoginRequiredModal";
@@ -73,6 +74,7 @@ export default function TeacherHeader() {
 
           {/* RIGHT: profile */}
           <div className="main-header__right d-flex align-items-center gap-3">
+            <WalletDropdown />
             <ProfileDropdown />
           </div>
         </Navbar.Collapse>

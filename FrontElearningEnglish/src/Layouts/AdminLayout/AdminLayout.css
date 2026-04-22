@@ -7,8 +7,7 @@
   /* Deep Royal Blue */
   --admin-sidebar-text: var(--color-text-secondary, #94a3b8);
   --admin-sidebar-text-active: var(--color-text-white, #ffffff);
-  --admin-primary-color: var(--color-primary, #6366f1);
-  /* Electric Indigo */
+  --admin-primary-color: #0d9488; /* Professional Teal */
   --admin-text-primary: var(--color-text-primary, #1e293b);
   --admin-card-bg: var(--color-bg-card, #ffffff);
 }
