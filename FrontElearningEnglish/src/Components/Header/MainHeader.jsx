@@ -9,7 +9,6 @@ import ProfileDropdown from "./ProfileDropdown";
 import NotificationDropdown from "./NotificationDropdown/NotificationDropdown";
 import StreakDropdown from "./StreakDropdown/StreakDropdown";
 import WalletDropdown from "./WalletDropdown/WalletDropdown";
-import ThemeToggle from "../Common/ThemeToggle/ThemeToggle";
 import { useAuth } from "../../Context/AuthContext";
 import { ROUTE_PATHS } from "../../Routes/Paths";
 import LoginRequiredModal from "../Common/LoginRequiredModal/LoginRequiredModal";
@@ -91,7 +90,6 @@ export default function MainHeader() {
 
           {/* RIGHT: theme toggle + streak + notification + profile */}
           <div className="main-header__right d-flex align-items-center gap-3">
-            <ThemeToggle />
             <StreakDropdown />
             <WalletDropdown />
             <NotificationDropdown />

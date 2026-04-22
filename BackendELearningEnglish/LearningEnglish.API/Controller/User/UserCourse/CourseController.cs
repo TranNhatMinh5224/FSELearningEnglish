@@ -4,6 +4,7 @@ using LearningEnglish.Application.Interface;
 using LearningEnglish.Application.DTOs;
 using LearningEnglish.Application.Common.Pagination;
 using LearningEnglish.API.Extensions;
+using Microsoft.AspNetCore.RateLimiting;
 
 namespace LearningEnglish.API.Controller.User
 {
@@ -65,6 +66,7 @@ namespace LearningEnglish.API.Controller.User
 
         // endpoint Student tham gia khóa học qua mã lớp
         [HttpPost("join-by-class-code")]
+        [EnableRateLimiting("JoinClassCodePolicy")]
         public async Task<IActionResult> JoincourseByClassCode([FromBody] EnrollCourseByClassCodeDto joinDto)
         {
           
