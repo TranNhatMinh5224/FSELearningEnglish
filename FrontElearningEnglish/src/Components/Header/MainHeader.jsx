@@ -88,8 +88,8 @@ export default function MainHeader() {
             </Nav.Item>
           </Nav>
 
-          {/* RIGHT: theme toggle + streak + notification + profile */}
-          <div className="main-header__right d-flex align-items-center gap-3">
+          {/* RIGHT: streak + notification + profile */}
+          <div className="main-header__right d-flex align-items-center gap-3 ms-4">
             <StreakDropdown />
             <WalletDropdown />
             <NotificationDropdown />

@@ -5,20 +5,19 @@
 @import './Theme/dark-theme-overrides.css';
 @import './Theme/modal-premium.css';
 
-body {
-  margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-    sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  font-size: var(--font-size-base);
-  line-height: 1.5;
-  background-color: var(--color-bg-primary, #ffffff);
-  color: var(--color-text-primary, #1f2937);
-  transition: background-color 0.3s ease, color 0.3s ease;
-  zoom: 0.8;
-  /* Force 80% scale by default for all users as requested */
+/* Desktop Scaling: Keep the compact layout only on screens wider than mobile/tablet */
+@media (min-width: 992px) {
+  body {
+    zoom: 0.8;
+    /* Force 80% scale by default for desktop based on user preference */
+  }
+}
+
+/* Mobile/Tablet: Use standard scale for accessibility and responsive reliability */
+@media (max-width: 991.98px) {
+  body {
+    zoom: 1;
+  }
 }
 
 code {
@@ -28,19 +27,20 @@ code {
 
 
 @media (min-width: 1200px) {
-
   .container,
   .container-lg,
   .container-xl,
-  .container-xxl,
-  .container-fluid {
-    width: 80% !important;
-    max-width: 1440px !important;
-    /* Premium constraint: never spread too thin on giant monitors */
-    margin-left: auto !important;
-    margin-right: auto !important;
+  .container-xxl {
+    max-width: 1440px;
+    margin-left: auto;
+    margin-right: auto;
     padding-left: 2rem;
     padding-right: 2rem;
+  }
+
+  /* Compact layout on high resolution desktop */
+  .container:not(.container-fluid) {
+    width: 85%; 
   }
 
   /* Exception: Background wrappers for Header, Footer, and other 'trần full' sections 
@@ -73,15 +73,36 @@ code {
   }
 }
 
-/* Specific centering for fixed-position or custom layout pages */
+/* Selective Layout for Pages */
+@media (min-width: 992px) {
+  .lecture-detail-page,
+  .quiz-detail-page,
+  .results-container,
+  .course-detail-page {
+    width: 85% !important;
+    max-width: 1440px !important;
+    margin: 0 auto !important;
+  }
+}
+
+@media (max-width: 991.98px) {
+  .lecture-detail-page,
+  .quiz-detail-page,
+  .results-container,
+  .course-detail-page {
+    width: 100% !important;
+    padding: 0 1rem;
+  }
+}
+
+/* Global Header Offset - Prevent content from being hidden under the fixed header */
 .lecture-detail-page,
 .quiz-detail-page,
-.results-container {
-  width: 80% !important;
-  max-width: 1440px !important;
-  margin: 0 auto !important;
-  left: 0 !important;
-  right: 0 !important;
+.results-container,
+.course-detail-page,
+.my-courses-container,
+.home-container {
+  padding-top: 80px !important; /* Standard header height + some breathing room */
 }
 
 /* Fix Bootstrap modals not covering the full screen horizontally/vertically under zoom: 0.8 */

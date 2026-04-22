@@ -45,9 +45,7 @@ export default function ProfileDropdown() {
         {!isGuest && (
           <div className="user-info d-flex flex-column">
             <span className="name">
-              {user?.fullName && user.fullName.length > 12
-                ? `${user.fullName.substring(0, 12)}...`
-                : user?.fullName}
+              {user?.fullName}
             </span>
             <span className="role">
               {isAdmin ? "Quản trị viên" : (isTeacher ? "Giáo viên" : "Học sinh")}

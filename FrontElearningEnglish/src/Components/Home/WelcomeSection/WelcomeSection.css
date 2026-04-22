@@ -195,9 +195,24 @@
 /* Bootstrap tự xử lý responsive layout - chỉ cần điều chỉnh styling */
 /* Mobile: 768px and below */
 @media (max-width: 768px) {
+    .welcome-section {
+        padding: 0.5rem 0 !important;
+    }
+
     .welcome-section__left {
-        text-align: center;
-        align-items: center;
+        text-align: left !important;
+        align-items: flex-start !important;
+    }
+
+    .welcome-section h1,
+    .welcome-section h2.welcome-title {
+        font-size: 1.5rem !important;
+        gap: 6px;
+    }
+
+    .welcome-section p {
+        font-size: 0.9rem !important;
+        margin-top: 4px !important;
     }
 }
 

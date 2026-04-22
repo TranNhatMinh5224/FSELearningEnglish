@@ -1,29 +1,27 @@
 /* =========================================================
    MAIN HEADER - Override Bootstrap styles
 ========================================================= */
-.main-header {
+.navbar.main-header {
   height: 70px;
-  padding: 0 !important;
-  background: var(--color-primary-gradient, linear-gradient(90deg, #6fd5e0, #d447b6)) !important;
+  padding: 0;
+  background: var(--color-primary-gradient, linear-gradient(90deg, #6fd5e0, #d447b6));
   color: var(--color-text-white, #fff);
   box-shadow: 0 2px 8px var(--shadow-sm, rgba(0, 0, 0, 0.1));
 }
 
-/* Override Bootstrap navbar */
-.main-header.navbar {
-  background: var(--color-primary-gradient, linear-gradient(90deg, #6fd5e0, #d447b6)) !important;
-}
-
 /* Default: collapse luôn show trên desktop */
 .main-header .navbar-collapse {
-  display: flex !important;
-  flex-basis: auto !important;
+  display: flex;
+  flex-basis: auto;
 }
 
 /* Bootstrap container inside header - chỉ thêm height và alignment */
 .main-header .container-fluid {
   height: 70px;
-  /* Bootstrap tự xử lý padding responsive */
+  display: flex;
+  align-items: center;
+  padding-left: clamp(1rem, 5vw, 4rem);
+  padding-right: clamp(1rem, 5vw, 4rem);
 }
 
 /* Override Bootstrap toggle button - giữ màu trắng */
@@ -40,13 +38,12 @@
    LEFT: Logo + Brand
 ========================================================= */
 /* Bootstrap utilities: d-flex, align-items-center, gap-3 */
-.main-header__left,
 .main-header .navbar-brand {
-  display: flex !important;
-  align-items: center !important;
+  display: flex;
+  align-items: center;
   gap: 14px;
-  color: var(--color-text-white, #fff) !important;
-  text-decoration: none !important;
+  color: var(--color-text-white, #fff);
+  text-decoration: none;
 }
 
 .main-header__logo {
@@ -67,22 +64,20 @@
    CENTER NAV - Override Bootstrap Nav styles
 ========================================================= */
 /* Bootstrap utilities: d-flex, justify-content-center, gap-* */
-.main-header__nav,
 .main-header .nav {
-  display: flex !important;
-  justify-content: center !important;
-  align-items: center !important;
+  display: flex;
+  justify-content: center;
+  align-items: center;
   gap: 32px;
-  flex-direction: row !important;
+  flex-direction: row;
   flex-wrap: nowrap;
 }
 
 /* Override Bootstrap Nav.Item */
 /* Bootstrap utilities: d-flex, align-items-center */
-.main-header .nav-item,
-.nav-item {
-  display: flex !important;
-  align-items: center !important;
+.main-header .nav-item {
+  display: flex;
+  align-items: center;
   justify-content: center;
   gap: 0.375rem;
   font-size: 0.875rem;
@@ -92,9 +87,9 @@
   border-radius: 0.5rem;
   transition: 0.22s ease;
   text-decoration: none;
-  color: var(--color-text-white, #fff) !important;
-  background: transparent !important;
-  border: none !important;
+  color: var(--color-text-white, #fff);
+  background: transparent;
+  border: none;
   white-space: nowrap;
 }
 
@@ -154,7 +149,7 @@
 .main-header__right {
   display: flex !important;
   align-items: center !important;
-  gap: 0.5rem;
+  gap: 1rem; /* Increased from 0.5rem */
   flex-wrap: nowrap;
 }
 
@@ -275,7 +270,7 @@
 .user-info {
   line-height: 1.1;
   font-size: 13px;
-  max-width: 180px;
+  max-width: 250px; /* Increased from 180px */
   min-width: 0;
 }
 

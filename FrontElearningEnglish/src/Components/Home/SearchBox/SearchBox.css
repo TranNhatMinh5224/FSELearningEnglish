@@ -351,12 +351,19 @@
 /* Responsive */
 @media (max-width: 768px) {
     .search-box {
-        width: 100%;
+        width: 100% !important;
+        margin: 0 !important;
+    }
+    
+    .search-input {
+        font-size: 14px !important;
+        padding: 12px 12px 12px 40px !important;
+        border-radius: 12px !important;
     }
 
-    .search-box input {
-        width: 100%;
-        max-width: 100%;
+    .search-icon {
+        left: 12px !important;
+        font-size: 16px !important;
     }
 
     .search-dropdown {

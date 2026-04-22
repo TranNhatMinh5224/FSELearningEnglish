@@ -155,8 +155,8 @@
     gap: var(--spacing-lg, clamp(1rem, 0.8rem + 1vw, 1.5rem));
     overflow-x: auto;
     overflow-y: hidden;
-    padding: 0 clamp(3rem, 2.5rem + 2.5vw, 3.75rem) var(--spacing-md, clamp(0.75rem, 0.6rem + 0.75vw, 1rem)) clamp(3rem, 2.5rem + 2.5vw, 3.75rem);
-    padding-right: calc(clamp(3rem, 2.5rem + 2.5vw, 3.75rem) + 240px + var(--spacing-lg, clamp(1rem, 0.8rem + 1vw, 1.5rem))); /* padding-right + card width + gap để đảm bảo card cuối cùng hiển thị đầy đủ */
+    padding: 0 1rem var(--spacing-md, 1rem) 1rem;
+    padding-right: calc(1rem + 240px + 1rem); 
     scroll-behavior: smooth;
     -webkit-overflow-scrolling: touch;
     position: relative;
@@ -243,17 +243,18 @@
 
 @media (max-width: 480px) {
     .course-card {
-        width: clamp(160px, 10rem + 1.25vw, 180px);
+        width: 220px !important; /* Increased from 160px for better visibility */
+        flex-shrink: 0;
     }
 
     .course-grid {
-        padding: 0 clamp(2.25rem, 1.75rem + 2.5vw, 2.8125rem) var(--spacing-sm, clamp(0.5rem, 0.4rem + 0.5vw, 0.75rem)) clamp(2.25rem, 1.75rem + 2.5vw, 2.8125rem);
-        padding-right: calc(clamp(2.25rem, 1.75rem + 2.5vw, 2.8125rem) + clamp(160px, 10rem + 1.25vw, 180px) + var(--spacing-sm, clamp(0.5rem, 0.4rem + 0.5vw, 0.75rem)));
+        padding: 0 1rem var(--spacing-sm, 0.5rem) 1rem;
+        padding-right: calc(1rem + 220px + 0.75rem);
     }
 
     .scroll-button {
-        width: clamp(28px, 1.75rem + 0.5vw, 32px);
-        height: clamp(28px, 1.75rem + 0.5vw, 32px);
-        font-size: var(--font-size-sm, clamp(0.875rem, 0.8rem + 0.375vw, 1rem));
+        width: 32px !important;
+        height: 32px !important;
+        font-size: 14px !important;
     }
 }
