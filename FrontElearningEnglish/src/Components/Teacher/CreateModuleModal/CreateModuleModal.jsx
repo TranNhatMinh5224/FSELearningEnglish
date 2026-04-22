@@ -122,7 +122,9 @@ export default function CreateModuleModal({ show, onClose, onSuccess, lessonId, 
                 onUploadSuccess={handleImageUploadSuccess}
                 onRemove={() => setImageUrl(null)}
                 onUploadingChange={setUploadingImage}
-                label="Chọn ảnh hoặc kéo thả vào đây"
+                label={isUpdateMode ? "Thay đổi ảnh module" : "Chọn ảnh đại diện cho module"}
+                hint="Khuyến nghị tỉ lệ 16:9 để hiển thị đẹp nhất."
+                previewClassName="course-image-preview"
               />
             </div>
 

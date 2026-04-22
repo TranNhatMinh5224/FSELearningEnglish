@@ -321,8 +321,9 @@ export default function CreateLessonModal({ show, onClose, onSuccess, courseId, 
                 onUploadSuccess={handleImageUploadSuccess}
                 onRemove={handleImageRemove}
                 onError={handleImageUploadError}
-                label="Chọn ảnh hoặc kéo thả vào đây"
-                hint="Hỗ trợ Paste (Ctrl+V) từ Clipboard"
+                label={isUpdateMode ? "Thay đổi ảnh bài học" : "Chọn ảnh đại diện cho bài học"}
+                hint="Khuyến nghị tỉ lệ 16:9 để hiển thị đẹp nhất trên danh sách bài học."
+                previewClassName="course-image-preview"
                 enablePaste={true}
               />
             </div>

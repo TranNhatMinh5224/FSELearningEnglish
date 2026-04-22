@@ -451,7 +451,9 @@ export default function CourseFormModal({ show, onClose, onSubmit, initialData }
                                         onUploadSuccess={handleImageUploadSuccess}
                                         onRemove={handleImageRemove}
                                         onError={handleImageUploadError}
-                                        label="Kéo thả ảnh vào đây"
+                                        label={isUpdateMode ? "Thay đổi ảnh lớp học" : "Chọn ảnh đại diện cho lớp học"}
+                                        hint="Khuyến nghị tỉ lệ 16:9 (VD: 1200x675) để hiển thị đẹp nhất."
+                                        previewClassName="course-image-preview"
                                     />
                                     
                                     <div className="featured-toggle mt-4 p-3 rounded-4 bg-light border">

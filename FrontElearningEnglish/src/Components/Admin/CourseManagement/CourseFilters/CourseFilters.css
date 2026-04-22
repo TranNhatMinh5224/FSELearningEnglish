@@ -46,16 +46,31 @@
   border-color: #212529;
 }
 
+.filter-tab.active-all:hover {
+  background-color: #343a40;
+  border-color: #343a40;
+}
+
 .filter-tab.active-system {
   background-color: #0d6efd;
   color: white;
   border-color: #0d6efd;
 }
 
+.filter-tab.active-system:hover {
+  background-color: #0b5ed7;
+  border-color: #0b5ed7;
+}
+
 .filter-tab.active-teacher {
   background-color: #0dcaf0;
   color: #212529;
   border-color: #0dcaf0;
+}
+
+.filter-tab.active-teacher:hover {
+  background-color: #31d2f2;
+  border-color: #31d2f2;
 }
 
 .filter-actions {

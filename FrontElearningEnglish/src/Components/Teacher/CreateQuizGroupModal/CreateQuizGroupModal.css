@@ -17,7 +17,7 @@
 .create-quiz-group-modal .modal-body {
   background-color: #f8fafc;
   padding: 1.5rem 2rem;
-  max-height: calc(125vh - 180px);
+  max-height: calc(100vh - 150px);
   overflow-y: auto;
 }
 

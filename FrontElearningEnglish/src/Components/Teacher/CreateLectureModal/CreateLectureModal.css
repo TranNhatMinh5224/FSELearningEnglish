@@ -43,7 +43,7 @@
 .clm-body {
   background-color: #f8fafc;
   padding: 1.5rem 2rem;
-  max-height: calc(125vh - 180px);
+  max-height: calc(100vh - 150px);
   overflow-y: auto;
 }
 
@@ -230,7 +230,8 @@
 .clm-markdown-preview {
   padding: 1.25rem;
   background: #fff;
-  max-height: 500px;
+  min-height: 350px;
+  max-height: 450px;
   overflow-y: auto;
 }
 
