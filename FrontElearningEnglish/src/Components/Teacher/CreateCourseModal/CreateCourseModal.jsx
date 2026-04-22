@@ -23,14 +23,12 @@ export default function CreateCourseModal({ show, onClose, onSuccess, courseData
     handleSubmit,
     textAreaRef,
     insertMarkdown,
-    maxStudent,
-    loadingPackage,
+    uploadingImage,
+    setUploadingImage,
     imageUrl,
     setImageUrl,
     setImageTempKey,
     setImageType,
-    uploadingImage,
-    setUploadingImage,
   } = useCourseForm(show, isUpdateMode, courseData, onSuccess, onClose);
 
   const hasFormData = () => {
@@ -39,7 +37,7 @@ export default function CreateCourseModal({ show, onClose, onSuccess, courseData
       const originalDescription = courseData.description || courseData.Description || "";
       return formData.title !== originalTitle || formData.description !== originalDescription || !!imageUrl;
     }
-    return formData.title.trim() !== "" || formData.description.trim() !== "" || !!imageUrl;
+    return (formData.title && formData.title.trim() !== "") || (formData.description && formData.description.trim() !== "") || !!imageUrl;
   };
 
   const handleClose = () => {
@@ -88,15 +86,6 @@ export default function CreateCourseModal({ show, onClose, onSuccess, courseData
                 maxLength={200}
               />
 
-              <FormInput
-                label="Số học viên tối đa"
-                name="maxStudent"
-                value={maxStudent}
-                readOnly
-                disabled
-                hint={loadingPackage ? "Đang kiểm tra gói của bạn..." : "Giá trị này được tính tự động từ gói giáo viên của bạn."}
-                placeholder="Đang tải..."
-              />
             </div>
 
             <div className="form-section-card p-3 mb-4">

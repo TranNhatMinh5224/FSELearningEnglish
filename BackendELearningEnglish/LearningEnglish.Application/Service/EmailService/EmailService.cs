@@ -29,7 +29,7 @@ namespace LearningEnglish.Application.Service
 
         public async Task SendNotifyJoinCourseAsync(string toEmail, string courseName, string userName)
         {
-            var subject = "Course Enrollment Confirmation - Catalunya English";
+            var subject = "🎉 Xác nhận đăng ký và học tập thành công - Catalunya English";
             var body = _templateService.GenerateNotifyJoinCourseTemplate(courseName, userName);
             await _emailSender.SendEmailAsync(toEmail, subject, body);
         }

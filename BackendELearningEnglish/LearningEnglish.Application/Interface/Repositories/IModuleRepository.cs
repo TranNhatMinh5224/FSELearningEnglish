@@ -19,6 +19,9 @@ namespace LearningEnglish.Application.Interface
         // Lấy module theo lesson với chi tiết
         Task<List<Module>> GetByLessonIdWithDetailsAsync(int lessonId);
         
+        // Lấy toàn bộ modules của khóa học với chi tiết
+        Task<List<Module>> GetByCourseIdWithDetailsAsync(int courseId);
+        
         // Lấy module theo lesson cho Teacher (kiểm tra ownership)
         Task<List<Module>> GetByLessonIdForTeacherAsync(int lessonId, int teacherId);
         

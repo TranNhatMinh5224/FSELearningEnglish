@@ -73,6 +73,21 @@ namespace LearningEnglish.Infrastructure.Repositories
                 .ToListAsync();
         }
 
+        public async Task<List<Module>> GetByCourseIdWithDetailsAsync(int courseId)
+        {
+            return await _context.Modules
+                .AsNoTracking()
+                .Include(m => m.Lesson)
+                .Include(m => m.Lectures)
+                .Include(m => m.FlashCards)
+                .Include(m => m.Assessments)
+                .Where(m => m.Lesson!.CourseId == courseId)
+                .OrderBy(m => m.Lesson!.OrderIndex)
+                .ThenBy(m => m.ContentType)
+                .ThenBy(m => m.OrderIndex)
+                .ToListAsync();
+        }
+
         public async Task<List<Module>> GetByLessonIdForTeacherAsync(int lessonId, int teacherId)
         {
             return await _context.Modules

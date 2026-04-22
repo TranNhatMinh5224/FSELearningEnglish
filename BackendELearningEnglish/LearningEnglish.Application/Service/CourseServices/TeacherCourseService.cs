@@ -83,16 +83,8 @@ namespace LearningEnglish.Application.Service
                     return response;
                 }
 
-                // Kiểm tra MaxStudent của course không vượt quá giới hạn package
-                if (requestDto.MaxStudent > 0 && requestDto.MaxStudent > teacherPackage.MaxStudents)
-                {
-                    response.Success = false;
-                    response.Message = $"MaxStudent ({requestDto.MaxStudent}) cannot exceed your package limit ({teacherPackage.MaxStudents}). Please upgrade your package.";
-                    return response;
-                }
-
-                // Nếu teacher không set MaxStudent (0), tự động set = MaxStudents của package
-                int courseMaxStudent = requestDto.MaxStudent > 0 ? requestDto.MaxStudent : teacherPackage.MaxStudents;
+                // Tự động gán MaxStudent theo giới hạn của Package (không cho phép tùy chỉnh)
+                int courseMaxStudent = teacherPackage.MaxStudents;
 
                 // Tạo course entity
                 var course = new Course
@@ -231,29 +223,8 @@ namespace LearningEnglish.Application.Service
                     course.DescriptionMarkdown = requestDto.Description;
                 }
 
-                // Cập nhật MaxStudent nếu có
-                if (requestDto.MaxStudent.HasValue && requestDto.MaxStudent.Value > 0)
-                {
-                    // Kiểm tra MaxStudent không vượt quá package limit
-                    if (requestDto.MaxStudent.Value > teacherPackage.MaxStudents)
-                    {
-                        response.Success = false;
-                        response.StatusCode = 400;
-                        response.Message = $"Số học sinh tối đa ({requestDto.MaxStudent.Value}) không được vượt quá giới hạn gói ({teacherPackage.MaxStudents})";
-                        return response;
-                    }
-
-                    // Nếu đã có students enrolled, không cho phép giảm MaxStudent xuống dưới EnrollmentCount
-                    if (requestDto.MaxStudent.Value < course.EnrollmentCount)
-                    {
-                        response.Success = false;
-                        response.StatusCode = 400;
-                        response.Message = $"Không thể đặt số học sinh tối đa ({requestDto.MaxStudent.Value}) thấp hơn số lượng đã đăng ký ({course.EnrollmentCount})";
-                        return response;
-                    }
-
-                    course.MaxStudent = requestDto.MaxStudent.Value;
-                }
+                // Luôn cập nhật/đồng bộ MaxStudent theo giới hạn của Package hiện tại (không cho phép tùy chỉnh thấp hơn)
+                course.MaxStudent = teacherPackage.MaxStudents;
 
                 string? newImageKey = null;
                 string? oldImageKey = !string.IsNullOrWhiteSpace(course.ImageKey) ? course.ImageKey : null;

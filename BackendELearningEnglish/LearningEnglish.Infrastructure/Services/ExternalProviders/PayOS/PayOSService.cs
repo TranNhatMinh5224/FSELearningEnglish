@@ -106,7 +106,9 @@ namespace LearningEnglish.Infrastructure.Services.ExternalProviders.PayOS
                     _logger.LogError("PayOS API error: {StatusCode}, {Response}",
                         httpResponse.StatusCode, responseContent);
                     response.Success = false;
-                    response.Message = $"PayOS API error: {responseContent}";
+                    response.Message = $"PayOS API error ({httpResponse.StatusCode}): {responseContent}";
+                    if (responseContent.Contains("Invalid Checksum"))
+                        response.Message = "Lỗi xác thực PayOS: Checksum không hợp lệ. Vui lòng kiểm tra ChecksumKey trong appsettings.";
                     return response;
                 }
 

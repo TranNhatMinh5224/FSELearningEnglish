@@ -5,6 +5,7 @@ import { FaCheckCircle } from "react-icons/fa";
 import { paymentService } from "../../Services/paymentService";
 import { useAuth } from "../../Context/AuthContext";
 import { useQueryClient } from "@tanstack/react-query";
+import EnrollmentSuccessModal from "../../Components/Common/EnrollmentSuccessModal/EnrollmentSuccessModal";
 
 export default function PaymentSuccess() {
   const { refreshUser } = useAuth();
@@ -16,6 +17,7 @@ export default function PaymentSuccess() {
   
   const [paymentDetails, setPaymentDetails] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [showEnrollmentSuccessModal, setShowEnrollmentSuccessModal] = useState(false);
 
   useEffect(() => {
     const fetchPaymentDetails = async () => {
@@ -33,7 +35,14 @@ export default function PaymentSuccess() {
       try {
         const response = await paymentService.getTransactionDetail(paymentId);
         if (response.data?.success && response.data?.data) {
-          setPaymentDetails(response.data.data);
+          const data = response.data.data;
+          setPaymentDetails(data);
+          
+          // Nếu đây là thanh toán khóa học (ProductType.Course = 1) và đã thành công
+          if ((data.productType === 1 || data.ProductType === 1) && 
+              (data.status === 1 || data.Status === 1)) { // Completed = 1
+              setShowEnrollmentSuccessModal(true);
+          }
         }
       } catch (error) {
         console.error("Error fetching payment details:", error);
@@ -109,6 +118,22 @@ export default function PaymentSuccess() {
           </button>
         </div>
       </div>
+
+      {/* Premium Notification Modal */}
+      <EnrollmentSuccessModal
+        isOpen={showEnrollmentSuccessModal}
+        onClose={() => setShowEnrollmentSuccessModal(false)}
+        onGoToCourse={() => {
+          setShowEnrollmentSuccessModal(false);
+          if (paymentDetails?.productId) {
+            navigate(`/course/${paymentDetails.productId}/learn`);
+          }
+        }}
+        course={{
+          title: paymentDetails?.productName,
+          // ImageUrl có thể không có trong transaction detail, nhưng modal sẽ hiện icon default
+        }}
+      />
     </div>
   );
 }

@@ -45,6 +45,15 @@ namespace LearningEnglish.API.Controller.User
             return result.Success ? Ok(result) : StatusCode(result.StatusCode, result);
         }
 
+        // GET: User lấy danh sách modules theo course + progress
+        [HttpGet("course/{courseId}")]
+        public async Task<IActionResult> GetModulesWithProgressByCourse(int courseId)
+        {
+            var userId = User.GetUserId();
+            var result = await _moduleService.GetModulesWithProgressByCourseId(courseId, userId);
+            return result.Success ? Ok(result) : StatusCode(result.StatusCode, result);
+        }
+
         // POST: User bắt đầu module (auto-complete cho FlashCard/Lecture/Video/Reading)
         [HttpPost("{moduleId}/start")]
         public async Task<IActionResult> StartModule(int moduleId)

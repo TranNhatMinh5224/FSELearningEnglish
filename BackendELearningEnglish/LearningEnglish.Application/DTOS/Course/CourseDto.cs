@@ -204,4 +204,12 @@ namespace LearningEnglish.Application.DTOs
         // Lessons list
         public List<LessonSummaryDto> Lessons { get; set; } = new();
     }
+
+    // DTO trả về khi đăng ký/tham gia khóa học thành công
+    public class EnrollmentSuccessResponseDto
+    {
+        public int CourseId { get; set; }
+        public string Title { get; set; } = string.Empty;
+        public string? ImageUrl { get; set; }
+    }
 }

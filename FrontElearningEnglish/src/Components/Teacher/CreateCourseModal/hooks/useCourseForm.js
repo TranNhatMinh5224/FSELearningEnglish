@@ -1,13 +1,10 @@
 import { useState, useEffect, useRef, useCallback, useMemo } from "react";
 import { teacherService } from "../../../../Services/teacherService";
-import { teacherPackageService } from "../../../../Services/teacherPackageService";
 import { useAuth } from "../../../../Context/AuthContext";
 import { useEntityForm } from "../../../../hooks/useEntityForm";
 
 export const useCourseForm = (show, isUpdateMode, courseData, onSuccess, onClose) => {
-  const { user } = useAuth();
-  const [maxStudent, setMaxStudent] = useState(0);
-  const [loadingPackage, setLoadingPackage] = useState(false);
+  const { } = useAuth();
   const [imageTempKey, setImageTempKey] = useState(null);
   const [imageType, setImageType] = useState(null);
   const [imageUrl, setImageUrl] = useState(null);
@@ -38,7 +35,6 @@ export const useCourseForm = (show, isUpdateMode, courseData, onSuccess, onClose
     let submitData = {
       title: values.title.trim(),
       description: values.description.trim(),
-      maxStudent: maxStudent || 0,
     };
 
     if (imageTempKey && imageType) {
@@ -61,7 +57,7 @@ export const useCourseForm = (show, isUpdateMode, courseData, onSuccess, onClose
     } else {
       throw new Error(response.data?.message || "Thao tác thất bại");
     }
-  }, [maxStudent, imageTempKey, imageType, isUpdateMode, courseData, onSuccess, onClose]);
+  }, [imageTempKey, imageType, isUpdateMode, courseData, onSuccess, onClose]);
 
   const form = useEntityForm(initialValues, validate, onSubmit);
   const { setFormData, resetForm, formData, handleChange } = form;
@@ -117,43 +113,10 @@ export const useCourseForm = (show, isUpdateMode, courseData, onSuccess, onClose
     }
   }, [show, isUpdateMode, courseData, setFormData, resetForm]);
 
-  // Load package
-  useEffect(() => {
-    const loadMaxStudent = async () => {
-      if (!show || !user?.teacherSubscription?.packageLevel) {
-        setMaxStudent(0);
-        return;
-      }
-
-      try {
-        setLoadingPackage(true);
-        const packageResponse = await teacherPackageService.getAll();
-        const userLevel = user.teacherSubscription.packageLevel.toLowerCase().trim();
-
-        if (packageResponse.data?.success && packageResponse.data?.data) {
-          const matchedPackage = packageResponse.data.data.find(pkg => 
-            (pkg.packageName || pkg.PackageName || "").toLowerCase().includes(userLevel)
-          );
-          if (matchedPackage) {
-            setMaxStudent(matchedPackage.maxStudents || matchedPackage.MaxStudents || 0);
-          }
-        }
-      } catch (error) {
-        console.error("Error loading teacher package:", error);
-      } finally {
-        setLoadingPackage(false);
-      }
-    };
-
-    if (show) loadMaxStudent();
-  }, [show, user]);
-
   return {
     ...form,
     textAreaRef,
     insertMarkdown,
-    maxStudent,
-    loadingPackage,
     imageUrl,
     setImageUrl,
     setImageTempKey,

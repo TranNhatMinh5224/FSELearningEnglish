@@ -140,6 +140,69 @@ namespace LearningEnglish.Application.Service
                 return response;
             }
         }
+
+        public async Task<ServiceResponse<List<ModuleWithProgressDto>>> GetModulesWithProgressByCourseId(int courseId, int userId)
+        {
+            var response = new ServiceResponse<List<ModuleWithProgressDto>>();
+            try
+            {
+                // Cache cấu trúc module của toàn bộ khóa học
+                var cachedModules = await _cache.GetOrSetAsync(
+                    CacheKeys.ModulesByCourse(courseId),
+                    async () =>
+                    {
+                        var modules = await _moduleRepository.GetByCourseIdWithDetailsAsync(courseId);
+                        var dtos = modules.Select(module =>
+                        {
+                            var dto = _mapper.Map<ModuleWithProgressDto>(module);
+                            if (!string.IsNullOrWhiteSpace(module.ImageKey))
+                                dto.ImageUrl = _moduleImageService.BuildImageUrl(module.ImageKey);
+                            dto.IsCompleted = false;
+                            dto.ProgressPercentage = 0;
+                            return dto;
+                        }).ToList();
+                        return dtos;
+                    },
+                    TimeSpan.FromMinutes(30));
+
+                if (cachedModules == null || cachedModules.Count == 0)
+                {
+                    response.Data = new List<ModuleWithProgressDto>();
+                    response.Message = "Không tìm thấy module nào cho khóa học này";
+                    return response;
+                }
+
+                var completions = await _moduleCompletionRepository
+                    .GetByUserAndModuleIdsAsync(userId, cachedModules.Select(x => x.ModuleId).ToList());
+
+                // Clone từ cache và đè progress cá nhân
+                var result = cachedModules.Select(m => m.ShallowCopy()).ToList();
+
+                foreach (var dto in result)
+                {
+                    var completion = completions.FirstOrDefault(x => x.ModuleId == dto.ModuleId);
+                    if (completion != null)
+                    {
+                        dto.IsCompleted = completion.IsCompleted;
+                        dto.ProgressPercentage = completion.ProgressPercentage;
+                        dto.StartedAt = completion.StartedAt;
+                        dto.CompletedAt = completion.CompletedAt;
+                    }
+                }
+
+                response.Data = result;
+                response.Message = "Lấy danh sách module của khóa học thành công";
+                return response;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Lỗi khi lấy module của khóa học {CourseId}", courseId);
+                response.Success = false;
+                response.StatusCode = 500;
+                response.Message = "Đã xảy ra lỗi khi lấy danh sách module của khóa học";
+                return response;
+            }
+        }
     }
 }
 

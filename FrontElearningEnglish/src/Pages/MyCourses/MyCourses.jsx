@@ -6,9 +6,9 @@ import "../../Components/Home/WelcomeSection/WelcomeSection.css"; // Import Welc
 import MainHeader from "../../Components/Header/MainHeader";
 import JoinClassModal from "../../Components/Common/JoinClassModal/JoinClassModal";
 import NotificationModal from "../../Components/Common/NotificationModal/NotificationModal";
-import SuccessModal from "../../Components/Common/SuccessModal/SuccessModal";
 import SuggestedCourseCard from "../../Components/Home/SuggestedCourseCard/SuggestedCourseCard";
 import AccountUpgradeSection from "../../Components/Home/AccountUpgradeSection/AccountUpgradeSection";
+import EnrollmentSuccessModal from "../../Components/Common/EnrollmentSuccessModal/EnrollmentSuccessModal";
 import { FaPlus } from "react-icons/fa";
 import { enrollmentService } from "../../Services/enrollmentService";
 import { useQueryClient } from "@tanstack/react-query";
@@ -39,8 +39,8 @@ export default function MyCourses() {
     const [showLoginModal, setShowLoginModal] = useState(false);
     
     // Notification states
-    const [showSuccessModal, setShowSuccessModal] = useState(false);
-    const [successMessage, setSuccessMessage] = useState("");
+    const [showEnrollmentSuccessModal, setShowEnrollmentSuccessModal] = useState(false);
+    const [enrolledCourseInfo, setEnrolledCourseInfo] = useState(null);
     const [showInfoModal, setShowInfoModal] = useState(false);
     const [infoMessage, setInfoMessage] = useState("");
     const [showErrorModal, setShowErrorModal] = useState(false);
@@ -142,11 +142,18 @@ export default function MyCourses() {
                     setCurrentPage(1);
                 }
 
-                // Hiển thị SuccessModal đẹp cho thông báo thành công sau khi danh sách đã cập nhật
-                setTimeout(() => {
-                    setSuccessMessage("Đã tham gia lớp học thành công! Khóa học đã được thêm vào danh sách của bạn.");
-                    setShowSuccessModal(true);
-                }, 300);
+                // Hiển thị EnrollmentSuccessModal với thông tin khóa học từ Backend
+                if (response.data?.data) {
+                    setEnrolledCourseInfo({
+                        courseId: response.data.data.courseId || response.data.data.CourseId,
+                        title: response.data.data.title || response.data.data.Title,
+                        imageUrl: response.data.data.imageUrl || response.data.data.ImageUrl
+                    });
+                    
+                    setTimeout(() => {
+                        setShowEnrollmentSuccessModal(true);
+                    }, 300);
+                }
             } else {
                 // Join thất bại - kiểm tra xem có phải "đã đăng ký rồi" không
                 const errorMessage = response.data?.message || "";
@@ -355,14 +362,17 @@ export default function MyCourses() {
                 onClose={() => setShowLoginModal(false)}
             />
 
-            {/* Notification Modals */}
-            <SuccessModal
-                isOpen={showSuccessModal}
-                onClose={() => setShowSuccessModal(false)}
-                title="Thành công"
-                message={successMessage}
-                autoClose={true}
-                autoCloseDelay={2000}
+            {/* Success Modal mới - đẹp hơn */}
+            <EnrollmentSuccessModal
+                isOpen={showEnrollmentSuccessModal}
+                onClose={() => setShowEnrollmentSuccessModal(false)}
+                onGoToCourse={() => {
+                    setShowEnrollmentSuccessModal(false);
+                    if (enrolledCourseInfo?.courseId) {
+                        navigate(`/course/${enrolledCourseInfo.courseId}/learn`);
+                    }
+                }}
+                course={enrolledCourseInfo}
             />
 
             <NotificationModal

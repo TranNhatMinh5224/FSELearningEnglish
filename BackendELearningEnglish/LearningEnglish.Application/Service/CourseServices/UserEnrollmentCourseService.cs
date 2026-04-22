@@ -3,6 +3,7 @@ using LearningEnglish.Application.Interface;
 using LearningEnglish.Domain.Entities;
 using LearningEnglish.Domain.Enums;
 using LearningEnglish.Application.Common;
+using LearningEnglish.Application.Interface.Infrastructure.MediaService;
 using Microsoft.Extensions.Logging;
 
 namespace LearningEnglish.Application.Service
@@ -15,6 +16,7 @@ namespace LearningEnglish.Application.Service
         private readonly INotificationRepository _notificationRepository;
         private readonly IUserRepository _userRepository;
         private readonly IEmailService _emailService;
+        private readonly ICourseImageService _courseImageService;
         private readonly ILogger<UserEnrollmentService> _logger;
 
         public UserEnrollmentService(
@@ -24,6 +26,7 @@ namespace LearningEnglish.Application.Service
             INotificationRepository notificationRepository,
             IUserRepository userRepository,
             IEmailService emailService,
+            ICourseImageService courseImageService,
             ILogger<UserEnrollmentService> logger)
         {
             _courseRepository = courseRepository;
@@ -32,6 +35,7 @@ namespace LearningEnglish.Application.Service
             _notificationRepository = notificationRepository;
             _userRepository = userRepository;
             _emailService = emailService;
+            _courseImageService = courseImageService;
             _logger = logger;
         }
 
@@ -68,9 +72,9 @@ namespace LearningEnglish.Application.Service
 
         // User đăng ký khóa học (hỗ trợ cả course hệ thống và course teacher tạo)
      
-        public async Task<ServiceResponse<bool>> EnrollInCourseAsync(EnrollCourseDto enrollDto, int userId)
+        public async Task<ServiceResponse<EnrollmentSuccessResponseDto>> EnrollInCourseAsync(EnrollCourseDto enrollDto, int userId)
         {
-            var response = new ServiceResponse<bool>();
+            var response = new ServiceResponse<EnrollmentSuccessResponseDto>();
 
             try
             {
@@ -168,7 +172,12 @@ namespace LearningEnglish.Application.Service
 
                 response.Success = true;
                 response.StatusCode = 200;
-                response.Data = true;
+                response.Data = new EnrollmentSuccessResponseDto
+                {
+                    CourseId = course.CourseId,
+                    Title = course.Title,
+                    ImageUrl = _courseImageService.BuildImageUrl(course.ImageKey)
+                };
                 response.Message = "Đăng ký khóa học thành công";
 
                 _logger.LogInformation("User {UserId} enrolled in course {CourseId}", userId, enrollDto.CourseId);
@@ -220,9 +229,9 @@ namespace LearningEnglish.Application.Service
 
             return response;
         }
-        public async Task<ServiceResponse<bool>> EnrollInCourseByClassCodeAsync(string classCode, int userId)
+        public async Task<ServiceResponse<EnrollmentSuccessResponseDto>> EnrollInCourseByClassCodeAsync(string classCode, int userId)
         {
-            var response = new ServiceResponse<bool>();
+            var response = new ServiceResponse<EnrollmentSuccessResponseDto>();
             int? courseId = null;
 
             try
@@ -295,9 +304,17 @@ namespace LearningEnglish.Application.Service
                 // Đăng ký user vào course
                 await _courseRepository.EnrollUserInCourse(userId, course.CourseId);
 
+                // Tạo notification cho user (In-app + Email)
+                await CreateEnrollmentNotificationAsync(userId, course.Title);
+
                 response.Success = true;
                 response.StatusCode = 200;
-                response.Data = true;
+                response.Data = new EnrollmentSuccessResponseDto
+                {
+                    CourseId = course.CourseId,
+                    Title = course.Title,
+                    ImageUrl = _courseImageService.BuildImageUrl(course.ImageKey)
+                };
                 response.Message = "Đăng ký khóa học thành công qua mã lớp học";
 
                 _logger.LogInformation("User {UserId} enrolled in course {CourseId} via class code {ClassCode}", userId, course.CourseId, classCode);

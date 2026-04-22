@@ -12,6 +12,7 @@ public static class CacheKeys
 
     // ── Module ────────────────────────────────────────────────────────────
     public static string ModulesByLesson(int lessonId) => $"modules:lesson:{lessonId}";
+    public static string ModulesByCourse(int courseId) => $"modules:course:{courseId}";
 
     // ── Teacher Package ───────────────────────────────────────────────────
     public const string TeacherPackageList = "teacher-packages:list";
