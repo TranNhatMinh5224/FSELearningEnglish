@@ -116,7 +116,9 @@ export default function QuestionCard({ question, answer, onChange, questionNumbe
                                         <div className="d-flex justify-content-between align-items-start">
                                             <h5 className="question-headline-v4 mb-0">
                                                 <span className="question-number-prefix">Câu {subQNumber}:</span>
-                                                <span className="question-text-content ms-2">{subQText}</span>
+                                                <span className="question-text-content ms-2">
+                                                    {getQuestionType(subQ) === 4 ? "Điền từ vào chỗ trống:" : subQText}
+                                                </span>
                                             </h5>
                                             <div className="points-badge-v4-compact">
                                                 <span className="points-value">{(subQ.points || subQ.Points || 0).toFixed(2)}</span>
@@ -149,7 +151,11 @@ export default function QuestionCard({ question, answer, onChange, questionNumbe
                                 <div className="d-flex justify-content-between align-items-start">
                                     <h5 className="question-headline-v4 mb-0">
                                         <span className="question-number-prefix">Câu {questionNumber}:</span>
-                                        <span className="question-text-content ms-2">{question.questionText || question.QuestionText || question.stemText || question.StemText || "Câu hỏi"}</span>
+                                        <span className="question-text-content ms-2">
+                                            {getQuestionType(question) === 4 
+                                                ? "Điền từ vào chỗ trống:" 
+                                                : (question.questionText || question.QuestionText || question.stemText || question.StemText || "Câu hỏi")}
+                                        </span>
                                     </h5>
                                     <div className="points-badge-v4-compact">
                                         <span className="points-value">{(question.points || question.Points || 0).toFixed(2)}</span>
