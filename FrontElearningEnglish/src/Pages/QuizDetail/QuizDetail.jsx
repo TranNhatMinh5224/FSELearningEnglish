@@ -546,7 +546,10 @@ export default function QuizDetail() {
                         autoClose: true
                     });
 
-                    // Hide overlay and exit focus mode immediately
+                    // Save results URL to navigate after notification is closed
+                    pendingNavigationRef.current = `/course/${courseId}/lesson/${lessonId}/module/${moduleId}/quiz/${quizId}/attempt/${currentAttemptId}/results`;
+
+                    // Exit focus mode and clean up UI before closing
                     setSubmitting(false);
                     setIsFocusMode(false);
                     if (document.fullscreenElement) {
@@ -556,14 +559,11 @@ export default function QuizDetail() {
                     // Save result to localStorage
                     localStorage.setItem(`quiz_result_${currentAttemptId}`, JSON.stringify(resultData));
 
-                    // Xóa quiz progress khỏi localStorage vì đã submit
+                    // Xóa quiz progress khỏi localStorage vì đã nộp
                     const quizIdToRemove = quizAttempt?.quizId || quizAttempt?.QuizId || quizId;
                     if (quizIdToRemove) {
                         localStorage.removeItem(`quiz_in_progress_${quizIdToRemove}`);
                     }
-
-                    // Điều hướng sang trang kết quả ngay lập tức (bypass modal nếu zoom hoặc modal bị che)
-                    navigate(`/course/${courseId}/lesson/${lessonId}/module/${moduleId}/quiz/${quizId}/attempt/${currentAttemptId}/results`);
                 } else {
                     console.error("✗ Submit failed - Response not successful");
                     console.error("Response data:", response.data);
