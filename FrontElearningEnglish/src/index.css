@@ -75,34 +75,34 @@ code {
 
 /* Selective Layout for Pages */
 @media (min-width: 992px) {
-  .lecture-detail-page,
-  .quiz-detail-page,
-  .results-container,
-  .course-detail-page {
-    width: 85% !important;
-    max-width: 1440px !important;
-    margin: 0 auto !important;
+  main .lecture-detail-page,
+  main .quiz-detail-page,
+  main .results-container,
+  main .course-detail-page {
+    width: 85%;
+    max-width: 1440px;
+    margin: 0 auto;
   }
 }
 
 @media (max-width: 991.98px) {
-  .lecture-detail-page,
-  .quiz-detail-page,
-  .results-container,
-  .course-detail-page {
-    width: 100% !important;
+  main .lecture-detail-page,
+  main .quiz-detail-page,
+  main .results-container,
+  main .course-detail-page {
+    width: 100%;
     padding: 0 1rem;
   }
 }
 
 /* Global Header Offset - Prevent content from being hidden under the fixed header */
-.lecture-detail-page,
-.quiz-detail-page,
-.results-container,
-.course-detail-page,
-.my-courses-container,
-.home-container {
-  padding-top: 80px !important; /* Standard header height + some breathing room */
+body .lecture-detail-page,
+body .quiz-detail-page,
+body .results-container,
+body .course-detail-page,
+body .my-courses-container,
+body .home-container {
+  padding-top: 80px; /* Standard header height + some breathing room */
 }
 
 /* Fix Bootstrap modals not covering the full screen horizontally/vertically under zoom: 0.8 */

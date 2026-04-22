@@ -350,23 +350,23 @@
 
 /* Responsive */
 @media (max-width: 768px) {
-    .search-box {
-        width: 100% !important;
-        margin: 0 !important;
+    .search-box-container .search-box {
+        width: 100%;
+        margin: 0;
     }
     
-    .search-input {
-        font-size: 14px !important;
-        padding: 12px 12px 12px 40px !important;
-        border-radius: 12px !important;
+    .search-box-container .search-input {
+        font-size: 14px;
+        padding: 12px 12px 12px 40px;
+        border-radius: 12px;
     }
 
-    .search-icon {
-        left: 12px !important;
-        font-size: 16px !important;
+    .search-box-container .search-icon {
+        left: 12px;
+        font-size: 16px;
     }
 
-    .search-dropdown {
+    .search-box-container .search-dropdown {
         right: 0;
         left: 0;
     }

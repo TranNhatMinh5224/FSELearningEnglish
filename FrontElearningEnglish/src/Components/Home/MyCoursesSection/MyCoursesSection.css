@@ -242,8 +242,8 @@
 }
 
 @media (max-width: 480px) {
-    .course-card {
-        width: 220px !important; /* Increased from 160px for better visibility */
+    .my-courses-section .course-card {
+        width: 220px; 
         flex-shrink: 0;
     }
 
@@ -252,9 +252,9 @@
         padding-right: calc(1rem + 220px + 0.75rem);
     }
 
-    .scroll-button {
-        width: 32px !important;
-        height: 32px !important;
-        font-size: 14px !important;
+    .my-courses-section .scroll-button {
+        width: 32px;
+        height: 32px;
+        font-size: 14px;
     }
 }
