@@ -19,6 +19,7 @@ namespace LearningEnglish.Application.Interface.Services
         // Payment Related
         ServiceResponse<List<EnumMappingDto>> GetPaymentStatuses();
         ServiceResponse<List<EnumMappingDto>> GetProductTypes();
+        ServiceResponse<List<EnumMappingDto>> GetPaymentGateways();
 
         // Asset Frontend Related
         ServiceResponse<List<EnumMappingDto>> GetAssetTypes();

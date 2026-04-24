@@ -8,7 +8,9 @@ import { FaCheckCircle, FaLock, FaCopy, FaInfoCircle } from "react-icons/fa";
 import MainHeader from "../../Components/Header/MainHeader";
 import NotificationModal from "../../Components/Common/NotificationModal/NotificationModal";
 import { useAuth } from "../../Context/AuthContext";
-import { FaWallet } from "react-icons/fa";
+import { FaWallet, FaExclamationTriangle, FaArrowRight } from "react-icons/fa";
+import { PRODUCT_TYPE, PAYMENT_GATEWAY } from "../../config/enums";
+import { ROUTE_PATHS } from "../../Routes/Paths";
 
 export default function Payment() {
     const navigate = useNavigate();
@@ -32,7 +34,8 @@ export default function Payment() {
     const [pollingActive, setPollingActive] = useState(true);
     const [isCheckingStatus, setIsCheckingStatus] = useState(false);
     const { user, refreshUser } = useAuth();
-    const [selectedGateway, setSelectedGateway] = useState(0); // 0: PayOS, 1: InternalWallet
+    const [selectedGateway, setSelectedGateway] = useState(PAYMENT_GATEWAY.INTERNAL_WALLET); 
+    const [neededAmount, setNeededAmount] = useState(0);
 
     const getPayOsValue = useCallback((camelKey, pascalKey) => {
         if (!payOsDetails) return "";
@@ -126,7 +129,7 @@ export default function Payment() {
                 ProductId: productId,
                 typeproduct: productType,
                 IdempotencyKey: idempotencyKey,
-                Gateway: 2 // InternalWallet
+                Gateway: PAYMENT_GATEWAY.INTERNAL_WALLET
             });
 
             if (response.data?.success && response.data?.data) {
@@ -158,6 +161,7 @@ export default function Payment() {
                 setLoading(true);
                 setError("");
 
+                const numeralTypeProduct = parseInt(typeproduct);
                 let productId = null;
                 let productType = null;
 
@@ -172,20 +176,27 @@ export default function Payment() {
                     }
 
                     setPayOsDetails(payOsResponse.data.data);
+                    setSelectedGateway(PAYMENT_GATEWAY.PAYOS);
                     return;
                 }
 
-                // CASE 2: New payment creation
-                if (courseId && typeproduct === "1") {
+                // CASE 2: New payment creation (Course or TeacherPackage)
+                if (courseId && numeralTypeProduct === PRODUCT_TYPE.COURSE) {
                     const courseResponse = await courseService.getCourseById(courseId);
                     if (isCancelled) return;
                     if (courseResponse.data?.success && courseResponse.data?.data) {
-                        setSelectedCourse(courseResponse.data.data);
+                        const courseData = courseResponse.data.data;
+                        setSelectedCourse(courseData);
                         productId = parseInt(courseId);
-                        productType = 1;
+                        productType = PRODUCT_TYPE.COURSE;
+                        
+                        // Check balance
+                        if (user?.balance < courseData.price) {
+                            setNeededAmount(courseData.price - (user?.balance || 0));
+                        }
+                        setSelectedGateway(PAYMENT_GATEWAY.INTERNAL_WALLET);
                     }
                 } else if (packageId || packageType) {
-                    // (Giữ nguyên logic lấy package như cũ...)
                     let matchedPackage = null;
                     const packagesResponse = await teacherPackageService.getAll();
                     if (isCancelled) return;
@@ -199,8 +210,19 @@ export default function Payment() {
                     if (matchedPackage) {
                         setSelectedPackage(matchedPackage);
                         productId = matchedPackage.teacherPackageId;
-                        productType = 2;
+                        productType = PRODUCT_TYPE.TEACHER_PACKAGE;
+
+                        // Check balance
+                        if (user?.balance < matchedPackage.price) {
+                            setNeededAmount(matchedPackage.price - (user?.balance || 0));
+                        }
+                        setSelectedGateway(PAYMENT_GATEWAY.INTERNAL_WALLET);
                     }
+                } else if (numeralTypeProduct === PRODUCT_TYPE.TOP_UP) {
+                    // Logic handled if we had an amount in URL, but usually TopUp goes to TopUp.jsx first
+                    // If arrived here with typeproduct=3, we expect paymentId or we need to redirect
+                    navigate(ROUTE_PATHS.TOPUP);
+                    return;
                 }
 
                 if (!productId) {
@@ -209,38 +231,29 @@ export default function Payment() {
                     return;
                 }
 
-                // Create payment record (PayOS default)
-                const idempotencyKey = `${Date.now()}-${productId}-${productType}`;
-                const paymentResponse = await paymentService.processPayment({
-                    ProductId: productId,
-                    typeproduct: productType,
-                    IdempotencyKey: idempotencyKey,
-                    Gateway: 0 // PayOS
-                });
+                // Auto-process for FREE products
+                const currentPrice = selectedCourse?.price ?? selectedPackage?.price ?? 0;
+                if (currentPrice === 0 && productId && productType) {
+                    const idempotencyKey = `${Date.now()}-${productId}-${productType}-free`;
+                    const paymentResponse = await paymentService.processPayment({
+                        ProductId: productId,
+                        typeproduct: productType,
+                        IdempotencyKey: idempotencyKey,
+                        Gateway: PAYMENT_GATEWAY.INTERNAL_WALLET
+                    });
 
-                if (isCancelled) return;
+                    if (isCancelled) return;
 
-                if (!paymentResponse.data?.success || !paymentResponse.data?.data?.paymentId) {
-                    throw new Error(paymentResponse.data?.message || "Không thể tạo thanh toán");
+                    if (paymentResponse.data?.success) {
+                        const createdPaymentId = paymentResponse.data.data.paymentId;
+                        setIsRedirecting(true);
+                        setTimeout(() => {
+                            navigate(`/payment-success?paymentId=${createdPaymentId}&status=success&type=free`);
+                        }, 1000);
+                        return;
+                    }
                 }
 
-                const createdPaymentId = paymentResponse.data.data.paymentId;
-
-                if (paymentResponse.data?.data?.amount === 0) {
-                    setIsRedirecting(true);
-                    setTimeout(() => {
-                        navigate(`/payment-success?paymentId=${createdPaymentId}&status=success&type=free`);
-                    }, 1000);
-                    return;
-                }
-
-                const payOsResponse = await paymentService.createPayOsLink(createdPaymentId);
-                if (isCancelled) return;
-                if (!payOsResponse.data?.success || !payOsResponse.data?.data) {
-                    throw new Error(payOsResponse.data?.message || "Không thể tạo link thanh toán");
-                }
-
-                setPayOsDetails(payOsResponse.data.data);
                 setLoading(false);
 
             } catch (error) {
@@ -422,7 +435,7 @@ export default function Payment() {
                 ) : (
                     <div className="payment-card">
                         <div className="package-info">
-                            <h3>{selectedCourse?.title || selectedPackage?.packageName || "Sản phẩm"}</h3>
+                            <h3 className="product-title">{selectedCourse?.title || selectedPackage?.packageName || "Sản phẩm"}</h3>
                             <p className="package-price">
                                 {selectedCourse
                                     ? (selectedCourse.price || 0).toLocaleString("vi-VN")
@@ -431,53 +444,61 @@ export default function Payment() {
                             </p>
                         </div>
 
-                        <div className="payment-methods">
-                            {/* Option 1: PayOS */}
-                            <div className={`payment-method ${selectedGateway === 0 ? "active" : ""}`} onClick={() => setSelectedGateway(0)}>
-                                <div className="method-title">
-                                    <FaLock /> Thanh toán an toàn qua PayOS
+                        <div className="wallet-status-section">
+                            <div className="wallet-info-box">
+                                <div className="wallet-label">
+                                    <FaWallet /> Số dư ví hiện tại:
                                 </div>
-                                <p className="method-description">
-                                    Hỗ trợ VietQR và chuyển khoản ngân hàng 24/7.
-                                </p>
-                                {selectedGateway === 0 && (
-                                    <button className="btn-checkout mt-2" onClick={handleOpenCheckout}>
-                                        Tiến hành thanh toán PayOS
-                                    </button>
-                                )}
+                                <div className="wallet-balance">
+                                    {(user?.balance || 0).toLocaleString("vi-VN")} VNĐ
+                                </div>
                             </div>
 
-                            {/* Option 2: Internal Wallet (Only if not topup) */}
-                            {typeproduct !== "3" && (
-                                <div className={`payment-method ${selectedGateway === 1 ? "active" : ""}`} onClick={() => setSelectedGateway(1)}>
-                                    <div className="method-title">
-                                        <FaWallet /> Thanh toán bằng Ví (Coin)
+                            {neededAmount > 0 ? (
+                                <div className="insufficient-balance-alert">
+                                    <div className="alert-content">
+                                        <FaExclamationTriangle className="alert-icon" />
+                                        <div className="alert-text">
+                                            <strong>Số dư không đủ!</strong>
+                                            <p>Bạn cần nạp thêm ít nhất <span>{neededAmount.toLocaleString("vi-VN")} VNĐ</span> để thực hiện giao dịch này.</p>
+                                        </div>
                                     </div>
-                                    <p className="method-description">
-                                        Số dư hiện tại: <strong className={user?.balance >= (selectedCourse?.price || selectedPackage?.price) ? "text-success" : "text-danger"}>
-                                            {(user?.balance || 0).toLocaleString("vi-VN")} VNĐ
-                                        </strong>
-                                    </p>
-                                    {selectedGateway === 1 && (
+                                    <button 
+                                        className="btn-go-topup"
+                                        onClick={() => navigate(ROUTE_PATHS.TOPUP)}
+                                    >
+                                        Nạp tiền ngay <FaArrowRight />
+                                    </button>
+                                </div>
+                            ) : (
+                                <div className="payment-methods">
+                                    <div className="payment-method active">
+                                        <div className="method-title">
+                                            <FaCheckCircle className="text-success" /> Thanh toán bằng Ví (Coin)
+                                        </div>
+                                        <p className="method-description">
+                                            Số tiền sẽ được trừ trực tiếp từ ví của bạn. Giao dịch an toàn và nhanh chóng.
+                                        </p>
                                         <button
-                                            className="btn-checkout wallet-btn mt-2"
+                                            className="btn-checkout wallet-btn mt-3"
                                             onClick={() => handleWalletPayment(selectedCourse?.courseId || selectedPackage?.teacherPackageId, parseInt(typeproduct))}
-                                            disabled={loading || (user?.balance < (selectedCourse?.price || selectedPackage?.price))}
+                                            disabled={loading}
                                         >
-                                            {user?.balance >= (selectedCourse?.price || selectedPackage?.price)
-                                                ? "Xác nhận thanh toán bằng ví"
-                                                : "Số dư không đủ"}
+                                            {loading ? "Đang xử lý..." : "Xác nhận thanh toán"}
                                         </button>
-                                    )}
+                                    </div>
                                 </div>
                             )}
                         </div>
 
                         <div className="payment-note">
-                            <p><strong>Lưu ý:</strong></p>
+                            <div className="note-header">
+                                <FaInfoCircle /> Lưu ý:
+                            </div>
                             <ul>
-                                <li>Giao dịch sẽ được xử lý tự động ngay khi tiền vào tài khoản.</li>
-                                <li>Vui lòng không tắt trình duyệt trong quá trình thanh toán.</li>
+                                <li>Tất cả giao dịch mua khóa học và gói giáo viên đều thực hiện qua ví điện tử nội bộ.</li>
+                                <li>Nếu số dư không đủ, vui lòng nạp tiền vào ví qua cổng PayOS.</li>
+                                <li>Liên hệ hỗ trợ nếu bạn gặp bất kỳ vấn đề gì trong quá trình thanh toán.</li>
                             </ul>
                         </div>
                     </div>

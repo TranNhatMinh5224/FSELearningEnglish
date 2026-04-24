@@ -1,6 +1,6 @@
 using LearningEnglish.Application.Common;
 using LearningEnglish.Application.Interface;
-using LearningEnglish.Application.Interface.Strategies;
+using LearningEnglish.Application.Interface.Repositories;
 using LearningEnglish.Domain.Enums;
 using Microsoft.Extensions.Logging;
 
@@ -10,18 +10,21 @@ namespace LearningEnglish.Application.Service.PaymentService
     {
         private readonly IUserRepository _userRepository;
         private readonly IPaymentRepository _paymentRepository;
-        private readonly IEnumerable<IPaymentStrategy> _paymentStrategies;
+        private readonly ICourseRepository _courseRepository;
+        private readonly ITeacherPackageRepository _teacherPackageRepository;
         private readonly ILogger<PaymentValidator> _logger;
 
         public PaymentValidator(
             IUserRepository userRepository,
             IPaymentRepository paymentRepository,
-            IEnumerable<IPaymentStrategy> paymentStrategies,
+            ICourseRepository courseRepository,
+            ITeacherPackageRepository teacherPackageRepository,
             ILogger<PaymentValidator> logger)
         {
             _userRepository = userRepository;
             _paymentRepository = paymentRepository;
-            _paymentStrategies = paymentStrategies;
+            _courseRepository = courseRepository;
+            _teacherPackageRepository = teacherPackageRepository;
             _logger = logger;
         }
 
@@ -31,18 +34,49 @@ namespace LearningEnglish.Application.Service.PaymentService
 
             try
             {
-                // Find the appropriate strategy for this product type
-                var processor = _paymentStrategies.FirstOrDefault(s => s.ProductType == productType);
-                if (processor == null)
+                if (productType == ProductType.Course)
                 {
-                    _logger.LogWarning("No payment strategy found for product type {ProductType}", productType);
+                    var course = await _courseRepository.GetCourseById(productId);
+                    if (course == null)
+                    {
+                        response.Success = false;
+                        response.Message = "Khóa học không tồn tại";
+                        return response;
+                    }
+                    response.Success = true;
+                    response.Data = course.Price ?? 0;
+                }
+                else if (productType == ProductType.TeacherPackage)
+                {
+                    var package = await _teacherPackageRepository.GetTeacherPackageByIdAsync(productId);
+                    if (package == null)
+                    {
+                        response.Success = false;
+                        response.Message = "Gói giáo viên không tồn tại";
+                        return response;
+                    }
+                    response.Success = true;
+                    response.Data = package.Price;
+                }
+                else if (productType == ProductType.TopUp)
+                {
+                    // Đối với TopUp, productId chính là số tiền (VND)
+                    if (productId <= 0)
+                    {
+                        response.Success = false;
+                        response.Message = "Số tiền nạp không hợp lệ";
+                        return response;
+                    }
+                    response.Success = true;
+                    response.Data = (decimal)productId;
+                }
+                else
+                {
                     response.Success = false;
                     response.Message = "Loại sản phẩm không được hỗ trợ";
-                    return response;
                 }
 
-                // Delegate validation to the strategy (DRY principle)
-                return await processor.ValidateProductAsync(productId);
+                return response;
             }
             catch (Exception ex)
             {
@@ -85,7 +119,6 @@ namespace LearningEnglish.Application.Service.PaymentService
                 else if (productType == ProductType.TeacherPackage)
                 {
                     // TeacherPackage: Chỉ cho phép mua KHI KHÔNG CÓ subscription nào active/pending
-                    // Không phụ thuộc vào packageId cụ thể - chỉ check có subscription hay không
                     var existingPayment = await _paymentRepository.GetSuccessfulPaymentByUserAndProductAsync(userId, productId, productType);
                     if (existingPayment != null)
                     {

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Modal, Button, Form, Row, Col } from "react-bootstrap";
 import { teacherPackageService } from "../../../Services/teacherPackageService";
 import { toast } from "react-toastify";
+import { toVietnameseWords } from "../../../Utils/currencyUtils";
 import "./PackageFormModal.css";
 
 export default function PackageFormModal({ show, onClose, onSuccess, packageToEdit }) {
@@ -210,6 +211,11 @@ export default function PackageFormModal({ show, onClose, onSuccess, packageToEd
                                     step="1000"
                                     isInvalid={!!errors.price}
                                 />
+                                {formData.price > 0 && (
+                                    <div className="price-in-words text-primary small mt-1 fw-bold italic">
+                                        {toVietnameseWords(formData.price)}
+                                    </div>
+                                )}
                                 {errors.price && (
                                     <Form.Control.Feedback type="invalid">
                                         {errors.price}

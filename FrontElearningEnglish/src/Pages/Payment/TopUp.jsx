@@ -6,6 +6,7 @@ import MainHeader from "../../Components/Header/MainHeader";
 import { useAuth } from "../../Context/AuthContext";
 import { paymentService } from "../../Services/paymentService";
 import NotificationModal from "../../Components/Common/NotificationModal/NotificationModal";
+import { PRODUCT_TYPE, PAYMENT_GATEWAY } from "../../config/enums";
 import "./TopUp.css";
 
 const PRESET_AMOUNTS = [10000, 20000, 50000, 100000, 200000, 500000];
@@ -58,9 +59,9 @@ export default function TopUp() {
             // ProductId là số tiền nạp cho ProductType.TopUp (3)
             const response = await paymentService.processPayment({
                 ProductId: selectedAmount,
-                typeproduct: 3, // TopUp
+                typeproduct: PRODUCT_TYPE.TOP_UP, // 3
                 IdempotencyKey: idempotencyKey,
-                Gateway: 1 // PayOS (luôn nạp qua PayOS)
+                Gateway: PAYMENT_GATEWAY.PAYOS // 4
             });
 
             if (response.data?.success && response.data?.data?.paymentId) {

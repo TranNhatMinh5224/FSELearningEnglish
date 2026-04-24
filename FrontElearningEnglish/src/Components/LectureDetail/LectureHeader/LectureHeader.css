@@ -4,13 +4,13 @@
 
 .lecture-header {
     flex-shrink: 0;
-    height: 60px;
+    height: 56px;
     display: flex;
     align-items: center;
     justify-content: space-between;
     padding: 0 24px;
     background-color: #ffffff;
-    border-bottom: 1px solid #e5e7eb;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
     z-index: 10;
     width: 100%;
 }
@@ -70,7 +70,7 @@
     display: inline-flex;
     align-items: center;
     gap: 6px;
-    padding: 4px 8px;
+    padding: 2px 8px;
     border: none;
     background: none;
     color: #6b7280;
@@ -78,11 +78,12 @@
     cursor: pointer;
     border-radius: 4px;
     transition: all 0.2s ease;
+    font-size: 0.8125rem;
 }
 
 .breadcrumb-item.breadcrumb-link:hover {
-    background-color: #f3f4f6;
-    color: #374151;
+    background-color: #f9fafb;
+    color: #111827;
 }
 
 [data-theme="dark"] .breadcrumb-item {
@@ -90,18 +91,18 @@
 }
 
 [data-theme="dark"] .breadcrumb-item.breadcrumb-link:hover {
-    background-color: #404040;
+    background-color: #374151;
     color: #ffffff;
 }
 
 .breadcrumb-item.breadcrumb-current {
-    color: #374151;
+    color: #111827;
     cursor: default;
-    font-weight: 500;
+    font-weight: 600;
 }
 
 [data-theme="dark"] .breadcrumb-item.breadcrumb-current {
-    color: #e5e7eb;
+    color: #f3f4f6;
 }
 
 .breadcrumb-icon {

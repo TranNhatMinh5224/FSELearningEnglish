@@ -488,3 +488,166 @@
     background: #33334d;
     border-color: #667eea;
 }
+
+.product-title {
+    margin-bottom: 0.5rem;
+    font-size: 1.8rem;
+    color: #1f2937;
+    background: linear-gradient(90deg, #1f2937 0%, #4b5563 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+/* Wallet Status Section & Improved Selection UI */
+.wallet-status-section {
+    width: 100%;
+    background: rgba(249, 250, 251, 0.5);
+    border-radius: 20px;
+    padding: 24px;
+    margin-bottom: 24px;
+    border: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.wallet-info-box {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: white;
+    padding: 16px 20px;
+    border-radius: 16px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+    margin-bottom: 20px;
+}
+
+.wallet-label {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-weight: 600;
+    color: #6b7280;
+}
+
+.wallet-label svg {
+    color: #6366f1;
+    font-size: 1.25rem;
+}
+
+.wallet-balance {
+    font-size: 1.4rem;
+    font-weight: 800;
+    color: #111827;
+}
+
+.insufficient-balance-alert {
+    background: #fffafa;
+    border: 1.5px solid #feb2b2;
+    border-radius: 16px;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    animation: slideInUp 0.4s ease-out;
+}
+
+@keyframes slideInUp {
+    from { transform: translateY(10px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+}
+
+.alert-content {
+    display: flex;
+    gap: 16px;
+}
+
+.alert-icon {
+    font-size: 1.5rem;
+    color: #e53e3e;
+    flex-shrink: 0;
+    margin-top: 4px;
+}
+
+.alert-text strong {
+    display: block;
+    color: #c53030;
+    font-weight: 700;
+    font-size: 1.1rem;
+    margin-bottom: 4px;
+}
+
+.alert-text p {
+    margin: 0;
+    color: #718096;
+    font-size: 0.95rem;
+}
+
+.alert-text span {
+    color: #e53e3e;
+    font-weight: 700;
+}
+
+.btn-go-topup {
+    background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+    color: white;
+    border: none;
+    border-radius: 12px;
+    padding: 14px 20px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(79, 70, 229, 0.3);
+    cursor: pointer;
+}
+
+.btn-go-topup:hover {
+    transform: translateY(-2px) scale(1.02);
+    box-shadow: 0 8px 20px rgba(79, 70, 229, 0.4);
+}
+
+.note-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 700;
+    color: #4b5563;
+    margin-bottom: 12px;
+}
+
+.note-header svg {
+    color: #f59e0b;
+}
+
+.payment-note ul {
+    padding-left: 1.2rem;
+    margin: 0;
+}
+
+.payment-note li {
+    font-size: 0.9rem;
+    color: #6b7280;
+    margin-bottom: 8px;
+}
+
+[data-theme='dark'] .wallet-status-section {
+    background: rgba(255, 255, 255, 0.03);
+}
+
+[data-theme='dark'] .wallet-info-box {
+    background: #1f2937;
+    box-shadow: none;
+}
+
+[data-theme='dark'] .insufficient-balance-alert {
+    background: rgba(229, 62, 62, 0.05);
+}
+
+[data-theme='dark'] .alert-text p {
+    color: #a0aec0;
+}
+
+[data-theme='dark'] .payment-note li {
+    color: #9ca3af;
+}

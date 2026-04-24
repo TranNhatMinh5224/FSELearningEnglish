@@ -11,9 +11,11 @@ using LearningEnglish.Application.Interface.Services.IPayment;
 using Microsoft.Extensions.Logging;
 using LearningEnglish.Application.Common;
 using LearningEnglish.Application.Common.Pagination;
-using System.Text.Json;
 using Microsoft.Extensions.Configuration;
 using System.Security.Cryptography;
+using System.Text.Json;
+using LearningEnglish.Application.Interface.Repositories;
+using LearningEnglish.Application.Interface.Services.TeacherPackage;
 
 namespace LearningEnglish.Application.Service.PaymentService
 {
@@ -33,7 +35,6 @@ namespace LearningEnglish.Application.Service.PaymentService
 
         private readonly IPaymentRepository _paymentRepository;
         private readonly IPaymentValidator _paymentValidator;
-        private readonly IEnumerable<IPaymentStrategy> _paymentStrategies;
         private readonly IMapper _mapper;
         private readonly ILogger<PaymentService> _logger;
         private readonly IUnitOfWork _unitOfWork;
@@ -42,11 +43,17 @@ namespace LearningEnglish.Application.Service.PaymentService
         private readonly IPaymentWebhookQueueRepository _webhookQueueRepository;
         private readonly ICacheService _cache;
         private readonly IWalletService _walletService;
+        private readonly ICourseRepository _courseRepository;
+        private readonly ITeacherPackageRepository _teacherPackageRepository;
+        private readonly IUserEnrollmentService _userEnrollmentService;
+        private readonly ITeacherSubscriptionService _teacherSubscriptionService;
+        private readonly INotificationRepository _notificationRepository;
+        private readonly IEmailService _emailService;
+        private readonly IUserRepository _userRepository;
 
         public PaymentService(
             IPaymentRepository paymentRepository,
             IPaymentValidator paymentValidator,
-            IEnumerable<IPaymentStrategy> paymentStrategies,
             IMapper mapper,
             ILogger<PaymentService> logger,
             IUnitOfWork unitOfWork,
@@ -54,11 +61,17 @@ namespace LearningEnglish.Application.Service.PaymentService
             IConfiguration configuration,
             IPaymentWebhookQueueRepository webhookQueueRepository,
             ICacheService cache,
-            IWalletService walletService)
+            IWalletService walletService,
+            ICourseRepository courseRepository,
+            ITeacherPackageRepository teacherPackageRepository,
+            IUserEnrollmentService userEnrollmentService,
+            ITeacherSubscriptionService teacherSubscriptionService,
+            INotificationRepository notificationRepository,
+            IEmailService emailService,
+            IUserRepository userRepository)
         {
             _paymentRepository = paymentRepository;
             _paymentValidator = paymentValidator;
-            _paymentStrategies = paymentStrategies;
             _mapper = mapper;
             _logger = logger;
             _unitOfWork = unitOfWork;
@@ -67,6 +80,13 @@ namespace LearningEnglish.Application.Service.PaymentService
             _webhookQueueRepository = webhookQueueRepository;
             _cache = cache;
             _walletService = walletService;
+            _courseRepository = courseRepository;
+            _teacherPackageRepository = teacherPackageRepository;
+            _userEnrollmentService = userEnrollmentService;
+            _teacherSubscriptionService = teacherSubscriptionService;
+            _notificationRepository = notificationRepository;
+            _emailService = emailService;
+            _userRepository = userRepository;
         }
 
         // POST /api/payments - Create Payment
@@ -75,72 +95,55 @@ namespace LearningEnglish.Application.Service.PaymentService
             var response = new ServiceResponse<CreateInforPayment>();
             try
             {
-                _logger.LogInformation("Bắt đầu xử lý thanh toán cho User {UserId}, Sản phẩm {ProductId}, Loại {TypeProduct}",
-                    userId, request.ProductId, request.typeproduct);
+                _logger.LogInformation("Processing payment: User {UserId}, Product {ProductId}, Type {TypeProduct}, Gateway {Gateway}",
+                    userId, request.ProductId, request.typeproduct, request.Gateway);
 
-                // 1. Check IdempotencyKey for duplicate request prevention
+                // 1. Idempotency Check
                 if (!string.IsNullOrEmpty(request.IdempotencyKey))
                 {
                     var existingPayment = await _paymentRepository.GetPaymentByIdempotencyKeyAsync(userId, request.IdempotencyKey);
                     if (existingPayment != null)
                     {
-                        _logger.LogInformation("Payment với IdempotencyKey {IdempotencyKey} đã tồn tại (PaymentId: {PaymentId}), trả về payment hiện có",
-                            request.IdempotencyKey, existingPayment.PaymentId);
-                        
                         response.Success = true;
                         response.StatusCode = 200;
-                        response.Message = "Payment đã được tạo trước đó (idempotent request)";
-                        response.Data = new CreateInforPayment
-                        {
-                            PaymentId = existingPayment.PaymentId,
-                            ProductType = existingPayment.ProductType,
-                            ProductId = existingPayment.ProductId,
-                            Amount = existingPayment.Amount
-                        };
+                        response.Data = _mapper.Map<CreateInforPayment>(existingPayment);
                         return response;
                     }
                 }
 
-                // 2. Validate user and check existing payment
-                var userValidationResult = await _paymentValidator.ValidateUserPaymentAsync(userId, request.ProductId, request.typeproduct);
-                if (!userValidationResult.Success)
+                // 2. Gateway Resolution (Business Rule)
+                if (request.typeproduct != ProductType.TopUp)
                 {
-                    response.Success = false;
-                    response.StatusCode = 400;
-                    response.Message = userValidationResult.Message;
-                    return response;
+                    // Everything except TopUp MUST go through the wallet
+                    request.Gateway = PaymentGateway.InternalWallet;
+                }
+                else
+                {
+                    // TopUp MUST go through an external gateway (currently PayOS)
+                    if (request.Gateway == PaymentGateway.InternalWallet)
+                    {
+                        return new ServiceResponse<CreateInforPayment> 
+                        { 
+                            Success = false, 
+                            Message = "Không thể nạp tiền bằng chính ví nội bộ.", 
+                            StatusCode = 400 
+                        };
+                    }
+                    request.Gateway = PaymentGateway.PayOs;
                 }
 
-                // 3. Validate product and get amount
-                var productValidationResult = await _paymentValidator.ValidateProductAsync(request.ProductId, request.typeproduct);
-                if (!productValidationResult.Success)
-                {
-                    response.Success = false;
-                    response.StatusCode = 404;
-                    response.Message = productValidationResult.Message;
-                    return response;
-                }
+                // 3. Validation
+                var userCheck = await _paymentValidator.ValidateUserPaymentAsync(userId, request.ProductId, request.typeproduct);
+                if (!userCheck.Success) return new ServiceResponse<CreateInforPayment> { Success = false, Message = userCheck.Message, StatusCode = 400 };
 
-                var amount = productValidationResult.Data;
+                var productCheck = await _paymentValidator.ValidateProductAsync(request.ProductId, request.typeproduct);
+                if (!productCheck.Success) return new ServiceResponse<CreateInforPayment> { Success = false, Message = productCheck.Message, StatusCode = 404 };
 
-                // Get processor for product name
-                var processor = _paymentStrategies.FirstOrDefault(s => s.ProductType == request.typeproduct);
-                if (processor == null)
-                {
-                    _logger.LogError("No payment strategy found for product type {ProductType}", request.typeproduct);
-                    response.Success = false;
-                    response.StatusCode = 400;
-                    response.Message = "Loại sản phẩm không được hỗ trợ";
-                    return response;
-                }
-
-                // PayOS requires order_code <= 2^53-1.
+                var amount = productCheck.Data;
+                var productName = await GetProductNameAsync(request.ProductId, request.typeproduct);
                 var orderCode = GeneratePayOsOrderCode();
-                
-                // Get product name for description from Strategy
-                var productName = await processor.GetProductNameAsync(request.ProductId);
 
-                // 4. Create payment using transaction
+                // 4. Persistence & Execution
                 await _unitOfWork.BeginTransactionAsync();
                 try
                 {
@@ -150,109 +153,55 @@ namespace LearningEnglish.Application.Service.PaymentService
                         ProductType = request.typeproduct,
                         ProductId = request.ProductId,
                         OrderCode = orderCode,
-                        IdempotencyKey = string.IsNullOrEmpty(request.IdempotencyKey) ? null : request.IdempotencyKey,
+                        IdempotencyKey = request.IdempotencyKey,
                         Gateway = request.Gateway,
                         Amount = amount,
                         Status = PaymentStatus.Pending,
                         Description = $"Thanh toán {productName}",
                         CreatedAt = DateTime.UtcNow,
                         ExpiredAt = DateTime.UtcNow.AddMinutes(15),
-                        PaidAt = null,
                         ProviderTransactionId = request.Gateway == PaymentGateway.InternalWallet ? $"WALLET-{orderCode}" : orderCode.ToString()
                     };
 
                     await _paymentRepository.AddPaymentAsync(payment);
                     await _unitOfWork.SaveChangesAsync();
 
-                    _logger.LogInformation("Tạo thanh toán {PaymentId} thành công cho User {UserId}, Số tiền: {Amount}, Gateway: {Gateway}",
-                        payment.PaymentId, userId, amount, request.Gateway);
-
-                    // 5. Handle Internal Wallet Payment (Immediate processing)
+                    // PATH A: Wallet Purchase Flow (includes Free products)
                     if (request.Gateway == PaymentGateway.InternalWallet)
                     {
-                        if (request.typeproduct == ProductType.TopUp)
-                        {
-                            _logger.LogWarning("User {UserId} cố gắng nạp tiền bằng ví (vòng lặp vô hạn)", userId);
-                            response.Success = false;
-                            response.StatusCode = 400;
-                            response.Message = "Không thể nạp tiền bằng chính ví nội bộ";
-                            await _unitOfWork.RollbackAsync();
-                            return response;
-                        }
-
-                        _logger.LogInformation("Bắt đầu thanh toán qua Ví nội bộ cho Payment {PaymentId}", payment.PaymentId);
-                        
+                        // Always call SpendAsync (even for 0 VND) for consistent audit trail
                         var spendResult = await _walletService.SpendAsync(userId, amount, payment.Description, $"PAYMENT-{payment.PaymentId}");
                         if (!spendResult.Success)
                         {
-                            _logger.LogWarning("Thanh toán qua ví thất bại cho User {UserId}: {Message}", userId, spendResult.Message);
-                            response.Success = false;
-                            response.StatusCode = 400;
-                            response.Message = spendResult.Message; // "Số dư không đủ" v.v.
                             await _unitOfWork.RollbackAsync();
-                            return response;
+                            return new ServiceResponse<CreateInforPayment> { Success = false, Message = spendResult.Message, StatusCode = 400 };
                         }
 
-                        // Nếu trừ tiền thành công, confirm payment luôn
                         payment.Status = PaymentStatus.Completed;
                         payment.PaidAt = DateTime.UtcNow;
                         payment.UpdatedAt = DateTime.UtcNow;
                         await _paymentRepository.UpdatePaymentStatusAsync(payment);
                         await _unitOfWork.SaveChangesAsync();
 
-                        // Kích hoạt sản phẩm
-                        var postPaymentResult = await processor.ProcessPostPaymentAsync(
-                            payment.UserId,
-                            payment.ProductId,
-                            payment.PaymentId);
-
-                        if (!postPaymentResult.Success)
+                        var postResult = await ProcessPostPaymentLogicAsync(payment.UserId, payment.ProductId, payment.ProductType, payment.PaymentId);
+                        if (!postResult.Success)
                         {
-                            _logger.LogError("Post-payment processing failed for Wallet Payment {PaymentId}: {Message}",
-                                payment.PaymentId, postPaymentResult.Message);
-                            response.Success = false;
-                            response.StatusCode = 500;
-                            response.Message = postPaymentResult.Message;
                             await _unitOfWork.RollbackAsync();
-                            return response;
+                            return new ServiceResponse<CreateInforPayment> { Success = false, Message = postResult.Message, StatusCode = 500 };
                         }
 
-                        _logger.LogInformation("Thanh toán qua ví và kích hoạt sản phẩm thành công cho Payment {PaymentId}", payment.PaymentId);
-                        response.Message = "Thanh toán bằng ví thành công";
+                        response.Message = amount == 0 ? "Nhận sản phẩm miễn phí thành công" : "Thanh toán bằng ví thành công";
                     }
-                    // Nếu amount = 0 (miễn phí), tự động confirm ngay (đối với bất kỳ gateway nào, nhưng thường là default)
-                    else if (amount == 0)
+                    // PATH B: External Gateway Flow (Top-up ONLY)
+                    else 
                     {
-                        _logger.LogInformation("Payment {PaymentId} có amount = 0, tự động confirm miễn phí", payment.PaymentId);
-
-                        payment.Status = PaymentStatus.Completed;
-                        payment.PaidAt = DateTime.UtcNow;
-                        payment.UpdatedAt = DateTime.UtcNow;
-                        payment.Description = "Free course enrollment";
-                        await _paymentRepository.UpdatePaymentStatusAsync(payment);
-                        await _unitOfWork.SaveChangesAsync();
-
-                        // Kích hoạt sản phẩm ngay (reuse processor from above)
-                        var postPaymentResult = await processor.ProcessPostPaymentAsync(
-                            payment.UserId,
-                            payment.ProductId,
-                            payment.PaymentId);
-
-                        if (!postPaymentResult.Success)
-                        {
-                            _logger.LogError("Post-payment processing failed for free Payment {PaymentId}: {Message}",
-                                payment.PaymentId, postPaymentResult.Message);
-                            response.Success = false;
-                            response.StatusCode = 500;
-                            response.Message = postPaymentResult.Message;
-                            await _unitOfWork.RollbackAsync();
-                            return response;
-                        }
-
-                        _logger.LogInformation("Sản phẩm miễn phí đã được kích hoạt thành công cho Payment {PaymentId}", payment.PaymentId);
-                        response.Message = "Nhận sản phẩm miễn phí thành công";
+                        _logger.LogInformation("Pending PayOS Top-Up created for User {UserId}", userId);
                     }
 
+                    await _unitOfWork.CommitAsync();
+
+                    response.Success = true;
+                    response.StatusCode = 200;
                     response.Data = new CreateInforPayment
                     {
                         PaymentId = payment.PaymentId,
@@ -260,168 +209,193 @@ namespace LearningEnglish.Application.Service.PaymentService
                         ProductType = payment.ProductType,
                         Amount = payment.Amount
                     };
-
-                    await _unitOfWork.CommitAsync();
-                    _logger.LogInformation("Hoàn tất xử lý thanh toán thành công cho Payment {PaymentId}", payment.PaymentId);
                 }
-                catch (Exception transactionEx)
+                catch (Exception ex)
                 {
                     await _unitOfWork.RollbackAsync();
-                    _logger.LogError(transactionEx, "Transaction thất bại khi tạo thanh toán cho User {UserId}", userId);
+                    _logger.LogError(ex, "Transaction failed for User {UserId}", userId);
                     throw;
                 }
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Xử lý thanh toán thất bại cho User {UserId}, Sản phẩm {ProductId}, Loại {TypeProduct}",
-                    userId, request.ProductId, request.typeproduct);
-                response.Success = false;
-                response.StatusCode = 500;
-                response.Message = "Đã xảy ra lỗi khi xử lý thanh toán";
-                return response;
+                _logger.LogError(ex, "Payment processing failed for User {UserId}", userId);
+                return new ServiceResponse<CreateInforPayment> { Success = false, Message = "Đã xảy ra lỗi khi xử lý thanh toán", StatusCode = 500 };
             }
-            response.Success = true;
-            response.StatusCode = 200;
             return response;
         }
 
-        public async Task<ServiceResponse<bool>> ConfirmPaymentAsync(CompletePayment paymentDto, int userId)
+        private async Task<ServiceResponse<bool>> ProcessPostPaymentLogicAsync(int userId, int productId, ProductType type, int paymentId)
         {
             var response = new ServiceResponse<bool>();
             try
             {
-                var existingPayment = await _paymentRepository.GetPaymentByIdAsync(paymentDto.PaymentId);
-                if (existingPayment == null)
+                if (type == ProductType.Course)
                 {
-                    _logger.LogWarning("Không tìm thấy thanh toán {PaymentId} cho User {UserId}", paymentDto.PaymentId, userId);
-                    response.Success = false;
-                    response.StatusCode = 404;
-                    response.Message = "Không tìm thấy thanh toán";
-                    return response;
-                }
-
-                // Explicit ownership check
-                if (existingPayment.UserId != userId)
-                {
-                    _logger.LogWarning("User {UserId} cố gắng confirm payment {PaymentId} của user khác (Owner: {OwnerId})", 
-                        userId, paymentDto.PaymentId, existingPayment.UserId);
-                    response.Success = false;
-                    response.StatusCode = 403;
-                    response.Message = "Bạn không có quyền xác nhận thanh toán này";
-                    return response;
-                }
-
-                if (existingPayment.Status != PaymentStatus.Pending)
-                {
-                    _logger.LogWarning("Thanh toán {PaymentId} đã được xử lý", paymentDto.PaymentId);
-                    response.Success = false;
-                    response.StatusCode = 400;
-                    response.Message = "Thanh toán đã được xử lý";
-                    return response;
-                }
-
-                // Validate Amount from DB - Security check
-                if (existingPayment.Amount != paymentDto.Amount)
-                {
-                    _logger.LogWarning("Amount mismatch cho Payment {PaymentId}. Expected: {ExpectedAmount}, Received: {ReceivedAmount}",
-                        paymentDto.PaymentId, existingPayment.Amount, paymentDto.Amount);
-                    response.Success = false;
-                    response.StatusCode = 400;
-                    response.Message = "Số tiền thanh toán không khớp";
-                    return response;
-                }
-
-                // Validate ProductId and ProductType from DB
-                if (existingPayment.ProductId != paymentDto.ProductId || existingPayment.ProductType != paymentDto.ProductType)
-                {
-                    _logger.LogWarning("Product mismatch cho Payment {PaymentId}. Expected: {ExpectedProduct}/{ExpectedType}, Received: {ReceivedProduct}/{ReceivedType}",
-                        paymentDto.PaymentId, existingPayment.ProductId, existingPayment.ProductType, paymentDto.ProductId, paymentDto.ProductType);
-                    response.Success = false;
-                    response.StatusCode = 400;
-                    response.Message = "Thông tin sản phẩm không khớp";
-                    return response;
-                }
-
-                await _unitOfWork.BeginTransactionAsync();
-
-                _logger.LogInformation("=== ConfirmPayment: PaymentId={PaymentId}, UserId={UserId} ===", paymentDto.PaymentId, userId);
-
-                existingPayment.Status = PaymentStatus.Completed;
-                existingPayment.PaidAt = DateTime.UtcNow;
-                existingPayment.UpdatedAt = DateTime.UtcNow;
-
-                await _paymentRepository.UpdatePaymentStatusAsync(existingPayment);
-                await _unitOfWork.SaveChangesAsync();
-
-                // Clear statistics cache as revenue and transaction counts changed
-                _cache.RemoveByPrefix(CacheKeys.StatisticsPrefix);
-
-                _logger.LogInformation("Payment {PaymentId} status updated to Completed and saved", paymentDto.PaymentId);
-
-                try
-                {
-                    var processor = _paymentStrategies.FirstOrDefault(s => s.ProductType == existingPayment.ProductType);
-                    if (processor == null)
+                    _logger.LogInformation("Relocating enrollment logic for Course {CourseId}, User {UserId}", productId, userId);
+                    var enrollDto = new EnrollCourseDto { CourseId = productId };
+                    var enrollResult = await _userEnrollmentService.EnrollInCourseAsync(enrollDto, userId);
+                    if (!enrollResult.Success)
                     {
-                        _logger.LogError("No payment strategy found for product type {ProductType}", existingPayment.ProductType);
                         response.Success = false;
-                        response.StatusCode = 400;
-                        response.Message = "Loại sản phẩm không được hỗ trợ";
-                        await _unitOfWork.RollbackAsync();
+                        response.Message = enrollResult.Message;
+                        response.StatusCode = enrollResult.StatusCode;
                         return response;
                     }
 
-                    _logger.LogInformation("Calling ProcessPostPaymentAsync: UserId={UserId}, ProductId={ProductId}, ProductType={ProductType}", 
-                        existingPayment.UserId, existingPayment.ProductId, existingPayment.ProductType);
-
-                    var postPaymentResult = await processor.ProcessPostPaymentAsync(
-                        existingPayment.UserId,
-                        existingPayment.ProductId,
-                        paymentDto.PaymentId);
-
-                    _logger.LogInformation("ProcessPostPaymentAsync result: Success={Success}, Message={Message}", 
-                        postPaymentResult.Success, postPaymentResult.Message);
-
-                    if (!postPaymentResult.Success)
+                    // Send Notification
+                    var course = await _courseRepository.GetCourseById(productId);
+                    if (course != null)
                     {
-                        _logger.LogError("Post-payment processing failed for Payment {PaymentId}: {Message}",
-                            paymentDto.PaymentId, postPaymentResult.Message);
-                        response.Success = false;
-                        response.StatusCode = 500;
-                        response.Message = postPaymentResult.Message;
-                        await _unitOfWork.RollbackAsync();
-                        return response;
+                        await _notificationRepository.AddAsync(new Notification
+                        {
+                            UserId = userId,
+                            Title = "Thanh toán thành công",
+                            Message = $"Bạn đã đăng ký thành công khóa học '{course.Title}'. Chúc bạn học tốt!",
+                            Type = NotificationType.PaymentSuccess,
+                            RelatedEntityType = "Course",
+                            RelatedEntityId = productId,
+                            IsRead = false,
+                            CreatedAt = DateTime.UtcNow
+                        });
                     }
                 }
-                catch (NotSupportedException ex)
+                else if (type == ProductType.TeacherPackage)
                 {
-                    _logger.LogError(ex, "Unsupported product type {ProductType} for Payment {PaymentId}",
-                        existingPayment.ProductType, paymentDto.PaymentId);
-                    response.Success = false;
-                    response.StatusCode = 400;
-                    response.Message = "Loại sản phẩm không được hỗ trợ";
-                    await _unitOfWork.RollbackAsync();
-                    return response;
+                    _logger.LogInformation("Relocating upgrade logic for TeacherPackage {PackageId}, User {UserId}", productId, userId);
+                    var user = await _userRepository.GetByIdAsync(userId);
+                    if (user == null) return new ServiceResponse<bool> { Success = false, Message = "Người dùng không tồn tại" };
+
+                    await _userRepository.UpdateRoleTeacher(userId);
+                    var subResult = await _teacherSubscriptionService.AddTeacherSubscriptionAsync(new PurchaseTeacherPackageDto { IdTeacherPackage = productId }, userId);
+                    if (!subResult.Success)
+                    {
+                        response.Success = false;
+                        response.Message = subResult.Message;
+                        response.StatusCode = subResult.StatusCode;
+                        return response;
+                    }
+
+                    // Send Notification & Email
+                    var package = await _teacherPackageRepository.GetTeacherPackageByIdAsync(productId);
+                    if (package != null)
+                    {
+                        await _notificationRepository.AddAsync(new Notification
+                        {
+                            UserId = userId,
+                            Title = "Chào mừng Giáo viên mới",
+                            Message = $"Bạn đã nâng cấp thành công gói '{package.PackageName}'.",
+                            Type = NotificationType.PaymentSuccess,
+                            RelatedEntityType = "TeacherPackage",
+                            RelatedEntityId = productId,
+                            IsRead = false,
+                            CreatedAt = DateTime.UtcNow
+                        });
+
+                        await _emailService.SendNotifyPurchaseTeacherPackageAsync(user.Email, package.PackageName, user.FullName, package.Price, subResult.Data?.EndDate ?? DateTime.UtcNow);
+                    }
+                }
+                else if (type == ProductType.TopUp)
+                {
+                    _logger.LogInformation("Relocating top-up logic for User {UserId}, Amount {Amount}", userId, productId);
+                    var topUpResult = await _walletService.TopUpAsync(userId, productId, $"PAYMENT-{paymentId}");
+                    if (!topUpResult.Success)
+                    {
+                        response.Success = false;
+                        response.Message = topUpResult.Message;
+                        response.StatusCode = topUpResult.StatusCode;
+                        return response;
+                    }
+
+                    await _notificationRepository.AddAsync(new Notification
+                    {
+                        UserId = userId,
+                        Title = "Nạp tiền thành công",
+                        Message = $"Bạn đã nạp thành công {productId:N0} VNĐ vào ví.",
+                        Type = NotificationType.PaymentSuccess,
+                        RelatedEntityType = "Wallet",
+                        RelatedEntityId = paymentId,
+                        IsRead = false,
+                        CreatedAt = DateTime.UtcNow
+                    });
                 }
 
-                await _unitOfWork.CommitAsync();
-
-                _logger.LogInformation("Xác nhận thanh toán {PaymentId} thành công", paymentDto.PaymentId);
                 response.Success = true;
-                response.StatusCode = 200;
                 response.Data = true;
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error confirming payment {PaymentId} for User {UserId}", paymentDto.PaymentId, userId);
-                await _unitOfWork.RollbackAsync();
+                _logger.LogError(ex, "Error in ProcessPostPaymentLogicAsync for Payment {PaymentId}", paymentId);
                 response.Success = false;
-                response.StatusCode = 500;
-                response.Message = "Đã xảy ra lỗi khi xác nhận thanh toán. Vui lòng thử lại sau.";
-                response.Data = false;
+                response.Message = "Lỗi xử lý sau thanh toán";
             }
             return response;
         }
+
+        private async Task<string> GetProductNameAsync(int productId, ProductType type)
+        {
+            if (type == ProductType.Course)
+            {
+                var course = await _courseRepository.GetCourseById(productId);
+                return course?.Title ?? "Khóa học";
+            }
+            if (type == ProductType.TeacherPackage)
+            {
+                var package = await _teacherPackageRepository.GetTeacherPackageByIdAsync(productId);
+                return package?.PackageName ?? "Gói giáo viên";
+            }
+            if (type == ProductType.TopUp)
+            {
+                return $"Nạp tiền vào ví ({productId:N0} VNĐ)";
+            }
+            return "Sản phẩm";
+        }
+        private async Task<ServiceResponse<bool>> InternalCompletePaymentAsync(Payment payment)
+        {
+            var response = new ServiceResponse<bool>();
+            try
+            {
+                if (payment.Status != PaymentStatus.Pending)
+                {
+                    response.Data = true;
+                    response.Message = "Thanh toán đã được xử lý";
+                    return response;
+                }
+
+                await _unitOfWork.BeginTransactionAsync();
+                payment.Status = PaymentStatus.Completed;
+                payment.PaidAt = DateTime.UtcNow;
+                payment.UpdatedAt = DateTime.UtcNow;
+
+                await _paymentRepository.UpdatePaymentStatusAsync(payment);
+                await _unitOfWork.SaveChangesAsync();
+                _cache.RemoveByPrefix(CacheKeys.StatisticsPrefix);
+
+                var postPaymentResult = await ProcessPostPaymentLogicAsync(payment.UserId, payment.ProductId, payment.ProductType, payment.PaymentId);
+                if (!postPaymentResult.Success)
+                {
+                    await _unitOfWork.RollbackAsync();
+                    response.Success = false;
+                    response.Message = postPaymentResult.Message;
+                    response.StatusCode = 500;
+                    return response;
+                }
+
+                await _unitOfWork.CommitAsync();
+                response.Data = true;
+                return response;
+            }
+            catch (Exception ex)
+            {
+                await _unitOfWork.RollbackAsync();
+                _logger.LogError(ex, "Error finalizing payment {PaymentId}", payment.PaymentId);
+                response.Success = false;
+                response.Message = "Lỗi hệ thống khi hoàn tất thanh toán";
+                response.StatusCode = 500;
+                return response;
+            }
+        }
+
 
         // Service lấy ra thông tin lịch sử giao dịch (Phân trang)
         public async Task<ServiceResponse<PagedResult<TransactionHistoryDto>>> GetTransactionHistoryAsync(int userId, PageRequest request)
@@ -439,11 +413,8 @@ namespace LearningEnglish.Application.Service.PaymentService
                 {
                     var dto = _mapper.Map<TransactionHistoryDto>(payment);
                     
-                    // Get product name from Strategy
-                    var processor = _paymentStrategies.FirstOrDefault(s => s.ProductType == payment.ProductType);
-                    dto.ProductName = processor != null 
-                        ? await processor.GetProductNameAsync(payment.ProductId)
-                        : "Sản phẩm";
+                    // Get product name directly
+                    dto.ProductName = await GetProductNameAsync(payment.ProductId, payment.ProductType);
                     
                     transactionDtos.Add(dto);
                 }
@@ -501,11 +472,8 @@ namespace LearningEnglish.Application.Service.PaymentService
 
                 var dto = _mapper.Map<TransactionDetailDto>(payment);
                 
-                // Get product name from Strategy
-                var processor = _paymentStrategies.FirstOrDefault(s => s.ProductType == payment.ProductType);
-                dto.ProductName = processor != null 
-                    ? await processor.GetProductNameAsync(payment.ProductId)
-                    : "Sản phẩm";
+                // Get product name directly
+                dto.ProductName = await GetProductNameAsync(payment.ProductId, payment.ProductType);
 
                 response.Data = dto;
 
@@ -588,15 +556,22 @@ namespace LearningEnglish.Application.Service.PaymentService
                     return response;
                 }
 
-                // Get product name for PayOS from Strategy
-                var processor = _paymentStrategies.FirstOrDefault(s => s.ProductType == payment.ProductType);
-                var productName = processor != null 
-                    ? await processor.GetProductNameAsync(payment.ProductId)
-                    : "Sản phẩm";
+                // Get product name directly
+                var productName = await GetProductNameAsync(payment.ProductId, payment.ProductType);
                 
                 var description = !string.IsNullOrEmpty(payment.Description) 
                     ? payment.Description 
                     : productName;
+
+                // Hard-block link generation for non-topup products
+                if (payment.ProductType != ProductType.TopUp)
+                {
+                    _logger.LogWarning("Payment {PaymentId} không phải là nạp tiền. Từ chối tạo link PayOS.", paymentId);
+                    response.Success = false;
+                    response.StatusCode = 400;
+                    response.Message = "Không thể tạo link thanh toán trực tiếp cho sản phẩm. Vui lòng thanh toán qua ví.";
+                    return response;
+                }
 
                 var linkRequest = new CreatePayOSLinkRequest
                 {
@@ -762,21 +737,12 @@ namespace LearningEnglish.Application.Service.PaymentService
                     return response;
                 }
 
-                var confirmDto = new CompletePayment
-                {
-                    PaymentId = payment.PaymentId,
-                    ProductId = payment.ProductId,
-                    ProductType = payment.ProductType,
-                    Amount = payment.Amount,
-                    PaymentMethod = PaymentGateway.PayOs.ToString()
-                };
+                var resultConfirm = await InternalCompletePaymentAsync(payment);
 
-                var confirmResult = await ConfirmPaymentAsync(confirmDto, payment.UserId);
-
-                response.Success = confirmResult.Success;
-                response.StatusCode = confirmResult.StatusCode;
-                response.Message = confirmResult.Message;
-                response.Data = confirmResult.Data;
+                response.Success = resultConfirm.Success;
+                response.StatusCode = resultConfirm.StatusCode;
+                response.Message = resultConfirm.Message;
+                response.Data = resultConfirm.Data;
 
                 return response;
             }
@@ -873,16 +839,7 @@ namespace LearningEnglish.Application.Service.PaymentService
                     }
                 }
 
-                var confirmDto = new CompletePayment
-                {
-                    PaymentId = paymentId,
-                    ProductId = payment.ProductId,
-                    ProductType = payment.ProductType,
-                    Amount = payment.Amount,
-                    PaymentMethod = PaymentGateway.PayOs.ToString()
-                };
-
-                return await ConfirmPaymentAsync(confirmDto, userId);
+                return await InternalCompletePaymentAsync(payment);
             }
             catch (Exception ex)
             {
@@ -1002,16 +959,7 @@ namespace LearningEnglish.Application.Service.PaymentService
                 {
                     _logger.LogInformation("Auto-confirming Payment {PaymentId} via Return URL (Status=PAID)", payment.PaymentId);
 
-                    var confirmDto = new CompletePayment
-                    {
-                        PaymentId = payment.PaymentId,
-                        ProductId = payment.ProductId,
-                        ProductType = payment.ProductType,
-                        Amount = payment.Amount,
-                        PaymentMethod = PaymentGateway.PayOs.ToString()
-                    };
-
-                    var confirmResult = await ConfirmPaymentAsync(confirmDto, payment.UserId);
+                    var confirmResult = await InternalCompletePaymentAsync(payment);
 
                     if (confirmResult.Success)
                     {
@@ -1142,11 +1090,25 @@ namespace LearningEnglish.Application.Service.PaymentService
                 {
                     var dto = _mapper.Map<TransactionHistoryDto>(payment);
                     
-                    // Lấy Product Name từ Strategy
-                    var processor = _paymentStrategies.FirstOrDefault(s => s.ProductType == payment.ProductType);
-                    dto.ProductName = processor != null 
-                        ? await processor.GetProductNameAsync(payment.ProductId)
-                        : "Sản phẩm";
+                    // Lấy Product Name trực tiếp từ Repository
+                    if (payment.ProductType == ProductType.Course)
+                    {
+                        var course = await _courseRepository.GetCourseById(payment.ProductId);
+                        dto.ProductName = course?.Title ?? "Khóa học";
+                    }
+                    else if (payment.ProductType == ProductType.TeacherPackage)
+                    {
+                        var pkg = await _teacherPackageRepository.GetTeacherPackageByIdAsync(payment.ProductId);
+                        dto.ProductName = pkg?.PackageName ?? "Gói giáo viên";
+                    }
+                    else if (payment.ProductType == ProductType.TopUp)
+                    {
+                        dto.ProductName = "Nạp tiền vào ví";
+                    }
+                    else
+                    {
+                        dto.ProductName = "Sản phẩm";
+                    }
                     
                     // Set User info
                     if (payment.User != null)

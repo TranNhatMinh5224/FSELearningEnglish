@@ -28,15 +28,15 @@
 .tree-node {
     display: flex;
     align-items: center;
-    gap: 0.625rem;
-    padding: 0.75rem 1rem;
-    border-radius: 4px;
+    gap: 0.75rem;
+    padding: 0.875rem 1rem;
+    border-radius: 6px;
     cursor: pointer;
-    transition: all 0.2s ease;
-    color: #212529;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    color: #4b5563;
     font-size: 0.875rem;
     position: relative;
-    margin-bottom: 1px;
+    margin: 2px 0;
     line-height: 1.5;
 }
 
@@ -68,17 +68,17 @@
 }
 
 .tree-node.active {
-    background-color: rgba(13, 110, 253, 0.1);
+    background-color: rgba(13, 110, 253, 0.08);
     color: #0d6efd;
     font-weight: 600;
-    border-left: 3px solid #0d6efd;
-    padding-left: calc(1rem - 3px);
+    border-right: 4px solid #0d6efd;
+    padding-right: calc(1rem - 4px);
 }
 
 [data-theme="dark"] .tree-node.active {
-    background-color: rgba(13, 110, 253, 0.2);
+    background-color: rgba(13, 110, 253, 0.15);
     color: #6ea8fe;
-    border-left-color: #6ea8fe;
+    border-right-color: #6ea8fe;
 }
 
 .expand-icon-placeholder {
@@ -111,15 +111,24 @@
 }
 
 .tree-numbering {
-    font-weight: 500;
-    color: #212529;
+    font-weight: 600;
+    color: #6b7280;
     flex-shrink: 0;
-    min-width: 40px;
     font-size: 0.875rem;
+    margin-right: 8px;
+    min-width: 20px;
 }
 
 [data-theme="dark"] .tree-numbering {
-    color: #ffffff;
+    color: #9ca3af;
+}
+
+.active .tree-numbering {
+    color: #0d6efd;
+}
+
+[data-theme="dark"] .active .tree-numbering {
+    color: #6ea8fe;
 }
 
 .tree-title {
@@ -128,6 +137,7 @@
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
+    padding-left: 0;
 }
 
 .expand-icon {
@@ -154,27 +164,18 @@
 }
 
 .tree-children {
-    margin-left: 1.5rem;
+    margin-left: 1.25rem;
     margin-top: 2px;
 }
 
-.tree-node.level-1 {
-    padding-left: 1.75rem;
+/* Remove stacked padding-left since .tree-children handles the indentation */
+.tree-node.level-1,
+.tree-node.level-2,
+.tree-node.level-3 {
     font-size: 0.875rem;
     font-weight: 500;
 }
 
-.tree-node.level-2 {
-    padding-left: 2.5rem;
-    font-size: 0.875rem;
-    font-weight: 400;
-}
-
-.tree-node.level-3 {
-    padding-left: 3.25rem;
-    font-size: 0.875rem;
-    font-weight: 400;
-}
 
 .no-lectures-message {
     padding: 1.25rem;

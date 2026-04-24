@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { Modal, Button, Form, InputGroup } from "react-bootstrap";
-import { FaWallet, FaPlus, FaMinus } from "react-icons/fa";
+import { FaWallet, FaPlus, FaMinus, FaLanguage } from "react-icons/fa";
+import { toVietnameseWords } from "../../../../Utils/currencyUtils";
 
 export default function AdjustBalanceModal({ show, onClose, user, onConfirm }) {
     const [amount, setAmount] = useState("");
@@ -77,6 +78,12 @@ export default function AdjustBalanceModal({ show, onClose, user, onConfirm }) {
                         />
                         <InputGroup.Text>VNĐ</InputGroup.Text>
                     </InputGroup>
+                    {amount > 0 && (
+                        <div className="price-in-words text-primary small mt-1 fw-bold italic">
+                            <FaLanguage size={14} className="me-1" />
+                            {toVietnameseWords(amount)}
+                        </div>
+                    )}
                 </Form.Group>
 
                 <Form.Group className="mb-3">

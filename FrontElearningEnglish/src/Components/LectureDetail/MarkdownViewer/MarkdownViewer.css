@@ -11,20 +11,21 @@
 
 /* Lecture Header */
 .markdown-viewer > .lecture-header {
-    margin: 0 !important;
-    padding: 0 !important;
-    margin-bottom: 24px !important;
+    margin: 0;
+    padding: 0;
+    margin-bottom: 32px;
 }
 
 .markdown-viewer > .lecture-header > .lecture-title {
-    font-size: 2rem !important;
-    font-weight: 700 !important;
-    color: #1f2937 !important;
-    margin: 0 !important;
-    padding: 0 !important;
-    padding-bottom: 16px !important;
-    border-bottom: 2px solid #e5e7eb !important;
-    line-height: 1.2 !important;
+    font-size: 2.5rem;
+    font-weight: 850;
+    color: #111827;
+    margin: 0;
+    padding: 0;
+    padding-bottom: 32px;
+    border-bottom: 2px solid #f3f4f6;
+    line-height: 1.25;
+    letter-spacing: -0.025em;
 }
 
 [data-theme="dark"] .markdown-viewer > .lecture-header > .lecture-title {
@@ -132,11 +133,18 @@
     color: #ff6b9d;
 }
 
+.lecture-media-section {
+    margin-bottom: 48px;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
 .markdown-content p,
 .markdown-html-content p {
-    margin: 1.5rem 0;
-    line-height: 1.75;
-    color: #212529;
+    margin: 1.75rem 0;
+    line-height: 1.8;
+    color: #374151;
     word-wrap: break-word;
     overflow-wrap: break-word;
 }

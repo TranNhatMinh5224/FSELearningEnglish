@@ -40,6 +40,7 @@ namespace LearningEnglish.Application.Service.EnumService
         public ServiceResponse<List<EnumMappingDto>> GetProductTypes() => GetEnums<ProductType>();
         public ServiceResponse<List<EnumMappingDto>> GetAssetTypes() => GetEnums<AssetType>();
         public ServiceResponse<List<EnumMappingDto>> GetLectureTypes() => GetEnums<LectureType>();
+        public ServiceResponse<List<EnumMappingDto>> GetPaymentGateways() => GetEnums<PaymentGateway>();
 
         public ServiceResponse<Dictionary<string, List<EnumMappingDto>>> GetAllEnums()
         {
@@ -55,7 +56,8 @@ namespace LearningEnglish.Application.Service.EnumService
                 { "PaymentStatus", GetPaymentStatuses().Data ?? new() },
                 { "ProductType", GetProductTypes().Data ?? new() },
                 { "AssetType", GetAssetTypes().Data ?? new() },
-                { "LectureType", GetLectureTypes().Data ?? new() }
+                { "LectureType", GetLectureTypes().Data ?? new() },
+                { "PaymentGateway", GetPaymentGateways().Data ?? new() }
             };
 
             return new ServiceResponse<Dictionary<string, List<EnumMappingDto>>>

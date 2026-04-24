@@ -4,20 +4,22 @@
 
 .lecture-footer {
     flex-shrink: 0;
-    height: 70px;
+    height: 64px;
     background-color: #ffffff;
-    border-top: 1px solid #e5e7eb;
+    border-top: 1px solid rgba(0, 0, 0, 0.08);
+    display: flex;
+    align-items: center;
     z-index: 10;
 }
 
 .lecture-footer-container {
-    max-width: 800px;
+    max-width: 1000px;
     width: 100%;
     margin: 0 auto;
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 0 24px;
+    padding: 0 32px;
 }
 
 [data-theme="dark"] .lecture-footer {
@@ -29,15 +31,15 @@
     display: flex;
     align-items: center;
     gap: 8px;
-    padding: 10px 20px;
-    border: 1px solid #e5e7eb;
+    padding: 8px 16px;
+    border: 1px solid #d1d5db;
     background-color: #ffffff;
-    color: #374151;
-    font-size: 14px;
-    font-weight: 500;
-    border-radius: 6px;
+    color: #4b5563;
+    font-size: 0.875rem;
+    font-weight: 600;
+    border-radius: 8px;
     cursor: pointer;
-    transition: all 0.2s ease;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 [data-theme="dark"] .nav-btn {

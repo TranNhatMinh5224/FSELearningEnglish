@@ -8,6 +8,7 @@ import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { adminService } from "../../../../Services/adminService";
 import FileUpload from "../../../Common/FileUpload/FileUpload";
+import { toVietnameseWords } from "../../../../Utils/currencyUtils";
 import ConfirmModal from "../../../Common/ConfirmModal/ConfirmModal";
 import "./CourseFormModal.css";
 
@@ -371,6 +372,13 @@ export default function CourseFormModal({ show, onClose, onSubmit, initialData }
                                             />
                                             <InputGroup.Text>₫</InputGroup.Text>
                                         </InputGroup>
+                                        {/* Hiển thị số tiền bằng chữ để tăng UX */}
+                                        {price > 0 && (
+                                            <div className="price-in-words text-primary small mt-1 fw-bold italic">
+                                                <FaLayerGroup size={10} className="me-1" />
+                                                {toVietnameseWords(price)}
+                                            </div>
+                                        )}
                                         {errors.price && <div className="text-danger small mt-1">{errors.price}</div>}
                                     </Form.Group>
                                 </Col>

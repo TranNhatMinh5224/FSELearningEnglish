@@ -299,3 +299,21 @@
   background: #fee2e2;
   font-weight: 700;
 }
+
+.price-in-words {
+    background: #f0f9ff;
+    padding: 0.4rem 0.75rem;
+    border-radius: 6px;
+    border-left: 3px solid #74CEDE;
+    animation: fadeIn 0.3s ease;
+    word-break: break-word;
+}
+
+.italic {
+    font-style: italic;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-5px); }
+    to { opacity: 1; transform: translateY(0); }
+}

@@ -18,8 +18,8 @@ using LearningEnglish.Application.Interface.Services.Module; // Interface cho se
 using LearningEnglish.Application.Interface.Services.TeacherPackage; // Interface cho gói giảng viên
 using LearningEnglish.Application.Interface.Services.AI;
 using LearningEnglish.Application.Interface.Services.IPayment;
-using LearningEnglish.Application.Interface.Strategies; // Interface cho các chiến lược (Strategy pattern)
-using Microsoft.AspNetCore.Http.Features; // Thư viện cấu hình các đặc tính của HTTP (ví dụ: FormOptions)
+using LearningEnglish.Application.Interface.Strategies;
+using Microsoft.AspNetCore.Http.Features; 
 using LearningEnglish.Application.Mappings; // Namespace chứa cấu hình ánh xạ AutoMapper
 using LearningEnglish.Infrastructure.Services.AI;
 using Microsoft.SemanticKernel.Connectors.Google;
@@ -39,7 +39,6 @@ using LearningEnglish.Application.Service.FlashCardService; // Dịch vụ flash
 using LearningEnglish.Application.Service.LectureService; // Dịch vụ bài giảng
 using LearningEnglish.Application.Service.PaymentService; // Dịch vụ thanh toán
 using LearningEnglish.Application.Service.WalletService;
-using LearningEnglish.Application.Strategies.Payment; // Chiến lược xử lý thanh toán
 using LearningEnglish.Application.Strategies.Scoring; // Chiến lược chấm điểm
 using LearningEnglish.Domain.Entities; // Namespace chứa các thực thể (Entity) database
 using LearningEnglish.Infrastructure.MinioFileStorage; // Namespace chứa xử lý lưu trữ file MinIO
@@ -407,9 +406,6 @@ public static class ServiceRegistrationExtensions // Lớp static chứa các ex
         services.AddScoped<IPaymentValidator, PaymentValidator>(); // Kiểm tra tính hợp lệ của giao dịch
         services.AddScoped<IPaymentService, PaymentService>(); // Logic xử lý thanh toán chung
         services.AddScoped<IPayOSService, PayOSService>(); // Tích hợp với cổng thanh toán PayOS
-        services.AddScoped<IPaymentStrategy, CoursePaymentProcessor>(); // Chiến lược thanh toán mua khóa học
-        services.AddScoped<IPaymentStrategy, TeacherPackagePaymentProcessor>(); // Chiến lược thanh toán gói giáo viên
-        services.AddScoped<IPaymentStrategy, TopUpPaymentProcessor>(); // Chiến lược nạp tiền vào ví
         services.AddScoped<IWalletService, WalletService>(); // Dịch vụ ví điện tử nội bộ
     }
 

@@ -74,24 +74,24 @@ const LectureTree = ({ lectureTree, currentLectureId, onLectureClick }) => {
         }
     }, [currentLectureId, lectureTree]);
 
-    const renderTreeItem = (lecture, level = 0) => {
+    const renderTreeItem = (lecture, level = 0, index = 0, prefix = "") => {
         const lectureId = lecture.lectureId || lecture.LectureId;
         const title = lecture.title || lecture.Title || "";
-        const numberingLabel = lecture.numberingLabel || lecture.NumberingLabel || "";
         const children = lecture.children || lecture.Children || [];
         const hasChildren = children.length > 0;
         const isExpanded = expandedItems.has(lectureId);
         const isActive = lectureId === currentLectureId;
 
-        const displayLabel = numberingLabel || `${lecture.orderIndex || lecture.OrderIndex || ""}`;
+        // Generate hierarchical label: e.g., 1, 1.1, 1.1.2
+        const currentNumber = index + 1;
+        const hierarchicalLabel = prefix ? `${prefix}.${currentNumber}` : `${currentNumber}`;
+        const displayLabel = hierarchicalLabel;
         const displayTitle = title;
 
         const handleNodeClick = (e) => {
             e.stopPropagation();
-            // Load lecture content for BOTH parent and leaf nodes
             onLectureClick(lectureId);
             
-            // Auto-expand if clicking a collapsed parent
             if (hasChildren && !isExpanded) {
                 const newExpanded = new Set(expandedItems);
                 newExpanded.add(lectureId);
@@ -122,18 +122,22 @@ const LectureTree = ({ lectureTree, currentLectureId, onLectureClick }) => {
                             {isActive ? <FaCheckCircle className="status-completed" /> : <FaCircle className="status-pending" />}
                         </span>
                     )}
-                    {hasChildren && <span className="expand-icon-placeholder" />}
+                    {hasChildren && (
+                        <span className="expand-icon-placeholder">
+                            {isExpanded ? <FaChevronDown className="folder-icon" /> : <FaChevronRight className="folder-icon" />}
+                        </span>
+                    )}
                     <span className="tree-numbering">{displayLabel}</span>
                     <span className="tree-title" title={displayTitle}>{displayTitle}</span>
                     {hasChildren && (
                         <span className="expand-icon" onClick={handleExpandToggle}>
-                            {isExpanded ? <FaChevronDown /> : <FaChevronRight />}
+                            {/* Hidden expand icon since it's now at the front */}
                         </span>
                     )}
                 </div>
                 {hasChildren && isExpanded && (
                     <div className="tree-children">
-                        {children.map((child) => renderTreeItem(child, level + 1))}
+                        {children.map((child, idx) => renderTreeItem(child, level + 1, idx, hierarchicalLabel))}
                     </div>
                 )}
             </div>
@@ -144,7 +148,7 @@ const LectureTree = ({ lectureTree, currentLectureId, onLectureClick }) => {
         <div className="lecture-tree">
             <div ref={treeContentRef} className="tree-content">
                 {lectureTree.length > 0 ? (
-                    lectureTree.map((lecture) => renderTreeItem(lecture, 0))
+                    lectureTree.map((lecture, idx) => renderTreeItem(lecture, 0, idx, ""))
                 ) : (
                     <div className="no-lectures-message">Chưa có bài giảng nào</div>
                 )}

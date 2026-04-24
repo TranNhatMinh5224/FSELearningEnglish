@@ -4,7 +4,6 @@ import { API_ENDPOINTS } from "./apiConfig";
 export const paymentService = {
     processPayment: (data) => axiosClient.post(API_ENDPOINTS.PAYMENTS.PROCESS, data),
 
-    confirmPayment: (data) => axiosClient.post(API_ENDPOINTS.PAYMENTS.CONFIRM, data),
 
     /**
      * Lấy lịch sử giao dịch với phân trang

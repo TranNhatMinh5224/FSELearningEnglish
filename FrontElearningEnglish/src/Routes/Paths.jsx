@@ -28,7 +28,6 @@ export const ROUTE_PATHS = {
   PAYMENT_HISTORY: "/payment-history",
   PAYMENT_SUCCESS: "/payment-success",
   PAYMENT_FAILED: "/payment-failed",
-  PAYMENT_PENDING: "/payment-pending",
   VOCABULARY_REVIEW: "/vocabulary-review",
   VOCABULARY_NOTEBOOK: "/vocabulary-notebook",
   SEARCH: "/search",

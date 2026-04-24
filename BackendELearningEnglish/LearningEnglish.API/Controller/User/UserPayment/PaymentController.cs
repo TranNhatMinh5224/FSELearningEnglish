@@ -42,14 +42,6 @@ namespace LearningEnglish.API.Controller.User
             return result.Success ? Ok(result) : StatusCode(result.StatusCode, result);
         }
 
-        // endpoint Student xác nhận thanh toán
-        [HttpPost("confirm")]
-        public async Task<IActionResult> ConfirmPayment([FromBody] CompletePayment paymentDto)
-        {
-            var userId = User.GetUserId();
-            var result = await _paymentService.ConfirmPaymentAsync(paymentDto, userId);
-            return result.Success ? Ok(result) : StatusCode(result.StatusCode, result);
-        }
 
         // endpoint Student lấy lịch sử giao dịch (phân trang)
         [HttpGet("history")]

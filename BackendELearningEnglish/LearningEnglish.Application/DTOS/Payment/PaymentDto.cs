@@ -7,7 +7,7 @@ namespace LearningEnglish.Application.DTOs
         public int ProductId { get; set; }
         public ProductType typeproduct { get; set; }
         public string IdempotencyKey { get; set; } = string.Empty; // UUID from client to prevent duplicate payments
-        public PaymentGateway Gateway { get; set; } = PaymentGateway.PayOs; // Default to PayOs
+        public PaymentGateway Gateway { get; set; } = PaymentGateway.InternalWallet; // Default to Wallet for all products
     }
     // tạo thông tin thanh toán trả về cho client
     public class CreateInforPayment
@@ -18,17 +18,6 @@ namespace LearningEnglish.Application.DTOs
 
         public decimal Amount { get; set; }
 
-
-    }
-    // DTO cho thông tin thanh toán client trả cho server
-    public class CompletePayment
-    {
-        public int PaymentId { get; set; }
-
-        public int ProductId { get; set; }
-        public ProductType ProductType { get; set; }
-        public decimal Amount { get; set; }
-        public string PaymentMethod { get; set; } = string.Empty;
 
     }
 

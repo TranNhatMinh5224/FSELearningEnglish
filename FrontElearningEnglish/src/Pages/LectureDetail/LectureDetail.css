@@ -1,105 +1,80 @@
-/* ============================================
-   LECTURE DETAIL PAGE
-   Layout: Header (full width) | Content Area (Tree | Content+Footer)
-   ============================================ */
-
-.lecture-detail-page {
+.lecture-page-wrapper {
+    min-height: 100vh;
+    padding-top: 70px; /* Offset for fixed MainHeader */
+    background-color: #f9fafb;
     display: flex;
     flex-direction: column;
-    position: fixed;
-    top: 70px; /* MainHeader height */
-    left: 0;
-    right: 0;
-    bottom: 0;
-    width: 100%;
-    height: calc(125vh - 70px);
+}
+
+[data-theme="dark"] .lecture-page-wrapper {
+    background-color: #0f172a;
+}
+
+.lecture-boxed-container {
+    background-color: #ffffff;
+    border-radius: 12px;
+    border: 1px solid rgba(0, 0, 0, 0.08);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
     overflow: hidden;
-    background-color: #f8f9fa;
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    min-height: 800px; /* Fixed height for consistent look */
 }
 
-[data-theme="dark"] .lecture-detail-page {
-    background-color: #1a1a1a;
+[data-theme="dark"] .lecture-boxed-container {
+    background-color: #1e293b;
+    border-color: rgba(255, 255, 255, 0.1);
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
 }
-
-/* ============================================
-   CONTENT WRAPPER - Split Layout
-   ============================================ */
 
 .lecture-content-wrapper {
     flex: 1;
     display: flex;
     overflow: hidden;
-    min-height: 0;
 }
 
-/* ============================================
-   LEFT SIDEBAR - TREE
-   ============================================ */
-
 .lecture-sidebar {
-    width: 320px;
-    min-width: 320px;
-    height: 100%;
-    background-color: #ffffff;
-    border-right: 1px solid #e5e7eb;
+    width: 280px;
+    min-width: 280px;
+    background-color: #fafbfc;
+    border-right: 1px solid rgba(0, 0, 0, 0.05);
     display: flex;
     flex-direction: column;
     overflow: hidden;
-    flex-shrink: 0;
-    transition: all 0.3s ease;
 }
 
 [data-theme="dark"] .lecture-sidebar {
-    background-color: #2d2d2d;
-    border-right-color: #404040;
+    background-color: #111827;
+    border-color: rgba(255, 255, 255, 0.05);
 }
-
-.lecture-sidebar.collapsed {
-    width: 0;
-    min-width: 0;
-    border-right: none;
-    overflow: hidden;
-}
-
-/* ============================================
-   RIGHT MAIN CONTENT AREA
-   ============================================ */
 
 .lecture-main-wrapper {
     flex: 1;
     display: flex;
     flex-direction: column;
-    overflow: hidden;
-    min-width: 0;
     background-color: #ffffff;
+    overflow: hidden;
 }
 
 [data-theme="dark"] .lecture-main-wrapper {
-    background-color: #1a1a1a;
+    background-color: #1e293b;
 }
 
 .lecture-content-section {
     flex: 1;
     overflow-y: auto;
-    overflow-x: hidden;
     background-color: #ffffff;
-    position: relative;
-    /* Smooth scroll behavior */
-    scroll-behavior: smooth;
+    padding: 20px;
 }
 
 [data-theme="dark"] .lecture-content-section {
-    background-color: #1a1a1a;
+    background-color: #1e293b;
 }
 
 .lecture-content-container {
-    max-width: 1200px;
+    max-width: 800px;
     margin: 0 auto;
-    padding: 0 24px 32px 24px;
-    min-height: 100%;
+    padding: 20px 0 60px 0;
 }
 
 /* Scrollbar */
@@ -219,11 +194,34 @@
     }
 }
 
-@media (min-width: 768px) {
-    .lecture-sidebar.collapsed {
-        width: 0;
-        min-width: 0;
-        border-right: none;
-        overflow: hidden;
-    }
+/* Resizer */
+.sidebar-resizer {
+    width: 6px;
+    height: 100%;
+    cursor: col-resize;
+    background-color: transparent;
+    transition: background-color 0.2s ease;
+    z-index: 5;
+    flex-shrink: 0;
+    margin-left: -3px;
+    margin-right: -3px;
+}
+
+.sidebar-resizer:hover,
+.sidebar-resizer:active {
+    background-color: rgba(13, 110, 253, 0.2);
+}
+
+.sidebar-resizer::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 50%;
+    width: 1px;
+    background-color: rgba(0, 0, 0, 0.05);
+}
+
+[data-theme="dark"] .sidebar-resizer::after {
+    background-color: rgba(255, 255, 255, 0.1);
 }

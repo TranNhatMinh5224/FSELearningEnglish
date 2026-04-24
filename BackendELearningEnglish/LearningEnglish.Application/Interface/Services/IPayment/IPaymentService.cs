@@ -16,10 +16,6 @@ namespace LearningEnglish.Application.Interface.Services
         
         Task<ServiceResponse<PayOSLinkResponse>> CreatePayOSPaymentLinkAsync(int paymentId, int userId);
 
-        
-        // Confirm payment thủ công (POST /api/payments/confirm)
-        
-        Task<ServiceResponse<bool>> ConfirmPaymentAsync(CompletePayment paymentDto, int userId);
 
        
         // Xử lý PayOS webhook với signature verification (POST /api/payments/payos/webhook)
