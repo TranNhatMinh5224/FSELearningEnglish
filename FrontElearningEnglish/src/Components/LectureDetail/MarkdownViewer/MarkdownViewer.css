@@ -80,13 +80,11 @@
     color: #1f2937;
     margin: 2rem 0 1rem 0;
     padding-bottom: 0.625rem;
-    border-bottom: 2px solid #e5e7eb;
 }
 
 [data-theme="dark"] .markdown-content h1:not(.lecture-title),
 [data-theme="dark"] .markdown-html-content h1:not(.lecture-title) {
     color: #ffffff;
-    border-bottom-color: #374151;
 }
 
 .markdown-content h1:not(.lecture-title):first-child,
