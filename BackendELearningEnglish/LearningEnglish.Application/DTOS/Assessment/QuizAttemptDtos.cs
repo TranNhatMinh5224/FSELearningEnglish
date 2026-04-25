@@ -159,7 +159,6 @@ namespace LearningEnglish.Application.DTOs
     }
     public class QuizAttemptDetailDto : QuizAttemptDto
     {
-        public decimal TotalPossibleScore { get; set; }
         public decimal Percentage { get; set; }
         public bool IsPassed { get; set; }
 

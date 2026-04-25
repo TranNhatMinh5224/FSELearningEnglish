@@ -72,7 +72,7 @@ export default function Home() {
           <h1 className="visually-hidden">Catalunya English - Nền tảng học Tiếng Anh Online hiệu quả</h1>
           
           <WelcomeSection displayName={displayName} />
-          <div className="mb-4">
+          <div className="mt-4 mb-4">
             <SearchBox />
           </div>
           <MyCoursesSection />

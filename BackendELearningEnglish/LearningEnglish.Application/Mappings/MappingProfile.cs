@@ -25,6 +25,7 @@ namespace LearningEnglish.Application.Mappings
             CreateMap<ProductType, EnumMappingDto>().ConvertUsing(new EnumTypeConverter<ProductType>());
             CreateMap<AssetType, EnumMappingDto>().ConvertUsing(new EnumTypeConverter<AssetType>());
             CreateMap<LectureType, EnumMappingDto>().ConvertUsing(new EnumTypeConverter<LectureType>());
+            CreateMap<PaymentGateway, EnumMappingDto>().ConvertUsing(new EnumTypeConverter<PaymentGateway>());
             CreateMap<WalletTransactionType, EnumMappingDto>().ConvertUsing(new EnumTypeConverter<WalletTransactionType>());
 
             // Essay Grading mappings

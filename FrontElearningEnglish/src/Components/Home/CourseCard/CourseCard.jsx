@@ -15,12 +15,16 @@ export default function CourseCard({ course, onClick }) {
         CourseId,
         title = "Khóa học",
         Title,
+        name,
+        Name,
+        courseName,
+        CourseName,
         imageUrl,
         ImageUrl,
     } = course || {};
 
-    const finalId = id || courseId || CourseId;
-    const finalTitle = title || Title || "Khóa học";
+    const finalId = id || courseId || CourseId || course?.id || course?.courseId;
+    const finalTitle = (title && title !== "Khóa học") ? title : (Title || name || Name || courseName || CourseName || "Khóa học");
     const defaultImage = getDefaultCourseImage() || APP_CONSTANTS.DEFAULT_COURSE_IMAGE;
     const customImageUrl = imageUrl || ImageUrl;
 
@@ -50,4 +54,3 @@ export default function CourseCard({ course, onClick }) {
         </div>
     );
 }
-

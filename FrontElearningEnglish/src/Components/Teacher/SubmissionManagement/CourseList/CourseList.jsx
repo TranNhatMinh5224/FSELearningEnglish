@@ -1,6 +1,6 @@
 import React from "react";
 import { Row, Col } from "react-bootstrap";
-import CourseCard from "../../../Home/CourseCard/CourseCard";
+import SubmissionCourseCard from "./SubmissionCourseCard";
 import "./CourseList.css";
 
 export default function CourseList({ courses, onSelect }) {
@@ -18,7 +18,7 @@ export default function CourseList({ courses, onSelect }) {
         const courseId = course.courseId || course.CourseId || course.id;
         return (
           <Col key={courseId} xs={12} sm={6} md={4} lg={3} className="d-flex justify-content-center">
-            <CourseCard 
+            <SubmissionCourseCard 
               course={course} 
               onClick={() => onSelect(course)} 
             />

@@ -1,3 +1,5 @@
+namespace LearningEnglish.Domain.Enums;
+
 public enum PaymentGateway
 {
     PayPal = 1,

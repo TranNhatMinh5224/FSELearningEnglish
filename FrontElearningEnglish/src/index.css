@@ -99,9 +99,7 @@ code {
 body .lecture-detail-page,
 body .quiz-detail-page,
 body .results-container,
-body .course-detail-page,
-body .my-courses-container,
-body .home-container {
+body .course-detail-page {
   padding-top: 80px; /* Standard header height + some breathing room */
 }
 

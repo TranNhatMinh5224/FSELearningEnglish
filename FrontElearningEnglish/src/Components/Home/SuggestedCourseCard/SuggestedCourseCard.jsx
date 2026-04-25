@@ -10,10 +10,16 @@ export default function SuggestedCourseCard({ course, isEnrolled = false, showEn
         id,
         courseId,
         title = "Khóa học",
+        Title,
+        name,
+        Name,
+        courseName,
+        CourseName,
         imageUrl,
         price = 0,
     } = course || {};
     
+    const finalTitle = (title && title !== "Khóa học") ? title : (Title || name || Name || courseName || CourseName || "Khóa học");
     const defaultImage = getDefaultCourseImage();
     const displayImageUrl = (imageUrl && imageUrl.trim() !== "") 
         ? imageUrl 
@@ -44,12 +50,12 @@ export default function SuggestedCourseCard({ course, isEnrolled = false, showEn
             <div className="course-image-wrapper">
                 <img 
                     src={displayImageUrl} 
-                    alt={`Ảnh khóa học ${title}`}
+                    alt={`Ảnh khóa học ${finalTitle}`}
                     className="course-image"
                 />
             </div>
             <div className="course-content">
-                <h4 className="course-title">{title}</h4>
+                <h4 className="course-title">{finalTitle}</h4>
                 <div className="course-price">{formatPrice(price)}</div>
                 <button 
                     className={`course-action-btn ${isEnrolled ? 'enrolled' : ''}`}
@@ -64,4 +70,3 @@ export default function SuggestedCourseCard({ course, isEnrolled = false, showEn
         </div>
     );
 }
-

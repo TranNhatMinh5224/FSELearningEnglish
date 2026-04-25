@@ -135,7 +135,7 @@ namespace LearningEnglish.API.Controller.User
         // endpoint PayOS cancel URL
         [HttpGet("payos/cancel")]
         [AllowAnonymous]
-        public IActionResult PayOSCancel([FromQuery] long? orderCode)
+        public async Task<IActionResult> PayOSCancel([FromQuery] long? orderCode)
         {
             var frontendUrl = GetFrontendBaseUrl();
             _logger.LogInformation("Payment cancelled by user: OrderCode={OrderCode}", orderCode);

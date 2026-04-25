@@ -73,7 +73,8 @@ div.course-image {
 
 .course-card:hover div.course-image {
     background-color: #eff6ff;
-    color: #41d6e3; /* Shift to Cyan on hover */
+    color: #41d6e3;
+    /* Shift to Cyan on hover */
 }
 
 .course-card:hover .course-image {
