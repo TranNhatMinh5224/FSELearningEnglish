@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback } from "react";
-import { Container, Button, Pagination, Badge } from "react-bootstrap";
+import { Container, Button, Badge } from "react-bootstrap";
+import CustomPagination from "../../../Components/Common/Pagination/CustomPagination";
 import { FaPlus, FaEdit, FaTrash, FaKey, FaEnvelope } from "react-icons/fa";
 import { MdAdminPanelSettings } from "react-icons/md";
 import { useAuth } from "../../../Context/AuthContext";
@@ -24,7 +25,7 @@ export default function AdminManagement() {
   const [loading, setLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize] = useState(10);
-  const [, setTotalCount] = useState(0);
+  const [totalCount, setTotalCount] = useState(0);
   const [totalPages, setTotalPages] = useState(0);
 
   // Modal states
@@ -140,44 +141,6 @@ export default function AdminManagement() {
     }
   };
 
-  const renderPagination = () => {
-    if (totalPages <= 1) return null;
-
-    const items = [];
-    const maxVisible = 5;
-    let startPage = Math.max(1, currentPage - Math.floor(maxVisible / 2));
-    let endPage = Math.min(totalPages, startPage + maxVisible - 1);
-
-    if (endPage - startPage < maxVisible - 1) {
-      startPage = Math.max(1, endPage - maxVisible + 1);
-    }
-
-    if (currentPage > 1) {
-      items.push(
-        <Pagination.Prev key="prev" onClick={() => handlePageChange(currentPage - 1)} />
-      );
-    }
-
-    for (let page = startPage; page <= endPage; page++) {
-      items.push(
-        <Pagination.Item
-          key={page}
-          active={page === currentPage}
-          onClick={() => handlePageChange(page)}
-        >
-          {page}
-        </Pagination.Item>
-      );
-    }
-
-    if (currentPage < totalPages) {
-      items.push(
-        <Pagination.Next key="next" onClick={() => handlePageChange(currentPage + 1)} />
-      );
-    }
-
-    return <Pagination className="justify-content-center mt-4">{items}</Pagination>;
-  };
 
   const getRoleBadgeColor = (role) => {
     switch (role) {
@@ -313,7 +276,13 @@ export default function AdminManagement() {
             </div>
           </div>
 
-          {renderPagination()}
+          <CustomPagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            totalCount={totalCount}
+            pageSize={pageSize}
+            onPageChange={handlePageChange}
+          />
         </>
       )}
 

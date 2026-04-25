@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
-import { Container, Pagination, Row, Col } from "react-bootstrap";
+import { Container, Row, Col } from "react-bootstrap";
+import CustomPagination from "../../Components/Common/Pagination/CustomPagination";
 import "./PaymentHistory.css";
 import MainHeader from "../../Components/Header/MainHeader";
 import Breadcrumb from "../../Components/Common/Breadcrumb/Breadcrumb";
@@ -193,59 +194,13 @@ export default function PaymentHistory() {
                             </div>
 
                             {/* Pagination */}
-                            {totalPages > 1 && (
-                                <div className="pagination-wrapper d-flex flex-column flex-md-row align-items-center gap-3">
-                                    <Pagination>
-                                        <Pagination.First 
-                                            onClick={() => setCurrentPage(1)}
-                                            disabled={currentPage === 1}
-                                        />
-                                        <Pagination.Prev 
-                                            onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
-                                            disabled={currentPage === 1}
-                                        />
-                                        
-                                        {/* Show page numbers */}
-                                        {Array.from({ length: totalPages }, (_, i) => i + 1)
-                                            .filter(page => {
-                                                // Show first page, last page, current page, and pages around current
-                                                return page === 1 || 
-                                                       page === totalPages || 
-                                                       (page >= currentPage - 1 && page <= currentPage + 1);
-                                            })
-                                            .map((page, index, array) => {
-                                                // Add ellipsis if needed
-                                                const showEllipsisBefore = index > 0 && array[index - 1] !== page - 1;
-                                                return (
-                                                    <React.Fragment key={page}>
-                                                        {showEllipsisBefore && (
-                                                            <Pagination.Ellipsis disabled />
-                                                        )}
-                                                        <Pagination.Item
-                                                            active={page === currentPage}
-                                                            onClick={() => setCurrentPage(page)}
-                                                        >
-                                                            {page}
-                                                        </Pagination.Item>
-                                                    </React.Fragment>
-                                                );
-                                            })}
-                                        
-                                        <Pagination.Next 
-                                            onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
-                                            disabled={currentPage === totalPages}
-                                        />
-                                        <Pagination.Last 
-                                            onClick={() => setCurrentPage(totalPages)}
-                                            disabled={currentPage === totalPages}
-                                        />
-                                    </Pagination>
-                                    
-                                    <div className="pagination-info">
-                                        Trang {currentPage} / {totalPages} ({totalCount} giao dịch)
-                                    </div>
-                                </div>
-                            )}
+                            <CustomPagination
+                                currentPage={currentPage}
+                                totalPages={totalPages}
+                                totalCount={totalCount}
+                                pageSize={pageSize}
+                                onPageChange={setCurrentPage}
+                            />
                         </div>
                     )}
                 </Container>

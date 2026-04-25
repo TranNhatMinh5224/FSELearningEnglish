@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import { Pagination, Row, Col } from "react-bootstrap";
+import { Row, Col } from "react-bootstrap";
+import CustomPagination from "../../../Components/Common/Pagination/CustomPagination";
 import "./CourseManagement.css";
 import TeacherHeader from "../../../Components/Header/TeacherHeader";
 import { useAuth } from "../../../Context/AuthContext";
@@ -206,45 +207,14 @@ export default function CourseManagement() {
               </Row>
 
               {/* Pagination */}
-              {totalPages > 1 && (
-                <div className="pagination-wrapper d-flex justify-content-center">
-                  <Pagination>
-                    <Pagination.Prev
-                      disabled={currentPage === 1}
-                      onClick={() => currentPage > 1 && setCurrentPage(currentPage - 1)}
-                    />
-                    {Array.from({ length: totalPages }, (_, i) => i + 1)
-                      .filter(page => {
-                        return (
-                          page === 1 ||
-                          page === totalPages ||
-                          (page >= currentPage - 1 && page <= currentPage + 1)
-                        );
-                      })
-                      .map((page, index, array) => {
-                        const showEllipsisBefore =
-                          index > 0 && array[index - 1] !== page - 1;
-                        return (
-                          <React.Fragment key={page}>
-                            {showEllipsisBefore && <Pagination.Ellipsis disabled />}
-                            <Pagination.Item
-                              active={page === currentPage}
-                              onClick={() => setCurrentPage(page)}
-                            >
-                              {page}
-                            </Pagination.Item>
-                          </React.Fragment>
-                        );
-                      })}
-                    <Pagination.Next
-                      disabled={currentPage === totalPages}
-                      onClick={() =>
-                        currentPage < totalPages && setCurrentPage(currentPage + 1)
-                      }
-                    />
-                  </Pagination>
-                </div>
-              )}
+              <CustomPagination
+                currentPage={currentPage}
+                totalPages={totalPages}
+                totalCount={totalPages * pageSize} /* approximation since totalItems wasn't rigorously defined in this component state */
+                pageSize={pageSize}
+                onPageChange={setCurrentPage}
+                showInfo={false} /* Since previous UI didn't show totalCount info */
+              />
             </>
           ) : (
             <div className="empty-state">

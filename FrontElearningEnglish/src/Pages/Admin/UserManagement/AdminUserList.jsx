@@ -11,6 +11,7 @@ import "./AdminUserList.css";
 import SuccessModal from "../../../Components/Common/SuccessModal/SuccessModal";
 import ConfirmModal from "../../../Components/Common/ConfirmModal/ConfirmModal";
 import NotificationModal from "../../../Components/Common/NotificationModal/NotificationModal";
+import CustomPagination from "../../../Components/Common/Pagination/CustomPagination";
 
 export default function AdminUserList() {
   const { user: currentUser } = useAuth();
@@ -223,6 +224,12 @@ export default function AdminUserList() {
     }
   };
 
+  const handlePageChange = (page) => {
+    setPagination({ ...pagination, pageNumber: page });
+  };
+
+  const totalPages = Math.ceil(pagination.totalCount / pagination.pageSize);
+
 return (
   <div className="user-management-container">
     {/* HEADER */}
@@ -253,6 +260,14 @@ return (
       onToggleStatus={handleToggleStatus}
       onAdjustBalance={openAdjustBalanceModal}
       canAdjustBalance={canAdjustBalance}
+    />
+
+    <CustomPagination
+      currentPage={pagination.pageNumber}
+      totalPages={totalPages}
+      totalCount={pagination.totalCount}
+      pageSize={pagination.pageSize}
+      onPageChange={handlePageChange}
     />
 
     {/* MODALS */}

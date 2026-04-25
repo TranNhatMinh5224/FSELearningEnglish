@@ -3,6 +3,8 @@ using LearningEnglish.Application.Interface;
 using LearningEnglish.Application.Interface.Infrastructure.MediaService;
 using LearningEnglish.Application.Common;
 using LearningEnglish.Application.Common.Pagination;
+using LearningEnglish.Domain.Entities;
+using LearningEnglish.Domain.Enums;
 using AutoMapper;
 using Microsoft.Extensions.Logging;
 
@@ -17,6 +19,8 @@ namespace LearningEnglish.Application.Service
         private readonly ICourseProgressRepository _courseProgressRepository;
         private readonly ILogger<ManageUserInCourseService> _logger;
         private readonly IAvatarService _avatarService;
+        private readonly INotificationRepository _notificationRepository;
+        private readonly IEmailService _emailService;
 
         public ManageUserInCourseService(
             IUserRepository userRepository,
@@ -24,7 +28,9 @@ namespace LearningEnglish.Application.Service
             ICourseRepository courseRepository,
             ICourseProgressRepository courseProgressRepository,
             ILogger<ManageUserInCourseService> logger,
-            IAvatarService avatarService)
+            IAvatarService avatarService,
+            INotificationRepository notificationRepository,
+            IEmailService emailService)
         {
             _userRepository = userRepository;
             _mapper = mapper;
@@ -32,6 +38,35 @@ namespace LearningEnglish.Application.Service
             _courseProgressRepository = courseProgressRepository;
             _logger = logger;
             _avatarService = avatarService;
+            _notificationRepository = notificationRepository;
+            _emailService = emailService;
+        }
+
+        private async Task CreateEnrollmentNotificationAsync(int userId, string courseTitle)
+        {
+            try
+            {
+                var notification = new Notification
+                {
+                    UserId = userId,
+                    Title = "Được thêm vào khóa học",
+                    Message = $"Bạn đã được giáo viên thêm vào khóa học '{courseTitle}'. Hãy bắt đầu học ngay!",
+                    Type = NotificationType.CourseEnrollment,
+                    IsRead = false,
+                    CreatedAt = DateTime.UtcNow
+                };
+                await _notificationRepository.AddAsync(notification);
+                
+                var user = await _userRepository.GetByIdAsync(userId);
+                if (user != null && !string.IsNullOrEmpty(user.Email))
+                {
+                    await _emailService.SendNotifyJoinCourseAsync(user.Email, courseTitle, user.FullName);
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Failed to create enrollment notification for user {UserId}", userId);
+            }
         }
 
 
@@ -467,6 +502,9 @@ namespace LearningEnglish.Application.Service
 
                 // Thêm student vào course
                 await _courseRepository.EnrollUserInCourse(student.UserId, courseId);
+
+                // Send notification
+                await CreateEnrollmentNotificationAsync(student.UserId, course.Title);
 
                 response.Data = true;
                 response.StatusCode = 200;

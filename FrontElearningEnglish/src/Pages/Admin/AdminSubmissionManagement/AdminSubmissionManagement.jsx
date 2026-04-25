@@ -84,29 +84,7 @@ export default function AdminSubmissionManagement() {
     return null;
   }
 
-  if (loading) {
-    return (
-      <div className="admin-submission-management-container">
-        <Container fluid className="p-0">
-          <div className="text-center py-5">
-            <div className="spinner-border text-primary" role="status">
-              <span className="visually-hidden">Đang tải...</span>
-            </div>
-          </div>
-        </Container>
-      </div>
-    );
-  }
 
-  if (error) {
-    return (
-      <div className="admin-submission-management-container">
-        <Container fluid className="p-0">
-          <div className="alert alert-danger text-center">{error}</div>
-        </Container>
-      </div>
-    );
-  }
 
   return (
     <div className="admin-submission-management-container">
@@ -179,31 +157,41 @@ export default function AdminSubmissionManagement() {
           </Row>
         </Form>
 
-        <Tab.Container activeKey={activeTab} onSelect={(k) => setActiveTab(k || "essay")}>
-          <Nav variant="tabs" className="mb-4 border-0">
-            <Nav.Item>
-              <Nav.Link eventKey="essay" className="d-flex align-items-center gap-2">
-                <FaFileAlt />
-                <span>Bài Essay</span>
-              </Nav.Link>
-            </Nav.Item>
-            <Nav.Item>
-              <Nav.Link eventKey="quiz" className="d-flex align-items-center gap-2">
-                <FaClipboardList />
-                <span>Bài Quiz</span>
-              </Nav.Link>
-            </Nav.Item>
-          </Nav>
+        {loading ? (
+          <div className="text-center py-5">
+            <div className="spinner-border text-primary" role="status">
+              <span className="visually-hidden">Đang tải...</span>
+            </div>
+          </div>
+        ) : error ? (
+          <div className="alert alert-danger text-center">{error}</div>
+        ) : (
+          <Tab.Container activeKey={activeTab} onSelect={(k) => setActiveTab(k || "essay")}>
+            <Nav variant="tabs" className="mb-4 border-0">
+              <Nav.Item>
+                <Nav.Link eventKey="essay" className="d-flex align-items-center gap-2">
+                  <FaFileAlt />
+                  <span>Bài Essay</span>
+                </Nav.Link>
+              </Nav.Item>
+              <Nav.Item>
+                <Nav.Link eventKey="quiz" className="d-flex align-items-center gap-2">
+                  <FaClipboardList />
+                  <span>Bài Quiz</span>
+                </Nav.Link>
+              </Nav.Item>
+            </Nav>
 
-          <Tab.Content>
-            <Tab.Pane eventKey="essay">
-              <EssaySubmissionTab courses={courses} isAdmin={true} />
-            </Tab.Pane>
-            <Tab.Pane eventKey="quiz">
-              <QuizAttemptTab courses={courses} isAdmin={true} />
-            </Tab.Pane>
-          </Tab.Content>
-        </Tab.Container>
+            <Tab.Content>
+              <Tab.Pane eventKey="essay">
+                <EssaySubmissionTab courses={courses} isAdmin={true} />
+              </Tab.Pane>
+              <Tab.Pane eventKey="quiz">
+                <QuizAttemptTab courses={courses} isAdmin={true} />
+              </Tab.Pane>
+            </Tab.Content>
+          </Tab.Container>
+        )}
       </Container>
     </div>
   );

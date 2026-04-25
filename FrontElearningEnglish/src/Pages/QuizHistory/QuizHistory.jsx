@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
-import { Container, Pagination, Row, Col, Badge } from "react-bootstrap";
+import { Container, Row, Col, Badge } from "react-bootstrap";
+import CustomPagination from "../../Components/Common/Pagination/CustomPagination";
 import "./QuizHistory.css";
 import MainHeader from "../../Components/Header/MainHeader";
 import Breadcrumb from "../../Components/Common/Breadcrumb/Breadcrumb";
@@ -223,29 +224,15 @@ export default function QuizHistory() {
                                         })}
                             </div>
 
-                            {totalPages > 1 && (
-                                <div className="pagination-wrapper">
-                                    <Pagination>
-                                        <Pagination.Prev 
-                                            disabled={currentPage === 1}
-                                            onClick={() => setCurrentPage(prev => prev - 1)}
-                                        />
-                                        {[...Array(totalPages)].map((_, i) => (
-                                            <Pagination.Item 
-                                                key={i + 1} 
-                                                active={i + 1 === currentPage}
-                                                onClick={() => setCurrentPage(i + 1)}
-                                            >
-                                                {i + 1}
-                                            </Pagination.Item>
-                                        ))}
-                                        <Pagination.Next 
-                                            disabled={currentPage === totalPages}
-                                            onClick={() => setCurrentPage(prev => prev + 1)}
-                                        />
-                                    </Pagination>
-                                </div>
-                            )}
+                            {/* Pagination */}
+                            <CustomPagination
+                                currentPage={currentPage}
+                                totalPages={totalPages}
+                                totalCount={attempts.length}
+                                pageSize={pageSize}
+                                onPageChange={setCurrentPage}
+                                showInfo={false}
+                            />
                         </div>
                     )}
                 </Container>

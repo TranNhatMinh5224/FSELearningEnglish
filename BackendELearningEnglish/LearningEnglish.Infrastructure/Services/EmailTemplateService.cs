@@ -30,14 +30,22 @@ namespace LearningEnglish.Infrastructure.Services
 
         public string GenerateWelcomeEmailTemplate(string userName)
         {
-            // Future template for welcome emails
-            return $"<h1>Welcome {userName}!</h1><p>Thank you for joining English Learning App!</p>";
+            var templatePath = _pathResolver.GetTemplatePath("WelcomeEmail.html");
+            var htmlTemplate = File.ReadAllText(templatePath);
+
+            return htmlTemplate
+                .Replace("{{UserName}}", userName)
+                .Replace("{{CURRENT_YEAR}}", DateTime.UtcNow.Year.ToString());
         }
 
         public string GeneratePasswordChangedEmailTemplate(string userName)
         {
-            // Future template for password change notifications
-            return $"<h1>Password Changed</h1><p>Hello {userName}, your password has been successfully changed.</p>";
+            var templatePath = _pathResolver.GetTemplatePath("PasswordChangedEmail.html");
+            var htmlTemplate = File.ReadAllText(templatePath);
+
+            return htmlTemplate
+                .Replace("{{UserName}}", userName)
+                .Replace("{{CURRENT_YEAR}}", DateTime.UtcNow.Year.ToString());
         }
         public string GenerateNotifyJoinCourseTemplate(string courseName, string userName)
         {
@@ -48,7 +56,7 @@ namespace LearningEnglish.Infrastructure.Services
                 .Replace("{{USER_NAME}}", userName)
                 .Replace("{{COURSE_NAME}}", courseName)
                 .Replace("{{PURCHASE_DATE}}", DateTime.UtcNow.ToString("dd/MM/yyyy"))
-                .Replace("{{COURSE_URL}}", $"https://catalunya-english.com/courses/{courseName.Replace(" ", "-").ToLower()}")
+                .Replace("{{COURSE_URL}}", $"https://learning-eng.hocnghiepvu.com/courses/{courseName.Replace(" ", "-").ToLower()}")
                 .Replace("{{CURRENT_YEAR}}", DateTime.UtcNow.Year.ToString());
         }
 
@@ -63,7 +71,7 @@ namespace LearningEnglish.Infrastructure.Services
                 .Replace("{{PRICE}}", price.ToString("F2"))
                 .Replace("{{PURCHASE_DATE}}", DateTime.UtcNow.ToString("dd/MM/yyyy"))
                 .Replace("{{VALID_UNTIL}}", validUntil.ToString("dd/MM/yyyy"))
-                .Replace("{{TEACHER_DASHBOARD_URL}}", "https://catalunya-english.com/teacher/dashboard")
+                .Replace("{{TEACHER_DASHBOARD_URL}}", "https://learning-eng.hocnghiepvu.com/teacher/dashboard")
                 .Replace("{{CURRENT_YEAR}}", DateTime.UtcNow.Year.ToString());
         }
 
@@ -91,11 +99,15 @@ namespace LearningEnglish.Infrastructure.Services
                 .Replace("{{StudentName}}", studentName)
                 .Replace("{{DueCount}}", dueCount.ToString())
                 .Replace("{{Content}}", content)
-                .Replace("{{ReviewUrl}}", "https://catalunya-english.com/flashcards/review");
+                .Replace("{{ReviewUrl}}", "https://learning-eng.hocnghiepvu.com/flashcards/review")
+                .Replace("{{CURRENT_YEAR}}", DateTime.UtcNow.Year.ToString());
         }
 
         public string GenerateStreakReminderTemplate(string userName, int currentStreak, int longestStreak)
         {
+            var templatePath = _pathResolver.GetTemplatePath("StreakReminder.html");
+            var htmlTemplate = File.ReadAllText(templatePath);
+
             var isNewRecord = currentStreak >= longestStreak;
             
             var motivationMessage = currentStreak switch
@@ -106,76 +118,13 @@ namespace LearningEnglish.Infrastructure.Services
                 _ => $"💪 Streak {currentStreak} ngày của bạn đang trong nguy hiểm! Hãy dành ít phút học hôm nay."
             };
 
-            var html = $@"
-<!DOCTYPE html>
-<html>
-<head>
-    <meta charset='UTF-8'>
-    <style>
-        body {{ font-family: Arial, sans-serif; line-height: 1.6; color: #333; }}
-        .container {{ max-width: 600px; margin: 0 auto; padding: 20px; }}
-        .header {{ background: linear-gradient(135deg, #FF6B6B 0%, #FFE66D 100%); color: white; padding: 30px; text-align: center; border-radius: 10px 10px 0 0; }}
-        .content {{ background: #f9f9f9; padding: 30px; border-radius: 0 0 10px 10px; }}
-        .streak-box {{ background: white; padding: 20px; margin: 20px 0; border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }}
-        .button {{ display: inline-block; padding: 15px 30px; background: #FF6B6B; color: white; text-decoration: none; border-radius: 5px; margin: 20px 0; }}
-        .stats {{ display: flex; justify-content: space-around; margin: 20px 0; }}
-        .stat {{ text-align: center; }}
-        .stat-number {{ font-size: 32px; font-weight: bold; color: #FF6B6B; }}
-        .footer {{ text-align: center; margin-top: 20px; color: #666; font-size: 12px; }}
-    </style>
-</head>
-<body>
-    <div class='container'>
-        <div class='header'>
-            <h1>🔥 Streak Reminder!</h1>
-            <p>Đừng để streak của bạn đứt!</p>
-        </div>
-        <div class='content'>
-            <p>Xin chào <strong>{userName}</strong>,</p>
-            
-            <div class='streak-box'>
-                <h2 style='color: #FF6B6B; text-align: center;'>⚠️ Cảnh báo Streak!</h2>
-                <p style='text-align: center; font-size: 18px;'>{motivationMessage}</p>
-                
-                <div class='stats'>
-                    <div class='stat'>
-                        <div class='stat-number'>🔥 {currentStreak}</div>
-                        <div>Current Streak</div>
-                    </div>
-                    <div class='stat'>
-                        <div class='stat-number'>🏆 {longestStreak}</div>
-                        <div>Longest Streak</div>
-                    </div>
-                </div>
-            </div>
-
-            <p><strong>Tại sao streak quan trọng?</strong></p>
-            <ul>
-                <li>✅ Học đều đặn giúp bạn nhớ lâu hơn</li>
-                <li>✅ Xây dựng thói quen học tập bền vững</li>
-                <li>✅ Cảm giác thành tựu khi duy trì streak</li>
-                <li>✅ Động lực tiếp tục phát triển mỗi ngày</li>
-            </ul>
-
-            <p style='text-align: center;'>
-                <a href='https://catalunya-english.com/learn' class='button'>
-                    Học ngay để giữ streak 🚀
-                </a>
-            </p>
-
-            <p style='color: #666; font-size: 14px;'>
-                💡 <em>Chỉ cần 5-10 phút học hôm nay là bạn đã giữ được streak rồi!</em>
-            </p>
-        </div>
-        <div class='footer'>
-            <p>© {DateTime.UtcNow.Year} Catalunya English Learning Platform</p>
-            <p>You received this email because you have an active learning streak.</p>
-        </div>
-    </div>
-</body>
-</html>";
-
-            return html;
+            return htmlTemplate
+                .Replace("{{userName}}", userName)
+                .Replace("{{currentStreak}}", currentStreak.ToString())
+                .Replace("{{longestStreak}}", longestStreak.ToString())
+                .Replace("{{motivationMessage}}", motivationMessage)
+                .Replace("{{HOME_URL}}", "https://learning-eng.hocnghiepvu.com/home")
+                .Replace("{{CURRENT_YEAR}}", DateTime.UtcNow.Year.ToString());
         }
     }
 }

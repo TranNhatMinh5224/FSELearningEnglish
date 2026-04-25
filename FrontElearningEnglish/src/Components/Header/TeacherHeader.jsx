@@ -38,7 +38,7 @@ export default function TeacherHeader() {
 
   return (
     <Navbar className="main-header" fixed="top" expand="lg">
-      <Container fluid className="px-4">
+      <Container className="px-4">
         {/* LEFT: logo + brand */}
         <Navbar.Brand
           className="main-header__left"

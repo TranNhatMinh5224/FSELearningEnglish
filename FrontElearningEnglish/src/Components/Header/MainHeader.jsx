@@ -38,7 +38,7 @@ export default function MainHeader() {
 
   return (
     <Navbar className="main-header" fixed="top" expand="lg">
-      <Container fluid className="d-flex align-items-center">
+      <Container className="d-flex align-items-center">
         {/* LEFT: logo + brand */}
         <Navbar.Brand
           className="main-header__left d-flex align-items-center"

@@ -1,9 +1,9 @@
 import React from "react";
-import { Pagination } from "react-bootstrap";
 import { MdEdit, MdDelete, MdVisibility, MdMenuBook } from "react-icons/md";
 import { PiGraduationCapDuotone } from "react-icons/pi";
 import { useAssets } from "../../../../Context/AssetContext";
 import ImageWithIconFallback from "../../../Common/ImageWithIconFallback/ImageWithIconFallback";
+import CustomPagination from "../../../Common/Pagination/CustomPagination";
 import "./CourseTable.css";
 
 export default function CourseTable({ 
@@ -131,56 +131,13 @@ export default function CourseTable({
       </div>
 
       {/* Pagination */}
-      {totalPages > 1 && (
-        <div className="pagination-wrapper">
-          <Pagination>
-            <Pagination.First 
-              onClick={() => onPageChange(1)} 
-              disabled={currentPage === 1}
-            />
-            <Pagination.Prev 
-              onClick={() => onPageChange(currentPage - 1)} 
-              disabled={currentPage === 1}
-            />
-            
-            {[...Array(totalPages)].map((_, index) => {
-              const page = index + 1;
-              // Show first page, last page, current page, and pages around current
-              if (
-                page === 1 ||
-                page === totalPages ||
-                (page >= currentPage - 1 && page <= currentPage + 1)
-              ) {
-                return (
-                  <Pagination.Item
-                    key={page}
-                    active={page === currentPage}
-                    onClick={() => onPageChange(page)}
-                  >
-                    {page}
-                  </Pagination.Item>
-                );
-              } else if (page === currentPage - 2 || page === currentPage + 2) {
-                return <Pagination.Ellipsis key={page} />;
-              }
-              return null;
-            })}
-            
-            <Pagination.Next 
-              onClick={() => onPageChange(currentPage + 1)} 
-              disabled={currentPage === totalPages}
-            />
-            <Pagination.Last 
-              onClick={() => onPageChange(totalPages)} 
-              disabled={currentPage === totalPages}
-            />
-          </Pagination>
-          
-          <div className="pagination-info">
-            Showing {((currentPage - 1) * pageSize) + 1} - {Math.min(currentPage * pageSize, totalCount)} / {totalCount} courses
-          </div>
-        </div>
-      )}
+      <CustomPagination
+        currentPage={currentPage}
+        totalPages={totalPages}
+        totalCount={totalCount}
+        pageSize={pageSize}
+        onPageChange={onPageChange}
+      />
     </div>
   );
 }

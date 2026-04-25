@@ -1,0 +1,61 @@
+/* Tùy chỉnh màu sắc nút active */
+.custom-pagination-wrapper {
+    width: 100%;
+}
+
+.custom-pagination .page-item.active .page-link {
+    background-color: #0d6efd;
+    border-color: #0d6efd;
+    color: white;
+    box-shadow: 0 2px 4px rgba(13, 110, 253, 0.2);
+}
+
+[data-theme="dark"] .custom-pagination .page-item.active .page-link {
+    background-color: #3b82f6;
+    border-color: #3b82f6;
+}
+
+/* Tùy chỉnh nút khi hover */
+.custom-pagination .page-link {
+    color: #4b5563;
+    border: 1px solid #e5e7eb;
+    margin: 0 2px;
+    border-radius: 4px;
+    transition: all 0.2s;
+    background-color: #ffffff;
+}
+
+[data-theme="dark"] .custom-pagination .page-link {
+    background-color: #1f2937;
+    border-color: #374151;
+    color: #9ca3af;
+}
+
+.custom-pagination .page-link:hover {
+    background-color: #f3f4f6;
+    color: #111827;
+}
+
+[data-theme="dark"] .custom-pagination .page-link:hover {
+    background-color: #374151;
+    color: #f3f4f6;
+}
+
+/* Disabled state */
+.custom-pagination .page-item.disabled .page-link {
+    background-color: #f9fafb;
+    color: #9ca3af;
+    border-color: #f3f4f6;
+}
+
+[data-theme="dark"] .custom-pagination .page-item.disabled .page-link {
+    background-color: #111827;
+    border-color: #1f2937;
+    color: #4b5563;
+}
+
+/* Các nút như mũi tên, ellipsis không có border-radius bo cứng như bootstrap cũ */
+.custom-pagination .page-item:first-child .page-link,
+.custom-pagination .page-item:last-child .page-link {
+    border-radius: 6px;
+}

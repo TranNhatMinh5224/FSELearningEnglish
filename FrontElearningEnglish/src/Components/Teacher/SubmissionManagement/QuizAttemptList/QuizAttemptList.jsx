@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback } from "react";
-import { Card, Table, Badge, Pagination, Spinner, Button } from "react-bootstrap";
+import { Card, Table, Badge, Spinner, Button } from "react-bootstrap";
+import CustomPagination from "../../../Common/Pagination/CustomPagination";
 import { quizAttemptService } from "../../../../Services/quizAttemptService";
 import QuizAttemptDetailModal from "../QuizAttemptDetailModal/QuizAttemptDetailModal";
 import NotificationModal from "../../../Common/NotificationModal/NotificationModal";
@@ -144,49 +145,15 @@ export default function QuizAttemptList({ quizId, quizTitle, onBack, isAdmin = f
                 </tbody>
               </Table>
 
-              {totalPages > 1 && (
-                <div className="d-flex justify-content-center mt-3">
-                  <Pagination>
-                    <Pagination.First
-                      onClick={() => setCurrentPage(1)}
-                      disabled={currentPage === 1}
-                    />
-                    <Pagination.Prev
-                      onClick={() => setCurrentPage((prev) => Math.max(1, prev - 1))}
-                      disabled={currentPage === 1}
-                    />
-                    {[...Array(totalPages)].map((_, index) => {
-                      const page = index + 1;
-                      if (
-                        page === 1 ||
-                        page === totalPages ||
-                        (page >= currentPage - 1 && page <= currentPage + 1)
-                      ) {
-                        return (
-                          <Pagination.Item
-                            key={page}
-                            active={page === currentPage}
-                            onClick={() => setCurrentPage(page)}
-                          >
-                            {page}
-                          </Pagination.Item>
-                        );
-                      } else if (page === currentPage - 2 || page === currentPage + 2) {
-                        return <Pagination.Ellipsis key={page} />;
-                      }
-                      return null;
-                    })}
-                    <Pagination.Next
-                      onClick={() => setCurrentPage((prev) => Math.min(totalPages, prev + 1))}
-                      disabled={currentPage === totalPages}
-                    />
-                    <Pagination.Last
-                      onClick={() => setCurrentPage(totalPages)}
-                      disabled={currentPage === totalPages}
-                    />
-                  </Pagination>
-                </div>
-              )}
+              {/* CustomPagination component will handle the null check internally if totalCount is accurate, otherwise we calculate totalCount from totalPages */}
+              <CustomPagination
+                currentPage={currentPage}
+                totalPages={totalPages}
+                totalCount={totalPages * pageSize} 
+                pageSize={pageSize}
+                onPageChange={setCurrentPage}
+                showInfo={false}
+              />
             </>
           )}
         </Card.Body>

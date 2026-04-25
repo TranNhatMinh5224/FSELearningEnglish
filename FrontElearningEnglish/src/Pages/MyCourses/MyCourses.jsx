@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { Container, Pagination, Row, Col } from "react-bootstrap";
+import { Container, Row, Col } from "react-bootstrap";
+import CustomPagination from "../../Components/Common/Pagination/CustomPagination";
 import "./MyCourses.css";
 import "../../Components/Home/WelcomeSection/WelcomeSection.css"; // Import WelcomeSection CSS
 import MainHeader from "../../Components/Header/MainHeader";
@@ -279,58 +280,13 @@ export default function MyCourses() {
                                     </Row>
                                     
                                     {/* Pagination */}
-                                    {totalPages > 1 && (
-                                        <div className="d-flex justify-content-between align-items-center flex-column flex-md-row gap-3 gap-md-4 mt-4 mt-md-5 pt-4 pt-md-5 border-top">
-                                            <div className="pagination-info text-center text-md-start">
-                                                Trang {currentPage} / {totalPages} ({totalCount} khóa học)
-                                            </div>
-                                            <Pagination className="custom-pagination">
-                                                <Pagination.First 
-                                                    onClick={() => handlePageChange(1)}
-                                                    disabled={currentPage === 1}
-                                                />
-                                                <Pagination.Prev 
-                                                    onClick={() => handlePageChange(currentPage - 1)}
-                                                    disabled={currentPage === 1}
-                                                />
-                                                
-                                                {[...Array(totalPages)].map((_, index) => {
-                                                    const pageNumber = index + 1;
-                                                    // Chỉ hiển thị một số trang xung quanh trang hiện tại
-                                                    if (
-                                                        pageNumber === 1 ||
-                                                        pageNumber === totalPages ||
-                                                        (pageNumber >= currentPage - 2 && pageNumber <= currentPage + 2)
-                                                    ) {
-                                                        return (
-                                                            <Pagination.Item
-                                                                key={pageNumber}
-                                                                active={pageNumber === currentPage}
-                                                                onClick={() => handlePageChange(pageNumber)}
-                                                            >
-                                                                {pageNumber}
-                                                            </Pagination.Item>
-                                                        );
-                                                    } else if (
-                                                        pageNumber === currentPage - 3 ||
-                                                        pageNumber === currentPage + 3
-                                                    ) {
-                                                        return <Pagination.Ellipsis key={pageNumber} />;
-                                                    }
-                                                    return null;
-                                                })}
-                                                
-                                                <Pagination.Next 
-                                                    onClick={() => handlePageChange(currentPage + 1)}
-                                                    disabled={currentPage === totalPages}
-                                                />
-                                                <Pagination.Last 
-                                                    onClick={() => handlePageChange(totalPages)}
-                                                    disabled={currentPage === totalPages}
-                                                />
-                                            </Pagination>
-                                        </div>
-                                    )}
+                                    <CustomPagination
+                                        currentPage={currentPage}
+                                        totalPages={totalPages}
+                                        totalCount={totalCount}
+                                        pageSize={pageSize}
+                                        onPageChange={handlePageChange}
+                                    />
                                 </>
                             ) : (
                                 <div className="no-courses-message">Chưa có khóa học đã đăng ký</div>
