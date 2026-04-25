@@ -269,10 +269,12 @@
 }
 
 .content-value {
-    font-size: 18px;
+    font-size: 14px;
     font-weight: 700;
     color: #1e40af;
-    word-break: break-all;
+    white-space: nowrap;
+    display: block;
+    width: 100%;
 }
 
 .copy-btn-large {
