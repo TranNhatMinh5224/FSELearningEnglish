@@ -167,7 +167,6 @@ export default function Payment() {
 
                 // CASE 1: Payment already created (e.g. from TopUp)
                 if (paymentIdFromUrl) {
-                    setLoading(false);
                     const payOsResponse = await paymentService.createPayOsLink(paymentIdFromUrl);
                     if (isCancelled) return;
 
@@ -276,7 +275,7 @@ export default function Payment() {
             }
         };
 
-        if (courseId || packageId || packageType) {
+        if (courseId || packageId || packageType || paymentIdFromUrl) {
             processPayment();
         }
 
