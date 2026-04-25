@@ -176,6 +176,7 @@ export default function Payment() {
 
                     setPayOsDetails(payOsResponse.data.data);
                     setSelectedGateway(PAYMENT_GATEWAY.PAYOS);
+                    setLoading(false);
                     return;
                 }
 

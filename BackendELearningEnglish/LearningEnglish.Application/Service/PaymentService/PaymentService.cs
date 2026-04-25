@@ -830,10 +830,8 @@ namespace LearningEnglish.Application.Service.PaymentService
 
                     if (string.IsNullOrEmpty(payosInfo.Data.Status) || !string.Equals(payosInfo.Data.Status, "PAID", StringComparison.OrdinalIgnoreCase))
                     {
-                        _logger.LogWarning("Payment {PaymentId} status is not PAID on PayOS. OrderCode: {OrderCode}, Status: {Status}", 
-                            paymentId, orderCode, payosInfo.Data.Status ?? "null");
                         response.Success = false;
-                        response.StatusCode = 400;
+                        response.StatusCode = 200; // Return 200 so axios doesn't throw a network error spam in console
                         response.Message = $"Payment status is {payosInfo.Data.Status ?? "unknown"}, not PAID";
                         return response;
                     }
