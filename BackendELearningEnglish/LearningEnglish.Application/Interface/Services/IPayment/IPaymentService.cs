@@ -64,5 +64,8 @@ namespace LearningEnglish.Application.Interface.Services
         // Lấy tất cả giao dịch trong hệ thống - Dành cho Admin
         Task<ServiceResponse<PagedResult<TransactionHistoryDto>>> GetAllTransactionsAsync(
             AdminTransactionRequest request);
+
+        // Hủy giao dịch (POST /api/user/payments/cancel/{paymentId})
+        Task<ServiceResponse<bool>> CancelPaymentAsync(int paymentId, int userId);
     }
 }

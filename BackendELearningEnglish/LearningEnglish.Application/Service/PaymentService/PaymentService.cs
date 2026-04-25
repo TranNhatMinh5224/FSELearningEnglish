@@ -157,7 +157,9 @@ namespace LearningEnglish.Application.Service.PaymentService
                         Gateway = request.Gateway,
                         Amount = amount,
                         Status = PaymentStatus.Pending,
-                        Description = $"Thanh toán {productName}",
+                        Description = request.typeproduct == ProductType.TopUp 
+                            ? $"Nap tien vao vi {amount:N0} VND" 
+                            : $"Thanh toán {productName}",
                         CreatedAt = DateTime.UtcNow,
                         ExpiredAt = DateTime.UtcNow.AddMinutes(15),
                         ProviderTransactionId = request.Gateway == PaymentGateway.InternalWallet ? $"WALLET-{orderCode}" : orderCode.ToString()
@@ -346,7 +348,7 @@ namespace LearningEnglish.Application.Service.PaymentService
             }
             if (type == ProductType.TopUp)
             {
-                return $"Nạp tiền vào ví ({productId:N0} VNĐ)";
+                return $"Nap tien vao vi ({productId:N0} VND)";
             }
             return "Sản phẩm";
         }
@@ -815,26 +817,42 @@ namespace LearningEnglish.Application.Service.PaymentService
                 }
 
                 // Verify PayOS payment status
-                if (!string.IsNullOrEmpty(payment.ProviderTransactionId) &&
-                    long.TryParse(payment.ProviderTransactionId, out var orderCode))
+                if (payment.Gateway == PaymentGateway.PayOs)
                 {
+                    if (string.IsNullOrEmpty(payment.ProviderTransactionId) ||
+                        !long.TryParse(payment.ProviderTransactionId, out var orderCode))
+                    {
+                        _logger.LogError("Payment {PaymentId} is missing valid ProviderTransactionId for PayOS verification", paymentId);
+                        response.Success = false;
+                        response.StatusCode = 400;
+                        response.Message = "Không thể xác thực giao dịch: thiếu mã tham chiếu PayOS";
+                        return response;
+                    }
+
                     var payosInfo = await _payOSService.GetPaymentInformationAsync(orderCode);
                     if (!payosInfo.Success || payosInfo.Data == null || payosInfo.Data.Code != "00")
                     {
-                        _logger.LogWarning("Payment {PaymentId} not completed on PayOS. OrderCode: {OrderCode}", paymentId, orderCode);
+                        _logger.LogWarning("Payment {PaymentId} not found or error on PayOS. OrderCode: {OrderCode}", paymentId, orderCode);
                         response.Success = false;
                         response.StatusCode = 400;
-                        response.Message = "Payment not completed on PayOS";
+                        response.Message = "Giao dịch chưa được tạo hoặc không tồn tại trên PayOS";
                         return response;
                     }
 
                     if (string.IsNullOrEmpty(payosInfo.Data.Status) || !string.Equals(payosInfo.Data.Status, "PAID", StringComparison.OrdinalIgnoreCase))
                     {
+                        _logger.LogInformation("Payment {PaymentId} status is {Status}, not PAID", paymentId, payosInfo.Data.Status ?? "unknown");
                         response.Success = false;
-                        response.StatusCode = 200; // Return 200 so axios doesn't throw a network error spam in console
-                        response.Message = $"Payment status is {payosInfo.Data.Status ?? "unknown"}, not PAID";
+                        response.StatusCode = 200; 
+                        response.Message = $"Giao dịch đang ở trạng thái {payosInfo.Data.Status ?? "chờ"}, vui lòng hoàn tất thanh toán";
                         return response;
                     }
+                }
+                else if (payment.Gateway == PaymentGateway.InternalWallet)
+                {
+                    // Internal wallet payments are usually completed immediately in ProcessPaymentAsync.
+                    // If arrived here, something is unusual.
+                    _logger.LogWarning("ConfirmPayOSPaymentAsync called for InternalWallet payment {PaymentId}", paymentId);
                 }
 
                 return await InternalCompletePaymentAsync(payment);
@@ -1135,6 +1153,61 @@ namespace LearningEnglish.Application.Service.PaymentService
                 response.Success = false;
                 response.StatusCode = 500;
                 response.Message = "Đã xảy ra lỗi khi lấy danh sách giao dịch";
+            }
+            return response;
+        }
+        public async Task<ServiceResponse<bool>> CancelPaymentAsync(int paymentId, int userId)
+        {
+            var response = new ServiceResponse<bool>();
+            try
+            {
+                _logger.LogInformation("Cancelling payment {PaymentId} for User {UserId}", paymentId, userId);
+
+                var payment = await _paymentRepository.GetPaymentByIdAsync(paymentId);
+                if (payment == null)
+                {
+                    response.Success = false;
+                    response.StatusCode = 404;
+                    response.Message = "Không tìm thấy giao dịch";
+                    return response;
+                }
+
+                if (payment.UserId != userId)
+                {
+                    response.Success = false;
+                    response.StatusCode = 403;
+                    response.Message = "Bạn không có quyền hủy giao dịch này";
+                    return response;
+                }
+
+                if (payment.Status != PaymentStatus.Pending)
+                {
+                    response.Success = false;
+                    response.StatusCode = 400;
+                    response.Message = $"Không thể hủy giao dịch đang ở trạng thái {payment.Status}";
+                    return response;
+                }
+
+                await _unitOfWork.BeginTransactionAsync();
+                payment.Status = PaymentStatus.Cancelled;
+                payment.UpdatedAt = DateTime.UtcNow;
+
+                await _paymentRepository.UpdatePaymentStatusAsync(payment);
+                await _unitOfWork.SaveChangesAsync();
+                await _unitOfWork.CommitAsync();
+
+                _logger.LogInformation("Payment {PaymentId} cancelled successfully", paymentId);
+                response.Data = true;
+                response.Success = true;
+                response.Message = "Đã hủy giao dịch thành công";
+            }
+            catch (Exception ex)
+            {
+                await _unitOfWork.RollbackAsync();
+                _logger.LogError(ex, "Error cancelling payment {PaymentId}", paymentId);
+                response.Success = false;
+                response.StatusCode = 500;
+                response.Message = "Lỗi hệ thống khi hủy giao dịch";
             }
             return response;
         }

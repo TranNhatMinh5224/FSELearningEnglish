@@ -25,4 +25,8 @@ export const paymentService = {
     // PayOS payment link creation
     createPayOsLink: (paymentId) =>
         axiosClient.post(API_ENDPOINTS.PAYMENTS.PAYOS_CREATE_LINK(paymentId)),
+
+    // Cancel payment
+    cancelPayment: (paymentId) =>
+        axiosClient.post(API_ENDPOINTS.PAYMENTS.CANCEL(paymentId)),
 };

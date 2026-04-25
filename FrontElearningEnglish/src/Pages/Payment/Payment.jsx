@@ -33,6 +33,7 @@ export default function Payment() {
     const [pollingStartTime] = useState(Date.now());
     const [pollingActive, setPollingActive] = useState(true);
     const [isCheckingStatus, setIsCheckingStatus] = useState(false);
+    const [isCancelling, setIsCancelling] = useState(false);
     const { user, refreshUser } = useAuth();
     const [selectedGateway, setSelectedGateway] = useState(PAYMENT_GATEWAY.INTERNAL_WALLET); 
     const [neededAmount, setNeededAmount] = useState(0);
@@ -117,6 +118,37 @@ export default function Payment() {
             setShowErrorModal(true);
         } finally {
             setIsCheckingStatus(false);
+        }
+    };
+
+    const handleCancel = async () => {
+        if (isCancelling) return;
+
+        const currentPaymentId = getPayOsValue("paymentId", "PaymentId");
+        if (!currentPaymentId) {
+            navigate("/home");
+            return;
+        }
+
+        try {
+            setIsCancelling(true);
+            setPollingActive(false); // Stop polling immediately
+            
+            await paymentService.cancelPayment(currentPaymentId);
+            
+            setErrorMessage("Đã hủy giao dịch thành công.");
+            setErrorType("info");
+            setShowErrorModal(true);
+            
+            setTimeout(() => {
+                navigate("/home");
+            }, 1500);
+        } catch (err) {
+            console.error("Cancel error:", err);
+            // Even if API fails, still navigate away to avoid sticky state for user
+            navigate("/home");
+        } finally {
+            setIsCancelling(false);
         }
     };
 
@@ -421,12 +453,16 @@ export default function Payment() {
                                     <button
                                         className={`btn-check-status ${isCheckingStatus ? 'loading' : ''}`}
                                         onClick={handleManualCheck}
-                                        disabled={isCheckingStatus}
+                                        disabled={isCheckingStatus || isCancelling}
                                     >
                                         {isCheckingStatus ? "Đang kiểm tra..." : "Tôi đã chuyển khoản"}
                                     </button>
-                                    <button className="btn-cancel" onClick={() => navigate("/home")}>
-                                        Hủy giao dịch
+                                    <button 
+                                        className="btn-cancel" 
+                                        onClick={handleCancel}
+                                        disabled={isCancelling}
+                                    >
+                                        {isCancelling ? "Đang hủy..." : "Hủy giao dịch"}
                                     </button>
                                 </div>
                             </div>

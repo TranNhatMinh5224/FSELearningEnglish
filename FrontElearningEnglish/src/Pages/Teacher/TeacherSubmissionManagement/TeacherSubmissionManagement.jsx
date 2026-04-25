@@ -65,23 +65,6 @@ export default function TeacherSubmissionManagement() {
     return null;
   }
 
-  if (loading) {
-    return (
-      <>
-        <TeacherHeader />
-        <div className="teacher-submission-management-container">
-          <Container>
-            <div className="text-center py-5">
-              <div className="spinner-border text-primary" role="status">
-                <span className="visually-hidden">Đang tải...</span>
-              </div>
-            </div>
-          </Container>
-        </div>
-      </>
-    );
-  }
-
   if (error) {
     return (
       <>
@@ -121,13 +104,21 @@ export default function TeacherSubmissionManagement() {
               </Nav.Item>
             </Nav>
 
-            <Tab.Content>
+            <Tab.Content className={loading ? 'content-loading' : ''}>
               <Tab.Pane eventKey="essay">
                 <EssaySubmissionTab courses={courses} />
               </Tab.Pane>
               <Tab.Pane eventKey="quiz">
                 <QuizAttemptTab courses={courses} />
               </Tab.Pane>
+              
+              {loading && (
+                <div className="admin-loading-overlay text-center">
+                  <div className="spinner-border text-primary" role="status">
+                    <span className="visually-hidden">Đang tải...</span>
+                  </div>
+                </div>
+              )}
             </Tab.Content>
           </Tab.Container>
         </div>

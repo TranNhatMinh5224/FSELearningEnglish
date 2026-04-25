@@ -6,7 +6,7 @@ import ImageWithIconFallback from "../../Common/ImageWithIconFallback/ImageWithI
 import { APP_CONSTANTS } from "../../../config/constants";
 import "./CourseCard.css";
 
-export default function CourseCard({ course }) {
+export default function CourseCard({ course, onClick }) {
     const navigate = useNavigate();
     const { getDefaultCourseImage } = useAssets();
     const {
@@ -25,6 +25,10 @@ export default function CourseCard({ course }) {
     const customImageUrl = imageUrl || ImageUrl;
 
     const handleClick = () => {
+        if (onClick) {
+            onClick(course);
+            return;
+        }
         if (finalId) {
             navigate(`/course/${finalId}`);
         }

@@ -164,6 +164,7 @@ export const API_ENDPOINTS = {
         // PayOS endpoints
         PAYOS_CREATE_LINK: (paymentId) => `/user/payments/payos/create-link/${paymentId}`,
         PAYOS_CONFIRM: (paymentId) => `/user/payments/payos/confirm/${paymentId}`,
+        CANCEL: (paymentId) => `/user/payments/cancel/${paymentId}`,
     },
     // Teacher Packages
     TEACHER_PACKAGES: {

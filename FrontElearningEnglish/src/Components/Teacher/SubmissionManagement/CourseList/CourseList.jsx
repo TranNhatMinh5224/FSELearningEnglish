@@ -1,13 +1,9 @@
 import React from "react";
-import { Row, Col, Card } from "react-bootstrap";
-import { FaBook } from "react-icons/fa";
-import { useAssets } from "../../../../Context/AssetContext";
+import { Row, Col } from "react-bootstrap";
+import CourseCard from "../../../Home/CourseCard/CourseCard";
 import "./CourseList.css";
 
 export default function CourseList({ courses, onSelect }) {
-  const { getDefaultCourseImage } = useAssets();
-  const defaultCourseImage = getDefaultCourseImage();
-  
   if (!courses || courses.length === 0) {
     return (
       <div className="text-center text-muted py-5">
@@ -17,33 +13,15 @@ export default function CourseList({ courses, onSelect }) {
   }
 
   return (
-    <Row className="g-3">
+    <Row className="course-list-row g-4">
       {courses.map((course) => {
-        const courseId = course.courseId || course.CourseId;
-        const title = course.title || course.Title || "Untitled Course";
-        const imageUrl = course.imageUrl || course.ImageUrl;
-        const displayImageUrl = imageUrl || defaultCourseImage;
-
+        const courseId = course.courseId || course.CourseId || course.id;
         return (
-          <Col key={courseId} md={4} lg={3}>
-            <Card
-              className="course-card h-100"
-              onClick={() => onSelect(course)}
-              style={{ cursor: "pointer" }}
-            >
-              <div className="course-image-container">
-                {displayImageUrl ? (
-                  <img src={displayImageUrl} alt={title} className="course-image" />
-                ) : (
-                  <div className="course-image-placeholder">
-                    <FaBook size={40} />
-                  </div>
-                )}
-              </div>
-              <Card.Body>
-                <Card.Title className="course-title">{title}</Card.Title>
-              </Card.Body>
-            </Card>
+          <Col key={courseId} xs={12} sm={6} md={4} lg={3} className="d-flex justify-content-center">
+            <CourseCard 
+              course={course} 
+              onClick={() => onSelect(course)} 
+            />
           </Col>
         );
       })}

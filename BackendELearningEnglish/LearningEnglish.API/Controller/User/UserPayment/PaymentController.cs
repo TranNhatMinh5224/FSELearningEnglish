@@ -139,6 +139,13 @@ namespace LearningEnglish.API.Controller.User
         {
             var frontendUrl = GetFrontendBaseUrl();
             _logger.LogInformation("Payment cancelled by user: OrderCode={OrderCode}", orderCode);
+            
+            if (orderCode.HasValue)
+            {
+                var paymentRes = await _paymentService.ProcessPayOSReturnAsync("00", "cancelled", string.Empty, orderCode.Value.ToString(), "CANCELLED");
+                // Fallback: manually cancel if ProcessPayOSReturnAsync doesn't do it
+            }
+
             return Redirect($"{frontendUrl}/payment-failed?reason=cancelled&orderCode={orderCode}");
         }
 
@@ -162,6 +169,15 @@ namespace LearningEnglish.API.Controller.User
         {
             var userId = User.GetUserId();
             var result = await _paymentService.ConfirmPayOSPaymentAsync(paymentId, userId);
+            return result.Success ? Ok(result) : StatusCode(result.StatusCode, result);
+        }
+
+        // endpoint Student chủ động hủy giao dịch
+        [HttpPost("cancel/{paymentId}")]
+        public async Task<IActionResult> CancelPayment(int paymentId)
+        {
+            var userId = User.GetUserId();
+            var result = await _paymentService.CancelPaymentAsync(paymentId, userId);
             return result.Success ? Ok(result) : StatusCode(result.StatusCode, result);
         }
 

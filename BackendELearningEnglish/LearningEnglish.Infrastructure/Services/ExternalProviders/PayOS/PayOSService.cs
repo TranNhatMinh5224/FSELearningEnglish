@@ -65,7 +65,7 @@ namespace LearningEnglish.Infrastructure.Services.ExternalProviders.PayOS
 
                 var safeDescription = (description ?? "Thanh toan").Trim();
                 // PayOS cho phép description dài hơn; chỉ cắt ở mức an toàn để không bị thiếu nội dung như "Thanh toa"
-                const int maxDescriptionLength = 25;
+                const int maxDescriptionLength = 50;
                 if (safeDescription.Length > maxDescriptionLength)
                 {
                     safeDescription = safeDescription.Substring(0, maxDescriptionLength);
