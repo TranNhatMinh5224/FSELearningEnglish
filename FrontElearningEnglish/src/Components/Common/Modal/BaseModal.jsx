@@ -14,8 +14,8 @@
  * </BaseModal>
  */
 
-import React from 'react';
 import { Modal } from 'react-bootstrap';
+import PremiumCloseButton from '../PremiumCloseButton/PremiumCloseButton';
 import './BaseModal.css';
 
 const SIZE_MAP = {
@@ -55,8 +55,9 @@ const BaseModal = ({
       backdrop={loading ? 'static' : true}
       keyboard={!loading}
     >
-      <Modal.Header closeButton>
+      <Modal.Header closeButton={false}>
         <Modal.Title>{title}</Modal.Title>
+        <PremiumCloseButton onClick={handleHide} />
       </Modal.Header>
       
       <Modal.Body>

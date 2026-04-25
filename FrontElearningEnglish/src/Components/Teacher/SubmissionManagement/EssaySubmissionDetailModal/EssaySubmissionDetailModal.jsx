@@ -4,6 +4,7 @@ import { FaDownload } from "react-icons/fa";
 import { essaySubmissionService } from "../../../../Services/essaySubmissionService";
 import SuccessModal from "../../../Common/SuccessModal/SuccessModal";
 import NotificationModal from "../../../Common/NotificationModal/NotificationModal";
+import PremiumCloseButton from "../../../Common/PremiumCloseButton/PremiumCloseButton";
 import "./EssaySubmissionDetailModal.css";
 
 export default function EssaySubmissionDetailModal({ show, onClose, submission, onGradeSuccess, isAdmin = false }) {
@@ -167,8 +168,9 @@ export default function EssaySubmissionDetailModal({ show, onClose, submission, 
         className="essay-submission-detail-modal modal-modern" 
         dialogClassName="essay-submission-detail-modal-dialog"
       >
-        <Modal.Header closeButton>
-          <Modal.Title>Chi tiết bài nộp</Modal.Title>
+        <Modal.Header closeButton={false}>
+          <Modal.Title className="fw-bold modal-title-centered">Chi tiết bài nộp</Modal.Title>
+          <PremiumCloseButton onClick={onClose} />
         </Modal.Header>
         <Modal.Body>
           {error && <Alert variant="danger">{error}</Alert>}

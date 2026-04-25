@@ -14,10 +14,16 @@
     box-shadow: 0 8px 20px var(--shadow-md, rgba(0, 0, 0, 0.12));
 }
 
-.public-course-card img {
+.public-course-card .public-course-image {
     width: 100%;
     height: clamp(120px, 7.5rem + 1.25vw, 140px);
     object-fit: cover;
+}
+
+div.public-course-image {
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .public-course-card .course-info {
@@ -37,6 +43,7 @@
     line-height: 1.4;
     display: -webkit-box;
     -webkit-line-clamp: 2;
+    line-clamp: 2;
     -webkit-box-orient: vertical;
     overflow: hidden;
     text-overflow: ellipsis;

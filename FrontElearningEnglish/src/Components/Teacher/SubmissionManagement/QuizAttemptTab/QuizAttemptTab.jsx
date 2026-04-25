@@ -16,6 +16,14 @@ export default function QuizAttemptTab({ courses, isAdmin = false }) {
   const [selectedAssessment, setSelectedAssessment] = useState(null);
   const [selectedQuiz, setSelectedQuiz] = useState(null);
 
+  const resetSelection = () => {
+    setSelectedCourse(null);
+    setSelectedLesson(null);
+    setSelectedModule(null);
+    setSelectedAssessment(null);
+    setSelectedQuiz(null);
+  };
+
   const handleCourseSelect = (course) => {
     setSelectedCourse(course);
     setSelectedLesson(null);
@@ -103,7 +111,7 @@ export default function QuizAttemptTab({ courses, isAdmin = false }) {
     <div className="quiz-attempt-tab">
       {getBreadcrumb().length > 0 && (
         <Breadcrumb className="mb-3">
-          <Breadcrumb.Item onClick={() => setSelectedCourse(null)} style={{ cursor: "pointer" }}>
+          <Breadcrumb.Item onClick={resetSelection} style={{ cursor: "pointer" }}>
             Tất cả khóa học
           </Breadcrumb.Item>
           {getBreadcrumb().map((item, index) => {

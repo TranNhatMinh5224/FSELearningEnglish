@@ -9,6 +9,8 @@ import remarkGfm from "remark-gfm";
 import { adminService } from "../../../../Services/adminService";
 import FileUpload from "../../../Common/FileUpload/FileUpload";
 import { toVietnameseWords } from "../../../../Utils/currencyUtils";
+import FormTextArea from "../../../Common/FormControls/FormTextArea";
+import PremiumCloseButton from "../../../Common/PremiumCloseButton/PremiumCloseButton";
 import ConfirmModal from "../../../Common/ConfirmModal/ConfirmModal";
 import "./CourseFormModal.css";
 
@@ -320,10 +322,11 @@ export default function CourseFormModal({ show, onClose, onSubmit, initialData }
     return (
         <>
             <Modal show={show} onHide={handleCancel} centered size="xl" className="modal-modern create-course-modal">
-                <Modal.Header closeButton>
-                    <Modal.Title>
+                <Modal.Header closeButton={false}>
+                    <Modal.Title className="fw-bold modal-title-centered">
                         {isUpdateMode ? "Cập nhật khóa học" : "Tạo khóa học mới"}
                     </Modal.Title>
+                    <PremiumCloseButton onClick={onClose} />
                 </Modal.Header>
 
                 <Modal.Body>

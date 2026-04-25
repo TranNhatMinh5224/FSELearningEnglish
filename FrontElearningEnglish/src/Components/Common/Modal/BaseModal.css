@@ -45,62 +45,6 @@
   margin: 0;
 }
 
-/* Close Button - White on gradient - Highly Visible */
-.modal-modern .modal-header .btn-close {
-  position: absolute !important;
-  right: 1.5rem !important;
-  top: 50% !important;
-  transform: translateY(-50%) !important;
-  filter: brightness(0) invert(1) !important;
-  opacity: 1 !important;
-  transition: all 0.2s ease !important;
-  z-index: 1050 !important;
-  width: 2.5rem !important;
-  height: 2.5rem !important;
-  padding: 0 !important;
-  display: flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  background: rgba(255, 255, 255, 0.3) !important;
-  border-radius: 50% !important;
-  border: 2px solid rgba(255, 255, 255, 0.6) !important;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2) !important;
-}
-
-.modal-modern .modal-header .btn-close:hover {
-  opacity: 1 !important;
-  background: rgba(255, 255, 255, 0.5) !important;
-  border-color: rgba(255, 255, 255, 0.9) !important;
-  transform: translateY(-50%) scale(1.15) !important;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3) !important;
-}
-
-.modal-modern .modal-header .btn-close:focus {
-  box-shadow: 0 0 0 0.25rem rgba(255, 255, 255, 0.5) !important;
-  outline: none !important;
-}
-
-.modal-modern .modal-header .btn-close svg,
-.modal-modern .modal-header .btn-close::after {
-  filter: brightness(0) invert(1) !important;
-  opacity: 1 !important;
-}
-
-/* Ensure the circular close button shows a visible '×' character
-   Some browsers or reset styles can remove the default background-image
-   for .btn-close; force a textual X centered inside the circle. */
-.modal-modern .modal-header .btn-close svg {
-  display: none !important;
-}
-
-.modal-modern .modal-header .btn-close::after {
-  content: "\00d7" !important; /* Unicode multiplication sign looks like an X */
-  font-size: 1.05rem !important;
-  line-height: 1 !important;
-  color: rgba(255,255,255,1) !important;
-  display: inline-block !important;
-}
-
 /* Modal Body - Light background with scrollbar */
 .modal-modern .modal-body {
   background-color: var(--color-bg-secondary, #f6f8fb);

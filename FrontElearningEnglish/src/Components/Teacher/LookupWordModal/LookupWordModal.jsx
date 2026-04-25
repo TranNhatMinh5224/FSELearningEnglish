@@ -1,5 +1,6 @@
-import React, { useState } from "react";
-import { FaTimes, FaSearch, FaExternalLinkAlt } from "react-icons/fa";
+import React, { useState, useRef } from "react";
+import { FaTimes, FaSearch, FaExternalLinkAlt, FaVolumeUp, FaCheck, FaBookOpen } from "react-icons/fa";
+import PremiumCloseButton from "../../Common/PremiumCloseButton/PremiumCloseButton";
 import { dictionaryService } from "../../../Services/dictionaryService";
 import "./LookupWordModal.css";
 
@@ -8,6 +9,7 @@ export default function LookupWordModal({ show, onClose, onSelect }) {
   const [lookingUp, setLookingUp] = useState(false);
   const [lookupError, setLookupError] = useState("");
   const [lookupResult, setLookupResult] = useState(null);
+  const audioRef = useRef(null);
 
   const handleLookup = async () => {
     if (!lookupWord.trim()) {
@@ -35,6 +37,12 @@ export default function LookupWordModal({ show, onClose, onSelect }) {
     }
   };
 
+  const playAudio = () => {
+    if (audioRef.current) {
+      audioRef.current.play();
+    }
+  };
+
   const handleClose = () => {
     setLookupWord("");
     setLookupError("");
@@ -45,195 +53,193 @@ export default function LookupWordModal({ show, onClose, onSelect }) {
     }
   };
 
-  const handleLookupAnother = () => {
-    setLookupResult(null);
-    setLookupWord("");
-    setLookupError("");
+  if (!show) return null;
+
+  // Helpers to handle potential property casing differences from API
+  const getVal = (obj, ...keys) => {
+    for (const key of keys) {
+      if (obj[key] !== undefined && obj[key] !== null) return obj[key];
+    }
+    return null;
   };
 
-  if (!show) return null;
+  const wordValue = getVal(lookupResult || {}, 'word', 'Word');
+  const phoneticValue = getVal(lookupResult || {}, 'phonetic', 'Phonetic');
+  const translationValue = getVal(lookupResult || {}, 'wordTranslation', 'WordTranslation');
+  const audioUrlValue = getVal(lookupResult || {}, 'audioUrl', 'AudioUrl');
+  const sourceUrlValue = getVal(lookupResult || {}, 'sourceUrl', 'SourceUrl');
+  const meaningsArray = getVal(lookupResult || {}, 'meanings', 'Meanings') || [];
 
   return (
     <div className="modal-overlay" onClick={() => !lookingUp && handleClose()}>
       <div className="lookup-modal-card" onClick={(e) => e.stopPropagation()}>
-        <div className="generate-modal-header">
-          <h3>Tra từ</h3>
+        <div className="lookup-modal-header">
+          <div className="header-icon-title">
+            <FaBookOpen className="header-icon" />
+            <h3>Từ điển thông minh</h3>
+          </div>
           {!lookingUp && (
-            <button
-              type="button"
-              className="close-btn"
-              onClick={handleClose}
-            >
-              <FaTimes />
-            </button>
+            <PremiumCloseButton onClick={handleClose} />
           )}
         </div>
 
-        <div className="generate-modal-body">
+        <div className="lookup-modal-body">
           {lookingUp ? (
             <div className="generating-content">
               <div className="loading-spinner"></div>
-              <p>Đang tra từ...</p>
-              <small className="text-muted">Vui lòng đợi trong giây lát</small>
+              <p>Đang kết nối thư viện Oxford...</p>
+              <small className="text-muted">Đang phân tích định nghĩa và dịch nghĩa</small>
             </div>
           ) : lookupResult ? (
-            <div className="lookup-result-content">
-              {/* Word and Phonetic */}
-              <div className="lookup-word-header mb-3">
-                <h2 className="lookup-word-title">{lookupResult.word || lookupResult.Word}</h2>
-                {lookupResult.phonetic || lookupResult.Phonetic ? (
-                  <p className="lookup-phonetic text-muted mb-2">
-                    {lookupResult.phonetic || lookupResult.Phonetic}
-                  </p>
-                ) : null}
-                {lookupResult.sourceUrl || lookupResult.SourceUrl ? (
-                  <a
-                    href={lookupResult.sourceUrl || lookupResult.SourceUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="lookup-source-link d-inline-flex align-items-center gap-1"
-                  >
-                    <FaExternalLinkAlt size={12} />
-                    Xem thêm
-                  </a>
-                ) : null}
+            <div className="lookup-result-container">
+              {/* Premium Word Header */}
+              <div className="word-hero-section">
+                <div className="word-meta">
+                  <div className="d-flex align-items-center gap-3">
+                    <h1 className="display-6 fw-bold mb-0 text-primary">{wordValue}</h1>
+                    {audioUrlValue && (
+                      <button className="audio-play-btn" onClick={playAudio} title="Nghe phát âm">
+                        <FaVolumeUp />
+                        <audio ref={audioRef} src={audioUrlValue} />
+                      </button>
+                    )}
+                  </div>
+                  
+                  <div className="d-flex align-items-center gap-2 mt-2">
+                    {phoneticValue && <span className="phonetic-badge">{phoneticValue}</span>}
+                    {translationValue && <span className="translation-text">• {translationValue}</span>}
+                  </div>
+                </div>
+
+                {onSelect && (
+                  <div className="apply-section-premium">
+                    <button 
+                      className="apply-fast-btn translation-primary"
+                      onClick={() => onSelect({
+                        word: wordValue,
+                        pronunciation: phoneticValue,
+                        partOfSpeech: getVal(meaningsArray[0] || {}, 'partOfSpeech', 'PartOfSpeech') || "",
+                        definition: translationValue || wordValue, // Prioritize SHORT translation
+                        example: getVal(getVal(meaningsArray[0] || {}, 'definitions', 'Definitions')?.[0] || {}, 'example', 'Example') || ""
+                      })}
+                    >
+                      <FaCheck className="me-2" /> CHỌN NGHĨA NÀY (NGẮN GỌN)
+                    </button>
+                    {translationValue && <p className="apply-hint">Click để sử dụng nghĩa: <b>{translationValue}</b></p>}
+                  </div>
+                )}
               </div>
 
-              {/* Meanings */}
-              {lookupResult.meanings && lookupResult.meanings.length > 0 && (
-                <div className="lookup-meanings">
-                  {lookupResult.meanings.map((meaning, meaningIndex) => (
-                    <div key={meaningIndex} className="lookup-meaning-item mb-4">
-                      <h4 className="lookup-part-of-speech">
-                        {meaning.partOfSpeech || meaning.PartOfSpeech}
-                      </h4>
+              {/* Meanings Navigation / Content */}
+              <div className="meanings-wrapper mt-4">
+                <h5 className="section-subtitle">Định nghĩa chi tiết (Oxford)</h5>
+                {meaningsArray.map((meaning, mIdx) => (
+                  <div key={mIdx} className="pos-group mb-4">
+                    <div className="pos-header">
+                      <span className="pos-badge">{getVal(meaning, 'partOfSpeech', 'PartOfSpeech')}</span>
+                      <div className="pos-line"></div>
+                    </div>
 
-                      {/* Definitions */}
-                      {meaning.definitions && meaning.definitions.length > 0 && (
-                        <div className="lookup-definitions">
-                          {meaning.definitions.map((def, defIndex) => (
-                            <div key={defIndex} className="lookup-definition-item mb-3 p-2 rounded border-start border-3 border-primary bg-light">
-                              <div className="d-flex justify-content-between align-items-start gap-2">
-                                <div className="flex-grow-1">
-                                  <p className="lookup-definition-text mb-1">
-                                    {defIndex + 1}. {def.definition || def.Definition}
-                                  </p>
-                                  {def.example || def.Example ? (
-                                    <p className="lookup-example text-muted small mb-0">
-                                      <em>Ví dụ: {def.example || def.Example}</em>
-                                    </p>
-                                  ) : null}
-                                </div>
-                                {onSelect && (
-                                  <button
-                                    type="button"
-                                    className="btn btn-sm btn-outline-primary whitespace-nowrap"
-                                    onClick={() => onSelect({
-                                      word: lookupResult.word || lookupResult.Word,
-                                      pronunciation: lookupResult.phonetic || lookupResult.Phonetic,
-                                      partOfSpeech: meaning.partOfSpeech || meaning.PartOfSpeech,
-                                      definition: def.definition || def.Definition,
-                                      example: def.example || def.Example
-                                    })}
-                                  >
-                                    Áp dụng
-                                  </button>
-                                )}
-                              </div>
-                            </div>
-                          ))}
+                    <div className="definitions-list">
+                      {(getVal(meaning, 'definitions', 'Definitions') || []).map((def, dIdx) => (
+                        <div key={dIdx} className="def-card">
+                          <div className="def-content">
+                            <p className="def-text">{getVal(def, 'definition', 'Definition')}</p>
+                            {getVal(def, 'example', 'Example') && (
+                              <p className="def-example">
+                                <span>Example:</span> {getVal(def, 'example', 'Example')}
+                              </p>
+                            )}
+                          </div>
+                          {onSelect && (
+                            <button 
+                              className="def-select-btn detail-btn"
+                              title="Sử dụng định nghĩa này"
+                              onClick={() => onSelect({
+                                word: wordValue,
+                                pronunciation: phoneticValue,
+                                partOfSpeech: getVal(meaning, 'partOfSpeech', 'PartOfSpeech'),
+                                definition: getVal(def, 'definition', 'Definition'),
+                                example: getVal(def, 'example', 'Example')
+                              })}
+                            >
+                              Dùng làm định nghĩa
+                            </button>
+                          )}
                         </div>
-                      )}
+                      ))}
+                    </div>
 
-                      {/* Synonyms */}
-                      {meaning.synonyms && meaning.synonyms.length > 0 && (
-                        <div className="lookup-synonyms mb-2">
-                          <strong>Đồng nghĩa: </strong>
-                          <span>{meaning.synonyms.join(", ")}</span>
-                        </div>
-                      )}
-
-                      {/* Antonyms */}
-                      {meaning.antonyms && meaning.antonyms.length > 0 && (
-                        <div className="lookup-antonyms">
-                          <strong>Trái nghĩa: </strong>
-                          <span>{meaning.antonyms.join(", ")}</span>
+                    {/* Synonyms & Antonyms */}
+                    <div className="extra-info-row">
+                      {getVal(meaning, 'synonyms', 'Synonyms')?.length > 0 && (
+                        <div className="extra-item synonyms">
+                          <span className="label">Synonyms:</span>
+                          <div className="tags">
+                            {getVal(meaning, 'synonyms', 'Synonyms').slice(0, 5).map((s, i) => (
+                              <span key={i} className="tag">{s}</span>
+                            ))}
+                          </div>
                         </div>
                       )}
                     </div>
-                  ))}
-                </div>
-              )}
+                  </div>
+                ))}
+              </div>
 
-              {/* Audio URL if available */}
-              {lookupResult.audioUrl || lookupResult.AudioUrl ? (
-                <div className="lookup-audio mt-3">
-                  <audio controls src={lookupResult.audioUrl || lookupResult.AudioUrl} className="w-100">
-                    Your browser does not support the audio element.
-                  </audio>
-                </div>
-              ) : null}
+              <div className="lookup-footer-info">
+                 {sourceUrlValue && (
+                   <a href={sourceUrlValue} target="_blank" rel="noopener noreferrer" className="external-source">
+                     <FaExternalLinkAlt className="me-1" /> View on Oxford Dictionary
+                   </a>
+                 )}
+              </div>
             </div>
           ) : (
-            <>
-              <div className="form-group">
-                <label className="form-label required">Nhập từ vựng tiếng Anh</label>
+            <div className="search-box-container">
+              <div className="search-input-wrapper">
+                <FaSearch className="search-icon" />
                 <input
                   type="text"
-                  className={`form-control ${lookupError ? "is-invalid" : ""}`}
+                  className={`search-input-field ${lookupError ? "is-error" : ""}`}
                   value={lookupWord}
                   onChange={(e) => {
                     setLookupWord(e.target.value);
                     setLookupError("");
                   }}
-                  placeholder="Ví dụ: apple, beautiful, computer..."
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter") {
-                      e.preventDefault();
-                      handleLookup();
-                    }
-                  }}
+                  placeholder="Nhập từ vựng bạn muốn tra..."
+                  onKeyDown={(e) => e.key === "Enter" && handleLookup()}
                   autoFocus
                 />
-                {lookupError && <div className="invalid-feedback">{lookupError}</div>}
-                <div className="form-hint">Nhập từ vựng tiếng Anh để tra cứu thông tin chi tiết</div>
               </div>
-            </>
+              {lookupError && <p className="error-message">{lookupError}</p>}
+              
+              <div className="search-suggestions">
+                <p>Gợi ý:</p>
+                <div className="suggestion-tags">
+                  {['persistent', 'innovative', 'paradigm', 'resilient'].map(t => (
+                    <span key={t} onClick={() => {setLookupWord(t); setLookupError("");}}>{t}</span>
+                  ))}
+                </div>
+              </div>
+            </div>
           )}
         </div>
 
-        {!lookingUp && (
-          <div className="generate-modal-footer">
-            {lookupResult ? (
-              <button
-                type="button"
-                className="btn btn-secondary"
-                onClick={handleLookupAnother}
-              >
-                Tra từ khác
-              </button>
-            ) : (
-              <>
-                <button
-                  type="button"
-                  className="btn btn-secondary"
-                  onClick={handleClose}
-                >
-                  Hủy
-                </button>
-                <button
-                  type="button"
-                  className="btn btn-primary"
-                  onClick={handleLookup}
-                  disabled={!lookupWord.trim()}
-                >
-                  <FaSearch className="me-2" />
-                  Tra
-                </button>
-              </>
-            )}
-          </div>
-        )}
+        <div className="lookup-modal-footer-actions">
+           {lookupResult ? (
+             <button className="btn-action secondary" onClick={() => {setLookupResult(null); setLookupWord("");}}>
+               Tra từ khác
+             </button>
+           ) : (
+             <div className="d-flex w-100 gap-2">
+               <button className="btn-action secondary flex-grow-1" onClick={handleClose}>Đóng</button>
+               <button className="btn-action primary flex-grow-1" onClick={handleLookup} disabled={!lookupWord.trim()}>
+                 <FaSearch className="me-2" /> Tra cứu
+               </button>
+             </div>
+           )}
+        </div>
       </div>
     </div>
   );

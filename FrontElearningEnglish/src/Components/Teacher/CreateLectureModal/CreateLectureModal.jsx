@@ -7,6 +7,7 @@ import FormInput from "../../Common/FormControls/FormInput";
 import FormTextArea from "../../Common/FormControls/FormTextArea";
 import FormSelect from "../../Common/FormControls/FormSelect";
 import { useLectureForm } from "./hooks/useLectureForm";
+import PremiumCloseButton from "../../Common/PremiumCloseButton/PremiumCloseButton";
 import "./CreateLectureModal.css";
 
 const LECTURE_MEDIA_BUCKET = "lectures";
@@ -61,10 +62,11 @@ export default function CreateLectureModal({ show, onClose, onSuccess, moduleId,
   return (
     <>
       <Modal show={show} onHide={handleClose} centered size="lg" className="clm-modal modal-modern" dialogClassName="clm-modal-dialog">
-        <Modal.Header closeButton>
-          <Modal.Title className="fw-bold">
+        <Modal.Header closeButton={false}>
+          <Modal.Title className="fw-bold modal-title-centered">
             {isEditMode ? "Chỉnh sửa bài giảng" : "Tạo bài giảng mới"}
           </Modal.Title>
+          <PremiumCloseButton onClick={handleClose} />
         </Modal.Header>
 
         <Modal.Body className="p-4">

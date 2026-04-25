@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback } from "react";
 import { Modal, Spinner } from "react-bootstrap";
 import { quizAttemptService } from "../../../../Services/quizAttemptService";
 import { useQuestionTypes } from "../../../../hooks/useQuestionTypes";
+import PremiumCloseButton from "../../../Common/PremiumCloseButton/PremiumCloseButton";
 import QuizAttemptSidebar from "./QuizAttemptSidebar";
 import QuizAttemptSummary from "./QuizAttemptSummary";
 import QuizAttemptQuestion from "./QuizAttemptQuestion";
@@ -133,10 +134,11 @@ export default function QuizAttemptDetailModal({ show, onClose, attempt, quizId,
       size="xl"
       className="quiz-review-modal-v3"
     >
-      <Modal.Header closeButton className="quiz-header-custom border-0 px-4 py-3">
-        <Modal.Title className="fw-bold text-white">
-          Chi tiết kết quả bài làm: <span>{fullName}</span>
+      <Modal.Header closeButton={false} className="quiz-header-custom border-0 px-4 py-3">
+        <Modal.Title className="fw-bold text-white modal-title-centered">
+          Chi tiết kết quả bài làm: <span className="ms-2">{fullName}</span>
         </Modal.Title>
+        <PremiumCloseButton onClick={onClose} />
       </Modal.Header>
 
       <Modal.Body className="p-0">

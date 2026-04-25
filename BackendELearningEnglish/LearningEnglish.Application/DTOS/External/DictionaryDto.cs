@@ -5,6 +5,7 @@ namespace LearningEnglish.Application.DTOs
     {
         public string Word { get; set; } = string.Empty;
         public string? Phonetic { get; set; }
+        public string? WordTranslation { get; set; } // Dịch trực tiếp từ sang tiếng Việt
         public List<DictionaryMeaningDto> Meanings { get; set; } = new();
         public string? SourceUrl { get; set; }
         public string? AudioUrl { get; set; } // url audio phát âm 

@@ -472,6 +472,8 @@ public static class ServiceRegistrationExtensions // Lớp static chứa các ex
         services.Configure<FacebookAuthOptions>(configuration.GetSection("FacebookAuth")); // Cấu hình xác thực Facebook
         services.Configure<PayOSOptions>(configuration.GetSection("PayOS")); // Cấu hình thanh toán PayOS
         services.Configure<GeminiOptions>(configuration.GetSection("Gemini")); // Cấu hình AI Gemini
+        services.Configure<FreeDictionaryOptions>(configuration.GetSection("FreeDictionary")); // Cấu hình Free Dictionary
+        services.Configure<GoogleTranslateOptions>(configuration.GetSection("GoogleTranslate")); // Cấu hình Google Translate
     }
 
     // Đăng ký các HttpClient để gọi đến API của bên thứ 3 (Minh bạch hơn việc tạo new HttpClient)
@@ -487,6 +489,18 @@ public static class ServiceRegistrationExtensions // Lớp static chứa các ex
             client.BaseAddress = new Uri("https://api-merchant.payos.vn"); // URL gốc của PayOS
             client.Timeout = TimeSpan.FromSeconds(30); // Thời gian chờ tối đa
         });
+
+        services.AddHttpClient<IFreeDictionaryClient, FreeDictionaryClient>()
+            .SetHandlerLifetime(TimeSpan.FromMinutes(5));
+
+        services.AddHttpClient<ITranslatorClient, GoogleTranslateClient>()
+            .SetHandlerLifetime(TimeSpan.FromMinutes(5));
+
+        services.AddHttpClient<IOxfordClient, OxfordClient>()
+            .SetHandlerLifetime(TimeSpan.FromMinutes(5));
+
+        services.AddHttpClient<IUnsplashClient, UnsplashClient>()
+            .SetHandlerLifetime(TimeSpan.FromMinutes(5));
     }
 
     // Đăng ký các dịch vụ cầu nối hoặc xử lý dữ liệu từ bên thứ 3

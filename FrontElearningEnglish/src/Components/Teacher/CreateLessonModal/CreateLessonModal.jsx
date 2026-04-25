@@ -5,6 +5,7 @@ import { teacherService } from "../../../Services/teacherService";
 import { adminService } from "../../../Services/adminService";
 import FileUpload from "../../Common/FileUpload/FileUpload";
 import ConfirmModal from "../../Common/ConfirmModal/ConfirmModal";
+import PremiumCloseButton from "../../Common/PremiumCloseButton/PremiumCloseButton";
 import "./CreateLessonModal.css";
 
 const LESSON_IMAGE_BUCKET = "lessons";
@@ -237,15 +238,14 @@ export default function CreateLessonModal({ show, onClose, onSuccess, courseId, 
     }
   };
 
-  const isFormValid = title.trim();
-
   return (
     <>
       <Modal show={show} onHide={handleCancel} centered size="xl" className="create-lesson-modal modal-modern" dialogClassName="create-lesson-modal-dialog">
-        <Modal.Header closeButton>
-          <Modal.Title className="modal-title-custom">
+        <Modal.Header closeButton={false}>
+          <Modal.Title className="fw-bold modal-title-centered">
             {isUpdateMode ? "Cập nhật bài học" : "Tạo bài học mới"}
           </Modal.Title>
+          <PremiumCloseButton onClick={handleCancel} />
         </Modal.Header>
 
         <Modal.Body>

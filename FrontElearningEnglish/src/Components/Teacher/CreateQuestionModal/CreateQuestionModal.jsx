@@ -11,6 +11,7 @@ import { useAuth } from "../../../Context/AuthContext";
 import { useQuestionForm, QUESTION_TYPES } from "./hooks/useQuestionForm";
 import { useGroupForm } from "./hooks/useGroupForm";
 import { useBulkQuestions } from "./hooks/useBulkQuestions";
+import PremiumCloseButton from "../../Common/PremiumCloseButton/PremiumCloseButton";
 
 import QuestionTab from "./components/QuestionTab";
 import GroupTab from "./components/GroupTab";
@@ -196,8 +197,9 @@ export default function CreateQuestionModal({
   return (
     <>
       <Modal show={show} onHide={handleClose} centered className="modal-modern" dialogClassName="create-question-modal-xl">
-        <Modal.Header closeButton>
-          <Modal.Title>{questionToUpdate ? "Cập nhật câu hỏi" : "Tạo mới nội dung"}</Modal.Title>
+        <Modal.Header closeButton={false}>
+          <Modal.Title className="fw-bold">{questionToUpdate ? "Cập nhật câu hỏi" : "Thêm câu hỏi mới"}</Modal.Title>
+          <PremiumCloseButton onClick={handleClose} />
         </Modal.Header>
         <Modal.Body className="p-0">
           <Tabs activeKey={activeTab} onSelect={(k) => setActiveTab(k)} className="px-3 pt-2 border-bottom-0 custom-tabs">

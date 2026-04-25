@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { Modal, Button, Row, Col, Form } from "react-bootstrap";
-import { FaImage, FaMusic, FaSearch, FaMagic, FaTimes, FaBook, FaTags, FaFileAlt } from "react-icons/fa";
+import { FaImage, FaMusic, FaSearch, FaMagic, FaTimes, FaBook, FaTags, FaFileAlt, FaVolumeUp, FaCheck, FaInfoCircle } from "react-icons/fa";
+import PremiumCloseButton from "../../Common/PremiumCloseButton/PremiumCloseButton";
 import { flashcardService } from "../../../Services/flashcardService";
 import { fileService } from "../../../Services/fileService";
 import GenerateFlashcardModal from "../GenerateFlashcardModal/GenerateFlashcardModal";
@@ -294,6 +295,13 @@ export default function CreateFlashCardModal({ show, onClose, onSuccess, moduleI
     if (data.definition) setMeaning(data.definition);
     if (data.example) setExample(data.example);
 
+    const resolvedAudioUrl = data.audioUrl || data.AudioUrl || null;
+
+    if (resolvedAudioUrl) {
+      setAudioPreview(resolvedAudioUrl);
+      setAudioTempKey(null); // It's an external URL, not a temp key
+    }
+
     const newData = {
       word: data.word || word,
       pronunciation: data.pronunciation || pronunciation,
@@ -301,8 +309,8 @@ export default function CreateFlashCardModal({ show, onClose, onSuccess, moduleI
       meaning: data.definition || meaning,
       imagePreview,
       imageTempKey,
-      audioPreview,
-      audioTempKey
+      audioPreview: resolvedAudioUrl || audioPreview,
+      audioTempKey: resolvedAudioUrl ? null : audioTempKey
     };
 
     setTouched(prev => ({
@@ -411,13 +419,21 @@ export default function CreateFlashCardModal({ show, onClose, onSuccess, moduleI
     }
   };
 
+  const handlePlayAudio = () => {
+    if (audioPreview) {
+      const audio = new Audio(audioPreview);
+      audio.play().catch(e => console.error("Audio playback failed", e));
+    }
+  };
+
   return (
     <>
       <Modal show={show} onHide={handleClose} centered size="xl" className="create-flashcard-modal modal-modern" dialogClassName="create-flashcard-modal-dialog">
-        <Modal.Header closeButton>
+        <Modal.Header closeButton={false}>
           <Modal.Title className="modal-title-custom">
             {isEditMode ? "Cập nhật Flashcard" : "Tạo Flashcard mới"}
           </Modal.Title>
+          <PremiumCloseButton onClick={handleClose} />
         </Modal.Header>
         <Modal.Body>
           {!isEditMode && (
@@ -427,179 +443,212 @@ export default function CreateFlashCardModal({ show, onClose, onSuccess, moduleI
             </div>
           )}
           <Form onSubmit={handleSubmit}>
-            {/* SECTION 1: THÔNG TIN CƠ BẢN */}
-            <div className="form-section">
-              <div className="section-title"><FaBook /> Thông tin cơ bản</div>
-              <Row className="g-3">
-                <Col md={6}>
-                  <Form.Label className="fw-bold">Từ vựng <span className="text-danger">*</span></Form.Label>
-                  <Form.Control
-                    type="text"
-                    value={word}
-                    onChange={e => {
-                      setWord(e.target.value);
-                      if (touched.word) setErrors(prev => ({ ...prev, word: null }));
-                    }}
-                    onBlur={() => handleBlur("word")}
-                    placeholder="Nhập từ vựng tiếng Anh"
-                    isInvalid={touched.word && !!errors.word}
-                  />
-                  {touched.word && errors.word && <Form.Control.Feedback type="invalid" className="d-block">{errors.word}</Form.Control.Feedback>}
-                </Col>
-                <Col md={6}>
-                  <Form.Label className="fw-bold">Phiên âm <span className="text-danger">*</span></Form.Label>
-                  <Form.Control
-                    type="text"
-                    value={pronunciation}
-                    onChange={e => {
-                      setPronunciation(e.target.value);
-                      if (touched.pronunciation) setErrors(prev => ({ ...prev, pronunciation: null }));
-                    }}
-                    onBlur={() => handleBlur("pronunciation")}
-                    placeholder="Nhập phiên âm IPA (VD: /ˈæp.l/)"
-                    isInvalid={touched.pronunciation && !!errors.pronunciation}
-                  />
-                  {touched.pronunciation && errors.pronunciation && <Form.Control.Feedback type="invalid" className="d-block">{errors.pronunciation}</Form.Control.Feedback>}
-                </Col>
-                <Col md={12}>
-                  <Form.Label className="fw-bold">Nghĩa <span className="text-danger">*</span></Form.Label>
-                  <Form.Control
-                    type="text"
-                    value={meaning}
-                    onChange={e => {
-                      setMeaning(e.target.value);
-                      if (touched.meaning) setErrors(prev => ({ ...prev, meaning: null }));
-                    }}
-                    onBlur={() => handleBlur("meaning")}
-                    placeholder="Nhập nghĩa tiếng Việt"
-                    isInvalid={touched.meaning && !!errors.meaning}
-                  />
-                  {touched.meaning && errors.meaning && <Form.Control.Feedback type="invalid" className="d-block">{errors.meaning}</Form.Control.Feedback>}
-                </Col>
-                <Col md={12}>
-                  <Form.Label className="fw-bold">Từ loại <span className="text-danger">*</span></Form.Label>
-                  <Form.Control
-                    type="text"
-                    value={partOfSpeech}
-                    onChange={e => {
-                      setPartOfSpeech(e.target.value);
-                      if (touched.partOfSpeech) setErrors(prev => ({ ...prev, partOfSpeech: null }));
-                    }}
-                    onBlur={() => handleBlur("partOfSpeech")}
-                    placeholder="Nhập từ loại (VD: Noun, Verb, Adjective)"
-                    isInvalid={touched.partOfSpeech && !!errors.partOfSpeech}
-                  />
-                  {touched.partOfSpeech && errors.partOfSpeech && <Form.Control.Feedback type="invalid" className="d-block">{errors.partOfSpeech}</Form.Control.Feedback>}
-                </Col>
-              </Row>
-            </div>
-
-            {/* SECTION 2: MEDIA */}
-            <div className="form-section">
-              <div className="section-title"><FaImage /> Hình ảnh & Âm thanh</div>
-              <Row className="g-3">
-                <Col md={6}>
-                  <Form.Label className="fw-bold">Ảnh minh họa <span className="text-danger">*</span></Form.Label>
-                  <div className="media-upload-area" onClick={() => !imagePreview && imageInputRef.current?.click()}>
-                    {imagePreview ? (
-                      <div className="position-relative media-preview">
-                        <img src={imagePreview} alt="Preview" className="img-fluid" />
-                        <Button variant="danger" size="sm" className="position-absolute top-0 end-0 m-2" onClick={(e) => { e.stopPropagation(); setImagePreview(null); setImageTempKey(null); }}><FaTimes /></Button>
-                      </div>
-                    ) : (
-                      <div className="media-upload-placeholder">
-                        <FaImage size={32} className="text-muted mb-2" />
-                        <span className="text-muted">{uploadingImage ? "Đang tải..." : "Chọn Ảnh"}</span>
-                      </div>
-                    )}
-                    <input type="file" ref={imageInputRef} onChange={handleImageChange} style={{ display: 'none' }} accept="image/*" />
+            {/* MODERIZED FORM LAYOUT */}
+            <div className="flashcard-modern-container">
+              
+              {/* Left Column: English Context */}
+              <div className="flashcard-modern-column">
+                <div className="premium-card context-section">
+                  <div className="card-header-premium">
+                    <FaBook className="icon-blue" />
+                    <span>Bối cảnh Tiếng Anh</span>
                   </div>
-                  {touched.image && errors.image && <div className="text-danger small mt-1">{errors.image}</div>}
-                </Col>
-                <Col md={6}>
-                  <Form.Label className="fw-bold">Âm thanh <span className="text-danger">*</span></Form.Label>
-                  <div className="media-upload-area" onClick={() => !audioPreview && audioInputRef.current?.click()}>
-                    {audioPreview ? (
-                      <div className="w-100">
-                        <audio controls src={audioPreview} style={{ width: '100%' }} />
-                        <Button variant="danger" size="sm" className="mt-2 w-100" onClick={(e) => { e.stopPropagation(); setAudioPreview(null); setAudioTempKey(null); }}><FaTimes className="me-1" /> Xóa audio</Button>
-                      </div>
-                    ) : (
-                      <div className="media-upload-placeholder">
-                        <FaMusic size={32} className="text-muted mb-2" />
-                        <span className="text-muted">{uploadingAudio ? "Đang tải..." : "Chọn Audio"}</span>
-                      </div>
-                    )}
-                    <input type="file" ref={audioInputRef} onChange={handleAudioChange} style={{ display: 'none' }} accept="audio/*" />
+                  
+                  <div className="card-body-premium">
+                    <Form.Group className="mb-4">
+                      <Form.Label className="premium-label required">Từ vựng</Form.Label>
+                      <Form.Control
+                        type="text"
+                        className="premium-input word-input"
+                        value={word}
+                        onChange={e => {
+                          setWord(e.target.value);
+                          if (touched.word) setErrors(prev => ({ ...prev, word: null }));
+                        }}
+                        onBlur={() => handleBlur("word")}
+                        placeholder="VD: Innovation"
+                        isInvalid={touched.word && !!errors.word}
+                      />
+                      {touched.word && errors.word && <Form.Control.Feedback type="invalid">{errors.word}</Form.Control.Feedback>}
+                    </Form.Group>
+
+                    <Row className="mb-4">
+                      <Col md={8}>
+                        <Form.Label className="premium-label required">Phiên âm</Form.Label>
+                        <Form.Control
+                          type="text"
+                          className="premium-input"
+                          value={pronunciation}
+                          onChange={e => {
+                            setPronunciation(e.target.value);
+                            if (touched.pronunciation) setErrors(prev => ({ ...prev, pronunciation: null }));
+                          }}
+                          onBlur={() => handleBlur("pronunciation")}
+                          placeholder="/ˌɪn.əˈveɪ.ʃən/"
+                          isInvalid={touched.pronunciation && !!errors.pronunciation}
+                        />
+                      </Col>
+                      <Col md={4}>
+                        <Form.Label className="premium-label required">Audio</Form.Label>
+                        <div className="premium-audio-trigger-wrapper">
+                          {audioPreview ? (
+                            <div className="audio-actions-row">
+                              <button type="button" className="premium-audio-btn pulse-btn" onClick={handlePlayAudio} title="Nghe thử">
+                                <FaVolumeUp />
+                              </button>
+                              <button type="button" className="btn-remove-media small" onClick={(e) => { e.stopPropagation(); setAudioPreview(null); setAudioTempKey(null); }} title="Xóa audio">
+                                <FaTimes />
+                              </button>
+                            </div>
+                          ) : (
+                            <button type="button" className="premium-audio-btn empty" onClick={() => audioInputRef.current?.click()}>
+                              <FaMusic />
+                            </button>
+                          )}
+                          <input type="file" ref={audioInputRef} onChange={handleAudioChange} style={{ display: 'none' }} accept="audio/*" />
+                        </div>
+                      </Col>
+                    </Row>
+
+                    <Form.Group>
+                      <Form.Label className="premium-label">Câu ví dụ (English)</Form.Label>
+                      <Form.Control
+                        as="textarea"
+                        className="premium-input textarea-modern"
+                        ref={exampleTextareaRef}
+                        rows={2}
+                        value={example}
+                        onChange={e => {
+                          setExample(e.target.value);
+                          autoResizeTextarea(exampleTextareaRef);
+                        }}
+                        placeholder="The company is known for its innovation..."
+                      />
+                    </Form.Group>
                   </div>
-                  {generateNotice && <div className="text-warning small mt-1">{generateNotice}</div>}
-                  {touched.audio && errors.audio && <div className="text-danger small mt-1">{errors.audio}</div>}
-                </Col>
-              </Row>
+                </div>
+              </div>
+
+              {/* Right Column: Meaning & Visuals */}
+              <div className="flashcard-modern-column">
+                <div className="premium-card meaning-section">
+                  <div className="card-header-premium">
+                    <FaCheck className="icon-green" />
+                    <span>Nghĩa & Hình ảnh</span>
+                  </div>
+
+                  <div className="card-body-premium">
+                    <Form.Group className="mb-4">
+                      <Form.Label className="premium-label required">Nghĩa (Tiếng Việt)</Form.Label>
+                      <div className="meaning-input-wrapper">
+                        <Form.Control
+                          type="text"
+                          className="premium-input translation-input"
+                          value={meaning}
+                          onChange={e => {
+                            setMeaning(e.target.value);
+                            if (touched.meaning) setErrors(prev => ({ ...prev, meaning: null }));
+                          }}
+                          onBlur={() => handleBlur("meaning")}
+                          placeholder="Nhập nghĩa ngắn (VD: Sự đổi mới)"
+                          isInvalid={touched.meaning && !!errors.meaning}
+                        />
+                        <div className="meaning-hint">
+                          <FaInfoCircle /> Nên dùng 1-2 từ ngắn gọn
+                        </div>
+                      </div>
+                      {touched.meaning && errors.meaning && <Form.Control.Feedback type="invalid">{errors.meaning}</Form.Control.Feedback>}
+                    </Form.Group>
+
+                    <Row className="mb-4">
+                      <Col md={12}>
+                        <Form.Label className="premium-label required">Từ loại</Form.Label>
+                        <Form.Control
+                          type="text"
+                          className="premium-input pos-input"
+                          value={partOfSpeech}
+                          onChange={e => {
+                            setPartOfSpeech(e.target.value);
+                            if (touched.partOfSpeech) setErrors(prev => ({ ...prev, partOfSpeech: null }));
+                          }}
+                          onBlur={() => handleBlur("partOfSpeech")}
+                          placeholder="Noun, Verb, Adjective..."
+                          isInvalid={touched.partOfSpeech && !!errors.partOfSpeech}
+                        />
+                      </Col>
+                    </Row>
+
+                    <Form.Group>
+                      <Form.Label className="premium-label required">Ảnh minh họa</Form.Label>
+                      <div className="premium-image-uploader" onClick={() => !imagePreview && imageInputRef.current?.click()}>
+                        {imagePreview ? (
+                          <div className="premium-image-preview-container">
+                            <img src={imagePreview} alt="Preview" />
+                            <button type="button" className="btn-remove-media overlay" onClick={(e) => { e.stopPropagation(); setImagePreview(null); setImageTempKey(null); }}>
+                              <FaTimes />
+                            </button>
+                          </div>
+                        ) : (
+                          <div className="preview-placeholder">
+                            <FaImage size={32} />
+                            <span>{uploadingImage ? "Đang tải..." : "Chọn ảnh từ máy"}</span>
+                          </div>
+                        )}
+                        <input type="file" ref={imageInputRef} onChange={handleImageChange} style={{ display: 'none' }} accept="image/*" />
+                      </div>
+                    </Form.Group>
+                  </div>
+                </div>
+              </div>
             </div>
 
-            {/* SECTION 3: VÍ DỤ */}
-            <div className="form-section">
-              <div className="section-title"><FaFileAlt /> Ví dụ và bản dịch</div>
-              <Row className="g-3">
-                <Col md={6}>
-                  <Form.Label>Ví dụ</Form.Label>
-                  <Form.Control
-                    as="textarea"
-                    ref={exampleTextareaRef}
-                    rows={1}
-                    value={example}
-                    onChange={e => {
-                      setExample(e.target.value);
-                      autoResizeTextarea(exampleTextareaRef);
-                    }}
-                    placeholder="Nhập câu ví dụ tiếng Anh"
-                    className="auto-resize-textarea"
-                  />
-                </Col>
-                <Col md={6}>
-                  <Form.Label>Dịch ví dụ</Form.Label>
-                  <Form.Control
-                    as="textarea"
-                    ref={exampleTranslationTextareaRef}
-                    rows={1}
-                    value={exampleTranslation}
-                    onChange={e => {
-                      setExampleTranslation(e.target.value);
-                      autoResizeTextarea(exampleTranslationTextareaRef);
-                    }}
-                    placeholder="Nhập bản dịch tiếng Việt"
-                    className="auto-resize-textarea"
-                  />
-                </Col>
-              </Row>
-            </div>
-
-            {/* SECTION 4: TỪ ĐỒNG NGHĨA & TRÁI NGHĨA */}
-            <div className="form-section">
-              <div className="section-title"><FaTags /> Từ đồng nghĩa & Trái nghĩa</div>
-              <Row className="g-3">
-                <Col md={6}>
-                  <Form.Label>Từ đồng nghĩa</Form.Label>
-                  <Form.Control
-                    type="text"
-                    value={synonyms}
-                    onChange={e => setSynonyms(e.target.value)}
-                    placeholder='["pretty", "gorgeous"] hoặc pretty, gorgeous'
-                  />
-                  <small className="text-muted d-block mt-1">JSON array hoặc danh sách cách nhau bởi dấu phẩy</small>
-                </Col>
-                <Col md={6}>
-                  <Form.Label>Từ trái nghĩa</Form.Label>
-                  <Form.Control
-                    type="text"
-                    value={antonyms}
-                    onChange={e => setAntonyms(e.target.value)}
-                    placeholder='["ugly", "unattractive"] hoặc ugly, unattractive'
-                  />
-                  <small className="text-muted d-block mt-1">JSON array hoặc danh sách cách nhau bởi dấu phẩy</small>
-                </Col>
-              </Row>
+            {/* Bottom Section: Extras */}
+            <div className="flashcard-extra-row">
+              <div className="premium-card extra-section">
+                <div className="card-header-premium">
+                  <FaTags className="icon-purple" />
+                  <span>Dịch câu & Thông tin thêm</span>
+                </div>
+                <div className="card-body-premium">
+                  <Row className="g-4">
+                    <Col md={12}>
+                      <Form.Label className="premium-label">Bản dịch ví dụ</Form.Label>
+                      <Form.Control
+                        as="textarea"
+                        className="premium-input textarea-modern"
+                        ref={exampleTranslationTextareaRef}
+                        rows={1}
+                        value={exampleTranslation}
+                        onChange={e => {
+                          setExampleTranslation(e.target.value);
+                          autoResizeTextarea(exampleTranslationTextareaRef);
+                        }}
+                        placeholder="Công ty nổi tiếng với sự đổi mới..."
+                      />
+                    </Col>
+                    <Col md={6}>
+                      <Form.Label className="premium-label">Từ đồng nghĩa</Form.Label>
+                      <Form.Control
+                        type="text"
+                        className="premium-input"
+                        value={synonyms}
+                        onChange={e => setSynonyms(e.target.value)}
+                        placeholder="pretty, gorgeous"
+                      />
+                    </Col>
+                    <Col md={6}>
+                      <Form.Label className="premium-label">Từ trái nghĩa</Form.Label>
+                      <Form.Control
+                        type="text"
+                        className="premium-input"
+                        value={antonyms}
+                        onChange={e => setAntonyms(e.target.value)}
+                        placeholder="ugly, unattractive"
+                      />
+                    </Col>
+                  </Row>
+                </div>
+              </div>
             </div>
 
             {errors.submit && <div className="alert alert-danger mt-3">{errors.submit}</div>}

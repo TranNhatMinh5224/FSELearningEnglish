@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Modal, Button, Form, Row, Col } from "react-bootstrap";
 import { policyService } from "../../../Services/policyService";
 import { toast } from "react-toastify";
+import PremiumCloseButton from "../../Common/PremiumCloseButton/PremiumCloseButton";
 
 export default function PolicyFormModal({ show, onClose, onSuccess, policyToEdit }) {
   const [formData, setFormData] = useState({
@@ -63,11 +64,12 @@ export default function PolicyFormModal({ show, onClose, onSuccess, policyToEdit
   };
 
   return (
-    <Modal show={show} onHide={onClose} size="lg" centered>
-      <Modal.Header closeButton className="bg-light">
-        <Modal.Title className="fw-bold">
+    <Modal show={show} onHide={onClose} size="lg" centered className="modal-modern">
+      <Modal.Header closeButton={false} className="modal-header-cyan">
+        <Modal.Title className="fw-bold modal-title-centered text-white">
           {policyToEdit ? "Cập nhật chính sách" : "Thêm chính sách mới"}
         </Modal.Title>
+        <PremiumCloseButton onClick={onClose} variant="white" />
       </Modal.Header>
       <Form onSubmit={handleSubmit}>
         <Modal.Body>

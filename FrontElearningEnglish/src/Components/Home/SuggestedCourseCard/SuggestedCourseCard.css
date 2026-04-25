@@ -120,7 +120,6 @@
     max-height: 200px;
     aspect-ratio: 16 / 9;
     overflow: hidden;
-    background: var(--color-bg-light, #e0f7fa);
     flex-shrink: 0;
     order: 1;
     position: relative;
@@ -130,7 +129,6 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    transition: all 0.3s ease;
 }
 
 .suggested-course-card .course-image-wrapper::after {
@@ -166,7 +164,6 @@
     display: block;
     transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     transform: translateZ(0);
-    background: var(--color-bg-light, #e0f7fa);
     flex-shrink: 0;
 }
 

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Modal, Form, Button, Alert } from "react-bootstrap";
 import { superAdminService } from "../../../Services/superAdminService";
 import ConfirmModal from "../../Common/ConfirmModal/ConfirmModal";
+import PremiumCloseButton from "../../Common/PremiumCloseButton/PremiumCloseButton";
 import "./CreateAdminModal.css";
 
 // Validation patterns (khớp backend)
@@ -192,8 +193,9 @@ export default function CreateAdminModal({ show, onClose, onSuccess }) {
         className="modal-modern create-admin-modal"
         dialogClassName="create-admin-modal-dialog"
       >
-        <Modal.Header closeButton>
-          <Modal.Title>Tạo Admin Mới</Modal.Title>
+        <Modal.Header closeButton={false}>
+          <Modal.Title className="fw-bold modal-title-centered">Tạo tài khoản quản trị mới</Modal.Title>
+          <PremiumCloseButton onClick={onClose} />
         </Modal.Header>
         <Modal.Body>
           {errors.submit && <Alert variant="danger">{errors.submit}</Alert>}

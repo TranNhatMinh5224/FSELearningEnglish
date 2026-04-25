@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { FaTimes, FaMagic } from "react-icons/fa";
+import PremiumCloseButton from "../../Common/PremiumCloseButton/PremiumCloseButton";
 import { dictionaryService } from "../../../Services/dictionaryService";
 import "./GenerateFlashcardModal.css";
 
@@ -58,13 +59,7 @@ export default function GenerateFlashcardModal({ show, onClose, onGenerate }) {
         <div className="generate-modal-header">
           <h3>Gen Flashcard</h3>
           {!generating && (
-            <button
-              type="button"
-              className="close-btn"
-              onClick={handleClose}
-            >
-              <FaTimes />
-            </button>
+            <PremiumCloseButton onClick={handleClose} />
           )}
         </div>
 

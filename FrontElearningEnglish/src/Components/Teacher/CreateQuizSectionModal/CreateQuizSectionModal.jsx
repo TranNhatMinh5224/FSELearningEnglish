@@ -3,6 +3,7 @@ import { Modal, Button } from "react-bootstrap";
 import { quizService } from "../../../Services/quizService";
 import ConfirmModal from "../../Common/ConfirmModal/ConfirmModal";
 import { useAuth } from "../../../Context/AuthContext";
+import PremiumCloseButton from "../../Common/PremiumCloseButton/PremiumCloseButton";
 import "./CreateQuizSectionModal.css";
 
 export default function CreateQuizSectionModal({ show, onClose, onSuccess, quizId, sectionToUpdate = null, isAdmin: propIsAdmin = false }) {
@@ -193,8 +194,9 @@ export default function CreateQuizSectionModal({ show, onClose, onSuccess, quizI
       className="create-quiz-section-modal modal-modern" 
       dialogClassName="create-quiz-section-modal-dialog"
     >
-      <Modal.Header closeButton>
-        <Modal.Title>{isUpdateMode ? "Cập nhật Section" : "Tạo Section mới"}</Modal.Title>
+      <Modal.Header closeButton={false}>
+        <Modal.Title className="fw-bold">{isUpdateMode ? "Cập nhật Section" : "Tạo Section mới"}</Modal.Title>
+        <PremiumCloseButton onClick={handleClose} />
       </Modal.Header>
       <Modal.Body>
         {loadingSection ? (

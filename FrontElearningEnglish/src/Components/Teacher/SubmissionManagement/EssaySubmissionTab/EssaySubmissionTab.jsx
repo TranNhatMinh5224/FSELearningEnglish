@@ -15,6 +15,15 @@ export default function EssaySubmissionTab({ courses, isAdmin = false }) {
   const [selectedModule, setSelectedModule] = useState(null);
   const [selectedAssessment, setSelectedAssessment] = useState(null);
   const [selectedEssay, setSelectedEssay] = useState(null);
+  const [activeView, setActiveView] = useState("course"); // course, lesson, module, assessment, essay, submission
+
+  const resetSelection = () => {
+    setSelectedCourse(null);
+    setSelectedLesson(null);
+    setSelectedModule(null);
+    setSelectedAssessment(null);
+    setSelectedEssay(null);
+  };
 
   const handleCourseSelect = (course) => {
     setSelectedCourse(course);
@@ -103,7 +112,7 @@ export default function EssaySubmissionTab({ courses, isAdmin = false }) {
     <div className="essay-submission-tab">
       {getBreadcrumb().length > 0 && (
         <Breadcrumb className="mb-3">
-          <Breadcrumb.Item onClick={() => setSelectedCourse(null)} style={{ cursor: "pointer" }}>
+          <Breadcrumb.Item onClick={resetSelection} style={{ cursor: "pointer" }}>
             Tất cả khóa học
           </Breadcrumb.Item>
           {getBreadcrumb().map((item, index) => {

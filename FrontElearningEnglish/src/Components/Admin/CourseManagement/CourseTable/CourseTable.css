@@ -58,12 +58,13 @@
   border-radius: 6px;
   object-fit: cover;
   flex-shrink: 0;
-  background-color: #f8fafc !important;
+  display: flex !important;
+  align-items: center;
+  justify-content: center;
 }
 
 .course-thumbnail svg {
-  color: #6366f1 !important;
-  opacity: 0.8;
+  color: #40D6E3 !important;
 }
 
 .course-thumbnail-placeholder {

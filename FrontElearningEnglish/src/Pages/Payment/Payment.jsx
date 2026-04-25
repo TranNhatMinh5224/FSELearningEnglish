@@ -325,12 +325,14 @@ export default function Payment() {
         setShowErrorModal(true);
     };
 
+    /*
     const handleOpenCheckout = () => {
         const checkoutUrl = getPayOsValue("checkoutUrl", "CheckoutUrl");
         if (checkoutUrl) {
             window.location.href = checkoutUrl;
         }
     };
+    */
 
     return (
         <>

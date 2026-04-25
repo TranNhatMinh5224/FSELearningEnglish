@@ -4,6 +4,7 @@ import { quizService } from "../../../Services/quizService";
 import { useAuth } from "../../../Context/AuthContext";
 import FileUpload from "../../Common/FileUpload/FileUpload";
 import ConfirmModal from "../../Common/ConfirmModal/ConfirmModal";
+import PremiumCloseButton from "../../Common/PremiumCloseButton/PremiumCloseButton";
 import "./CreateQuizGroupModal.css";
 
 const QUIZ_GROUP_BUCKET = "quizgroups";
@@ -334,8 +335,9 @@ export default function CreateQuizGroupModal({ show, onClose, onSuccess, quizSec
           }
         }}
       >
-        <Modal.Header closeButton>
-          <Modal.Title>{isUpdateMode ? "Cập nhật Group" : "Tạo Group mới"}</Modal.Title>
+        <Modal.Header closeButton={false}>
+          <Modal.Title className="fw-bold">{isUpdateMode ? "Cập nhật Quiz Group" : "Tạo Quiz Group mới"}</Modal.Title>
+          <PremiumCloseButton onClick={handleClose} />
         </Modal.Header>
         <Modal.Body>
           {loadingGroup ? (

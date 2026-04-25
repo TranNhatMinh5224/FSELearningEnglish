@@ -1,26 +1,316 @@
-/* Clean Bootstrap approach - minimal overrides */
+/* Premium Flashcard Creation Styles - Tflash Style */
 .create-flashcard-modal-dialog {
-  max-width: 1200px;
+  max-width: 1100px;
   width: 95%;
 }
 
-/* Layout & Scrollbar */
 .create-flashcard-modal .modal-content {
   border: none;
-  border-radius: 20px;
+  border-radius: 24px;
   overflow: hidden;
-  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+  box-shadow: 0 40px 100px rgba(0, 0, 0, 0.15);
+  background: #ffffff;
+}
+
+.create-flashcard-modal .modal-header {
+  background: #54BFCE;
+  padding: 24px 32px;
+  border-bottom: none;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+}
+
+.modal-title-custom {
+  color: white !important;
+  font-weight: 800;
+  font-size: 1.6rem;
+  letter-spacing: -0.02em;
+  text-align: center;
+  margin: 0 auto;
 }
 
 .create-flashcard-modal .modal-body {
-  background-color: #f8fafc;
-  padding: 1.5rem 2rem;
-  max-height: calc(125vh - 150px);
+  padding: 32px;
+  background: #f1f5f9;
+  max-height: 80vh;
   overflow-y: auto;
 }
 
+/* Modern Layout */
+.flashcard-modern-container {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+  margin-bottom: 24px;
+}
+
+.premium-card {
+  background: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(8px);
+  border-radius: 20px;
+  padding: 24px;
+  border: 1px solid rgba(226, 232, 240, 0.8);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+  height: 100%;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.premium-card:hover {
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+}
+
+.card-header-premium {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 24px;
+  font-weight: 700;
+  font-size: 1.1rem;
+  color: #1e293b;
+  border-bottom: 1px dashed #e2e8f0;
+  padding-bottom: 12px;
+}
+
+.card-header-premium svg {
+  font-size: 1.2rem;
+}
+
+.icon-blue { color: #3b82f6; }
+.icon-green { color: #10b981; }
+.icon-purple { color: #8b5cf6; }
+
+/* Inputs & Labels */
+.premium-label {
+  font-weight: 700;
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  color: #64748b;
+  letter-spacing: 0.05em;
+  margin-bottom: 10px;
+  display: block;
+}
+
+.premium-label.required::after {
+  content: " *";
+  color: #ef4444;
+}
+
+.premium-input {
+  background: #f8fafc;
+  border: 2px solid #e2e8f0;
+  border-radius: 14px;
+  padding: 12px 16px;
+  font-size: 1rem;
+  font-weight: 500;
+  color: #1e293b;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.premium-input:focus {
+  background: #ffffff;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
+  outline: none;
+}
+
+.word-input {
+  font-size: 1.2rem;
+  font-weight: 800;
+  color: #2563eb;
+}
+
+.translation-input {
+  border-color: #10b98144;
+}
+
+.translation-input:focus {
+  border-color: #10b981;
+  box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.1);
+}
+
+.meaning-input-wrapper {
+  position: relative;
+}
+
+.meaning-hint {
+  font-size: 0.75rem;
+  color: #94a3b8;
+  margin-top: 6px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.textarea-modern {
+  min-height: 80px;
+}
+
+/* Custom Audio Player */
+.premium-audio-trigger-wrapper {
+  display: flex;
+  align-items: center;
+  height: 48px;
+}
+
+.audio-actions-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.premium-audio-btn {
+  width: 48px;
+  height: 48px;
+  border-radius: 14px;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.premium-audio-btn.pulse-btn {
+  background: #eff6ff;
+  color: #3b82f6;
+  box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.4);
+  animation: pulse-blue 2s infinite;
+}
+
+.premium-audio-btn.pulse-btn:hover {
+  background: #3b82f6;
+  color: white;
+  transform: scale(1.05);
+}
+
+.premium-audio-btn.empty {
+  background: #f1f5f9;
+  color: #94a3b8;
+  border: 2px dashed #cbd5e1;
+}
+
+.premium-audio-btn.empty:hover {
+  background: #e2e8f0;
+  border-color: #3b82f6;
+  color: #3b82f6;
+}
+
+@keyframes pulse-blue {
+  0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.7); }
+  70% { transform: scale(1); box-shadow: 0 0 0 10px rgba(59, 130, 246, 0); }
+  100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(59, 130, 246, 0); }
+}
+
+.btn-remove-media {
+  background: #fee2e2;
+  color: #ef4444;
+  border: none;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-remove-media.small {
+  width: 32px;
+  height: 32px;
+}
+
+.btn-remove-media:hover {
+  background: #ef4444;
+  color: white;
+}
+
+/* Image Uploader */
+.premium-image-uploader {
+  border: 2px dashed #cbd5e1;
+  border-radius: 18px;
+  height: 180px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  background: #f8fafc;
+  transition: all 0.2s;
+  overflow: hidden;
+  position: relative;
+}
+
+.premium-image-uploader:hover {
+  border-color: #3b82f6;
+  background: #ffffff;
+}
+
+.preview-placeholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  color: #94a3b8;
+}
+
+.premium-image-preview-container {
+  width: 100%;
+  height: 100%;
+  position: relative;
+}
+
+.premium-image-preview-container img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.btn-remove-media.overlay {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  width: 36px;
+  height: 36px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+}
+
+/* Bottom Extras */
+.flashcard-extra-row {
+  margin-top: 24px;
+}
+
+/* Modal Footer Customization */
+.create-flashcard-modal .modal-footer {
+  background: #ffffff;
+  border-top: 1px solid #e2e8f0;
+  padding: 24px 32px;
+  border-radius: 0 0 24px 24px;
+}
+
+.btn-primary-custom {
+  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+  border: none;
+  font-weight: 700;
+  padding: 14px 40px;
+  border-radius: 16px;
+  color: white;
+  transition: all 0.3s;
+  box-shadow: 0 10px 20px rgba(37, 99, 235, 0.2);
+}
+
+.btn-primary-custom:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 15px 30px rgba(37, 99, 235, 0.3);
+}
+
+/* Scrollbar Styling */
 .create-flashcard-modal .modal-body::-webkit-scrollbar {
-  width: 6px;
+  width: 8px;
+}
+
+.create-flashcard-modal .modal-body::-webkit-scrollbar-track {
+  background: #f1f5f9;
 }
 
 .create-flashcard-modal .modal-body::-webkit-scrollbar-thumb {
@@ -28,191 +318,9 @@
   border-radius: 10px;
 }
 
-/* Header SaaS Modern */
-.create-flashcard-modal .modal-header {
-  background: linear-gradient(135deg, #74CEDE 0%, #5BB8C8 100%);
-  padding: 1.5rem 2rem;
-  border-bottom: none;
-  justify-content: center;
-  border-radius: 20px 20px 0 0;
-  position: relative;
-  text-align: center;
-}
-
-.create-flashcard-modal .modal-title-custom {
-  color: white;
-  font-weight: 700;
-  font-size: 1.4rem;
-  letter-spacing: -0.5px;
-  margin: 0;
-}
-
-/* Section Logic */
-.form-section {
-  background: white;
-  border-radius: 12px;
-  padding: 1.5rem;
-  margin-bottom: 1.5rem;
-  border: 1px solid #e2e8f0;
-  box-shadow: 0 1px 2px rgba(0,0,0,0.03);
-}
-
-.section-title {
-  font-size: 0.85rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  color: #64748b;
-  margin-bottom: 1.25rem;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.section-title::before {
-  content: "";
-  width: 4px;
-  height: 16px;
-  background: #74CEDE;
-  border-radius: 2px;
-}
-
-/* Form Styling */
-.create-flashcard-modal .form-label {
-  font-weight: 600;
-  font-size: 0.9rem;
-  color: #334155;
-  margin-bottom: 0.4rem;
-}
-
-.create-flashcard-modal .form-control, 
-.create-flashcard-modal .form-select {
-  border-radius: 8px;
-  border: 1px solid #cbd5e1;
-  padding: 0.6rem 0.8rem;
-  transition: all 0.2s;
-}
-
-.create-flashcard-modal .form-control:focus,
-.create-flashcard-modal .form-select:focus {
-  border-color: #74CEDE;
-  box-shadow: 0 0 0 4px rgba(116, 206, 222, 0.1);
-  outline: none;
-}
-
-.create-flashcard-modal .form-control.is-invalid,
-.create-flashcard-modal .form-select.is-invalid {
-  border-color: #dc3545;
-}
-
-.create-flashcard-modal .invalid-feedback {
-  display: block;
-  color: #dc3545;
-  font-size: 0.875rem;
-  margin-top: 0.25rem;
-}
-
-/* Media Upload Area */
-.media-upload-area {
-  border: 2px dashed #cbd5e1;
-  border-radius: 12px;
-  padding: 1.5rem;
-  text-align: center;
-  cursor: pointer;
-  background: #f8fafc;
-  transition: all 0.2s ease;
-  position: relative;
-  min-height: 180px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.media-upload-area:hover {
-  border-color: #74CEDE;
-  background: #f0f9ff;
-}
-
-.media-upload-placeholder {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  color: #64748b;
-}
-
-.media-preview {
-  width: 100%;
-  height: 100%;
-}
-
-.media-preview img {
-  max-height: 150px;
-  width: auto;
-  border-radius: 8px;
-}
-
-/* Footer Sticky */
-.create-flashcard-modal .modal-footer {
-  position: sticky;
-  bottom: 0;
-  z-index: 10;
-  background: white;
-  border-top: 1px solid #e2e8f0;
-  padding: 1rem 2rem;
-  gap: 12px;
-}
-
-.btn-primary-custom {
-  background: #74CEDE;
-  border: none;
-  font-weight: 600;
-  padding: 0.6rem 2rem;
-  border-radius: 8px;
-  color: white;
-  transition: all 0.2s;
-}
-
-.btn-primary-custom:hover:not(:disabled) {
-  background: #5BB8C8;
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(116, 206, 222, 0.3);
-}
-
-.btn-primary-custom:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-}
-
-/* Required field indicator */
-.required:after {
-  content: " *";
-  color: #dc3545;
-}
-
-/* Auto-resize textarea */
-.auto-resize-textarea {
-  min-height: 38px;
-  max-height: 120px;
-  overflow-y: auto;
-  resize: none;
-}
-
-.auto-resize-textarea:focus {
-  overflow-y: auto;
-}
-
 /* Responsive */
-@media (max-width: 768px) {
-  .create-flashcard-modal-dialog {
-    width: 98%;
-    max-width: 98%;
-  }
-  
-  .create-flashcard-modal .modal-body {
-    padding: 1rem;
-  }
-  
-  .form-section {
-    padding: 1rem;
+@media (max-width: 992px) {
+  .flashcard-modern-container {
+    grid-template-columns: 1fr;
   }
 }

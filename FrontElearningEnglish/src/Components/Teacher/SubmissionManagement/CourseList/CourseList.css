@@ -1,11 +1,13 @@
 .course-list-row {
-  margin-top: 2rem;
+  margin-top: 1rem;
   margin-bottom: 2rem;
+  display: flex;
+  flex-wrap: wrap;
 }
 
-/* Ensure cards in a list look consistent */
-.course-list-row .course-card {
-  width: 100%; /* Override fixed width if necessary to fit grid */
-  max-width: 280px;
+/* Clear local Col overrides */
+.course-list-row .col {
+  display: flex !important;
+  align-items: stretch;
 }
 

@@ -4,6 +4,7 @@ import { assetFrontendService } from "../../../Services/assetFrontendService";
 import { useEnums } from "../../../Context/EnumContext";
 import FileUpload from "../../Common/FileUpload/FileUpload";
 import { toast } from "react-toastify";
+import PremiumCloseButton from "../../Common/PremiumCloseButton/PremiumCloseButton";
 import "./AssetFormModal.css";
 
 const ASSET_IMAGE_BUCKET = "assetsfrontend"; // Bucket name for asset images
@@ -51,7 +52,7 @@ export default function AssetFormModal({ show, onClose, onSuccess, assetToEdit }
     const handleChange = (e) => {
         const { name, value, type, checked } = e.target;
         const val = type === "checkbox" ? checked : (type === "number" ? (value === "" ? 0 : parseInt(value, 10)) : value);
-        
+
         setFormData({
             ...formData,
             [name]: val
@@ -69,7 +70,7 @@ export default function AssetFormModal({ show, onClose, onSuccess, assetToEdit }
     const handleBlur = (e) => {
         const { name, value } = e.target;
         setTouched(prev => ({ ...prev, [name]: true }));
-        
+
         if (name === "nameImage") {
             setErrors(prev => ({
                 ...prev,
@@ -103,7 +104,7 @@ export default function AssetFormModal({ show, onClose, onSuccess, assetToEdit }
 
     const validateForm = () => {
         const newErrors = {};
-        
+
         if (!formData.nameImage.trim()) {
             newErrors.nameImage = "Tên asset là bắt buộc";
         }
@@ -129,7 +130,7 @@ export default function AssetFormModal({ show, onClose, onSuccess, assetToEdit }
         try {
             let submitData;
             let response;
-            
+
             if (assetToEdit) {
                 // Update: gửi tất cả field (kể cả không thay đổi)
                 const id = assetToEdit.id || assetToEdit.Id;
@@ -144,7 +145,7 @@ export default function AssetFormModal({ show, onClose, onSuccess, assetToEdit }
                     submitData.imageTempKey = imageTempKey;
                     submitData.imageType = imageType;
                 }
-                
+
                 response = await assetFrontendService.updateAsset(id, submitData);
             } else {
                 // Create: gửi đầy đủ field
@@ -158,7 +159,7 @@ export default function AssetFormModal({ show, onClose, onSuccess, assetToEdit }
                     submitData.imageTempKey = imageTempKey;
                     submitData.imageType = imageType;
                 }
-                
+
                 response = await assetFrontendService.createAsset(submitData);
             }
 
@@ -186,8 +187,11 @@ export default function AssetFormModal({ show, onClose, onSuccess, assetToEdit }
             className="modal-modern asset-form-modal"
             dialogClassName="asset-form-modal-dialog"
         >
-            <Modal.Header closeButton>
-                <Modal.Title>{assetToEdit ? "Cập nhật Asset" : "Thêm Asset Mới"}</Modal.Title>
+            <Modal.Header closeButton={false} className="modal-header-cyan">
+                <Modal.Title className="fw-bold modal-title-centered text-white">
+                    {assetToEdit ? "Cập nhật Asset" : "Thêm Asset Mới"}
+                </Modal.Title>
+                <PremiumCloseButton onClick={onClose} />
             </Modal.Header>
             <Form onSubmit={handleSubmit}>
                 <Modal.Body>

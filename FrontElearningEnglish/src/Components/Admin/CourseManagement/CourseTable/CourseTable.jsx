@@ -76,7 +76,7 @@ export default function CourseTable({
                       <ImageWithIconFallback
                         imageUrl={course.imageUrl}
                         fallbackImageUrl={defaultCourseImage}
-                        icon={<PiGraduationCapDuotone size={24} />}
+                        icon={<PiGraduationCapDuotone size={28} />}
                         alt="Course"
                         className="course-thumbnail"
                       />

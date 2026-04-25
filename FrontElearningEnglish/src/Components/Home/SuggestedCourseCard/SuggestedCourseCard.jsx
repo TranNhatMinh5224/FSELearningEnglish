@@ -1,9 +1,11 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
+import { PiGraduationCapDuotone } from "react-icons/pi";
 import { useAssets } from "../../../Context/AssetContext";
+import ImageWithIconFallback from "../../Common/ImageWithIconFallback/ImageWithIconFallback";
 import "./SuggestedCourseCard.css";
 
-export default function SuggestedCourseCard({ course, isEnrolled = false, showEnrolledBadge = true }) {
+const SuggestedCourseCard = ({ course, isEnrolled = false, showEnrolledBadge = true }) => {
     const navigate = useNavigate();
     const { getDefaultCourseImage } = useAssets();
     const {
@@ -21,9 +23,7 @@ export default function SuggestedCourseCard({ course, isEnrolled = false, showEn
     
     const finalTitle = (title && title !== "Khóa học") ? title : (Title || name || Name || courseName || CourseName || "Khóa học");
     const defaultImage = getDefaultCourseImage();
-    const displayImageUrl = (imageUrl && imageUrl.trim() !== "") 
-        ? imageUrl 
-        : defaultImage || "https://via.placeholder.com/300x200";
+    const finalImageUrl = imageUrl || "";
 
     const handleClick = () => {
         const finalCourseId = courseId || id;
@@ -48,10 +48,13 @@ export default function SuggestedCourseCard({ course, isEnrolled = false, showEn
                 </div>
             )}
             <div className="course-image-wrapper">
-                <img 
-                    src={displayImageUrl} 
+                <ImageWithIconFallback
+                    imageUrl={finalImageUrl}
+                    fallbackImageUrl={defaultImage}
+                    icon={<PiGraduationCapDuotone size={48} />}
                     alt={`Ảnh khóa học ${finalTitle}`}
                     className="course-image"
+                    imageKey={id || courseId}
                 />
             </div>
             <div className="course-content">
@@ -69,4 +72,6 @@ export default function SuggestedCourseCard({ course, isEnrolled = false, showEn
             </div>
         </div>
     );
-}
+};
+
+export default SuggestedCourseCard;

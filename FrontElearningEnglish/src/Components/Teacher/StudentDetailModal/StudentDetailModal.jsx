@@ -5,6 +5,7 @@ import { FaUser, FaEnvelope, FaCalendarAlt, FaVenusMars, FaGraduationCap, FaChec
 import ConfirmModal from "../../Common/ConfirmModal/ConfirmModal";
 import SuccessModal from "../../Common/SuccessModal/SuccessModal";
 import NotificationModal from "../../Common/NotificationModal/NotificationModal";
+import PremiumCloseButton from "../../Common/PremiumCloseButton/PremiumCloseButton";
 import { teacherService } from "../../../Services/teacherService";
 import { adminService } from "../../../Services/adminService";
 import { useAuth } from "../../../Context/AuthContext";
@@ -126,8 +127,9 @@ export default function StudentDetailModal({ show, onClose, student, courseId, o
       className="student-detail-modal modal-modern" 
       dialogClassName="student-detail-modal-dialog"
     >
-      <Modal.Header closeButton>
-        <Modal.Title>Thông tin học viên</Modal.Title>
+      <Modal.Header closeButton={false}>
+        <Modal.Title className="fw-bold modal-title-centered">Thông tin chi tiết học viên</Modal.Title>
+        <PremiumCloseButton onClick={onClose} />
       </Modal.Header>
       <Modal.Body>
         <div className="student-detail-content">

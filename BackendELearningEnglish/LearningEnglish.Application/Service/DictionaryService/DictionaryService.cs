@@ -9,6 +9,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Options;
 using Microsoft.AspNetCore.Http;
+using LearningEnglish.Application.Interface.Infrastructure;
 
 namespace LearningEnglish.Application.Service
 {
@@ -17,32 +18,38 @@ namespace LearningEnglish.Application.Service
         private readonly IHttpClientFactory _httpClientFactory;
         private readonly ILogger<DictionaryService> _logger;
         private readonly IConfiguration _configuration;
-        private readonly OxfordDictionaryOptions _oxfordOptions;
-        private readonly UnsplashOptions _unsplashOptions;
         private readonly IMinioFileStorage _minioService;
         private readonly IAzureSpeechService _azureSpeechService;
         private readonly IFlashCardMediaService _flashCardMediaService;
-        private const string FREE_DICTIONARY_API = "https://api.dictionaryapi.dev/api/v2/entries/en";
-        private const string GOOGLE_TRANSLATE_API = "https://translate.googleapis.com/translate_a/single";
+        
+        // New interfaces injected via Clean Architecture refactoring
+        private readonly IFreeDictionaryClient _freeDictionaryClient;
+        private readonly ITranslatorClient _translatorClient;
+        private readonly IOxfordClient _oxfordClient;
+        private readonly IUnsplashClient _unsplashClient;
 
         public DictionaryService(
             IHttpClientFactory httpClientFactory,
             ILogger<DictionaryService> logger,
             IConfiguration configuration,
-            IOptions<OxfordDictionaryOptions> oxfordOptions,
-            IOptions<UnsplashOptions> unsplashOptions,
             IMinioFileStorage minioService,
             IAzureSpeechService azureSpeechService,
-            IFlashCardMediaService flashCardMediaService)
+            IFlashCardMediaService flashCardMediaService,
+            IFreeDictionaryClient freeDictionaryClient,
+            ITranslatorClient translatorClient,
+            IOxfordClient oxfordClient,
+            IUnsplashClient unsplashClient)
         {
             _httpClientFactory = httpClientFactory;
             _logger = logger;
             _configuration = configuration;
-            _oxfordOptions = oxfordOptions.Value;
-            _unsplashOptions = unsplashOptions.Value;
             _minioService = minioService;
             _azureSpeechService = azureSpeechService;
             _flashCardMediaService = flashCardMediaService;
+            _freeDictionaryClient = freeDictionaryClient;
+            _translatorClient = translatorClient;
+            _oxfordClient = oxfordClient;
+            _unsplashClient = unsplashClient;
         }
 
         public async Task<ServiceResponse<DictionaryLookupResultDto>> LookupWordAsync(string word, string? targetLanguage = "vi")
@@ -58,96 +65,39 @@ namespace LearningEnglish.Application.Service
                     return response;
                 }
 
-                // Try Oxford API first (more reliable)
-                var oxfordResult = await LookupWordFromOxfordAsync(word);
+                // Try Oxford API first
+                var oxfordResult = await _oxfordClient.LookupWordAsync(word);
                 if (oxfordResult.Success && oxfordResult.Data != null)
                 {
-                    response = oxfordResult;
-                    return response;
+                    response.Data = oxfordResult.Data;
                 }
-
-                // Fallback to Free Dictionary API
-                _logger.LogInformation("Oxford API unavailable, falling back to Free Dictionary API for word: {Word}", word);
-
-                var client = _httpClientFactory.CreateClient();
-                client.Timeout = TimeSpan.FromSeconds(10);
-
-                var apiUrl = $"{FREE_DICTIONARY_API}/{word.Trim().ToLower()}";
-                var apiResponse = await client.GetAsync(apiUrl);
-
-                if (!apiResponse.IsSuccessStatusCode)
+                else
                 {
-                    _logger.LogWarning("Dictionary API returned {StatusCode} for word: {Word}", apiResponse.StatusCode, word);
-                    response.Success = false;
-                    response.Message = $"Word '{word}' not found in dictionary";
-                    return response;
-                }
-
-                var jsonContent = await apiResponse.Content.ReadAsStringAsync();
-                var dictionaryData = JsonSerializer.Deserialize<List<DictionaryApiResponse>>(jsonContent, new JsonSerializerOptions
-                {
-                    PropertyNameCaseInsensitive = true
-                });
-
-                if (dictionaryData == null || dictionaryData.Count == 0)
-                {
-                    response.Success = false;
-                    response.Message = "No data found for this word";
-                    return response;
-                }
-
-                var firstEntry = dictionaryData.First();
-                var result = new DictionaryLookupResultDto
-                {
-                    Word = firstEntry.Word ?? word,
-                    Phonetic = firstEntry.Phonetic ?? firstEntry.Phonetics?.FirstOrDefault()?.Text,
-                    SourceUrl = firstEntry.SourceUrls?.FirstOrDefault()
-                };
-
-                // Parse meanings
-                if (firstEntry.Meanings != null)
-                {
-                    foreach (var meaning in firstEntry.Meanings)
+                    // Fallback to Free Dictionary API
+                    _logger.LogInformation("Oxford API unavailable or failed, falling back to Free Dictionary API for word: {Word}", word);
+                    var freeDictResult = await _freeDictionaryClient.LookupWordAsync(word);
+                    if (freeDictResult.Success && freeDictResult.Data != null)
                     {
-                        var meaningDto = new DictionaryMeaningDto
-                        {
-                            PartOfSpeech = meaning.PartOfSpeech ?? "unknown"
-                        };
-
-                        if (meaning.Definitions != null)
-                        {
-                            foreach (var def in meaning.Definitions.Take(3)) // Top 3 definitions
-                            {
-                                meaningDto.Definitions.Add(new DictionaryDefinitionDto
-                                {
-                                    Definition = def.Definition ?? "",
-                                    Example = def.Example
-                                });
-                            }
-                        }
-
-                        if (meaning.Synonyms != null)
-                        {
-                            meaningDto.Synonyms = meaning.Synonyms.Take(10).ToList();
-                        }
-
-                        if (meaning.Antonyms != null)
-                        {
-                            meaningDto.Antonyms = meaning.Antonyms.Take(10).ToList();
-                        }
-
-                        result.Meanings.Add(meaningDto);
+                        response.Data = freeDictResult.Data;
                     }
                 }
 
-                response.Data = result;
+                if (response.Data == null)
+                {
+                    response.Success = false;
+                    response.Message = $"Word '{word}' not found in any dictionary";
+                    return response;
+                }
+
+                // Add Vietnamese translation for the word itself (Concise meaning)
+                var translationResult = await _translatorClient.TranslateTextAsync(word, targetLanguage ?? "vi");
+                if (translationResult.Success)
+                {
+                    response.Data.WordTranslation = translationResult.Data;
+                }
+
+                response.Success = true;
                 response.Message = "Word lookup successful";
-            }
-            catch (HttpRequestException ex)
-            {
-                _logger.LogError(ex, "HTTP error during word lookup: {Word}", word);
-                response.Success = false;
-                response.Message = "Dictionary service unavailable";
             }
             catch (Exception ex)
             {
@@ -241,25 +191,43 @@ namespace LearningEnglish.Application.Service
 
                 flashCard.ImageKey = imageTempKey;
 
+                // PRIORITIZE CONCISE MEANING
+                // 1. Try to get a word-to-word translation from Google
+                var wordTranslation = await _translatorClient.TranslateTextAsync(word, "vi");
+                string? finalShortMeaning = wordTranslation.Success ? wordTranslation.Data : null;
+
+                // 2. Aggressively clean the meaning if it looks like a definition
+                if (!string.IsNullOrEmpty(finalShortMeaning))
+                {
+                    // If it contains a comma or semicolon, take only the first part
+                    var parts = finalShortMeaning.Split(new[] { ',', ';', '.' }, StringSplitOptions.RemoveEmptyEntries);
+                    if (parts.Length > 0)
+                    {
+                        finalShortMeaning = parts[0].Trim();
+                    }
+
+                    // If it's still too long (more than 3 words), it's likely a definition
+                    var words = finalShortMeaning.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+                    if (words.Length > 3)
+                    {
+                        _logger.LogInformation("Translation for '{Word}' is still too long: {Translation}. Using first 2 words.", word, finalShortMeaning);
+                        finalShortMeaning = string.Join(" ", words.Take(2));
+                    }
+                }
+
+                flashCard.Meaning = !string.IsNullOrEmpty(finalShortMeaning) ? finalShortMeaning : word;
+
                 // Get first meaning as primary
                 var primaryMeaning = dictData.Meanings.FirstOrDefault();
                 if (primaryMeaning != null)
                 {
                     flashCard.PartOfSpeech = primaryMeaning.PartOfSpeech;
 
-                    // Get first definition as meaning
+                    // Get first definition data
                     var primaryDef = primaryMeaning.Definitions.FirstOrDefault();
                     if (primaryDef != null)
                     {
-                        flashCard.Meaning = primaryDef.Definition;
                         flashCard.Example = primaryDef.Example;
-
-                        // Translate definition to Vietnamese using simple translation service
-                        var translationResult = await TranslateTextAsync(primaryDef.Definition, "vi");
-                        if (translationResult.Success && !string.IsNullOrEmpty(translationResult.Data))
-                        {
-                            flashCard.Meaning = translationResult.Data;
-                        }
 
                         // Translate example if exists
                         if (!string.IsNullOrEmpty(primaryDef.Example))
@@ -331,63 +299,7 @@ namespace LearningEnglish.Application.Service
 
         private async Task<ServiceResponse<string>> TranslateTextAsync(string text, string targetLanguage)
         {
-            var response = new ServiceResponse<string>();
-
-            try
-            {
-                // Simple Google Translate API (free, no auth)
-                var client = _httpClientFactory.CreateClient();
-                var url = $"{GOOGLE_TRANSLATE_API}?client=gtx&sl=en&tl={targetLanguage}&dt=t&q={Uri.EscapeDataString(text)}";
-
-                var apiResponse = await client.GetAsync(url);
-                if (apiResponse.IsSuccessStatusCode)
-                {
-                    var content = await apiResponse.Content.ReadAsStringAsync();
-                    // Parse Google Translate response (format: [[["translation","source",null,null,0]]])
-                    var translatedText = ParseGoogleTranslateResponse(content);
-
-                    response.Data = translatedText ?? text;
-                    response.Message = "Translation successful";
-                }
-                else
-                {
-                    response.Data = text; // Fallback to original
-                    response.Message = "Translation unavailable, using original text";
-                }
-            }
-            catch (Exception ex)
-            {
-                _logger.LogWarning(ex, "Translation failed, using original text");
-                response.Data = text; // Fallback
-            }
-
-            return response;
-        }
-
-        private static string? ParseGoogleTranslateResponse(string json)
-        {
-            try
-            {
-                var doc = JsonDocument.Parse(json);
-                var root = doc.RootElement;
-                if (root.ValueKind == JsonValueKind.Array && root.GetArrayLength() > 0)
-                {
-                    var firstArray = root[0];
-                    if (firstArray.ValueKind == JsonValueKind.Array && firstArray.GetArrayLength() > 0)
-                    {
-                        var translation = firstArray[0];
-                        if (translation.ValueKind == JsonValueKind.Array && translation.GetArrayLength() > 0)
-                        {
-                            return translation[0].GetString();
-                        }
-                    }
-                }
-            }
-            catch
-            {
-                // Ignore parse errors
-            }
-            return null;
+            return await _translatorClient.TranslateTextAsync(text, targetLanguage);
         }
 
         private async Task<ServiceResponse<DictionaryLookupResultDto>> LookupWordWithAudioAsync(string word, string? targetLanguage = "vi")
@@ -409,60 +321,20 @@ namespace LearningEnglish.Application.Service
             try
             {
                 // Try Oxford API first
-                if (!string.IsNullOrWhiteSpace(_oxfordOptions.AppId) && !string.IsNullOrWhiteSpace(_oxfordOptions.AppKey))
+                var audioUrl = await _oxfordClient.ExtractAudioUrlAsync(word);
+                if (!string.IsNullOrEmpty(audioUrl))
                 {
-                    var client = _httpClientFactory.CreateClient();
-                    client.DefaultRequestHeaders.Add("app_id", _oxfordOptions.AppId);
-                    client.DefaultRequestHeaders.Add("app_key", _oxfordOptions.AppKey);
-                    client.Timeout = TimeSpan.FromSeconds(10);
-
-                    var apiUrl = $"{_oxfordOptions.BaseUrl}/entries/en-us/{word.Trim().ToLower()}";
-                    var apiResponse = await client.GetAsync(apiUrl);
-
-                    if (apiResponse.IsSuccessStatusCode)
-                    {
-                        var jsonContent = await apiResponse.Content.ReadAsStringAsync();
-                        var oxfordData = JsonSerializer.Deserialize<OxfordApiResponse>(jsonContent, new JsonSerializerOptions
-                        {
-                            PropertyNameCaseInsensitive = true
-                        });
-
-                        // Extract first audio file URL
-                        var audioFile = oxfordData?.Results
-                            ?.SelectMany(r => r.LexicalEntries ?? new List<OxfordLexicalEntry>())
-                            ?.SelectMany(le => le.Pronunciations ?? new List<OxfordPronunciation>())
-                            ?.FirstOrDefault(p => !string.IsNullOrEmpty(p.AudioFile))
-                            ?.AudioFile;
-
-                        if (!string.IsNullOrEmpty(audioFile))
-                        {
-                            return audioFile;
-                        }
-                    }
+                    return audioUrl;
                 }
 
                 // Fallback to Free Dictionary API
-                var freeDictClient = _httpClientFactory.CreateClient();
-                var freeDictUrl = $"{FREE_DICTIONARY_API}/{word.Trim().ToLower()}";
-                var freeDictResponse = await freeDictClient.GetAsync(freeDictUrl);
-
-                if (freeDictResponse.IsSuccessStatusCode)
+                var freeDictResult = await _freeDictionaryClient.LookupWordAsync(word);
+                if (freeDictResult.Success && freeDictResult.Data != null)
                 {
-                    var jsonContent = await freeDictResponse.Content.ReadAsStringAsync();
-                    var dictionaryData = JsonSerializer.Deserialize<List<DictionaryApiResponse>>(jsonContent, new JsonSerializerOptions
-                    {
-                        PropertyNameCaseInsensitive = true
-                    });
-
-                    var audioUrl = dictionaryData?.FirstOrDefault()?.Phonetics
-                        ?.FirstOrDefault(p => !string.IsNullOrEmpty(p.Audio))
-                        ?.Audio;
-
-                    if (!string.IsNullOrEmpty(audioUrl))
-                    {
-                        return audioUrl;
-                    }
+                    return freeDictResult.Data.AudioUrl;
                 }
+
+                return null;
             }
             catch (Exception ex)
             {
@@ -519,204 +391,9 @@ namespace LearningEnglish.Application.Service
             return null;
         }
 
-        private async Task<ServiceResponse<DictionaryLookupResultDto>> LookupWordFromOxfordAsync(string word)
-        {
-            var response = new ServiceResponse<DictionaryLookupResultDto>();
-
-            try
-            {
-                if (string.IsNullOrWhiteSpace(_oxfordOptions.AppId) || string.IsNullOrWhiteSpace(_oxfordOptions.AppKey))
-                {
-                    response.Success = false;
-                    response.Message = "Oxford API credentials not configured";
-                    return response;
-                }
-
-                var client = _httpClientFactory.CreateClient();
-                client.DefaultRequestHeaders.Add("app_id", _oxfordOptions.AppId);
-                client.DefaultRequestHeaders.Add("app_key", _oxfordOptions.AppKey);
-                client.Timeout = TimeSpan.FromSeconds(10);
-
-                // Oxford API endpoint: /entries/{source_lang}/{word_id}
-                var apiUrl = $"{_oxfordOptions.BaseUrl}/entries/en-us/{word.Trim().ToLower()}";
-                var apiResponse = await client.GetAsync(apiUrl);
-
-                if (!apiResponse.IsSuccessStatusCode)
-                {
-                    _logger.LogWarning("Oxford API returned {StatusCode} for word: {Word}", apiResponse.StatusCode, word);
-                    response.Success = false;
-                    response.Message = $"Word '{word}' not found in Oxford dictionary";
-                    return response;
-                }
-
-                var jsonContent = await apiResponse.Content.ReadAsStringAsync();
-                var oxfordData = JsonSerializer.Deserialize<OxfordApiResponse>(jsonContent, new JsonSerializerOptions
-                {
-                    PropertyNameCaseInsensitive = true
-                });
-
-                if (oxfordData?.Results == null || oxfordData.Results.Count == 0)
-                {
-                    response.Success = false;
-                    response.Message = "No data found in Oxford dictionary";
-                    return response;
-                }
-
-                var result = new DictionaryLookupResultDto
-                {
-                    Word = oxfordData.Id ?? word
-                };
-
-                // Parse lexical entries
-                foreach (var oxfordResult in oxfordData.Results)
-                {
-                    if (oxfordResult.LexicalEntries == null) continue;
-
-                    foreach (var lexEntry in oxfordResult.LexicalEntries)
-                    {
-                        var meaningDto = new DictionaryMeaningDto
-                        {
-                            PartOfSpeech = lexEntry.LexicalCategory?.Text ?? "unknown"
-                        };
-
-                        // Get pronunciation
-                        if (lexEntry.Pronunciations != null && lexEntry.Pronunciations.Count != 0)
-                        {
-                            result.Phonetic = lexEntry.Pronunciations.First().PhoneticSpelling;
-                        }
-
-                        // Parse entries
-                        if (lexEntry.Entries != null)
-                        {
-                            foreach (var entry in lexEntry.Entries)
-                            {
-                                if (entry.Senses == null) continue;
-
-                                foreach (var sense in entry.Senses.Take(3))
-                                {
-                                    var definition = sense.Definitions?.FirstOrDefault();
-                                    if (!string.IsNullOrEmpty(definition))
-                                    {
-                                        meaningDto.Definitions.Add(new DictionaryDefinitionDto
-                                        {
-                                            Definition = definition,
-                                            Example = sense.Examples?.FirstOrDefault()?.Text
-                                        });
-                                    }
-
-                                    // Collect synonyms
-                                    if (sense.Synonyms != null)
-                                    {
-                                        meaningDto.Synonyms.AddRange(sense.Synonyms.Select(s => s.Text ?? "").Where(t => !string.IsNullOrEmpty(t)));
-                                    }
-
-                                    // Collect antonyms
-                                    if (sense.Antonyms != null)
-                                    {
-                                        meaningDto.Antonyms.AddRange(sense.Antonyms.Select(a => a.Text ?? "").Where(t => !string.IsNullOrEmpty(t)));
-                                    }
-                                }
-                            }
-                        }
-
-                        if (meaningDto.Definitions.Count != 0)
-                        {
-                            result.Meanings.Add(meaningDto);
-                        }
-                    }
-                }
-
-                if (result.Meanings.Count == 0)
-                {
-                    response.Success = false;
-                    response.Message = "No definitions found in Oxford dictionary";
-                    return response;
-                }
-
-                response.Data = result;
-                response.Message = "Word lookup successful from Oxford Dictionary";
-            }
-            catch (HttpRequestException ex)
-            {
-                _logger.LogError(ex, "HTTP error during Oxford API lookup: {Word}", word);
-                response.Success = false;
-                response.Message = "Oxford Dictionary service unavailable";
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error looking up word from Oxford API: {Word}", word);
-                response.Success = false;
-                response.Message = "An error occurred during Oxford dictionary lookup";
-            }
-
-            return response;
-        }
-
         private async Task<Stream?> SearchAndDownloadImageFromUnsplashAsync(string query)
         {
-            try
-            {
-                if (string.IsNullOrWhiteSpace(_unsplashOptions.AccessKey))
-                {
-                    _logger.LogWarning("Unsplash Access Key not configured");
-                    return null;
-                }
-
-                var client = _httpClientFactory.CreateClient();
-                client.DefaultRequestHeaders.Add("Authorization", $"Client-ID {_unsplashOptions.AccessKey}");
-                client.Timeout = TimeSpan.FromSeconds(15);
-
-                // Search for images
-                var searchUrl = $"{_unsplashOptions.BaseUrl}/search/photos?query={Uri.EscapeDataString(query)}&per_page=1&orientation=landscape";
-                var searchResponse = await client.GetAsync(searchUrl);
-
-                if (!searchResponse.IsSuccessStatusCode)
-                {
-                    _logger.LogWarning("Unsplash search failed with status: {StatusCode} for query: {Query}",
-                        searchResponse.StatusCode, query);
-                    return null;
-                }
-
-                var searchContent = await searchResponse.Content.ReadAsStringAsync();
-                var searchResult = JsonSerializer.Deserialize<UnsplashSearchResponse>(searchContent, new JsonSerializerOptions
-                {
-                    PropertyNameCaseInsensitive = true
-                });
-
-                if (searchResult?.Results == null || searchResult.Results.Count == 0)
-                {
-                    _logger.LogWarning("No images found on Unsplash for query: {Query}", query);
-                    return null;
-                }
-
-                // Get first image URL (regular size - good for flashcards)
-                var firstImage = searchResult.Results.First();
-                var imageUrl = firstImage.Urls?.Regular;
-
-                if (string.IsNullOrEmpty(imageUrl))
-                {
-                    _logger.LogWarning("Image URL is empty from Unsplash for query: {Query}", query);
-                    return null;
-                }
-
-                _logger.LogInformation("Found Unsplash image for '{Query}': {Url}", query, imageUrl);
-
-                // Download image
-                var imageResponse = await client.GetAsync(imageUrl);
-                if (imageResponse.IsSuccessStatusCode)
-                {
-                    var imageBytes = await imageResponse.Content.ReadAsByteArrayAsync();
-                    return new MemoryStream(imageBytes);
-                }
-
-                _logger.LogWarning("Failed to download Unsplash image from URL: {Url}", imageUrl);
-                return null;
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error searching/downloading image from Unsplash for query: {Query}", query);
-                return null;
-            }
+            return await _unsplashClient.SearchAndDownloadImageAsync(query);
         }
 
         private async Task<string?> UploadImageToMinioAsync(Stream imageStream, string fileName)

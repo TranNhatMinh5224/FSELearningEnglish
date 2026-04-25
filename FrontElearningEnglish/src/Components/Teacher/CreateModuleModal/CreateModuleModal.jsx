@@ -7,6 +7,7 @@ import FormInput from "../../Common/FormControls/FormInput";
 import FormTextArea from "../../Common/FormControls/FormTextArea";
 import FormSelect from "../../Common/FormControls/FormSelect";
 import { useModuleForm } from "./hooks/useModuleForm";
+import PremiumCloseButton from "../../Common/PremiumCloseButton/PremiumCloseButton";
 import "./CreateModuleModal.css";
 
 const MODULE_IMAGE_BUCKET = "modules";
@@ -56,10 +57,9 @@ export default function CreateModuleModal({ show, onClose, onSuccess, lessonId, 
   return (
     <>
       <Modal show={show} onHide={handleCancel} centered className="create-module-modal modal-modern" dialogClassName="create-module-modal-dialog">
-        <Modal.Header closeButton>
-          <Modal.Title className="fw-bold">
-            {isUpdateMode ? "Cập nhật Module" : "Tạo Module mới"}
-          </Modal.Title>
+        <Modal.Header closeButton={false}>
+          <Modal.Title className="fw-bold">{isUpdateMode ? "Cập nhật Module" : "Tạo Module mới"}</Modal.Title>
+          <PremiumCloseButton onClick={handleCancel} />
         </Modal.Header>
 
         <Modal.Body className="p-4">

@@ -1,4 +1,6 @@
 import React from "react";
+import { PiGraduationCapDuotone } from "react-icons/pi";
+import ImageWithIconFallback from "../../Common/ImageWithIconFallback/ImageWithIconFallback";
 import "./PublicCourseCard.css";
 
 export default function PublicCourseCard({ course, onStart }) {
@@ -11,7 +13,12 @@ export default function PublicCourseCard({ course, onStart }) {
 
     return (
         <div className="public-course-card">
-            <img src={displayImageUrl} alt={title} />
+            <ImageWithIconFallback
+                imageUrl={imageUrl}
+                icon={<PiGraduationCapDuotone size={48} />}
+                alt={title}
+                className="public-course-image"
+            />
             <div className="course-info">
                 <h3>{title}</h3>
                 <button className="start-btn" onClick={() => onStart?.(course)}>

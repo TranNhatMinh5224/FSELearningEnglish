@@ -1,11 +1,11 @@
 .my-courses-section {
-    margin-top: calc(var(--padding-container-xl, clamp(2rem, 1.5rem + 2.5vw, 4rem)) + 2rem);
+    margin-top: calc(var(--padding-container-xl, clamp(2rem, 1.5rem + 2.5vw, 4rem)) - 2rem);
 }
 
 .my-courses-section h2 {
     font-size: var(--font-size-3xl, clamp(1.875rem, 1.5rem + 1.875vw, 2.25rem));
     font-weight: 800;
-    margin-bottom: calc(var(--spacing-lg, clamp(1rem, 0.8rem + 1vw, 1.5rem)) + 1.5rem);
+    margin-bottom: calc(var(--spacing-lg, clamp(1rem, 0.8rem + 1vw, 1.5rem)) + 0.15rem);
     margin-left: 0;
     position: relative;
     display: inline-flex;
@@ -20,9 +20,12 @@
 }
 
 @keyframes gradientTextShift {
-    0%, 100% {
+
+    0%,
+    100% {
         background-position: 0% 50%;
     }
+
     50% {
         background-position: 100% 50%;
     }
@@ -49,6 +52,7 @@
         opacity: 0;
         transform: translateX(-40px) scale(0.9);
     }
+
     to {
         opacity: 1;
         transform: translateX(0) scale(1);
@@ -59,6 +63,7 @@
     0% {
         text-shadow: 0 0 0 rgba(65, 214, 227, 0);
     }
+
     100% {
         text-shadow: 0 0 20px rgba(65, 214, 227, 0.4), 0 0 40px rgba(217, 70, 239, 0.2);
     }
@@ -68,16 +73,20 @@
     from {
         transform: rotate(0deg);
     }
+
     to {
         transform: rotate(360deg);
     }
 }
 
 @keyframes pulseStar {
-    0%, 100% {
+
+    0%,
+    100% {
         transform: scale(1);
         opacity: 1;
     }
+
     50% {
         transform: scale(1.2);
         opacity: 0.8;
@@ -85,9 +94,12 @@
 }
 
 @keyframes gradientBgShift {
-    0%, 100% {
+
+    0%,
+    100% {
         background-position: 0% 50%;
     }
+
     50% {
         background-position: 100% 50%;
     }
@@ -155,8 +167,8 @@
     gap: var(--spacing-lg, clamp(1rem, 0.8rem + 1vw, 1.5rem));
     overflow-x: auto;
     overflow-y: hidden;
-    padding: 0 1rem var(--spacing-md, 1rem) 1rem;
-    padding-right: calc(1rem + 240px + 1rem); 
+    padding: 16px 1rem var(--spacing-md, 1rem) 1rem;
+    padding-right: calc(1rem + 240px + 1rem);
     scroll-behavior: smooth;
     -webkit-overflow-scrolling: touch;
     position: relative;
@@ -243,7 +255,7 @@
 
 @media (max-width: 480px) {
     .my-courses-section .course-card {
-        width: 220px; 
+        width: 220px;
         flex-shrink: 0;
     }
 

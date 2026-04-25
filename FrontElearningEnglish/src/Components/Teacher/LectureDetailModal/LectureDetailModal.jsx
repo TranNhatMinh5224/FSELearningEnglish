@@ -5,6 +5,8 @@ import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { lectureService } from "../../../Services/lectureService";
 import { useEnums } from "../../../Context/EnumContext";
+import FormTextArea from "../../Common/FormControls/FormTextArea";
+import PremiumCloseButton from "../../Common/PremiumCloseButton/PremiumCloseButton";
 import "./LectureDetailModal.css";
 
 export default function LectureDetailModal({ 
@@ -74,11 +76,9 @@ export default function LectureDetailModal({
       size="xl" 
       className="lecture-detail-modal modal-modern"
     >
-      <Modal.Header closeButton className="lecture-detail-header">
-        <Modal.Title className="d-flex align-items-center gap-2">
-          {lecture && getLectureIcon(lecture.type || lecture.Type)}
-          <span>Chi tiết Lecture</span>
-        </Modal.Title>
+      <Modal.Header closeButton={false} className="lecture-detail-header">
+        <Modal.Title className="fw-bold text-white modal-title-centered">Chi tiết bài giảng</Modal.Title>
+        <PremiumCloseButton onClick={onClose} />
       </Modal.Header>
 
       <Modal.Body>

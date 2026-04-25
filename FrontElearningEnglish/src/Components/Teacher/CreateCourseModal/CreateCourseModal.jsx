@@ -6,6 +6,7 @@ import ConfirmModal from "../../Common/ConfirmModal/ConfirmModal";
 import FormInput from "../../Common/FormControls/FormInput";
 import FormTextArea from "../../Common/FormControls/FormTextArea";
 import { useCourseForm } from "./hooks/useCourseForm";
+import PremiumCloseButton from "../../Common/PremiumCloseButton/PremiumCloseButton";
 import "./CreateCourseModal.css";
 
 const COURSE_IMAGE_BUCKET = "courses";
@@ -63,8 +64,9 @@ export default function CreateCourseModal({ show, onClose, onSuccess, courseData
         className="create-course-modal modal-modern"
         dialogClassName="create-course-modal-dialog"
       >
-        <Modal.Header closeButton>
+        <Modal.Header closeButton={false}>
           <Modal.Title className="fw-bold">{isUpdateMode ? "Cập nhật lớp học" : "Tạo lớp học mới"}</Modal.Title>
+          <PremiumCloseButton onClick={handleClose} />
         </Modal.Header>
         <Modal.Body className="create-course-modal-body p-4">
           <form onSubmit={handleSubmit}>

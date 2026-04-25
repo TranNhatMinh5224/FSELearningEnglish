@@ -4,6 +4,7 @@ import { FaInfoCircle } from "react-icons/fa";
 import { essayService } from "../../../Services/essayService";
 import FileUpload from "../../Common/FileUpload/FileUpload";
 import ConfirmModal from "../../Common/ConfirmModal/ConfirmModal";
+import PremiumCloseButton from "../../Common/PremiumCloseButton/PremiumCloseButton";
 import "./CreateEssayModal.css";
 
 const ESSAY_BUCKET = "essays"; // Backend uses "essays" bucket for both images and audios
@@ -258,8 +259,9 @@ export default function CreateEssayModal({ show, onClose, onSuccess, assessmentI
       className="create-essay-modal modal-modern" 
       dialogClassName="create-essay-modal-dialog"
     >
-      <Modal.Header closeButton>
-        <Modal.Title>{isUpdateMode ? "Cập nhật Essay" : "Tạo Essay mới"}</Modal.Title>
+      <Modal.Header closeButton={false}>
+        <Modal.Title className="modal-title-centered fw-bold">{isUpdateMode ? "Cập nhật Essay" : "Tạo Essay mới"}</Modal.Title>
+        <PremiumCloseButton onClick={handleClose} />
       </Modal.Header>
       <Modal.Body>
         {loadingEssay ? (

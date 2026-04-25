@@ -46,7 +46,7 @@ export default function Home() {
     // Kiểm tra nếu user đã là giáo viên
     const teacherSubscription = user?.teacherSubscription || user?.TeacherSubscription;
     const isTeacher = teacherSubscription?.isTeacher || teacherSubscription?.IsTeacher;
-    
+
     if (isTeacher === true) {
       setInfoMessage("Gói giáo viên hiện tại của bạn đang hoạt động, vui lòng chờ đến khi hết hạn để kích hoạt gói giáo viên mới!");
       setShowInfoModal(true);
@@ -70,14 +70,14 @@ export default function Home() {
         <Container>
           {/* SEO Helper: Hidden H1 for Search Engines */}
           <h1 className="visually-hidden">Catalunya English - Nền tảng học Tiếng Anh Online hiệu quả</h1>
-          
+
           <WelcomeSection displayName={displayName} />
-          <div className="mt-4 mb-4">
+          <div className="mb-2">
             <SearchBox />
           </div>
           <MyCoursesSection />
 
-          <section className="row g-3 g-md-4 mt-5 pt-4">
+          <section className="row g-3 g-md-4 mt-3 pt-2">
             <div className="col-12 col-lg-8">
               <SuggestedCoursesSection />
             </div>

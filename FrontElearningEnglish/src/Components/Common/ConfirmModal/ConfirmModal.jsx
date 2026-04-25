@@ -1,6 +1,7 @@
 import React from "react";
 import "./ConfirmModal.css";
 import { FaQuestionCircle, FaExclamationTriangle } from "react-icons/fa";
+import PremiumCloseButton from "../PremiumCloseButton/PremiumCloseButton";
 
 export default function ConfirmModal({ 
     isOpen, 
@@ -33,7 +34,7 @@ export default function ConfirmModal({
                         {getIcon()}
                         <h2 className="confirm-modal-title">{title}</h2>
                     </div>
-                    <button type="button" className="btn-close confirm-modal-close" onClick={onClose} aria-label="Close"></button>
+                    <PremiumCloseButton onClick={onClose} />
                 </div>
                 
                 <div className="confirm-modal-body">
@@ -63,4 +64,3 @@ export default function ConfirmModal({
         </div>
     );
 }
-

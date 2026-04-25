@@ -7,6 +7,7 @@ import FormInput from "../../Common/FormControls/FormInput";
 import FormTextArea from "../../Common/FormControls/FormTextArea";
 import FormSelect from "../../Common/FormControls/FormSelect";
 import { useQuizForm } from "./hooks/useQuizForm";
+import PremiumCloseButton from "../../Common/PremiumCloseButton/PremiumCloseButton";
 import "./CreateQuizModal.css";
 
 export default function CreateQuizModal({ show, onClose, onSuccess, assessmentId, assessment, quizToUpdate = null, isAdmin = false }) {
@@ -51,8 +52,9 @@ export default function CreateQuizModal({ show, onClose, onSuccess, assessmentId
         className="create-quiz-modal modal-modern"
         dialogClassName="create-quiz-modal-dialog"
       >
-        <Modal.Header closeButton>
+        <Modal.Header closeButton={false}>
           <Modal.Title className="fw-bold">{quizToUpdate ? "Cập nhật Quiz" : "Tạo Quiz mới"}</Modal.Title>
+          <PremiumCloseButton onClick={handleClose} />
         </Modal.Header>
         <Modal.Body className="p-4">
           {loadingQuiz ? (

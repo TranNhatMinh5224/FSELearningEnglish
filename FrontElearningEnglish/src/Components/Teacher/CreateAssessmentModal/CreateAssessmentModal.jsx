@@ -4,6 +4,7 @@ import { FaInfoCircle, FaClock, FaToggleOn } from "react-icons/fa";
 import { assessmentService } from "../../../Services/assessmentService";
 import ConfirmModal from "../../Common/ConfirmModal/ConfirmModal";
 import SmartDateInput from "../../Common/SmartDateInput/SmartDateInput";
+import PremiumCloseButton from "../../Common/PremiumCloseButton/PremiumCloseButton";
 import "./CreateAssessmentModal.css";
 
 export default function CreateAssessmentModal({
@@ -154,8 +155,6 @@ export default function CreateAssessmentModal({
     setErrors(newErrors);
   };
 
-  // manual time text input removed; use dropdown selects only
-
   const handleSubmit = async (e) => {
     e && e.preventDefault();
     if (!validateForm()) return;
@@ -202,10 +201,15 @@ export default function CreateAssessmentModal({
     }
   };
 
-  const isFormValid = title.trim() !== "" && openAt && dueAt;
-
   return (
     <>
+      <ConfirmModal
+        show={showConfirmClose}
+        onClose={() => setShowConfirmClose(false)}
+        onConfirm={handleConfirmClose}
+        title="Hủy thay đổi"
+        message="Bạn có chắc chắn muốn hủy? Các thay đổi chưa lưu sẽ bị mất."
+      />
       <Modal
         show={show}
         onHide={handleClose}
@@ -215,8 +219,11 @@ export default function CreateAssessmentModal({
         className="create-assessment-modal modal-modern"
         dialogClassName="create-assessment-modal-dialog"
       >
-        <Modal.Header closeButton>
-          <Modal.Title>{isUpdateMode ? "Cập nhật Assessment" : "Thêm Assessment"}</Modal.Title>
+        <Modal.Header closeButton={false}>
+          <Modal.Title className="fw-bold modal-title-centered">
+            {isUpdateMode ? "Cập nhật Bài Kiểm tra" : "Tạo Bài Kiểm tra mới"}
+          </Modal.Title>
+          <PremiumCloseButton onClick={handleClose} />
         </Modal.Header>
         <Modal.Body>
           <form onSubmit={handleSubmit}>

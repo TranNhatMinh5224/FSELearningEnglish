@@ -3,6 +3,7 @@ import { Modal, Button, Form, Row, Col } from "react-bootstrap";
 import { teacherPackageService } from "../../../Services/teacherPackageService";
 import { toast } from "react-toastify";
 import { toVietnameseWords } from "../../../Utils/currencyUtils";
+import PremiumCloseButton from "../../Common/PremiumCloseButton/PremiumCloseButton";
 import "./PackageFormModal.css";
 
 export default function PackageFormModal({ show, onClose, onSuccess, packageToEdit }) {
@@ -148,15 +149,18 @@ export default function PackageFormModal({ show, onClose, onSuccess, packageToEd
     };
 
     return (
-        <Modal
-            show={show}
-            onHide={onClose}
+        <Modal 
+            show={show} 
+            onHide={onClose} 
+            size="lg" 
             centered
-            className="modal-modern package-form-modal"
-            dialogClassName="package-form-modal-dialog"
+            className="modal-modern"
         >
-            <Modal.Header closeButton>
-                <Modal.Title>{packageToEdit ? "Cập nhật Gói" : "Tạo Teacher Package"}</Modal.Title>
+            <Modal.Header closeButton={false} className="modal-header-cyan">
+                <Modal.Title className="fw-bold modal-title-centered text-white">
+                    {packageToEdit ? "Cập nhật Package" : "Tạo Teacher Package"}
+                </Modal.Title>
+                <PremiumCloseButton onClick={onClose} />
             </Modal.Header>
             <Form onSubmit={handleSubmit}>
                 <Modal.Body>

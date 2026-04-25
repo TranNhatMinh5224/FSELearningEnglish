@@ -22,7 +22,7 @@ export default function SubmissionCourseCard({ course, onClick }) {
                 <ImageWithIconFallback
                     imageUrl={imageUrl}
                     fallbackImageUrl={defaultImage}
-                    icon={<PiGraduationCapDuotone size={40} />}
+                    icon={<PiGraduationCapDuotone size={64} className="text-primary-fallback" />}
                     alt={title}
                     className="submission-card-image"
                     imageKey={id}

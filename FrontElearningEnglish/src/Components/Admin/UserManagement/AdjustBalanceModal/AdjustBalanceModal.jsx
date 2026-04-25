@@ -1,7 +1,8 @@
 import React, { useState } from "react";
-import { Modal, Button, Form, InputGroup } from "react-bootstrap";
-import { FaWallet, FaPlus, FaMinus, FaLanguage } from "react-icons/fa";
+import { Modal, Button, Form, InputGroup, Alert } from "react-bootstrap";
+import { FaWallet, FaPlus, FaMinus, FaLanguage, FaHistory } from "react-icons/fa";
 import { toVietnameseWords } from "../../../../Utils/currencyUtils";
+import PremiumCloseButton from "../../../Common/PremiumCloseButton/PremiumCloseButton";
 
 export default function AdjustBalanceModal({ show, onClose, user, onConfirm }) {
     const [amount, setAmount] = useState("");
@@ -26,9 +27,10 @@ export default function AdjustBalanceModal({ show, onClose, user, onConfirm }) {
     };
 
     return (
-        <Modal show={show} onHide={onClose} centered size="lg">
-            <Modal.Header closeButton>
-                <Modal.Title>Điều chỉnh số dư ví</Modal.Title>
+        <Modal show={show} onHide={onClose} centered size="lg" className="modal-modern">
+            <Modal.Header closeButton={false}>
+                <Modal.Title className="fw-bold modal-title-centered">Điều chỉnh số dư</Modal.Title>
+                <PremiumCloseButton onClick={onClose} />
             </Modal.Header>
             <Modal.Body>
                 {user && (

@@ -115,3 +115,31 @@ body.modal-open {
   padding-right: 0 !important;
   overflow: hidden !important;
 }
+
+/* Global Modal Standardization - Centered Titles & Support for PremiumCloseButton */
+.modal-modern .modal-header {
+  position: relative;
+  display: flex !important;
+  justify-content: center !important;
+  align-items: center !important;
+  text-align: center;
+  padding: 1.5rem 2.5rem !important; /* Extra padding for the absolute close button */
+}
+
+.modal-header-cyan {
+  background: #54BFCE !important;
+  border-bottom: none !important;
+}
+
+.modal-modern .modal-header .modal-title,
+.modal-modern .modal-header h3,
+.modal-modern .modal-header h5 {
+  margin: 0 !important;
+  text-align: center !important;
+  flex: 1 !important;
+  width: 100% !important;
+  font-weight: 700;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}

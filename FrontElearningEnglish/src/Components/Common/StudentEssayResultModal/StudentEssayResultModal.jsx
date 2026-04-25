@@ -1,6 +1,7 @@
 import React from "react";
 import { Modal, Button, Alert } from "react-bootstrap";
 import { FaCheckCircle, FaStar, FaCalendarAlt } from "react-icons/fa";
+import PremiumCloseButton from "../PremiumCloseButton/PremiumCloseButton";
 import "./StudentEssayResultModal.css";
 
 export default function StudentEssayResultModal({ show, onClose, submission }) {
@@ -43,11 +44,9 @@ export default function StudentEssayResultModal({ show, onClose, submission }) {
       className="modal-modern student-essay-result-modal" 
       dialogClassName="student-essay-result-modal-dialog"
     >
-      <Modal.Header closeButton>
-        <Modal.Title>
-          <FaCheckCircle className="me-2 text-success" />
-          Kết quả bài làm
-        </Modal.Title>
+      <Modal.Header closeButton={false}>
+        <Modal.Title className="fw-bold modal-title-centered">Kết quả bài Essay</Modal.Title>
+        <PremiumCloseButton onClick={onClose} />
       </Modal.Header>
       <Modal.Body>
         {/* Teacher Grade (Main Score) */}

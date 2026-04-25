@@ -59,9 +59,9 @@
 
 /* Bootstrap utilities: d-flex, flex-column, align-items-center */
 .flashcard-content-container {
-    gap: 30px;
-    padding-top: 30px;
-    padding-bottom: 40px;
+    gap: 50px;
+    padding-top: 40px;
+    padding-bottom: 60px;
 }
 
 .loading-message,

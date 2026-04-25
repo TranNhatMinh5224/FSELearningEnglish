@@ -175,15 +175,19 @@
 .module-image {
   width: 64px;
   height: 64px;
+  flex-shrink: 0;
   object-fit: cover;
   border-radius: 16px;
   /* Premium Soft Tint Backgrounds */
   background-color: #f8fafc !important;
+  min-height: unset !important;
 }
 
 /* Module Fallback Icon Overrides */
 .module-image svg {
     font-size: 28px !important;
+    width: 28px;
+    height: 28px;
 }
 
 .module-icon-wrapper.lecture {

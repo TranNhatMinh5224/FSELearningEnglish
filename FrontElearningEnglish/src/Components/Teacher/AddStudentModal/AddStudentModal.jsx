@@ -3,6 +3,7 @@ import { Modal } from "react-bootstrap";
 import "./AddStudentModal.css";
 import { teacherService } from "../../../Services/teacherService";
 import { adminService } from "../../../Services/adminService";
+import PremiumCloseButton from "../../Common/PremiumCloseButton/PremiumCloseButton";
 import { FaEnvelope, FaSpinner } from "react-icons/fa";
 
 export default function AddStudentModal({ show, onClose, onSuccess, courseId, isAdmin = false }) {
@@ -31,6 +32,7 @@ export default function AddStudentModal({ show, onClose, onSuccess, courseId, is
   };
 
   const handleSubmit = async (e) => {
+    e.preventDefault();
     if (!validateEmail()) {
       setTouched(true);
       return;
@@ -70,8 +72,9 @@ export default function AddStudentModal({ show, onClose, onSuccess, courseId, is
 
   return (
     <Modal show={show} onHide={handleClose} centered className="modal-modern add-student-modal">
-      <Modal.Header closeButton>
-        <Modal.Title>Thêm học viên vào khóa học</Modal.Title>
+      <Modal.Header closeButton={false}>
+        <Modal.Title className="fw-bold modal-title-centered">Thêm học sinh vào lớp</Modal.Title>
+        <PremiumCloseButton onClick={onClose} />
       </Modal.Header>
       <Modal.Body>
         <form onSubmit={handleSubmit} className="add-student-form">

@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { Modal, Form, Button, Alert } from "react-bootstrap";
 import { superAdminService } from "../../../Services/superAdminService";
+import PremiumCloseButton from "../../Common/PremiumCloseButton/PremiumCloseButton";
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -52,12 +53,13 @@ export default function ChangeEmailModal({ show, onClose, admin, onSuccess }) {
 
   return (
     <Modal show={show} onHide={onClose} centered className="modal-modern">
-      <Modal.Header closeButton>
-        <Modal.Title>Đổi Email Admin</Modal.Title>
+      <Modal.Header closeButton={false}>
+        <Modal.Title className="fw-bold modal-title-centered">Thay đổi Email</Modal.Title>
+        <PremiumCloseButton onClick={onClose} />
       </Modal.Header>
       <Modal.Body>
         {error && <Alert variant="danger">{error}</Alert>}
-        
+
         <div className="mb-3 p-3 bg-light rounded">
           <div className="mb-2">
             <small className="text-muted d-block">Admin</small>

@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { Modal, Form, Button, Alert } from "react-bootstrap";
 import { superAdminService } from "../../../Services/superAdminService";
+import PremiumCloseButton from "../../Common/PremiumCloseButton/PremiumCloseButton";
 
 export default function ResetPasswordModal({ show, onClose, admin, onSuccess }) {
   const [newPassword, setNewPassword] = useState("");
@@ -59,8 +60,9 @@ export default function ResetPasswordModal({ show, onClose, admin, onSuccess }) 
 
   return (
     <Modal show={show} onHide={onClose} centered className="modal-modern">
-      <Modal.Header closeButton>
-        <Modal.Title>Reset Password Admin</Modal.Title>
+      <Modal.Header closeButton={false}>
+        <Modal.Title className="fw-bold modal-title-centered">Đặt lại mật khẩu</Modal.Title>
+        <PremiumCloseButton onClick={onClose} />
       </Modal.Header>
       <Modal.Body>
         {error && <Alert variant="danger">{error}</Alert>}
