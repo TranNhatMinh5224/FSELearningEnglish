@@ -36,23 +36,31 @@ export default function FlashCardBack({ flashcard, onAudioClick }) {
             </div>
             <div className="flashcard-back-content d-flex flex-column align-items-center justify-content-center">
                 <h2 className="flashcard-word">{word}</h2>
-                {pronunciation && (
-                    <p className="flashcard-pronunciation">{pronunciation}</p>
-                )}
-                {partOfSpeech && (
-                    <p className="flashcard-part-of-speech">{partOfSpeech}</p>
-                )}
+                
+                <div className="flashcard-details-main">
+                    {pronunciation && (
+                        <p className="flashcard-pronunciation">/{pronunciation}/</p>
+                    )}
+                    {partOfSpeech && (
+                        <span className="flashcard-part-of-speech">({partOfSpeech})</span>
+                    )}
+                </div>
+
                 {meaning && (
-                    <div className="flashcard-meaning">
-                        <p>{meaning}</p>
+                    <div className="flashcard-meaning-box">
+                        <p className="flashcard-meaning-text">{meaning}</p>
                     </div>
                 )}
+
                 {exampleTranslation && (
-                    <div className="flashcard-example-translation">
-                        <p>{exampleTranslation}</p>
+                    <div className="flashcard-usage-section">
+                        <p className="flashcard-usage-title">Ví dụ sử dụng:</p>
+                        <p className="flashcard-full-example">{flashcard.example}</p>
+                        <p className="flashcard-example-translation-text">{exampleTranslation}</p>
                     </div>
                 )}
-                <p className="flashcard-hint">Ấn vào thẻ để lật</p>
+                
+                <p className="flashcard-hint">Ấn vào thẻ để lật lại</p>
             </div>
         </div>
     );

@@ -7,16 +7,21 @@ export default function FlashCardFront({ flashcard, onAudioClick }) {
         return null;
     }
 
-    const imageUrl = flashcard.imageUrl || "";
-    const audioUrl = flashcard.audioUrl || "";
+    const word = flashcard.word || "";
     const example = flashcard.example || "";
     const exampleTranslation = flashcard.exampleTranslation || "";
-    const word = flashcard.word || "";
+    const audioUrl = flashcard.audioUrl || "";
+    const imageUrl = flashcard.imageUrl || "";
     
-    // Check if example and exampleTranslation are null or empty
-    const hasExample = example && example.trim() !== "";
-    const hasExampleTranslation = exampleTranslation && exampleTranslation.trim() !== "";
-    const shouldShowWord = !hasExample && !hasExampleTranslation;
+    // Create cloze-deletion (blank out the word in the example sentence)
+    const getClozeExample = (text, targetWord) => {
+        if (!text || !targetWord) return text;
+        const escapedWord = targetWord.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        const regex = new RegExp(`(\\b)${escapedWord}(\\b)`, 'gi');
+        return text.replace(regex, '$1___$2');
+    };
+
+    const clozeExample = getClozeExample(example, word);
 
     const handleAudioClick = (e) => {
         e.stopPropagation();
@@ -38,21 +43,23 @@ export default function FlashCardFront({ flashcard, onAudioClick }) {
                     </button>
                 )}
             </div>
+            
             {imageUrl && (
                 <div className="flashcard-image">
                     <img src={imageUrl} alt={`Hình ảnh minh họa cho từ "${word}"`} />
                 </div>
             )}
+
             <div className="flashcard-content d-flex flex-column align-items-center">
-                {shouldShowWord && word && (
-                    <h2 className="flashcard-word-front">{word}</h2>
-                )}
-                {hasExample && (
+                <h2 className="flashcard-word-front">{word}</h2>
+                
+                {clozeExample && (
                     <div 
-                        className="flashcard-example"
-                        dangerouslySetInnerHTML={{ __html: example }}
+                        className="flashcard-example-cloze"
+                        dangerouslySetInnerHTML={{ __html: clozeExample }}
                     />
                 )}
+
                 <p className="flashcard-hint">Ấn vào thẻ để lật</p>
             </div>
         </div>
