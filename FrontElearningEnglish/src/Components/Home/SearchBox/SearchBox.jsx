@@ -5,8 +5,8 @@ import { courseService } from "../../../Services/courseService";
 import { useAssets } from "../../../Context/AssetContext";
 import "./SearchBox.css";
 
-export default function SearchBox() {
-    const [searchQuery, setSearchQuery] = useState("");
+export default function SearchBox({ initialValue = "" }) {
+    const [searchQuery, setSearchQuery] = useState(initialValue);
     const [searchResults, setSearchResults] = useState([]);
     const [isSearching, setIsSearching] = useState(false);
     const [showDropdown, setShowDropdown] = useState(false);
@@ -14,6 +14,11 @@ export default function SearchBox() {
     const searchTimeoutRef = useRef(null);
     const dropdownRef = useRef(null);
     const navigate = useNavigate();
+
+    // Sync state with prop if prop changes (e.g. navigation between search results)
+    useEffect(() => {
+        setSearchQuery(initialValue);
+    }, [initialValue]);
     const { getDefaultCourseImage } = useAssets();
     const defaultCourseImage = getDefaultCourseImage();
 

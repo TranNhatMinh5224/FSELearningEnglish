@@ -75,7 +75,7 @@ export default function SearchResults() {
                             {keyword ? `Kết quả tìm kiếm cho "${keyword}"` : "Tìm kiếm khóa học"}
                         </h1>
                         <div className="search-box-wrapper">
-                            <SearchBox />
+                            <SearchBox initialValue={keyword} />
                         </div>
                     </div>
 
