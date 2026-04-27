@@ -17,7 +17,7 @@ import "../../Components/Teacher/SubmissionManagement/QuizAttemptDetailModal/Qui
 import "./QuizResults.css";
 
 export default function QuizResults() {
-    const { courseId, lessonId, moduleId, attemptId } = useParams();
+    const { courseId, lessonId, moduleId, quizId, attemptId } = useParams();
     const navigate = useNavigate();
     const { getQuestionTypeLabel } = useQuestionTypes();
 

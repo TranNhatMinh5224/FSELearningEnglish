@@ -30,6 +30,7 @@ export default function QuizDetail() {
     const [notification, setNotification] = useState({ isOpen: false, type: "info", message: "" });
     const [showFocusPrompt, setShowFocusPrompt] = useState(false);
     const [isFocusMode, setIsFocusMode] = useState(false);
+    const [isSubmitted, setIsSubmitted] = useState(false);
 
     const timeSpentRef = useRef(0);
     const timerIntervalRef = useRef(null);
@@ -538,16 +539,21 @@ export default function QuizDetail() {
 
                 if (response.data?.success) {
                     const resultData = response.data.data;
+                    setIsSubmitted(true); // Stop timer and other logic
+
+                    // Construct results URL using the helper or manually
+                    const resultsUrl = `/course/${courseId}/lesson/${lessonId}/module/${moduleId}/quiz/${quizId}/attempt/${currentAttemptId}/results`;
 
                     setNotification({
                         isOpen: true,
                         type: "success",
                         message: "Nộp bài thành công! ✓",
-                        autoClose: true
+                        autoClose: true,
+                        redirectTo: resultsUrl // Custom property for clarity
                     });
 
-                    // Save results URL to navigate after notification is closed
-                    pendingNavigationRef.current = `/course/${courseId}/lesson/${lessonId}/module/${moduleId}/quiz/${quizId}/attempt/${currentAttemptId}/results`;
+                    // Store pending navigation
+                    pendingNavigationRef.current = resultsUrl;
 
                     // Exit focus mode and clean up UI before closing
                     setSubmitting(false);
@@ -637,7 +643,7 @@ export default function QuizDetail() {
     }, [isFocusMode]);
 
     const calculateAndUpdateRemainingTime = useCallback(() => {
-        if (!endTimeRef.current || submitting) {
+        if (!endTimeRef.current || submitting || isSubmitted) {
             if (!endTimeRef.current) setRemainingTime(null);
             return;
         }
@@ -737,7 +743,7 @@ export default function QuizDetail() {
 
     // Calculate endTime when quizAttempt or quiz changes
     useEffect(() => {
-        if (quizAttempt && quiz && !submitting) {
+        if (quizAttempt && quiz && !submitting && !isSubmitted) {
             calculateEndTime();
             // Calculate remaining time immediately
             calculateAndUpdateRemainingTime();
@@ -1118,19 +1124,20 @@ export default function QuizDetail() {
             <NotificationModal
                 isOpen={notification.isOpen}
                 onClose={() => {
+                    const url = pendingNavigationRef.current;
                     setNotification(prev => ({ ...prev, isOpen: false }));
+                    
                     if (notification.isTerminal) {
                         navigate(-1);
-                    } else if (pendingNavigationRef.current) {
-                        const url = pendingNavigationRef.current;
+                    } else if (url) {
                         pendingNavigationRef.current = null;
-                        navigate(url);
+                        navigate(url, { replace: true });
                     }
                 }}
                 type={notification.type}
                 message={notification.message}
-                autoClose={notification.type === "success"}
-                autoCloseDelay={1200}
+                autoClose={notification.type === "success" || notification.autoClose}
+                autoCloseDelay={1500}
             />
         </>
     );

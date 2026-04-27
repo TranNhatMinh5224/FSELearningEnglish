@@ -1,4 +1,4 @@
-import { Routes, Route } from "react-router-dom";
+import { Routes, Route, useLocation } from "react-router-dom";
 import { ROUTE_PATHS } from "./Paths";
 
 // Import pages
@@ -75,8 +75,10 @@ import PolicyManagement from "../Pages/Admin/PolicyManagement/PolicyManagement";
  * Tất cả các routes được định nghĩa tại đây
  */
 export default function AppRoutes() {
+  const location = useLocation();
+
   return (
-    <Routes>
+    <Routes key={location.pathname}>
       {/* Public routes */}
       <Route path={ROUTE_PATHS.ROOT} element={<Loading />} />
       <Route path={ROUTE_PATHS.LOGIN} element={<Login />} />
