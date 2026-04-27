@@ -56,6 +56,16 @@ namespace LearningEnglish.Application.Service
                 response.StatusCode = 200;
                 response.Data = true;
                 response.Message = "Đổi mật khẩu thành công";
+
+                // 🚀 GỬI EMAIL THÔNG BÁO ĐỔI MẬT KHẨU THÀNH CÔNG
+                try
+                {
+                    await _emailService.SendPasswordChangedEmailAsync(user.Email, user.FirstName);
+                }
+                catch (Exception)
+                {
+                    // Tránh block flow chính
+                }
             }
             catch (Exception)
             {
@@ -314,6 +324,16 @@ namespace LearningEnglish.Application.Service
                 response.StatusCode = 200;
                 response.Data = true;
                 response.Message = "Đặt lại mật khẩu thành công";
+
+                // 🚀 GỬI EMAIL THÔNG BÁO ĐỔI MẬT KHẨU THÀNH CÔNG
+                try
+                {
+                    await _emailService.SendPasswordChangedEmailAsync(user.Email, user.FirstName);
+                }
+                catch (Exception)
+                {
+                    // Tránh block flow chính
+                }
             }
             catch (Exception)
             {

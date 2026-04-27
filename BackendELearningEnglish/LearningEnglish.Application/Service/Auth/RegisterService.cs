@@ -16,7 +16,7 @@ namespace LearningEnglish.Application.Service
     {
         private readonly IUserRepository _userRepository;
         private readonly IEmailVerificationTokenRepository _emailVerificationTokenRepository;
-        private readonly IEmailSender _emailSender;
+        private readonly IEmailService _emailService;
         private readonly IMapper _mapper;
         private readonly ICacheService _cache;
 
@@ -24,13 +24,13 @@ namespace LearningEnglish.Application.Service
         public RegisterService(
             IUserRepository userRepository,
             IEmailVerificationTokenRepository emailVerificationTokenRepository,
-            IEmailSender emailSender,
+            IEmailService emailService,
             IMapper mapper,
             ICacheService cache)
         {
             _userRepository = userRepository;
             _emailVerificationTokenRepository = emailVerificationTokenRepository;
-            _emailSender = emailSender;
+            _emailService = emailService;
             _mapper = mapper;
             _cache = cache;
         }
@@ -112,8 +112,8 @@ namespace LearningEnglish.Application.Service
                 await _emailVerificationTokenRepository.AddAsync(emailToken);
                 await _emailVerificationTokenRepository.SaveChangesAsync();
 
-                // Send OTP email via EmailSender
-                await _emailSender.SendEmailAsync(dto.Email, "Xác thực tài khoản", $"Mã OTP của bạn là: {otpCode}. Mã này có hiệu lực trong 5 phút.");
+                // Send OTP email via EmailService
+                await _emailService.SendOTPEmailAsync(dto.Email, otpCode, dto.FirstName);
 
                 response.StatusCode = 200;
                 response.Data = _mapper.Map<UserDto>(user);
@@ -195,6 +195,16 @@ namespace LearningEnglish.Application.Service
 
                     // Clear statistics cache as user counts changed
                     _cache.RemoveByPrefix(CacheKeys.StatisticsPrefix);
+
+                    // 🚀 GỬI EMAIL CHÀO MỪNG SAU KHI XÁC THỰC THÀNH CÔNG
+                    try
+                    {
+                        await _emailService.SendWelcomeEmailAsync(user.Email, user.FullName ?? user.FirstName);
+                    }
+                    catch (Exception)
+                    {
+                        // Không block flow chính nếu gửi mail chào mừng lỗi
+                    }
                 }
 
                 // Xóa OTP khỏi database sau khi xác thực thành công

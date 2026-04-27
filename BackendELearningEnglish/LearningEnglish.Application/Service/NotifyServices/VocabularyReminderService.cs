@@ -13,6 +13,8 @@ public class VocabularyReminderService : BackgroundService
     private readonly IServiceProvider _serviceProvider;
     private readonly ILogger<VocabularyReminderService> _logger;
 
+    private DateTime? _lastExecutionDate;
+
     public VocabularyReminderService(
         IServiceProvider serviceProvider,
         ILogger<VocabularyReminderService> logger)
@@ -30,46 +32,39 @@ public class VocabularyReminderService : BackgroundService
             try
             {
                 var now = DateTime.UtcNow;
-                var targetTime = new TimeSpan(12, 0, 0); // 12:00 UTC = 19:00 VN (giờ vàng)
+                var targetTime = new TimeSpan(12, 0, 0); // 12:00 UTC = 19:00 VN
                 
-                if (ShouldSendReminder(now, targetTime))
+                // Kiểm tra xem đã gửi trong ngày hôm nay (UTC) chưa
+                if (now.TimeOfDay >= targetTime && 
+                    now.TimeOfDay < targetTime.Add(TimeSpan.FromHours(1)) && // Cửa sổ rộng 1 tiếng
+                    (_lastExecutionDate == null || _lastExecutionDate.Value.Date < now.Date))
                 {
                     await SendVocabularyReminders();
+                    _lastExecutionDate = now;
                     
-                    // Chờ 24h cho lần tiếp theo
-                    await Task.Delay(TimeSpan.FromHours(24), stoppingToken);
+                    _logger.LogInformation("✅ Đã hoàn thành gửi nhắc nhở cho ngày {Date}. Sẽ kiểm tra lại sau 1 giờ.", now.ToShortDateString());
+                    await Task.Delay(TimeSpan.FromHours(1), stoppingToken);
                 }
                 else
                 {
-                    // Kiểm tra lại sau 1 giờ
-                    await Task.Delay(TimeSpan.FromHours(1), stoppingToken);
+                    // Kiểm tra lại sau 15 phút để đảm bảo không bị trượt window
+                    await Task.Delay(TimeSpan.FromMinutes(15), stoppingToken);
                 }
             }
             catch (TaskCanceledException)
             {
-                // Task bị cancel khi service shutdown - đây là hành vi bình thường
                 _logger.LogInformation("⏹️ VocabularyReminderService đang shutdown...");
                 break;
             }
             catch (OperationCanceledException)
             {
-                // Task bị cancel khi service shutdown - đây là hành vi bình thường
                 _logger.LogInformation("⏹️ VocabularyReminderService đang shutdown...");
                 break;
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "❌ Lỗi trong VocabularyReminderService");
-                
-                try
-                {
-                    await Task.Delay(TimeSpan.FromMinutes(30), stoppingToken);
-                }
-                catch (TaskCanceledException)
-                {
-                    _logger.LogInformation("⏹️ VocabularyReminderService đang shutdown sau lỗi...");
-                    break;
-                }
+                await Task.Delay(TimeSpan.FromMinutes(15), stoppingToken);
             }
         }
 
@@ -89,7 +84,7 @@ public class VocabularyReminderService : BackgroundService
 
         try
         {
-            var currentDate = DateTime.UtcNow.Date;
+            var currentDate = DateTime.UtcNow;
             
             // Lấy students từ repository
             var students = await userRepository.GetUsersByRoleAsync("Student");
@@ -149,11 +144,7 @@ public class VocabularyReminderService : BackgroundService
 
     #region Private Helper Methods
 
-    private bool ShouldSendReminder(DateTime now, TimeSpan targetTime)
-    {
-        return now.TimeOfDay >= targetTime && 
-               now.TimeOfDay < targetTime.Add(TimeSpan.FromMinutes(30));
-    }
+
 
     private (string AppTitle, string AppContent, string EmailContent) CreateReminderContent(int dueCount, string studentName)
     {

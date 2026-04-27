@@ -574,12 +574,13 @@ public static class ServiceRegistrationExtensions // Lớp static chứa các ex
     // Phương thức đăng ký các tiến trình chạy nền (Background Services) - Chạy tự động theo chu kỳ
     public static IServiceCollection AddBackgroundServices(this IServiceCollection services)
     {
-        services.AddHostedService<LearningEnglish.Application.Service.BackgroundJobs.QuizAutoSubmitService>(); // Tự động nộp bài khi hết giờ
+        services.AddHostedService<QuizAutoSubmitService>(); // Tự động nộp bài khi hết giờ
         services.AddHostedService<TempFileCleanupHostedService>(); // Tự động dọn dẹp file rác định kỳ
         services.AddHostedService<OtpCleanupService>(); // Tự động xóa mã xác thực (OTP) đã hết hạn
         services.AddHostedService<PaymentCleanupService>(); // Tự động hủy các yêu cầu thanh toán không hoàn tất
         services.AddHostedService<WebhookRetryService>(); // Tự động thử lại việc gửi webhook nếu thất bại
         services.AddHostedService<VocabularyReminderService>(); // Tự động gửi thông báo nhắc nhở học từ vựng
+        services.AddHostedService<StreakReminderBackgroundService>(); // Tự động gửi nhắc nhở Streak
 
         return services; // Trả về services hoàn tất việc đăng ký
     }

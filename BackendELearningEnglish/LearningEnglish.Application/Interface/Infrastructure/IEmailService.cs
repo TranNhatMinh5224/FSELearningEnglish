@@ -19,5 +19,11 @@ namespace LearningEnglish.Application.Interface
         
         // Gửi nhắc nhở streak sắp đứt
         Task SendStreakReminderEmailAsync(string toEmail, string userName, int currentStreak, int longestStreak);
+
+        // Gửi email chào mừng
+        Task SendWelcomeEmailAsync(string toEmail, string userName);
+
+        // Gửi thông báo đổi mật khẩu thành công
+        Task SendPasswordChangedEmailAsync(string toEmail, string userName);
     }
 }

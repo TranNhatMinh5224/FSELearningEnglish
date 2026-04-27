@@ -54,5 +54,19 @@ namespace LearningEnglish.Application.Service
             var body = _templateService.GenerateStreakReminderTemplate(userName, currentStreak, longestStreak);
             await _emailSender.SendEmailAsync(toEmail, subject, body);
         }
+
+        public async Task SendWelcomeEmailAsync(string toEmail, string userName)
+        {
+            var subject = "👋 Chào mừng bạn đến với Catalunya English!";
+            var body = _templateService.GenerateWelcomeEmailTemplate(userName);
+            await _emailSender.SendEmailAsync(toEmail, subject, body);
+        }
+
+        public async Task SendPasswordChangedEmailAsync(string toEmail, string userName)
+        {
+            var subject = "✅ Thông báo thay đổi mật khẩu thành công";
+            var body = _templateService.GeneratePasswordChangedEmailTemplate(userName);
+            await _emailSender.SendEmailAsync(toEmail, subject, body);
+        }
     }
 }
