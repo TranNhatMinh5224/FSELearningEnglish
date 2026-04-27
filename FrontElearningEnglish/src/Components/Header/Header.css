@@ -534,6 +534,10 @@
 
 /* Tablet: Ẩn toggle button, giữ header luôn mở, ẩn text chỉ hiển thị icon */
 @media (max-width: 991.98px) and (min-width: 768px) {
+  .main-header .container-fluid {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
 
   /* Ẩn toggle button */
   .main-header .navbar-toggler {
@@ -553,38 +557,38 @@
 
   /* Nav item chỉ hiển thị icon, căn giữa */
   .main-header .nav-item {
-    padding: 10px 14px !important;
+    padding: 6px 10px !important;
     justify-content: center !important;
-    min-width: 48px;
+    min-width: 40px;
     gap: 0 !important;
   }
 
   /* Icon lớn hơn một chút để dễ nhìn */
   .main-header .nav-icon {
-    width: 22px !important;
-    height: 22px !important;
+    width: 18px !important;
+    height: 18px !important;
     margin: 0 !important;
   }
 
   .main-header .nav-item svg {
-    font-size: 1.25rem !important;
+    font-size: 1.1rem !important;
   }
 
   /* Giảm gap giữa các nav items */
   .main-header__nav,
   .main-header .nav {
-    gap: 16px !important;
+    gap: 8px !important;
   }
 
   /* Brand name nhỏ hơn trên tablet */
   .main-header__brand {
-    font-size: 1rem !important;
+    font-size: 0.9rem !important;
   }
 
   /* Logo nhỏ hơn trên tablet */
   .main-header__logo {
-    width: 32px !important;
-    height: 32px !important;
+    width: 28px !important;
+    height: 28px !important;
   }
 
   /* Switch student button trên tablet - ẩn text, chỉ hiển thị icon */
@@ -593,13 +597,13 @@
   }
 
   .main-header .switch-student-btn {
-    padding: 10px 14px !important;
-    min-width: 48px;
+    padding: 6px 10px !important;
+    min-width: 40px;
     justify-content: center !important;
   }
 
   .main-header .switch-icon {
-    font-size: 1.25rem !important;
+    font-size: 1.1rem !important;
     margin: 0 !important;
   }
 }

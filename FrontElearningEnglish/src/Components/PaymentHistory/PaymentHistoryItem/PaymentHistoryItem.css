@@ -84,18 +84,47 @@
 
 @media (max-width: 768px) {
     .payment-item {
-        grid-template-columns: 1fr 100px;
-        gap: 12px;
-        padding: 14px 16px;
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+        padding: 1.25rem;
+        margin-bottom: 0.75rem;
+        border-radius: var(--radius-lg, 12px);
+        background: var(--color-bg-white, #fff);
+        border: 1px solid var(--color-border-light, #f0f0f0);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.02);
     }
 
-    .payment-header-column.date-column,
-    .payment-column.date-column {
-        display: none;
+    .payment-column {
+        display: grid;
+        grid-template-columns: 120px 1fr;
+        align-items: center;
+        gap: 1rem;
+        width: 100%;
     }
 
-    .payment-header-column.amount-column,
-    .payment-column.amount-column {
-        display: none;
+    .mobile-label {
+        font-size: var(--font-size-xs, 12px);
+        font-weight: 600;
+        color: var(--color-text-tertiary, #9ca3af);
+        text-transform: uppercase;
+        letter-spacing: 0.025em;
+    }
+
+    .product-column, .amount-column, .status-column, .date-column {
+        justify-content: flex-start;
+    }
+
+    .payment-product {
+        font-size: var(--font-size-base, 16px);
+    }
+
+    .payment-amount {
+        font-size: var(--font-size-base, 16px);
+    }
+
+    .status-badge {
+        padding: 4px 10px;
+        font-size: 12px;
     }
 }

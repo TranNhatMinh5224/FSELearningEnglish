@@ -62,6 +62,7 @@ using Microsoft.Extensions.Logging; // Thư viện hỗ trợ ghi Log
 using Microsoft.SemanticKernel; // Thư viện hỗ trợ AI Gemini
 using Microsoft.SemanticKernel.ChatCompletion;
 using Microsoft.SemanticKernel.Embeddings; 
+using Microsoft.Extensions.AI;
 
 
 namespace LearningEnglish.API.Extensions; // Namespace định nghĩa các extension method cho API
@@ -550,11 +551,11 @@ public static class ServiceRegistrationExtensions // Lớp static chứa các ex
     
     
         services.AddKernel() ;
-        services.AddSingleton<ITextEmbeddingGenerationService>(
+        services.AddSingleton<IEmbeddingGenerator<string, Embedding<float>>>(
             sp => {
                 var options = sp.GetRequiredService<IOptions<GeminiOptions>>().Value;
 #pragma warning disable SKEXP0070
-                return new GoogleAITextEmbeddingGenerationService(options.EmbeddingModel, options.ApiKey);
+                return new GoogleAITextEmbeddingGenerationService(options.EmbeddingModel, options.ApiKey).AsEmbeddingGenerator();
             }
         );
 

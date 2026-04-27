@@ -1,21 +1,18 @@
 .image-with-icon-fallback {
-    display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     width: 100%;
     height: 100%;
-    background: #f8fafc !important;
-    color: #40D6E3 !important;
     position: relative;
-    overflow: hidden;
 }
 
 .image-with-icon-fallback svg {
-    color: #40D6E3 !important;
+    color: #40D6E3;
 }
 
 .image-with-icon-fallback svg path {
-    color: #40D6E3 !important;
+    color: #40D6E3;
 }
 
 .image-with-icon-fallback-image {

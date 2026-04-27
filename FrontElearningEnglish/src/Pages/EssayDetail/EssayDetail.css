@@ -1,6 +1,6 @@
 .essay-detail-container {
-    padding: 30px 0;
-    padding-top: calc(30px + 70px);
+    padding: var(--padding-container-lg, clamp(1.5rem, 1rem + 2.5vw, 3rem)) 0;
+    padding-top: calc(70px + clamp(1.5rem, 1rem + 2.25vw, 3.125rem));
     background: linear-gradient(135deg, #f8fafc 0%, #e0e7ff 50%, #fce7f3 100%);
     min-height: calc(125vh - 70px);
     position: relative;
@@ -25,26 +25,14 @@
     z-index: 1;
 }
 
-.essay-detail-container .container {
-    position: relative;
-    z-index: 1;
-}
-
 .cursor-pointer {
     cursor: pointer;
 }
 
-@media (max-width: 992px) {
-    .essay-detail-container {
-        padding: 20px 0;
-        padding-top: calc(20px + 70px);
-    }
-}
-
 @media (max-width: 768px) {
     .essay-detail-container {
-        padding: 15px 0;
-        padding-top: calc(15px + 70px);
+        padding: var(--spacing-md, clamp(0.75rem, 0.6rem + 0.75vw, 1rem)) 0;
+        padding-top: calc(70px + var(--spacing-md, clamp(0.75rem, 0.6rem + 0.75vw, 1rem)));
     }
 }
 

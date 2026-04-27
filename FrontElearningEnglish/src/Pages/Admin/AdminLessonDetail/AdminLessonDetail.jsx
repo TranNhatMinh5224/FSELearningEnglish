@@ -20,7 +20,7 @@ import NotificationModal from "../../../Components/Common/NotificationModal/Noti
 import ConfirmModal from "../../../Components/Common/ConfirmModal/ConfirmModal";
 import ActionButtons from "../../../Components/Common/ActionButtons";
 import { FaPlus, FaEdit } from "react-icons/fa";
-import { PiBookOpenFill, PiLayoutDuotone, PiCardsDuotone, PiExamDuotone } from "react-icons/pi";
+import { PiBookOpenFill, PiLayoutDuotone, PiCardsDuotone, PiExamDuotone, PiBookOpenDuotone } from "react-icons/pi";
 import ImageWithIconFallback from "../../../Components/Common/ImageWithIconFallback/ImageWithIconFallback";
 
 export default function AdminLessonDetail() {
@@ -338,7 +338,7 @@ export default function AdminLessonDetail() {
                   <ImageWithIconFallback
                     imageUrl={lesson.imageUrl || lesson.ImageUrl}
                     fallbackImageUrl={getDefaultLessonImage()}
-                    icon={<PiBookOpenFill size={64} />}
+                    icon={<PiBookOpenDuotone size={64} />}
                     alt={lessonTitle}
                     className="lesson-image-main"
                   />

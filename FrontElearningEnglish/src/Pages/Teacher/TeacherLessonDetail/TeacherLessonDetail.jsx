@@ -21,7 +21,7 @@ import NotificationModal from "../../../Components/Common/NotificationModal/Noti
 import ConfirmModal from "../../../Components/Common/ConfirmModal/ConfirmModal";
 import ActionButtons from "../../../Components/Common/ActionButtons";
 import { FaPlus, FaEdit } from "react-icons/fa";
-import { PiBookOpenFill, PiLayoutDuotone, PiCardsDuotone, PiExamDuotone } from "react-icons/pi";
+import { PiBookOpenDuotone, PiLayoutDuotone, PiCardsDuotone, PiExamDuotone } from "react-icons/pi";
 import ImageWithIconFallback from "../../../Components/Common/ImageWithIconFallback/ImageWithIconFallback";
 import { ROUTE_PATHS } from "../../../Routes/Paths";
 
@@ -381,7 +381,7 @@ export default function TeacherLessonDetail() {
                   <ImageWithIconFallback
                     imageUrl={lesson.imageUrl || lesson.ImageUrl}
                     fallbackImageUrl={getDefaultLessonImage()}
-                    icon={<PiBookOpenFill size={64} />}
+                    icon={<PiBookOpenDuotone size={64} />}
                     alt={lessonTitle}
                     className="lesson-image-main"
                   />
@@ -747,9 +747,9 @@ export default function TeacherLessonDetail() {
                             <ImageWithIconFallback
                               imageUrl={module.imageUrl || module.ImageUrl}
                               icon={(() => {
-                                if (isLecture(contentTypeNum)) return <PiLayoutDuotone size={24} />;
-                                if (isFlashCard(contentTypeNum)) return <PiCardsDuotone size={24} />;
-                                if (isAssessment(contentTypeNum)) return <PiExamDuotone size={24} />;
+                                if (isLecture(contentTypeNum)) return <PiLayoutDuotone size={28} />;
+                                if (isFlashCard(contentTypeNum)) return <PiCardsDuotone size={28} />;
+                                if (isAssessment(contentTypeNum)) return <PiExamDuotone size={28} />;
                                 return <PiLayoutDuotone size={24} />;
                               })()}
                               alt={moduleName}

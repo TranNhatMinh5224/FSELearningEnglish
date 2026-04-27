@@ -1,7 +1,7 @@
 import React from "react";
 import ImageWithIconFallback from "../../../Common/ImageWithIconFallback/ImageWithIconFallback";
 import ActionButtons from "../../../Common/ActionButtons";
-import { PiBookOpenFill } from "react-icons/pi";
+import { PiBookOpenDuotone } from "react-icons/pi";
 import "./AdminLessonCard.css";
 
 export default function AdminLessonCard({ 
@@ -23,7 +23,7 @@ export default function AdminLessonCard({
                     <ImageWithIconFallback
                         imageUrl={lessonImage}
                         ImageUrl={lessonImage}
-                        icon={<PiBookOpenFill size={32} />}
+                        icon={<PiBookOpenDuotone size={64} />}
                         alt={lessonTitle}
                         className="admin-lesson-image"
                         imageKey={lessonId}

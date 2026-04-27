@@ -114,23 +114,28 @@ export default function VocabularyNotebook() {
                                         <div key={flashcard.flashCardId} className="vocabulary-item">
                                             <div className="vocabulary-column status-column">
                                                 <FaCheckCircle className="status-icon" />
+                                                <span className="mobile-label d-md-none">Trạng thái</span>
                                             </div>
                                             <div className="vocabulary-column word-column">
+                                                <span className="mobile-label d-md-none">Từ vựng</span>
                                                 <span className="vocabulary-word">
                                                     {flashcard.word || flashcard.Word || ""}
                                                 </span>
                                             </div>
-                                            <div className="vocabulary-column pronunciation-column d-none d-md-flex">
+                                            <div className="vocabulary-column pronunciation-column">
+                                                <span className="mobile-label d-md-none">Phát âm</span>
                                                 <span className="vocabulary-pronunciation">
                                                     {flashcard.pronunciation || flashcard.Pronunciation || "-"}
                                                 </span>
                                             </div>
-                                            <div className="vocabulary-column part-of-speech-column d-none d-md-flex">
+                                            <div className="vocabulary-column part-of-speech-column">
+                                                <span className="mobile-label d-md-none">Từ loại</span>
                                                 <span className="vocabulary-part-of-speech">
                                                     {flashcard.partOfSpeech || flashcard.PartOfSpeech || "-"}
                                                 </span>
                                             </div>
-                                            <div className="vocabulary-column meaning-column d-none d-md-flex">
+                                            <div className="vocabulary-column meaning-column">
+                                                <span className="mobile-label d-md-none">Nghĩa</span>
                                                 <span className="vocabulary-meaning">
                                                     {getMeaning(flashcard)}
                                                 </span>

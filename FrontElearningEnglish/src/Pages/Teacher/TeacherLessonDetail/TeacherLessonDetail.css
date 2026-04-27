@@ -38,13 +38,15 @@
   height: 100%;
   object-fit: cover;
   transition: transform 0.5s ease;
-  /* Solid 3D Style for Lesson Main Image */
-  background: linear-gradient(145deg, #41d6e3, #2bb5c2) !important;
+  /* Clean White-Cyan Style matching User preference */
+  background: #ffffff !important;
+  border: 1.5px solid #f0f9fa !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
 }
 
 .lesson-image-main svg {
-  color: white !important;
-  filter: drop-shadow(0 4px 8px rgba(0,0,0,0.15));
+  color: #41d6e3 !important;
+  filter: drop-shadow(0 4px 8px rgba(65, 214, 227, 0.15));
 }
 
 .lesson-info-card:hover .lesson-image-main {

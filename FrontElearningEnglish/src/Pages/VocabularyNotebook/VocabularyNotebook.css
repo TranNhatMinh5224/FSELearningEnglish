@@ -340,80 +340,80 @@
 /* Tablet: 768px and below */
 @media (max-width: 768px) {
     .vocabulary-notebook-container {
-        padding: var(--padding-container-lg, clamp(1.5rem, 1rem + 2.5vw, 3rem)) var(--padding-container-sm, clamp(0.75rem, 0.5rem + 1.25vw, 1.5rem));
-        padding-top: calc(var(--padding-container-lg, clamp(1.5rem, 1rem + 2.5vw, 3rem)) + 70px);
+        padding: var(--padding-container-lg) var(--padding-container-sm);
+        padding-top: calc(var(--padding-container-lg) + 70px);
     }
 
     .vocabulary-notebook-header {
-        margin-bottom: var(--padding-container-lg, clamp(1.5rem, 1rem + 2.5vw, 3rem));
+        margin-bottom: var(--padding-container-lg);
     }
 
-    .vocabulary-list-header,
-    .vocabulary-item {
-        grid-template-columns: 50px 1fr 100px;
-        gap: clamp(0.5rem, 0.4rem + 0.5vw, 0.75rem);
-        padding: clamp(0.75rem, 0.625rem + 0.625vw, 0.875rem) clamp(1rem, 0.75rem + 1.25vw, 1.25rem);
+    .vocabulary-list-header {
+        display: none; /* Hide header on mobile/tablet */
     }
-    
-    .vocabulary-list-header .pronunciation-column,
-    .vocabulary-list-header .part-of-speech-column,
-    .vocabulary-list-header .meaning-column,
-    .vocabulary-item .pronunciation-column,
-    .vocabulary-item .part-of-speech-column,
-    .vocabulary-item .meaning-column {
-        display: none;
+
+    .vocabulary-item {
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+        padding: 1.5rem;
+        margin-bottom: 1rem;
+        border-radius: var(--radius-lg);
+        background: var(--color-bg-white);
+        border: 1px solid var(--color-border-light);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+    }
+
+    .vocabulary-column {
+        display: grid;
+        grid-template-columns: 100px 1fr;
+        align-items: flex-start;
+        gap: 1rem;
+        padding: 0;
+        border: none;
+    }
+
+    .mobile-label {
+        font-size: var(--font-size-xs);
+        font-weight: 600;
+        color: var(--color-text-tertiary);
+        text-transform: uppercase;
+        letter-spacing: 0.025em;
+    }
+
+    .status-column {
+        display: flex;
+        justify-content: flex-start;
+        align-items: center;
+        gap: 0.5rem;
     }
 
     .status-icon {
-        font-size: var(--font-size-xl, clamp(1.25rem, 1.1rem + 0.75vw, 1.5rem));
+        font-size: var(--font-size-xl);
+    }
+
+    .vocabulary-word {
+        font-size: var(--font-size-xl);
+    }
+
+    .vocabulary-meaning {
+        font-size: var(--font-size-base);
     }
 }
 
 /* Mobile: 576px and below */
 @media (max-width: 576px) {
     .vocabulary-notebook-container {
-        padding: var(--padding-container-md, clamp(1rem, 0.75rem + 1.25vw, 2rem)) var(--padding-container-sm, clamp(0.75rem, 0.5rem + 1.25vw, 1.5rem));
-        padding-top: calc(var(--padding-container-md, clamp(1rem, 0.75rem + 1.25vw, 2rem)) + 70px);
+        padding: var(--padding-container-md) var(--padding-container-sm);
+        padding-top: calc(var(--padding-container-md) + 70px);
     }
 
-    .vocabulary-notebook-header {
-        margin-bottom: var(--padding-container-md, clamp(1rem, 0.75rem + 1.25vw, 2rem));
-    }
-
-    .vocabulary-list-header,
     .vocabulary-item {
-        grid-template-columns: 45px 1fr;
-        gap: clamp(0.5rem, 0.4rem + 0.5vw, 0.625rem);
-        padding: clamp(0.625rem, 0.5rem + 0.625vw, 0.75rem) clamp(0.75rem, 0.5rem + 1.25vw, 1rem);
-        min-height: 70px;
+        padding: 1.25rem;
     }
 
-    .status-icon {
-        font-size: var(--font-size-lg, clamp(1.125rem, 1rem + 0.625vw, 1.25rem));
-    }
-}
-
-/* Small Mobile: 480px and below */
-@media (max-width: 480px) {
-    .vocabulary-notebook-container {
-        padding: var(--padding-container-sm, clamp(0.75rem, 0.5rem + 1.25vw, 1.5rem));
-        padding-top: calc(var(--padding-container-sm, clamp(0.75rem, 0.5rem + 1.25vw, 1.5rem)) + 70px);
-    }
-
-    .vocabulary-list-header,
-    .vocabulary-item {
-        grid-template-columns: 40px 1fr;
-        gap: clamp(0.375rem, 0.25rem + 0.625vw, 0.5rem);
-        padding: clamp(0.5rem, 0.375rem + 0.625vw, 0.625rem) clamp(0.625rem, 0.5rem + 0.625vw, 0.75rem);
-        min-height: 60px;
-    }
-
-    .vocabulary-list-header {
-        font-size: var(--font-size-xs, clamp(0.75rem, 0.7rem + 0.25vw, 0.875rem));
-    }
-
-    .status-icon {
-        font-size: var(--font-size-base, clamp(1rem, 0.95rem + 0.25vw, 1.125rem));
+    .vocabulary-column {
+        grid-template-columns: 80px 1fr;
     }
 }
 

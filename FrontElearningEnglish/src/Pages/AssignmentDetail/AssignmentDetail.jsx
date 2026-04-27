@@ -43,12 +43,6 @@ export default function AssignmentDetail() {
                     const allData = assessRes.data.data || [];
                     const published = allData.filter(a => a.isPublished || a.IsPublished);
                     setAssessments(published);
-                    
-                    // Auto-redirect if only 1 assessment (Smart Navigation)
-                    if (published.length === 1) {
-                        const singleId = published[0].assessmentId || published[0].AssessmentId;
-                        navigate(`/course/${courseId}/lesson/${lessonId}/module/${moduleId}/assignment/${singleId}`, { replace: true });
-                    }
                 }
             } catch (err) {
                 console.error(err);

@@ -190,19 +190,20 @@
 }
 
 .lesson-image {
-  width: 60px;
-  height: 60px;
+  width: 80px; /* Increased for better visibility */
+  height: 80px;
   object-fit: cover;
   border-radius: 12px;
   flex-shrink: 0;
-  /* Solid 3D Style for Lessons */
-  background: linear-gradient(145deg, #41d6e3, #2bb5c2) !important;
-  box-shadow: 0 4px 10px rgba(65, 214, 227, 0.25);
+  /* Clean White-Cyan Style matching User preference */
+  background: #ffffff !important;
+  border: 1.5px solid #f0f9fa !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
 }
 
 .lesson-image svg {
-  color: white !important;
-  filter: drop-shadow(0 2px 4px rgba(0,0,0,0.1));
+  color: #41d6e3 !important;
+  filter: drop-shadow(0 2px 4px rgba(65, 214, 227, 0.15));
 }
 
 .lesson-title {

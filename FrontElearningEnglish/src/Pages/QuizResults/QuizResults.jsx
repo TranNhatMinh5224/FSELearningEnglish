@@ -103,7 +103,7 @@ export default function QuizResults() {
         if (!result) return [];
         const sections = result.sections || result.Sections || [];
         const questions = result.questions || result.Questions || [];
-        
+
         if (sections.length > 0) return sections;
         if (questions.length > 0) {
             return [{
@@ -119,7 +119,7 @@ export default function QuizResults() {
     }, [result]);
 
     const handleBack = () => {
-        const path = assessmentId 
+        const path = assessmentId
             ? `/course/${courseId}/lesson/${lessonId}/module/${moduleId}/assignment/${assessmentId}`
             : `/course/${courseId}/lesson/${lessonId}/module/${moduleId}/assignment`;
         navigate(path);
@@ -128,7 +128,7 @@ export default function QuizResults() {
     if (loading) return (
         <>
             <MainHeader />
-            <div className="quiz-results-container-v3 d-flex flex-column align-items-center justify-content-center" style={{minHeight: '60vh'}}>
+            <div className="quiz-results-container-v3 d-flex flex-column align-items-center justify-content-center" style={{ minHeight: '60vh' }}>
                 <div className="spinner-border text-primary" role="status"></div>
                 <div className="mt-3 text-muted fw-bold">Đang tải kết quả...</div>
             </div>
@@ -149,12 +149,12 @@ export default function QuizResults() {
     const totalScore = result.totalScore ?? result.TotalScore ?? 0;
     const percentage = result.percentage ?? result.Percentage ?? 0;
     const totalPossibleScore = result.totalPossibleScore ?? result.TotalPossibleScore ?? 0;
-    
+
     const formatScore = (value) => {
         const numericValue = Number(value);
         return Number.isFinite(numericValue) ? numericValue.toFixed(1) : "0.0";
     };
-    
+
     const { isPassed, submittedAt, timeSpentSeconds } = result;
     const hasScore = typeof totalScore === "number" && typeof percentage === "number";
 
@@ -163,7 +163,7 @@ export default function QuizResults() {
             <MainHeader />
             <div className="quiz-results-content-v3 mt-4">
                 <Container>
-                    <Breadcrumb 
+                    <Breadcrumb
                         items={[
                             { label: "Khóa học của tôi", path: "/my-courses" },
                             { label: course?.title || "Khóa học", path: `/course/${courseId}` },
@@ -254,8 +254,8 @@ export default function QuizResults() {
                             {/* View Details Toggle Button */}
                             {questions.length > 0 && (
                                 <div className="d-flex justify-content-center my-4">
-                                    <Button 
-                                        variant={showDetails ? "outline-primary" : "primary"} 
+                                    <Button
+                                        variant={showDetails ? "outline-primary" : "primary"}
                                         onClick={() => setShowDetails(!showDetails)}
                                         className="rounded-pill px-5 py-3 fw-bold shadow-lg transition-all"
                                         style={{ fontSize: '1.1rem' }}
@@ -279,7 +279,7 @@ export default function QuizResults() {
                                             {effectiveSections.map((section, sIdx) => {
                                                 const items = section.items || section.Items || [];
                                                 let globalQuestionIndex = 0;
-                                                
+
                                                 return (
                                                     <section key={sIdx} className="section-block-v3 mb-5">
                                                         {section.title && <h4 className="section-title-v3 mb-4">{section.title}</h4>}
@@ -365,4 +365,3 @@ export default function QuizResults() {
         </div>
     );
 }
-

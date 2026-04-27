@@ -138,31 +138,96 @@
     margin-top: 2rem;
 }
 
-.summary-action-button {
-    border-color: #41d6e3 !important;
-    color: #41d6e3 !important;
-    background: white !important;
-    padding: 0.75rem 2rem;
-    font-size: 1rem;
-    font-weight: 500;
-    border-radius: 8px;
-    border-width: 2px;
+/* Responsive */
+@media (max-width: 992px) {
+    .summary-title {
+        font-size: 1.75rem;
+    }
+
+    .stat-value {
+        font-size: 2rem;
+    }
 }
 
-.summary-action-button:hover {
-    background: #41d6e3 !important;
-    color: white !important;
-    border-color: #41d6e3 !important;
+@media (max-width: 768px) {
+    .pronunciation-detail-container {
+        padding: var(--padding-container-md, 2rem) 0;
+        padding-top: calc(70px + 1.5rem);
+    }
+
+    .pronunciation-title {
+        font-size: 1.25rem;
+    }
+
+    .pronunciation-summary {
+        padding: 1.5rem;
+    }
+
+    .summary-title {
+        font-size: 1.5rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .stat-item {
+        padding: 1rem;
+    }
+
+    .stat-value {
+        font-size: 1.5rem;
+    }
+    
+    .grade-value {
+        font-size: 1.5rem;
+    }
+
+    .summary-grade {
+        padding: 0.75rem;
+    }
+
+    .summary-message {
+        padding: 1rem;
+        margin: 1.5rem 0;
+    }
+
+    .summary-message p {
+        font-size: 1rem;
+    }
+
+    .summary-actions {
+        flex-direction: column;
+        width: 100%;
+    }
+
+    .summary-action-button {
+        width: 100% !important;
+        margin: 0 !important;
+        margin-bottom: 0.5rem !important;
+    }
 }
 
-.loading-message,
-.error-message {
-    text-align: center;
-    padding: 2rem;
-    font-size: 1.1rem;
-    color: #6b7280;
-}
+@media (max-width: 576px) {
+    .summary-title {
+        font-size: 1.25rem;
+    }
 
-.error-message {
-    color: #ef4444;
+    .stat-value {
+        font-size: 1.25rem;
+    }
+
+    .stat-label {
+        font-size: 0.8rem;
+    }
+
+    .summary-grade {
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+
+    .grade-label {
+        font-size: 1rem;
+    }
+
+    .grade-value {
+        font-size: 1.25rem;
+    }
 }

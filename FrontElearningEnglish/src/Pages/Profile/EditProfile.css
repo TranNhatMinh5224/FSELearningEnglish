@@ -37,7 +37,7 @@
 }
 
 .edit-profile-card h1 {
-    font-size: 24px;
+    font-size: var(--font-size-2xl, clamp(1.5rem, 1.25rem + 1.25vw, 1.75rem));
     font-weight: 700;
     color: var(--color-text-primary, #1f2937);
     margin-bottom: 30px;
@@ -203,19 +203,23 @@
 
 @media (max-width: 768px) {
     .edit-profile-container {
-        padding: 20px;
+        padding: var(--spacing-md, clamp(0.75rem, 0.6rem + 0.75vw, 1rem));
+        padding-top: calc(70px + var(--spacing-md, clamp(0.75rem, 0.6rem + 0.75vw, 1rem)));
     }
 
     .edit-profile-card {
         padding: 30px 20px;
+        border-radius: 20px;
     }
 
     .edit-profile-card .form-actions {
         flex-direction: column;
+        gap: 12px;
     }
 
     .edit-profile-card .btn-cancel,
     .edit-profile-card .btn-submit {
         width: 100%;
+        margin: 0;
     }
 }

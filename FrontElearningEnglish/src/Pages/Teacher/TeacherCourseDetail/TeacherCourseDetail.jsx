@@ -19,7 +19,7 @@ import LessonLimitModal from "../../../Components/Common/LessonLimitModal/Lesson
 import ClassCodeModal from "../../../Components/Teacher/ClassCodeModal/ClassCodeModal";
 import ActionButtons from "../../../Components/Common/ActionButtons";
 import { FaPlus, FaExpand } from "react-icons/fa";
-import { PiGraduationCapDuotone, PiBookOpenFill } from "react-icons/pi";
+import { PiGraduationCapDuotone, PiBookOpenDuotone } from "react-icons/pi";
 import ImageWithIconFallback from "../../../Components/Common/ImageWithIconFallback/ImageWithIconFallback";
 import { ROUTE_PATHS } from "../../../Routes/Paths";
 
@@ -335,7 +335,7 @@ export default function TeacherCourseDetail() {
                           <ImageWithIconFallback
                             imageUrl={lesson.imageUrl || lesson.ImageUrl}
                             fallbackImageUrl={getDefaultLessonImage()}
-                            icon={<PiBookOpenFill size={24} />}
+                            icon={<PiBookOpenDuotone size={64} />}
                             alt={lessonTitle}
                             className="lesson-image"
                           />

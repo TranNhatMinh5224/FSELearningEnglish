@@ -171,20 +171,32 @@
 
 @media (max-width: 768px) {
     .pronunciation-card {
-        padding: 1.5rem;
+        padding: 1rem;
     }
 
     .word-text {
-        font-size: 2rem;
+        font-size: 1.5rem;
+    }
+
+    .pronunciation-playback-actions {
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+
+    .pronunciation-playback-actions .playback-button,
+    .pronunciation-playback-actions .reference-audio-button {
+        width: 100%;
+        min-width: 0;
     }
 
     .pronunciation-card-actions {
         flex-direction: column;
         width: 100%;
+        gap: 0.5rem;
     }
 
-    .pronunciation-card-actions .nav-button,
-    .pronunciation-card-actions .playback-button {
+    .pronunciation-card-actions .nav-button {
         width: 100%;
+        margin: 0;
     }
 }

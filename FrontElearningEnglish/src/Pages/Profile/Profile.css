@@ -271,17 +271,22 @@
 
 @media (max-width: 768px) {
     .profile-container {
-        padding: 20px;
+        padding: var(--spacing-md, clamp(0.75rem, 0.6rem + 0.75vw, 1rem));
+        padding-top: calc(70px + var(--spacing-md, clamp(0.75rem, 0.6rem + 0.75vw, 1rem)));
+    }
+
+    .profile-title {
+        font-size: var(--font-size-2xl, clamp(1.5rem, 1.25rem + 1.25vw, 1.75rem));
     }
 
     .profile-card {
         padding: 30px 20px;
+        border-radius: 20px;
     }
-
-    /* Bootstrap responsive tự xử lý - chỉ thêm styling */
 
     .btn-change-password,
     .btn-edit-profile {
         width: 100%;
+        justify-content: center;
     }
 }

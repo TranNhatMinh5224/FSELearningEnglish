@@ -1,9 +1,9 @@
 import React from "react";
 import { FaMicrophone } from "react-icons/fa";
 import {
-    PiBookOpenDuotone,
+    PiLayoutDuotone,
     PiCardsDuotone,
-    PiClipboardTextDuotone
+    PiExamDuotone
 } from "react-icons/pi";
 import ImageWithIconFallback from "../../Common/ImageWithIconFallback/ImageWithIconFallback";
 import { APP_CONSTANTS } from "../../../config/constants";
@@ -33,15 +33,12 @@ export default function ModuleCard({ module, onClick, onPronunciationClick }) {
 
     // Get icon and class name based on content type (1=Lecture, 2=FlashCard, 3=Assessment)
     const getIconConfig = (type, typeName) => {
-        const typeLower = (typeName || "").toLowerCase();
-        if (type === 1 || typeLower.includes("lecture")) {
-            return { icon: <PiBookOpenDuotone />, className: "lecture" };
-        } else if (type === 2 || typeLower.includes("flashcard") || typeLower.includes("flash")) {
-            return { icon: <PiCardsDuotone />, className: "flashcard" };
-        } else if (type === 3 || typeLower.includes("assessment") || typeLower.includes("assignment") || typeLower.includes("essay")) {
-            return { icon: <PiClipboardTextDuotone />, className: "assignment" };
-        }
-        return { icon: <PiBookOpenDuotone />, className: "lecture" };
+        const iconConfig = {
+            1: { icon: <PiLayoutDuotone />, className: "lecture", label: "Lecture" },
+            2: { icon: <PiCardsDuotone />, className: "flashcard", label: "FlashCard" },
+            3: { icon: <PiExamDuotone />, className: "assessment", label: "Assessment" },
+        };
+        return iconConfig[type] || iconConfig[1];
     };
 
     const iconConfig = getIconConfig(finalContentType, finalContentTypeName);
@@ -87,15 +84,15 @@ export default function ModuleCard({ module, onClick, onPronunciationClick }) {
             className={`module-card ${finalIsCompleted ? "completed" : ""}`}
             onClick={handleCardClick}
         >
-            <div className="module-icon-wrapper">
+            <div className="module-card-icon-container">
                 <ImageWithIconFallback
                     imageUrl={imageUrl}
                     ImageUrl={ImageUrl}
                     fallbackImageUrl={fallbackImage}
-                    icon={<div className={`module-icon ${iconConfig.className}`}>{iconConfig.icon}</div>}
+                    icon={iconConfig.icon}
                     alt={finalName}
-                    className={`module-image ${iconConfig.className}`}
-                    iconClassName={`module-icon ${iconConfig.className}`}
+                    className={`module-card-img ${iconConfig.className}`}
+                    iconClassName={`module-card-icon-inner ${iconConfig.className}`}
                     imageKey={module?.moduleId || module?.ModuleId}
                 />
             </div>

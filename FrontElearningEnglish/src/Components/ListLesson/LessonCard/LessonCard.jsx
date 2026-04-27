@@ -1,5 +1,5 @@
 import { FaCheckCircle } from "react-icons/fa";
-import { PiBookOpenFill } from "react-icons/pi";
+import { PiBookOpenDuotone } from "react-icons/pi";
 import { useAssets } from "../../../Context/AssetContext";
 import ImageWithIconFallback from "../../Common/ImageWithIconFallback/ImageWithIconFallback";
 import "./LessonCard.css";
@@ -45,18 +45,14 @@ export default function LessonCard({ lesson, orderNumber, onClick, staggerIndex 
             onClick={handleClick}
             style={{ animationDelay }}
         >
-            <div className="lesson-image-wrapper">
+            <div className="lesson-card-img-container">
                 <ImageWithIconFallback
                     imageUrl={customImageUrl}
                     fallbackImageUrl={defaultImage}
-                    icon={
-                        <div className="lesson-image-placeholder">
-                            <PiBookOpenFill size={36} />
-                        </div>
-                    }
+                    icon={<PiBookOpenDuotone size={64} />}
                     alt={finalTitle}
-                    className="lesson-image"
-                    iconClassName="lesson-image-placeholder"
+                    className="lesson-card-img"
+                    iconClassName="lesson-card-img-placeholder"
                     imageKey={finalLessonId}
                 />
                 {finalIsCompleted && (

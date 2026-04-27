@@ -141,10 +141,11 @@
     }
 
     .search-results-title {
-        font-size: 1.5rem;
+        font-size: var(--font-size-xl, clamp(1.25rem, 1.1rem + 0.75vw, 1.5rem));
     }
 
     .search-box-wrapper {
         max-width: 100%;
+        margin-bottom: 1.5rem;
     }
 }
