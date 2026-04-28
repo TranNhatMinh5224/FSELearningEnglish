@@ -11,10 +11,17 @@ export default function AdjustBalanceModal({ show, onClose, user, onConfirm }) {
     const [loading, setLoading] = useState(false);
 
     const handleConfirm = async () => {
-        if (!amount || isNaN(amount)) return;
+        if (!amount) return;
+        
+        // Loại bỏ tất cả ký tự không phải là số (như dấu chấm, dấu phẩy phân cách)
+        const numericAmount = typeof amount === 'string' 
+            ? parseInt(amount.replace(/[^\d]/g, '')) 
+            : parseInt(amount);
+
+        if (isNaN(numericAmount) || numericAmount <= 0) return;
         
         setLoading(true);
-        const finalAmount = isAdding ? parseInt(amount) : -parseInt(amount);
+        const finalAmount = isAdding ? numericAmount : -numericAmount;
         
         await onConfirm(user.userId || user.UserId || user.id, {
             amount: finalAmount,

@@ -140,6 +140,9 @@ namespace LearningEnglish.Infrastructure.Data
                  .HasForeignKey(u => u.CurrentTeacherSubscriptionId)
                  .IsRequired(false)
                  .OnDelete(DeleteBehavior.SetNull);
+
+                e.Property(u => u.Balance)
+                 .HasPrecision(18, 2);
             });
 
             // ===== Role =====
