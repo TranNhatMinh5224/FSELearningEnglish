@@ -310,6 +310,8 @@ export default function QuizAttemptQuestion({ question, index, getQuestionTypeLa
     );
   };
 
+  const isCSharpType = (s) => typeof s === 'string' && s.includes("System.Collections.Generic");
+
   return (
     <div
       id={`q-${questionId}`}
@@ -385,13 +387,13 @@ export default function QuizAttemptQuestion({ question, index, getQuestionTypeLa
           <div className="result-item-v3">
             <span className="result-label-v3">Học sinh chọn:</span>
             <span className={`result-value-v3 ${userAnswerText === "Chưa trả lời" ? 'text-muted' : 'fw-bold'}`}>
-              {typeof userAnswerText === 'object' ? "Xem chi tiết phía trên" : userAnswerText}
+              {typeof userAnswerText === 'object' || isCSharpType(userAnswerText) ? "Xem chi tiết phía trên" : userAnswerText}
             </span>
           </div>
           <div className="result-item-v3">
             <span className="result-label-v3">Đáp án đúng:</span>
             <span className="result-value-v3 text-success fw-bold">
-              {typeof correctAnswerText === 'object' ? "Xem chi tiết phía trên" : (correctAnswerText || "Chưa có đáp án")}
+              {typeof correctAnswerText === 'object' || isCSharpType(correctAnswerText) ? "Xem chi tiết phía trên" : (correctAnswerText || "Chưa có đáp án")}
             </span>
           </div>
         </div>

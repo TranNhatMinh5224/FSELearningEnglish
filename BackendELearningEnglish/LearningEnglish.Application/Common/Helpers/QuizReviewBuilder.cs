@@ -175,16 +175,14 @@ namespace LearningEnglish.Application.Common.Helpers
             if (userAnswer == null)
                 return new List<int>();
 
+            // 1. Dùng AnswerNormalizer để xử lý List<int>, List<object>, JsonArray
+            var list = AnswerNormalizer.NormalizeToListInt(userAnswer);
+            if (list != null && list.Any())
+                return list;
+
+            // 2. Fallback cho trường hợp ID đơn lẻ (int hoặc string)
             try
             {
-                if (userAnswer is JsonElement jsonElement && jsonElement.ValueKind == JsonValueKind.Array)
-                {
-                    return jsonElement.EnumerateArray()
-                        .Where(e => e.ValueKind == JsonValueKind.Number)
-                        .Select(e => e.GetInt32())
-                        .ToList();
-                }
-
                 if (int.TryParse(userAnswer.ToString(), out int singleId))
                 {
                     return new List<int> { singleId };
@@ -205,6 +203,7 @@ namespace LearningEnglish.Application.Common.Helpers
                 switch (question.Type)
                 {
                     case QuestionType.MultipleChoice:
+                    case QuestionType.MultipleAnswers:
                     case QuestionType.TrueFalse:
                         var optionIds = ParseUserAnswerAsOptionIds(answer);
                         if (optionIds.Any() && question.Options != null)
