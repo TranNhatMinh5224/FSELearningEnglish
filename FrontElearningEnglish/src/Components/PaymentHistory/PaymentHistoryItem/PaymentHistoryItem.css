@@ -1,9 +1,10 @@
 .payment-history-item-row {
     padding: 24px 32px;
     border-bottom: 1px solid #f1f5f9;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
     cursor: pointer;
     background: white;
+    will-change: transform, background-color;
 }
 
 .payment-history-item-row:last-child {
@@ -12,7 +13,7 @@
 
 .payment-history-item-row:hover {
     background-color: #fff9fc;
-    transform: translateX(8px);
+    transform: translateX(4px); /* Reduced from 8px to prevent jitter */
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
 }
 
@@ -132,4 +133,4 @@
     .date-info .d-flex {
         justify-content: flex-start !important;
     }
-}
+}

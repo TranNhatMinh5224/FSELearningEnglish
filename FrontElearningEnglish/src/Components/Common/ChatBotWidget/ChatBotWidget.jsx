@@ -10,8 +10,8 @@ import "./ChatBotWidget.css";
 
 // ── Câu gợi ý mặc định ──────────────────────────────────────
 const SUGGESTIONS = [
-  "Tôi muốn học tiếng Anh giao tiếp",
-  "Có khóa học luyện IELTS không?",
+  "Tôi muốn học tiếng Anh ",
+
   "Gói Teacher giá bao nhiêu?",
 ];
 
@@ -19,7 +19,7 @@ const SUGGESTIONS = [
 const WELCOME_MESSAGE = {
   id: "welcome",
   role: "bot",
-  text: "Xin chào! 👋 Mình là **FSE AI Assistant**.\n\nMình có thể giúp bạn:\n- 📚 Tìm **khóa học tiếng Anh** phù hợp\n- 👨‍🏫 Tư vấn **nâng cấp tài khoản Giáo viên**\n- 🛡️ Thông tin về **chính sách học tập**\n\nBạn muốn tìm hiểu gì hôm nay?",
+  text: "Xin chào! 👋 Mình là **Catalunya AI**.\n\nMình có thể giúp bạn:\n- 📚 Tìm **khóa học tiếng Anh** phù hợp\n- 👨‍🏫 Tư vấn **nâng cấp tài khoản Giáo viên**\n- 🛡️ Thông tin về **chính sách học tập**\n\nBạn muốn tìm hiểu gì hôm nay?",
 };
 
 let msgIdCounter = 1;
@@ -126,7 +126,7 @@ export default function ChatBotWidget() {
         className="chatbot-fab"
         onClick={() => setOpen((v) => !v)}
         aria-label="Mở AI Assistant"
-        title="FSE AI Assistant"
+        title="Catalunya AI"
       >
         {open ? <FiX size={22} /> : <FiMessageSquare size={22} />}
         {showBadge && !open && <span className="chatbot-fab-badge" />}
@@ -134,14 +134,14 @@ export default function ChatBotWidget() {
 
       {/* ── Chat Panel ── */}
       {open && (
-        <div className="chatbot-panel" role="dialog" aria-label="FSE AI Assistant">
+        <div className="chatbot-panel" role="dialog" aria-label="Catalunya AI">
           {/* Header */}
           <div className="chatbot-header">
             <div className="chatbot-header-avatar">
               <RiRobot2Line />
             </div>
             <div className="chatbot-header-info">
-              <h6>FSE AI Assistant</h6>
+              <h6>Catalunya AI</h6>
               <small>🟢 Đang hoạt động — Tư vấn khóa học & Teacher</small>
             </div>
             <button
@@ -166,7 +166,7 @@ export default function ChatBotWidget() {
                   </div>
                 )}
                 <div className={`chatbot-bubble ${msg.role}`}>
-                  <ReactMarkdown 
+                  <ReactMarkdown
                     remarkPlugins={[remarkGfm]}
                     components={{
                       a: ({ node, href, children, ...props }) => {
