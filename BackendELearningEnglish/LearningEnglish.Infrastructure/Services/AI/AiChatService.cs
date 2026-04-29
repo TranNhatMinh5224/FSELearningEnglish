@@ -77,9 +77,9 @@ DỮ LIỆU TRI THỨC:
             {
                 ExtensionData = new Dictionary<string, object>
                 {
-                    { "max_tokens", 800 },
-                    { "maxOutputTokens", 800 },
-                    { "MaxTokens", 800 },
+                    { "max_tokens", 2000 },
+                    { "maxOutputTokens", 2000 },
+                    { "MaxTokens", 2000 },
                     { "temperature", 0.7 }
                 }
             };
@@ -88,7 +88,7 @@ DỮ LIỆU TRI THỨC:
             
             response.Data = new ChatResponseDto
             {
-                Response = result?.Content ?? "Chào bạn, tôi có thể giúp gì cho bạn về khóa học FSE?",
+                Response = result?.Content ?? "Chào bạn, tôi là Catalunya AI, tôi có thể giúp gì cho bạn?",
                 SentAt = DateTime.UtcNow
             };
             response.Success = true;
