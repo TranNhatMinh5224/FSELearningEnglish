@@ -1,8 +1,10 @@
+using System;
 using System.Net;
 using System.Net.Mail;
-using LearningEnglish.Application.Interface;
-using LearningEnglish.Application.Configurations;
+using System.Threading.Tasks;
 using Microsoft.Extensions.Options;
+using LearningEnglish.Application.Configurations;
+using LearningEnglish.Application.Interface;
 
 namespace LearningEnglish.Infrastructure.Services
 {
@@ -35,7 +37,7 @@ namespace LearningEnglish.Infrastructure.Services
                     EnableSsl = _smtpOptions.EnableSsl
                 };
 
-                var mailMessage = new MailMessage
+                using var mailMessage = new MailMessage
                 {
                     From = new MailAddress(_smtpOptions.User, _smtpOptions.FromName),
                     Subject = subject,

@@ -167,13 +167,13 @@ export default function PaymentHistory() {
                                 <Col xs={12} md={5} lg={4} className="payment-header-column product-column d-flex align-items-center">
                                     <span>Sản phẩm</span>
                                 </Col>
-                                <Col xs={4} md={2} lg={2} className="payment-header-column amount-column d-none d-md-flex align-items-center">
+                                <Col xs={4} md={2} lg={2} className="payment-header-column amount-column d-none d-md-flex align-items-center justify-content-start">
                                     <span>Số tiền</span>
                                 </Col>
-                                <Col xs={4} md={2} lg={2} className="payment-header-column status-column d-flex align-items-center">
+                                <Col xs={4} md={2} lg={2} className="payment-header-column status-column d-flex align-items-center justify-content-center">
                                     <span>Trạng thái</span>
                                 </Col>
-                                <Col xs={4} md={3} lg={4} className="payment-header-column date-column d-none d-md-flex align-items-center">
+                                <Col xs={4} md={3} lg={4} className="payment-header-column date-column d-none d-md-flex align-items-center justify-content-end">
                                     <span>Ngày thanh toán</span>
                                 </Col>
                             </Row>

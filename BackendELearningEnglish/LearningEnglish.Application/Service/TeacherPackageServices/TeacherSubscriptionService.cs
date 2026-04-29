@@ -12,12 +12,18 @@ namespace LearningEnglish.Application.Service
     public class TeacherSubscriptionService : ITeacherSubscriptionService
     {
         private readonly ITeacherSubscriptionRepository _teacherSubscriptionRepository;
+        private readonly ITeacherPackageRepository _teacherPackageRepository;
         private readonly IMapper _mapper;
         private readonly ILogger<TeacherSubscriptionService> _logger;
 
-        public TeacherSubscriptionService(ITeacherSubscriptionRepository teacherSubscriptionRepository, IMapper mapper, ILogger<TeacherSubscriptionService> logger)
+        public TeacherSubscriptionService(
+            ITeacherSubscriptionRepository teacherSubscriptionRepository, 
+            ITeacherPackageRepository teacherPackageRepository,
+            IMapper mapper, 
+            ILogger<TeacherSubscriptionService> logger)
         {
             _teacherSubscriptionRepository = teacherSubscriptionRepository;
+            _teacherPackageRepository = teacherPackageRepository;
             _mapper = mapper;
             _logger = logger;
         }
@@ -31,60 +37,71 @@ namespace LearningEnglish.Application.Service
 
 
 
-        public async Task<ServiceResponse<ResPurchaseTeacherPackageDto>> AddTeacherSubscriptionAsync(PurchaseTeacherPackageDto dto, int userId)
+        public async Task<ServiceResponse<ResPurchaseTeacherPackageDto>> AddTeacherSubscriptionAsync(PurchaseTeacherPackageDto dto, int userId, int? paymentId = null)
         { 
-                  var response = new ServiceResponse<ResPurchaseTeacherPackageDto>();
+            var response = new ServiceResponse<ResPurchaseTeacherPackageDto>();
             try
             {
-                // Business Rule: User chỉ được có 1 subscription tại một thời điểm
-                // Payment validation đã check, nhưng double-check để đảm bảo
+                // 1. Double-check existing active subscription
                 var existingSubscription = await _teacherSubscriptionRepository.GetActiveSubscriptionAsync(userId);
-
                 if (existingSubscription != null && existingSubscription.EndDate > DateTime.UtcNow)
                 {
-                    _logger.LogWarning(
-                        "User {UserId} attempted to purchase package while having active subscription until {EndDate}",
-                        userId, existingSubscription.EndDate);
-                    
+                    _logger.LogWarning("User {UserId} already has an active subscription until {EndDate}", userId, existingSubscription.EndDate);
                     response.Success = false;
                     response.StatusCode = 400;
                     response.Message = "Bạn đã có gói giáo viên đang hoạt động. Vui lòng đợi gói hiện tại hết hạn trước khi mua gói mới";
                     return response;
                 }
 
-                // Tạo subscription mới - luôn Active và bắt đầu ngay
+                // 2. Fetch package to get details (Price, Duration)
+                var package = await _teacherPackageRepository.GetTeacherPackageByIdAsync(dto.IdTeacherPackage);
+                if (package == null)
+                {
+                    response.Success = false;
+                    response.StatusCode = 404;
+                    response.Message = "Không tìm thấy thông tin gói giáo viên.";
+                    return response;
+                }
+
+                // 3. Create new subscription
                 var startDate = DateTime.UtcNow;
+                var durationMonths = package.DurationMonths > 0 ? package.DurationMonths : 12; // Fallback to 12
+                
                 var teacherSubscription = new TeacherSubscription
                 {
                     UserId = userId,
                     TeacherPackageId = dto.IdTeacherPackage,
                     StartDate = startDate,
-                    EndDate = startDate.AddMonths(12),
-                    Status = SubscriptionStatus.Active
+                    EndDate = startDate.AddMonths(durationMonths),
+                    Status = SubscriptionStatus.Active,
+                    PaymentId = paymentId,
+                    CreatedAt = DateTime.UtcNow
                 };
 
                 await _teacherSubscriptionRepository.AddTeacherSubscriptionAsync(teacherSubscription);
 
+                // 4. Map to Result DTO
+                // Manually assign package info because navigation property might be null after save
                 var resultDto = _mapper.Map<ResPurchaseTeacherPackageDto>(teacherSubscription);
+                resultDto.PackageName = package.PackageName;
+                resultDto.Price = package.Price;
 
-                _logger.LogInformation(
-                    "User {UserId} purchased teacher package {PackageId}. Active from {StartDate} to {EndDate}",
-                    userId, dto.IdTeacherPackage, startDate, teacherSubscription.EndDate);
+                _logger.LogInformation("User {UserId} successfully purchased package {PackageName}. Valid until {EndDate}", 
+                    userId, package.PackageName, teacherSubscription.EndDate);
 
                 response.Data = resultDto;
                 response.Success = true;
                 response.StatusCode = 201;
-                response.Message = "Teacher package purchased and activated successfully.";
+                response.Message = "Gói giáo viên đã được kích hoạt thành công.";
                 return response;
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error purchasing teacher package.");
+                _logger.LogError(ex, "Error adding teacher subscription for user {UserId}", userId);
                 response.Success = false;
                 response.StatusCode = 500;
-                response.Message = "An error occurred while purchasing the teacher package.";
+                response.Message = "Đã xảy ra lỗi khi kích hoạt gói giáo viên.";
                 return response;
-
             }
         }
         // xử lý hủy gói teacher

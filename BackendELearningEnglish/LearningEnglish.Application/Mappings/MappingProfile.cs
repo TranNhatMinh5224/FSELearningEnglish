@@ -299,7 +299,7 @@ namespace LearningEnglish.Application.Mappings
 
             // TeacherSubscription mappings
             CreateMap<TeacherSubscription, ResPurchaseTeacherPackageDto>()
-            .ForMember(dest => dest.IdTeacherPackage, opt => opt.MapFrom(src => src.TeacherSubscriptionId))
+            .ForMember(dest => dest.IdTeacherPackage, opt => opt.MapFrom(src => src.TeacherPackageId))
             .ForMember(dest => dest.IdUser, opt => opt.MapFrom(src => src.UserId))
             .ForMember(dest => dest.UserName, opt => opt.MapFrom(src => src.User != null ? src.User.FullName : string.Empty))
             .ForMember(dest => dest.PackageName, opt => opt.MapFrom(src => src.TeacherPackage != null ? src.TeacherPackage.PackageName : string.Empty))

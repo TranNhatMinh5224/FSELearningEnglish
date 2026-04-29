@@ -30,4 +30,10 @@
     <PackageReference Include="Xabe.FFmpeg" Version="6.0.2" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Update="Templates\**\*">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
 </Project>

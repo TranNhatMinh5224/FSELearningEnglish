@@ -269,7 +269,7 @@ namespace LearningEnglish.Application.Service.PaymentService
                     if (user == null) return new ServiceResponse<bool> { Success = false, Message = "Người dùng không tồn tại" };
 
                     await _userRepository.UpdateRoleTeacher(userId);
-                    var subResult = await _teacherSubscriptionService.AddTeacherSubscriptionAsync(new PurchaseTeacherPackageDto { IdTeacherPackage = productId }, userId);
+                    var subResult = await _teacherSubscriptionService.AddTeacherSubscriptionAsync(new PurchaseTeacherPackageDto { IdTeacherPackage = productId }, userId, paymentId);
                     if (!subResult.Success)
                     {
                         response.Success = false;
@@ -282,19 +282,27 @@ namespace LearningEnglish.Application.Service.PaymentService
                     var package = await _teacherPackageRepository.GetTeacherPackageByIdAsync(productId);
                     if (package != null)
                     {
-                        await _notificationRepository.AddAsync(new Notification
+                        try 
                         {
-                            UserId = userId,
-                            Title = "Chào mừng Giáo viên mới",
-                            Message = $"Bạn đã nâng cấp thành công gói '{package.PackageName}'.",
-                            Type = NotificationType.PaymentSuccess,
-                            RelatedEntityType = "TeacherPackage",
-                            RelatedEntityId = productId,
-                            IsRead = false,
-                            CreatedAt = DateTime.UtcNow
-                        });
+                            await _notificationRepository.AddAsync(new Notification
+                            {
+                                UserId = userId,
+                                Title = "Chào mừng Giáo viên mới",
+                                Message = $"Bạn đã nâng cấp thành công gói '{package.PackageName}'.",
+                                Type = NotificationType.PaymentSuccess,
+                                RelatedEntityType = "TeacherPackage",
+                                RelatedEntityId = productId,
+                                IsRead = false,
+                                CreatedAt = DateTime.UtcNow
+                            });
 
-                        await _emailService.SendNotifyPurchaseTeacherPackageAsync(user.Email, package.PackageName, user.FullName, package.Price, subResult.Data?.EndDate ?? DateTime.UtcNow);
+                            await _emailService.SendNotifyPurchaseTeacherPackageAsync(user.Email, package.PackageName, user.FullName, package.Price, subResult.Data?.EndDate ?? DateTime.UtcNow);
+                        }
+                        catch (Exception emailEx)
+                        {
+                            // We don't want to rollback the transaction if only the email/notification fails
+                            _logger.LogWarning(emailEx, "Failed to send notification/email for TeacherPackage purchase, but transaction will proceed.");
+                        }
                     }
                 }
                 else if (type == ProductType.TopUp)

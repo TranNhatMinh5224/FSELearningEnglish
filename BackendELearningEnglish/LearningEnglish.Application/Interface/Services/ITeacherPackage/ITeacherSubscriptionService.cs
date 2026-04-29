@@ -6,7 +6,7 @@ namespace LearningEnglish.Application.Interface.Services.TeacherPackage
     public interface ITeacherSubscriptionService
     {
         // Mua gói giáo viên
-        Task<ServiceResponse<ResPurchaseTeacherPackageDto>> AddTeacherSubscriptionAsync(PurchaseTeacherPackageDto dto, int userId);
+        Task<ServiceResponse<ResPurchaseTeacherPackageDto>> AddTeacherSubscriptionAsync(PurchaseTeacherPackageDto dto, int userId, int? paymentId = null);
         
         // Hủy gói giáo viên (chỉ user sở hữu subscription mới được xóa)
         Task<ServiceResponse<bool>> DeleteTeacherSubscriptionAsync(DeleteTeacherSubscriptionDto dto, int userId);

@@ -12,6 +12,7 @@ namespace LearningEnglish.Application.Service.PaymentService
         private readonly IPaymentRepository _paymentRepository;
         private readonly ICourseRepository _courseRepository;
         private readonly ITeacherPackageRepository _teacherPackageRepository;
+        private readonly ITeacherSubscriptionRepository _teacherSubscriptionRepository;
         private readonly ILogger<PaymentValidator> _logger;
 
         public PaymentValidator(
@@ -19,12 +20,14 @@ namespace LearningEnglish.Application.Service.PaymentService
             IPaymentRepository paymentRepository,
             ICourseRepository courseRepository,
             ITeacherPackageRepository teacherPackageRepository,
+            ITeacherSubscriptionRepository teacherSubscriptionRepository,
             ILogger<PaymentValidator> logger)
         {
             _userRepository = userRepository;
             _paymentRepository = paymentRepository;
             _courseRepository = courseRepository;
             _teacherPackageRepository = teacherPackageRepository;
+            _teacherSubscriptionRepository = teacherSubscriptionRepository;
             _logger = logger;
         }
 
@@ -118,13 +121,13 @@ namespace LearningEnglish.Application.Service.PaymentService
                 }
                 else if (productType == ProductType.TeacherPackage)
                 {
-                    // TeacherPackage: Chỉ cho phép mua KHI KHÔNG CÓ subscription nào active/pending
-                    var existingPayment = await _paymentRepository.GetSuccessfulPaymentByUserAndProductAsync(userId, productId, productType);
-                    if (existingPayment != null)
+                    // TeacherPackage: Check for an ACTIVE subscription instead of any past payment
+                    var activeSub = await _teacherSubscriptionRepository.GetActiveSubscriptionAsync(userId);
+                    if (activeSub != null && activeSub.EndDate > DateTime.UtcNow)
                     {
-                        _logger.LogWarning("User {UserId} đã có TeacherPackage subscription đang hoạt động hoặc chờ kích hoạt", userId);
+                        _logger.LogWarning("User {UserId} already has an active TeacherPackage subscription until {EndDate}", userId, activeSub.EndDate);
                         response.Success = false;
-                        response.Message = "Bạn đã có gói giáo viên đang hoạt động. Vui lòng đợi gói hiện tại hết hạn trước khi mua gói mới";
+                        response.Message = "Bạn đã có gói giáo viên đang hoạt động. Vui lòng đợi gói hiện tại hết hạn trước khi mua gói mới.";
                         return response;
                     }
                 }

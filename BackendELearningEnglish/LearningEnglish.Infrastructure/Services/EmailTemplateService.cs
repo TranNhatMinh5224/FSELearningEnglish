@@ -1,14 +1,20 @@
+using System;
+using System.IO;
+using Microsoft.Extensions.Configuration;
 using LearningEnglish.Application.Interface;
+
 
 namespace LearningEnglish.Infrastructure.Services
 {
     public class EmailTemplateService : IEmailTemplateService
     {
         private readonly ITemplatePathResolver _pathResolver;
+        private readonly string _frontendBaseUrl;
 
-        public EmailTemplateService(ITemplatePathResolver pathResolver)
+        public EmailTemplateService(ITemplatePathResolver pathResolver, IConfiguration configuration)
         {
             _pathResolver = pathResolver;
+            _frontendBaseUrl = configuration["Frontend:BaseUrl"]?.TrimEnd('/') ?? "https://learning-eng.hocnghiepvu.com";
         }
 
         public string GenerateOTPEmailTemplate(string otpCode, string userName)
@@ -20,7 +26,11 @@ namespace LearningEnglish.Infrastructure.Services
                 throw new FileNotFoundException($"Email template not found: {templatePath}");
             }
 
-            var template = File.ReadAllText(templatePath);
+            string template;
+            using (var reader = new StreamReader(templatePath))
+            {
+                template = reader.ReadToEnd();
+            }
 
             // Replace placeholders
             return template
@@ -31,7 +41,11 @@ namespace LearningEnglish.Infrastructure.Services
         public string GenerateWelcomeEmailTemplate(string userName)
         {
             var templatePath = _pathResolver.GetTemplatePath("WelcomeEmail.html");
-            var htmlTemplate = File.ReadAllText(templatePath);
+            string htmlTemplate;
+            using (var reader = new StreamReader(templatePath))
+            {
+                htmlTemplate = reader.ReadToEnd();
+            }
 
             return htmlTemplate
                 .Replace("{{UserName}}", userName)
@@ -41,7 +55,11 @@ namespace LearningEnglish.Infrastructure.Services
         public string GeneratePasswordChangedEmailTemplate(string userName)
         {
             var templatePath = _pathResolver.GetTemplatePath("PasswordChangedEmail.html");
-            var htmlTemplate = File.ReadAllText(templatePath);
+            string htmlTemplate;
+            using (var reader = new StreamReader(templatePath))
+            {
+                htmlTemplate = reader.ReadToEnd();
+            }
 
             return htmlTemplate
                 .Replace("{{UserName}}", userName)
@@ -50,20 +68,28 @@ namespace LearningEnglish.Infrastructure.Services
         public string GenerateNotifyJoinCourseTemplate(string courseName, string userName)
         {
             var templatePath = _pathResolver.GetTemplatePath("CoursePurchaseConfirmation.html");
-            var htmlTemplate = File.ReadAllText(templatePath);
+            string htmlTemplate;
+            using (var reader = new StreamReader(templatePath))
+            {
+                htmlTemplate = reader.ReadToEnd();
+            }
 
             return htmlTemplate
                 .Replace("{{USER_NAME}}", userName)
                 .Replace("{{COURSE_NAME}}", courseName)
                 .Replace("{{PURCHASE_DATE}}", DateTime.UtcNow.ToString("dd/MM/yyyy"))
-                .Replace("{{COURSE_URL}}", $"https://learning-eng.hocnghiepvu.com/courses/{courseName.Replace(" ", "-").ToLower()}")
+                .Replace("{{COURSE_URL}}", $"{_frontendBaseUrl}/courses/{courseName.Replace(" ", "-").ToLower()}")
                 .Replace("{{CURRENT_YEAR}}", DateTime.UtcNow.Year.ToString());
         }
 
         public string GenerateTeacherPackagePurchaseTemplate(string packageName, string userName, decimal price, DateTime validUntil)
         {
             var templatePath = _pathResolver.GetTemplatePath("TeacherPackagePurchase.html");
-            var htmlTemplate = File.ReadAllText(templatePath);
+            string htmlTemplate;
+            using (var reader = new StreamReader(templatePath))
+            {
+                htmlTemplate = reader.ReadToEnd();
+            }
 
             return htmlTemplate
                 .Replace("{{USER_NAME}}", userName)
@@ -71,7 +97,7 @@ namespace LearningEnglish.Infrastructure.Services
                 .Replace("{{PRICE}}", price.ToString("F2"))
                 .Replace("{{PURCHASE_DATE}}", DateTime.UtcNow.ToString("dd/MM/yyyy"))
                 .Replace("{{VALID_UNTIL}}", validUntil.ToString("dd/MM/yyyy"))
-                .Replace("{{TEACHER_DASHBOARD_URL}}", "https://learning-eng.hocnghiepvu.com/teacher/dashboard")
+                .Replace("{{TEACHER_DASHBOARD_URL}}", $"{_frontendBaseUrl}/teacher/dashboard")
                 .Replace("{{CURRENT_YEAR}}", DateTime.UtcNow.Year.ToString());
         }
 
@@ -84,7 +110,11 @@ namespace LearningEnglish.Infrastructure.Services
                 throw new FileNotFoundException($"Email template not found: {templatePath}");
             }
 
-            var htmlTemplate = File.ReadAllText(templatePath);
+            string htmlTemplate;
+            using (var reader = new StreamReader(templatePath))
+            {
+                htmlTemplate = reader.ReadToEnd();
+            }
 
             // Tạo nội dung động dựa vào số lượng từ vựng
             var content = dueCount switch
@@ -99,14 +129,18 @@ namespace LearningEnglish.Infrastructure.Services
                 .Replace("{{StudentName}}", studentName)
                 .Replace("{{DueCount}}", dueCount.ToString())
                 .Replace("{{Content}}", content)
-                .Replace("{{ReviewUrl}}", "https://learning-eng.hocnghiepvu.com/flashcards/review")
+                .Replace("{{ReviewUrl}}", $"{_frontendBaseUrl}/flashcards/review")
                 .Replace("{{CURRENT_YEAR}}", DateTime.UtcNow.Year.ToString());
         }
 
         public string GenerateStreakReminderTemplate(string userName, int currentStreak, int longestStreak)
         {
             var templatePath = _pathResolver.GetTemplatePath("StreakReminder.html");
-            var htmlTemplate = File.ReadAllText(templatePath);
+            string htmlTemplate;
+            using (var reader = new StreamReader(templatePath))
+            {
+                htmlTemplate = reader.ReadToEnd();
+            }
 
             var isNewRecord = currentStreak >= longestStreak;
             
@@ -123,7 +157,7 @@ namespace LearningEnglish.Infrastructure.Services
                 .Replace("{{currentStreak}}", currentStreak.ToString())
                 .Replace("{{longestStreak}}", longestStreak.ToString())
                 .Replace("{{motivationMessage}}", motivationMessage)
-                .Replace("{{HOME_URL}}", "https://learning-eng.hocnghiepvu.com/home")
+                .Replace("{{HOME_URL}}", $"{_frontendBaseUrl}/home")
                 .Replace("{{CURRENT_YEAR}}", DateTime.UtcNow.Year.ToString());
         }
     }
