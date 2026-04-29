@@ -1,6 +1,7 @@
 import React from "react";
-import { Badge, Row, Col } from "react-bootstrap";
+import { Row, Col } from "react-bootstrap";
 import "./PaymentHistoryItem.css";
+import { FaReceipt, FaCreditCard, FaCalendarAlt, FaChevronRight } from "react-icons/fa";
 
 export default function PaymentHistoryItem({ transaction, statusBadge, formatDate, onClick }) {
     const productName = transaction.productName || transaction.ProductName || "N/A";
@@ -15,25 +16,29 @@ export default function PaymentHistoryItem({ transaction, statusBadge, formatDat
     };
 
     return (
-        <div className="payment-item-wrapper" onClick={onClick}>
-            <Row className="payment-item g-0 align-items-center">
-                <Col xs={12} md={5} lg={4} className="payment-column product-column">
-                    <span className="mobile-label d-md-none">Sản phẩm</span>
-                    <span className="payment-product">{productName}</span>
+        <div className="payment-history-item-row" onClick={onClick}>
+            <Row className="g-0 align-items-center">
+                <Col xs={12} md={5} lg={4} className="product-info">
+                    <div className="product-title-wrapper">
+                        <FaReceipt className="item-icon-small" />
+                        <span className="payment-product">{productName}</span>
+                    </div>
                 </Col>
-                <Col xs={6} md={2} lg={2} className="payment-column amount-column">
-                    <span className="mobile-label d-md-none">Số tiền</span>
+                <Col xs={6} md={2} lg={2} className="amount-info">
+                    <span className="label d-md-none">Số tiền: </span>
                     <span className="payment-amount">{formatAmount(amount)}</span>
                 </Col>
-                <Col xs={6} md={2} lg={2} className="payment-column status-column text-md-center">
-                    <span className="mobile-label d-md-none">Trạng thái</span>
-                    <Badge bg={statusBadge.variant} className={`status-badge ${statusBadge.customClass || ""}`}>
+                <Col xs={6} md={2} lg={2} className="status-info text-center">
+                    <span className="label d-md-none">Trạng thái: </span>
+                    <span className={`status-badge-custom ${statusBadge.customClass || ""}`}>
                         {statusBadge.text}
-                    </Badge>
+                    </span>
                 </Col>
-                <Col xs={12} md={3} lg={4} className="payment-column date-column">
-                    <span className="mobile-label d-md-none">Ngày thanh toán</span>
-                    <span className="payment-date">{formatDate(paidAt)}</span>
+                <Col xs={12} md={3} lg={4} className="date-info text-end">
+                    <div className="d-flex align-items-center justify-content-end gap-2">
+                        <span className="payment-date">{formatDate(paidAt)}</span>
+                        <FaChevronRight className="chevron-icon d-none d-md-block" />
+                    </div>
                 </Col>
             </Row>
         </div>

@@ -22,86 +22,112 @@
 }
 
 .payment-history-container::after {
-    content: "";
-    position: absolute;
     width: 400px;
     height: 400px;
-    background: rgba(111, 213, 224, 0.2);
+    background: rgba(116, 207, 222, 0.08); /* Project Cyan color */
     border-radius: 50%;
     filter: blur(100px);
-    bottom: -150px;
-    right: -150px;
+    top: -150px;
+    left: -150px;
+    z-index: 0;
+}
+
+.payment-history-container::after {
+    content: "";
+    position: absolute;
+    width: 500px;
+    height: 500px;
+    background: rgba(207, 79, 185, 0.1); /* Project Magenta color */
+    border-radius: 50%;
+    filter: blur(120px);
+    bottom: -200px;
+    right: -200px;
     z-index: 0;
 }
 
 .payment-history-header {
-    text-align: center;
+    text-align: left;
     margin-bottom: 40px;
     position: relative;
     z-index: 1;
 }
 
 .payment-history-title {
-    font-size: 36px;
-    font-weight: 700;
-    color: #333;
-    margin: 0 0 16px 0;
+    font-size: clamp(2rem, 3vw, 2.5rem);
+    font-weight: 800;
+    color: #1e293b;
+    margin: 0 0 12px 0;
+    letter-spacing: -0.5px;
 }
 
 .payment-history-subtitle {
-    font-size: 18px;
-    color: #666;
+    font-size: 1.1rem;
+    color: #64748b;
     margin: 0;
+    display: flex;
+    align-items: center;
 }
 
-.count-badge {
-    font-weight: 700;
-    color: #6fd5e0;
-    font-size: 20px;
+.stats-highlight {
+    background: rgba(255, 255, 255, 0.7);
+    backdrop-filter: blur(10px);
+    padding: 16px 32px;
+    border-radius: 20px;
+    box-shadow: 0 8px 32px rgba(116, 207, 222, 0.1);
+    border: 1px solid rgba(116, 207, 222, 0.2);
+    display: flex;
+    align-items: center;
+    transition: all 0.3s ease;
 }
 
-.empty-state {
+.stats-highlight:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 12px 40px rgba(116, 207, 222, 0.15);
+    border-color: #74CFDE;
+}
+
+.stat-card {
     text-align: center;
-    padding: 60px 20px;
-    background: #ffffff;
-    border-radius: 24px;
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
-    position: relative;
-    z-index: 1;
 }
 
-.empty-state p {
-    font-size: 18px;
-    color: #666;
-    margin: 0 0 12px 0;
+.stat-label {
+    font-size: 0.8rem;
+    color: #64748b;
+    font-weight: 600;
+    text-transform: uppercase;
 }
 
-.empty-state-hint {
-    font-size: 14px;
-    color: #999;
-    font-style: italic;
+.stat-value {
+    display: block;
+    font-size: 1.75rem;
+    font-weight: 800;
+    color: #74CFDE;
+    line-height: 1.2;
 }
 
+/* List Container */
 .payment-list-container {
-    background: #ffffff;
+    background: white;
     border-radius: 24px;
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
     overflow: hidden;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.03);
+    border: 1px solid rgba(0,0,0,0.05);
     position: relative;
     z-index: 1;
 }
 
 .payment-list-header {
-    padding: 20px 30px;
-    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-    border-bottom: 2px solid #e9ecef;
-    font-weight: 600;
-    font-size: var(--font-size-base, clamp(1rem, 0.95rem + 0.25vw, 1.125rem));
-    color: #495057;
+    background: #f8fafc;
+    padding: 20px 32px;
+    border-bottom: 1px solid #f1f5f9;
 }
 
-/* Bootstrap utilities: d-flex, align-items-center - đã được sử dụng trong JSX */
-.payment-header-column {
+.header-column {
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: #64748b;
+    text-transform: uppercase;
+    letter-spacing: 1px;
 }
 
 .payment-list {

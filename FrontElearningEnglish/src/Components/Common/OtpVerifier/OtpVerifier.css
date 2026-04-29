@@ -1,10 +1,9 @@
 .otp-container {
-  min-height: 125vh;
-  height: 125vh;
-  background: linear-gradient(135deg, #7abfec 0%, #fdf2f8 100%);
+  min-height: 100vh;
   display: flex;
   justify-content: center;
   align-items: center;
+  background: linear-gradient(135deg, #7abfec 0%, #fdf2f8 100%);
   padding: 20px;
 }
 
