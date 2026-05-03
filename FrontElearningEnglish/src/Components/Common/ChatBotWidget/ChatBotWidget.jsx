@@ -11,7 +11,6 @@ import "./ChatBotWidget.css";
 // ── Câu gợi ý mặc định ──────────────────────────────────────
 const SUGGESTIONS = [
   "Tôi muốn học tiếng Anh ",
-
   "Gói Teacher giá bao nhiêu?",
 ];
 

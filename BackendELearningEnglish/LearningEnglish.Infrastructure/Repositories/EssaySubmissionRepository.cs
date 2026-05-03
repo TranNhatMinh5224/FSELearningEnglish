@@ -93,11 +93,6 @@ namespace LearningEnglish.Infrastructure.Repositories
             existingSubmission.AttachmentType = submission.AttachmentType;
             existingSubmission.Status = submission.Status;
 
-            // Legacy automatic grading fields
-            existingSubmission.Score = submission.Score;
-            existingSubmission.Feedback = submission.Feedback;
-            existingSubmission.GradedAt = submission.GradedAt;
-
             // Update Teacher grading
             existingSubmission.TeacherScore = submission.TeacherScore;
             existingSubmission.TeacherFeedback = submission.TeacherFeedback;

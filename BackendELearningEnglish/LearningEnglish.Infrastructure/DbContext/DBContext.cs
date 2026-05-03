@@ -925,9 +925,6 @@ namespace LearningEnglish.Infrastructure.Data
                 e.Property(es => es.AttachmentType)
                  .HasMaxLength(100);
 
-                e.Property(es => es.Feedback)
-                 .HasMaxLength(5000);
-
                 e.Property(es => es.TeacherFeedback)
                  .HasMaxLength(5000);
 
@@ -945,8 +942,6 @@ namespace LearningEnglish.Infrastructure.Data
                  .WithMany()
                  .HasForeignKey(es => es.GradedByTeacherId)
                  .OnDelete(DeleteBehavior.SetNull);
-
-                e.Ignore(es => es.FinalScore);
             });
 
             // ModuleCompletion

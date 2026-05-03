@@ -360,7 +360,7 @@ namespace LearningEnglish.Application.Service.PaymentService
             }
             return "Sản phẩm";
         }
-        private async Task<ServiceResponse<bool>> InternalCompletePaymentAsync(Payment payment)
+        private async Task<ServiceResponse<bool>> InternalCompletePaymentAsync(Payment payment, PayOSWebhookDto? rawWebhook = null)
         {
             var response = new ServiceResponse<bool>();
             try
@@ -373,31 +373,44 @@ namespace LearningEnglish.Application.Service.PaymentService
                 }
 
                 await _unitOfWork.BeginTransactionAsync();
-                payment.Status = PaymentStatus.Completed;
-                payment.PaidAt = DateTime.UtcNow;
-                payment.UpdatedAt = DateTime.UtcNow;
-
-                await _paymentRepository.UpdatePaymentStatusAsync(payment);
-                await _unitOfWork.SaveChangesAsync();
-                _cache.RemoveByPrefix(CacheKeys.StatisticsPrefix);
-
-                var postPaymentResult = await ProcessPostPaymentLogicAsync(payment.UserId, payment.ProductId, payment.ProductType, payment.PaymentId);
-                if (!postPaymentResult.Success)
+                try
                 {
-                    await _unitOfWork.RollbackAsync();
-                    response.Success = false;
-                    response.Message = postPaymentResult.Message;
-                    response.StatusCode = 500;
+                    payment.Status = PaymentStatus.Completed;
+                    payment.PaidAt = DateTime.UtcNow;
+                    payment.UpdatedAt = DateTime.UtcNow;
+
+                    await _paymentRepository.UpdatePaymentStatusAsync(payment);
+                    await _unitOfWork.SaveChangesAsync();
+                    _cache.RemoveByPrefix(CacheKeys.StatisticsPrefix);
+
+                    var postPaymentResult = await ProcessPostPaymentLogicAsync(payment.UserId, payment.ProductId, payment.ProductType, payment.PaymentId);
+                    if (!postPaymentResult.Success)
+                    {
+                        // ENTERPRISE LOGIC: Nếu nghiệp vụ (enroll, upgrade) lỗi, nhưng tiền đã nạp thành công ở PayOS
+                        // Chúng ta vẫn COMMIT trạng thái thanh toán, nhưng ném lỗi để hệ thống ghi vào Queue xử lý sau
+                        _logger.LogError("Post-payment logic failed for Payment {PaymentId}: {Message}. Committing payment status but flagged for retry.", 
+                            payment.PaymentId, postPaymentResult.Message);
+                        
+                        await _unitOfWork.CommitAsync(); // Chấp nhận nạp tiền thành công
+                        
+                        response.Success = false;
+                        response.Message = postPaymentResult.Message;
+                        response.StatusCode = 500;
+                        return response;
+                    }
+
+                    await _unitOfWork.CommitAsync();
+                    response.Data = true;
                     return response;
                 }
-
-                await _unitOfWork.CommitAsync();
-                response.Data = true;
-                return response;
+                catch (Exception)
+                {
+                    await _unitOfWork.RollbackAsync();
+                    throw;
+                }
             }
             catch (Exception ex)
             {
-                await _unitOfWork.RollbackAsync();
                 _logger.LogError(ex, "Error finalizing payment {PaymentId}", payment.PaymentId);
                 response.Success = false;
                 response.Message = "Lỗi hệ thống khi hoàn tất thanh toán";
@@ -674,80 +687,102 @@ namespace LearningEnglish.Application.Service.PaymentService
             return response;
         }
 
-        // Process webhook from queue (used by retry mechanism)
         public async Task<ServiceResponse<bool>> ProcessWebhookFromQueueAsync(PayOSWebhookDto webhookData)
         {
             var response = new ServiceResponse<bool>();
+            PaymentWebhookQueue? queueItem = null;
 
             try
             {
                 _logger.LogInformation("Processing webhook for OrderCode {OrderCode}", webhookData.OrderCode);
 
+                // SECURITY: Always verify signature before processing, even from queue
+                var isValid = await _payOSService.VerifyWebhookSignature(webhookData.Data, webhookData.Signature);
+                if (!isValid)
+                {
+                    _logger.LogWarning("Invalid webhook signature during queue processing for OrderCode {OrderCode}", webhookData.OrderCode);
+                    response.Success = false;
+                    response.StatusCode = 400;
+                    response.Message = "Invalid signature";
+                    return response;
+                }
+
+                // 1. Log or Get Queue Item for Idempotency/Audit
+                queueItem = await _webhookQueueRepository.GetByOrderCodeAsync(webhookData.OrderCode);
+                if (queueItem == null)
+                {
+                    queueItem = new PaymentWebhookQueue
+                    {
+                        OrderCode = webhookData.OrderCode,
+                        WebhookData = JsonSerializer.Serialize(webhookData),
+                        Signature = webhookData.Signature,
+                        Status = WebhookStatus.Processing,
+                        CreatedAt = DateTime.UtcNow
+                    };
+                    await _webhookQueueRepository.AddWebhookAsync(queueItem);
+                    await _webhookQueueRepository.SaveChangesAsync();
+                }
+                else if (queueItem.Status == WebhookStatus.Processed)
+                {
+                    _logger.LogInformation("Webhook for OrderCode {OrderCode} already processed successfully.", webhookData.OrderCode);
+                    response.Success = true;
+                    response.Data = true;
+                    return response;
+                }
+
                 var payment = await _paymentRepository.GetPaymentByTransactionIdAsync(webhookData.OrderCode.ToString());
-                
                 if (payment == null)
                 {
                     _logger.LogWarning("Payment not found for OrderCode {OrderCode}", webhookData.OrderCode);
+                    queueItem.Status = WebhookStatus.Failed;
+                    queueItem.LastError = "Payment not found";
+                    await _webhookQueueRepository.UpdateWebhookStatusAsync(queueItem);
+                    await _webhookQueueRepository.SaveChangesAsync();
+                    
                     response.Success = false;
                     response.StatusCode = 404;
                     response.Message = "Payment not found";
                     return response;
                 }
 
-                if (payment.Status == PaymentStatus.Completed)
-                {
-                    _logger.LogInformation("Payment {PaymentId} already completed", payment.PaymentId);
-                    response.Success = true;
-                    response.Data = true;
-                    response.Message = "Payment already processed";
-                    return response;
-                }
+                queueItem.PaymentId = payment.PaymentId;
 
                 if (webhookData.Code != "00")
                 {
-                    _logger.LogWarning("Payment failed: Code={Code}, Desc={Desc}", webhookData.Code, webhookData.Desc);
+                    _logger.LogWarning("Payment failed from PayOS: Code={Code}, Desc={Desc}", webhookData.Code, webhookData.Desc);
+                    payment.Status = PaymentStatus.Failed;
+                    payment.UpdatedAt = DateTime.UtcNow;
+                    await _paymentRepository.UpdatePaymentStatusAsync(payment);
+                    
+                    queueItem.Status = WebhookStatus.Failed;
+                    queueItem.LastError = $"PayOS Error: {webhookData.Desc}";
+                    await _webhookQueueRepository.UpdateWebhookStatusAsync(queueItem);
+                    await _webhookQueueRepository.SaveChangesAsync();
+
                     response.Success = false;
                     response.StatusCode = 400;
                     response.Message = $"Payment failed: {webhookData.Desc}";
                     return response;
                 }
 
-                string? paymentStatus = webhookData.Status;
-                if (string.IsNullOrEmpty(paymentStatus) && !string.IsNullOrEmpty(webhookData.Data))
-                {
-                    try
-                    {
-                        var dataJson = JsonSerializer.Deserialize<JsonElement>(webhookData.Data);
-                        if (dataJson.TryGetProperty("status", out var statusElement))
-                        {
-                            paymentStatus = statusElement.GetString();
-                        }
-                    }
-                    catch (Exception ex)
-                    {
-                        _logger.LogWarning(ex, "Could not parse status from webhook data");
-                    }
-                }
+                // Call internal completion logic
+                var resultConfirm = await InternalCompletePaymentAsync(payment, webhookData);
 
-                if (string.IsNullOrEmpty(paymentStatus))
+                if (resultConfirm.Success)
                 {
-                    var payosInfo = await _payOSService.GetPaymentInformationAsync(webhookData.OrderCode);
-                    if (payosInfo.Success && payosInfo.Data != null)
-                    {
-                        paymentStatus = payosInfo.Data.Status;
-                    }
+                    queueItem.Status = WebhookStatus.Processed;
+                    await _webhookQueueRepository.UpdateWebhookStatusAsync(queueItem);
+                    await _webhookQueueRepository.SaveChangesAsync();
                 }
-
-                if (string.IsNullOrEmpty(paymentStatus) || !string.Equals(paymentStatus, "PAID", StringComparison.OrdinalIgnoreCase))
+                else
                 {
-                    _logger.LogWarning("Payment {PaymentId} status is not PAID: Status={Status}", payment.PaymentId, paymentStatus ?? "null");
-                    response.Success = false;
-                    response.StatusCode = 400;
-                    response.Message = $"Payment status is {paymentStatus ?? "unknown"}, not PAID";
-                    return response;
+                    queueItem.Status = WebhookStatus.Failed;
+                    queueItem.LastError = resultConfirm.Message;
+                    queueItem.RetryCount++;
+                    queueItem.NextRetryAt = DateTime.UtcNow.AddMinutes(Math.Pow(2, queueItem.RetryCount)); // Exponential backoff
+                    await _webhookQueueRepository.UpdateWebhookStatusAsync(queueItem);
+                    await _webhookQueueRepository.SaveChangesAsync();
                 }
-
-                var resultConfirm = await InternalCompletePaymentAsync(payment);
 
                 response.Success = resultConfirm.Success;
                 response.StatusCode = resultConfirm.StatusCode;
@@ -758,7 +793,15 @@ namespace LearningEnglish.Application.Service.PaymentService
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error processing webhook from queue");
+                _logger.LogError(ex, "Error processing webhook for OrderCode {OrderCode}", webhookData.OrderCode);
+                if (queueItem != null)
+                {
+                    queueItem.Status = WebhookStatus.Failed;
+                    queueItem.LastError = ex.Message;
+                    queueItem.ErrorStackTrace = ex.StackTrace;
+                    await _webhookQueueRepository.UpdateWebhookStatusAsync(queueItem);
+                    await _webhookQueueRepository.SaveChangesAsync();
+                }
                 response.Success = false;
                 response.StatusCode = 500;
                 response.Message = $"Error: {ex.Message}";

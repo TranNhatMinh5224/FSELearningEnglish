@@ -7,10 +7,10 @@ import "./StudentEssayResultModal.css";
 export default function StudentEssayResultModal({ show, onClose, submission }) {
   if (!submission) return null;
 
-  const score = submission.score !== undefined ? submission.score : (submission.Score !== undefined ? submission.Score : null);
-  const maxScore = submission.maxScore || submission.MaxScore || 100;
-  const feedback = submission.feedback || submission.Feedback || submission.teacherFeedback || submission.TeacherFeedback || "";
-  const gradedAt = submission.gradedAt || submission.GradedAt || submission.teacherGradedAt || submission.TeacherGradedAt;
+  const score = submission.teacherScore !== undefined && submission.teacherScore !== null ? submission.teacherScore : (submission.TeacherScore !== undefined ? submission.TeacherScore : null);
+  const maxScore = submission.maxScore || submission.MaxScore || 10;
+  const feedback = submission.teacherFeedback || submission.TeacherFeedback || "";
+  const gradedAt = submission.teacherGradedAt || submission.TeacherGradedAt;
   const status = submission.status || submission.Status || "";
   const submittedAt = submission.submittedAt || submission.SubmittedAt;
 

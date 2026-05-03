@@ -9,6 +9,9 @@ public interface IPaymentWebhookQueueRepository
     
     // Lấy webhook theo ID
     Task<PaymentWebhookQueue?> GetWebhookByIdAsync(int webhookId);
+
+    // Lấy webhook theo OrderCode
+    Task<PaymentWebhookQueue?> GetByOrderCodeAsync(long orderCode);
     
     // Lấy webhooks đang pending (chưa xử lý)
     Task<List<PaymentWebhookQueue>> GetPendingWebhooksAsync();

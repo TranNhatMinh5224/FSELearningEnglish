@@ -731,9 +731,7 @@ export default function EssayDetail() {
                                 <Card.Body className="bg-white">
                                     {/* Check if student has been graded */}
                                     {currentSubmission && ((currentSubmission.teacherScore !== null && currentSubmission.teacherScore !== undefined) || 
-                                     (currentSubmission.TeacherScore !== null && currentSubmission.TeacherScore !== undefined) ||
-                                     (currentSubmission.score !== null && currentSubmission.score !== undefined) ||
-                                     (currentSubmission.Score !== null && currentSubmission.Score !== undefined)) ? (
+                                     (currentSubmission.TeacherScore !== null && currentSubmission.TeacherScore !== undefined)) ? (
                                         // Student has been graded - Show result view
                                         <div className="text-center py-5">
                                             <FaStar size={64} className="text-warning mb-3" />

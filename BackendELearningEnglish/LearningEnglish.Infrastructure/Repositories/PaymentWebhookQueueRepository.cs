@@ -27,6 +27,12 @@ public class PaymentWebhookQueueRepository : IPaymentWebhookQueueRepository
             .FirstOrDefaultAsync(w => w.WebhookId == webhookId);
     }
 
+    public async Task<PaymentWebhookQueue?> GetByOrderCodeAsync(long orderCode)
+    {
+        return await _context.PaymentWebhookQueues
+            .FirstOrDefaultAsync(w => w.OrderCode == orderCode);
+    }
+
     public async Task<List<PaymentWebhookQueue>> GetPendingWebhooksAsync()
     {
         return await _context.PaymentWebhookQueues
