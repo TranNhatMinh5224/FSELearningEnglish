@@ -1,7 +1,4 @@
-/**
- * Centralized Enums for Payment and Product Types
- * Must match backend LearningEnglish.Domain.Enums
- */
+
 
 // Product Types - Match LearningEnglish.Domain.Enums.ProductType
 export const PRODUCT_TYPE = {

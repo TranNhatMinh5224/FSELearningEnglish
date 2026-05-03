@@ -1,7 +1,3 @@
-/**
- * Application Configuration
- * Central place for all external URLs and constants
- */
 
 // ============================================
 // API Configuration

@@ -1,0 +1,204 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" id="Definitions_SRS" targetNamespace="http://bpmn.io/schema/bpmn" exporter="bpmn-js (https://demo.bpmn.io)" exporterVersion="18.13.2">
+  <bpmn:collaboration id="Collaboration_SRS">
+    <bpmn:participant id="Participant_SRS" name="Quy trình học thích ứng SRS (Algorithm SM-2)" processRef="Process_SRS" />
+  </bpmn:collaboration>
+  <bpmn:process id="Process_SRS" isExecutable="false">
+    <bpmn:laneSet id="LaneSet_1">
+      <bpmn:lane id="Lane_User" name="Học viên">
+        <bpmn:flowNodeRef>Start_SRS</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_RateQuality</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>End_Mastered</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>End_Scheduled</bpmn:flowNodeRef>
+      </bpmn:lane>
+      <bpmn:lane id="Lane_Backend" name="Backend (SRS Engine)">
+        <bpmn:flowNodeRef>Task_GetDueCards</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Gateway_Quality</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Gateway_Mastery</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_SetMastered</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_ScheduleNext</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_CalcNewEF</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_ResetInterval</bpmn:flowNodeRef>
+      </bpmn:lane>
+    </bpmn:laneSet>
+    <bpmn:startEvent id="Start_SRS" name="Tới hạn ôn tập">
+      <bpmn:outgoing>Flow_1</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:serviceTask id="Task_GetDueCards" name="Lấy danh sách từ (Due &#60;= Today)">
+      <bpmn:incoming>Flow_1</bpmn:incoming>
+      <bpmn:outgoing>Flow_2</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:sequenceFlow id="Flow_1" sourceRef="Start_SRS" targetRef="Task_GetDueCards" />
+    <bpmn:userTask id="Task_RateQuality" name="Đánh giá mức độ thuộc (0 - 5)">
+      <bpmn:incoming>Flow_2</bpmn:incoming>
+      <bpmn:outgoing>Flow_3</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:sequenceFlow id="Flow_2" sourceRef="Task_GetDueCards" targetRef="Task_RateQuality" />
+    <bpmn:exclusiveGateway id="Gateway_Quality" name="Quality &#60; 3?">
+      <bpmn:incoming>Flow_3</bpmn:incoming>
+      <bpmn:outgoing>Flow_Fail</bpmn:outgoing>
+      <bpmn:outgoing>Flow_Pass</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:sequenceFlow id="Flow_3" sourceRef="Task_RateQuality" targetRef="Gateway_Quality" />
+    <bpmn:sequenceFlow id="Flow_Fail" name="Có (Quên từ)" sourceRef="Gateway_Quality" targetRef="Task_ResetInterval" />
+    <bpmn:sequenceFlow id="Flow_Pass" name="Không (Thuộc)" sourceRef="Gateway_Quality" targetRef="Task_CalcNewEF" />
+    <bpmn:exclusiveGateway id="Gateway_Mastery" name="Đạt ngưỡng thuộc lòng?">
+      <bpmn:incoming>Flow_CheckMastery</bpmn:incoming>
+      <bpmn:outgoing>Flow_Mastered</bpmn:outgoing>
+      <bpmn:outgoing>Flow_NotMastered</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:sequenceFlow id="Flow_CheckMastery" sourceRef="Task_CalcNewEF" targetRef="Gateway_Mastery" />
+    <bpmn:serviceTask id="Task_SetMastered" name="Mark Mastered (NextReview = Max)">
+      <bpmn:incoming>Flow_Mastered</bpmn:incoming>
+      <bpmn:outgoing>Flow_ToFinalEnd</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:sequenceFlow id="Flow_Mastered" name="Có" sourceRef="Gateway_Mastery" targetRef="Task_SetMastered" />
+    <bpmn:serviceTask id="Task_ScheduleNext" name="Tính NextReviewDate (Today + Interval)">
+      <bpmn:incoming>Flow_NotMastered</bpmn:incoming>
+      <bpmn:incoming>Flow_ToSchedule1</bpmn:incoming>
+      <bpmn:outgoing>Flow_ToEndScheduled</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:sequenceFlow id="Flow_NotMastered" name="Chưa" sourceRef="Gateway_Mastery" targetRef="Task_ScheduleNext" />
+    <bpmn:sequenceFlow id="Flow_ToSchedule1" sourceRef="Task_ResetInterval" targetRef="Task_ScheduleNext" />
+    <bpmn:endEvent id="End_Mastered" name="Thuộc vĩnh viễn">
+      <bpmn:incoming>Flow_ToFinalEnd</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:sequenceFlow id="Flow_ToFinalEnd" sourceRef="Task_SetMastered" targetRef="End_Mastered" />
+    <bpmn:endEvent id="End_Scheduled" name="Đã hẹn ngày gặp lại">
+      <bpmn:incoming>Flow_ToEndScheduled</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:sequenceFlow id="Flow_ToEndScheduled" sourceRef="Task_ScheduleNext" targetRef="End_Scheduled" />
+    <bpmn:serviceTask id="Task_CalcNewEF" name="Tính EF &#38; Interval mới (EF x Interval)">
+      <bpmn:incoming>Flow_Pass</bpmn:incoming>
+      <bpmn:outgoing>Flow_CheckMastery</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:serviceTask id="Task_ResetInterval" name="Reset Interval = 1 ngày">
+      <bpmn:incoming>Flow_Fail</bpmn:incoming>
+      <bpmn:outgoing>Flow_ToSchedule1</bpmn:outgoing>
+    </bpmn:serviceTask>
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="Collaboration_SRS">
+      <bpmndi:BPMNShape id="Participant_SRS_di" bpmnElement="Participant_SRS" isHorizontal="true">
+        <dc:Bounds x="160" y="80" width="1080" height="420" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Lane_Backend_di" bpmnElement="Lane_Backend" isHorizontal="true">
+        <dc:Bounds x="190" y="250" width="1050" height="250" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Lane_User_di" bpmnElement="Lane_User" isHorizontal="true">
+        <dc:Bounds x="190" y="80" width="1050" height="170" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Start_SRS_di" bpmnElement="Start_SRS">
+        <dc:Bounds x="222" y="132" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="206" y="108" width="68" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_GetDueCards_di" bpmnElement="Task_GetDueCards">
+        <dc:Bounds x="260" y="320" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_RateQuality_di" bpmnElement="Task_RateQuality">
+        <dc:Bounds x="410" y="110" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_Quality_di" bpmnElement="Gateway_Quality" isMarkerVisible="true">
+        <dc:Bounds x="545" y="325" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="475" y="343" width="60" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_Mastery_di" bpmnElement="Gateway_Mastery" isMarkerVisible="true">
+        <dc:Bounds x="805" y="325" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="785" y="291" width="90" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_SetMastered_di" bpmnElement="Task_SetMastered">
+        <dc:Bounds x="910" y="310" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_ScheduleNext_di" bpmnElement="Task_ScheduleNext">
+        <dc:Bounds x="910" y="400" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="End_Mastered_di" bpmnElement="End_Mastered">
+        <dc:Bounds x="1042" y="132" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1022" y="108" width="77" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="End_Scheduled_di" bpmnElement="End_Scheduled">
+        <dc:Bounds x="1152" y="132" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1130" y="102" width="81" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_CalcNewEF_di" bpmnElement="Task_CalcNewEF">
+        <dc:Bounds x="670" y="310" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_ResetInterval_di" bpmnElement="Task_ResetInterval">
+        <dc:Bounds x="670" y="400" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Flow_1_di" bpmnElement="Flow_1">
+        <di:waypoint x="258" y="150" />
+        <di:waypoint x="310" y="150" />
+        <di:waypoint x="310" y="320" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_2_di" bpmnElement="Flow_2">
+        <di:waypoint x="360" y="360" />
+        <di:waypoint x="460" y="360" />
+        <di:waypoint x="460" y="190" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_3_di" bpmnElement="Flow_3">
+        <di:waypoint x="510" y="150" />
+        <di:waypoint x="570" y="150" />
+        <di:waypoint x="570" y="325" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_Fail_di" bpmnElement="Flow_Fail">
+        <di:waypoint x="570" y="375" />
+        <di:waypoint x="570" y="440" />
+        <di:waypoint x="670" y="440" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="587" y="403" width="66" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_Pass_di" bpmnElement="Flow_Pass">
+        <di:waypoint x="595" y="350" />
+        <di:waypoint x="670" y="350" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="593" y="332" width="74" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_CheckMastery_di" bpmnElement="Flow_CheckMastery">
+        <di:waypoint x="770" y="350" />
+        <di:waypoint x="805" y="350" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_Mastered_di" bpmnElement="Flow_Mastered">
+        <di:waypoint x="855" y="350" />
+        <di:waypoint x="910" y="350" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="875" y="332" width="15" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_NotMastered_di" bpmnElement="Flow_NotMastered">
+        <di:waypoint x="830" y="375" />
+        <di:waypoint x="830" y="440" />
+        <di:waypoint x="910" y="440" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="836" y="405" width="28" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_ToSchedule1_di" bpmnElement="Flow_ToSchedule1">
+        <di:waypoint x="770" y="440" />
+        <di:waypoint x="910" y="440" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_ToFinalEnd_di" bpmnElement="Flow_ToFinalEnd">
+        <di:waypoint x="1010" y="350" />
+        <di:waypoint x="1060" y="350" />
+        <di:waypoint x="1060" y="168" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_ToEndScheduled_di" bpmnElement="Flow_ToEndScheduled">
+        <di:waypoint x="1010" y="440" />
+        <di:waypoint x="1170" y="440" />
+        <di:waypoint x="1170" y="168" />
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>

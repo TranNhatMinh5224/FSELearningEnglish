@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" id="Definitions_RBAC" targetNamespace="http://bpmn.io/schema/bpmn" exporter="bpmn-js (https://demo.bpmn.io)" exporterVersion="18.13.2">
+  <bpmn:collaboration id="Collaboration_RBAC">
+    <bpmn:participant id="Participant_RBAC" name="Hệ thống Kiểm soát truy cập (RBAC &#38; Authorization)" processRef="Process_RBAC" />
+  </bpmn:collaboration>
+  <bpmn:process id="Process_RBAC" isExecutable="false">
+    <bpmn:laneSet id="LaneSet_1">
+      <bpmn:lane id="Lane_Client" name="Người dùng / Client">
+        <bpmn:flowNodeRef>Start_Request</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>End_Forbidden</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>End_Success_RBAC</bpmn:flowNodeRef>
+      </bpmn:lane>
+      <bpmn:lane id="Lane_Auth" name="Security Middleware / Interceptor">
+        <bpmn:flowNodeRef>Task_ExtractJWT</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_FetchPermissions</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Gateway_IsAuthorized</bpmn:flowNodeRef>
+      </bpmn:lane>
+      <bpmn:lane id="Lane_Business" name="Business Logic Service">
+        <bpmn:flowNodeRef>Task_ExecuteBusiness</bpmn:flowNodeRef>
+      </bpmn:lane>
+    </bpmn:laneSet>
+    <bpmn:startEvent id="Start_Request" name="Gửi API Request (kèm JWT Token)">
+      <bpmn:outgoing>Flow_R1</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:serviceTask id="Task_ExtractJWT" name="Trích xuất Claims (UserId, Roles)">
+      <bpmn:incoming>Flow_R1</bpmn:incoming>
+      <bpmn:outgoing>Flow_R2</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:sequenceFlow id="Flow_R1" sourceRef="Start_Request" targetRef="Task_ExtractJWT" />
+    <bpmn:serviceTask id="Task_FetchPermissions" name="Lấy danh sách Permissions từ Cache/DB">
+      <bpmn:incoming>Flow_R2</bpmn:incoming>
+      <bpmn:outgoing>Flow_R3</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:sequenceFlow id="Flow_R2" sourceRef="Task_ExtractJWT" targetRef="Task_FetchPermissions" />
+    <bpmn:exclusiveGateway id="Gateway_IsAuthorized" name="Có quyền thực hiện?">
+      <bpmn:incoming>Flow_R3</bpmn:incoming>
+      <bpmn:outgoing>Flow_Denied</bpmn:outgoing>
+      <bpmn:outgoing>Flow_Allowed</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:sequenceFlow id="Flow_R3" sourceRef="Task_FetchPermissions" targetRef="Gateway_IsAuthorized" />
+    <bpmn:endEvent id="End_Forbidden" name="403 Forbidden (Chặn truy cập)">
+      <bpmn:incoming>Flow_Denied</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:sequenceFlow id="Flow_Denied" name="Không" sourceRef="Gateway_IsAuthorized" targetRef="End_Forbidden" />
+    <bpmn:serviceTask id="Task_ExecuteBusiness" name="Thực thi logic nghiệp vụ (Course/Wallet/AI...)">
+      <bpmn:incoming>Flow_Allowed</bpmn:incoming>
+      <bpmn:outgoing>Flow_R4</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:sequenceFlow id="Flow_Allowed" name="Có" sourceRef="Gateway_IsAuthorized" targetRef="Task_ExecuteBusiness" />
+    <bpmn:endEvent id="End_Success_RBAC" name="Nhận kết quả thành công">
+      <bpmn:incoming>Flow_R4</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:sequenceFlow id="Flow_R4" sourceRef="Task_ExecuteBusiness" targetRef="End_Success_RBAC" />
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="Collaboration_RBAC">
+      <bpmndi:BPMNShape id="Participant_RBAC_di" bpmnElement="Participant_RBAC" isHorizontal="true">
+        <dc:Bounds x="160" y="80" width="1000" height="420" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Lane_Business_di" bpmnElement="Lane_Business" isHorizontal="true">
+        <dc:Bounds x="190" y="350" width="970" height="150" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Lane_Auth_di" bpmnElement="Lane_Auth" isHorizontal="true">
+        <dc:Bounds x="190" y="200" width="970" height="150" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Lane_Client_di" bpmnElement="Lane_Client" isHorizontal="true">
+        <dc:Bounds x="190" y="80" width="970" height="120" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Start_Request_di" bpmnElement="Start_Request">
+        <dc:Bounds x="222" y="122" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="216" y="86" width="87" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_ExtractJWT_di" bpmnElement="Task_ExtractJWT">
+        <dc:Bounds x="260" y="240" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_FetchPermissions_di" bpmnElement="Task_FetchPermissions">
+        <dc:Bounds x="410" y="240" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_IsAuthorized_di" bpmnElement="Gateway_IsAuthorized" isMarkerVisible="true">
+        <dc:Bounds x="565" y="255" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="625" y="266" width="70" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="End_Forbidden_di" bpmnElement="End_Forbidden">
+        <dc:Bounds x="702" y="122" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="684" y="165" width="73" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_ExecuteBusiness_di" bpmnElement="Task_ExecuteBusiness">
+        <dc:Bounds x="700" y="380" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="End_Success_RBAC_di" bpmnElement="End_Success_RBAC">
+        <dc:Bounds x="942" y="122" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="926" y="165" width="68" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Flow_R1_di" bpmnElement="Flow_R1">
+        <di:waypoint x="258" y="140" />
+        <di:waypoint x="310" y="140" />
+        <di:waypoint x="310" y="240" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_R2_di" bpmnElement="Flow_R2">
+        <di:waypoint x="360" y="280" />
+        <di:waypoint x="410" y="280" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_R3_di" bpmnElement="Flow_R3">
+        <di:waypoint x="510" y="280" />
+        <di:waypoint x="565" y="280" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_Denied_di" bpmnElement="Flow_Denied">
+        <di:waypoint x="590" y="255" />
+        <di:waypoint x="590" y="140" />
+        <di:waypoint x="702" y="140" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="598" y="183" width="33" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_Allowed_di" bpmnElement="Flow_Allowed">
+        <di:waypoint x="590" y="305" />
+        <di:waypoint x="590" y="420" />
+        <di:waypoint x="700" y="420" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="602" y="362" width="15" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_R4_di" bpmnElement="Flow_R4">
+        <di:waypoint x="800" y="420" />
+        <di:waypoint x="900" y="420" />
+        <di:waypoint x="900" y="140" />
+        <di:waypoint x="942" y="140" />
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>

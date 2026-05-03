@@ -1,0 +1,187 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" id="Definitions_Quiz" targetNamespace="http://bpmn.io/schema/bpmn" exporter="bpmn-js (https://demo.bpmn.io)" exporterVersion="18.13.2">
+  <bpmn:collaboration id="Collaboration_Quiz">
+    <bpmn:participant id="Participant_Quiz" name="Quy trình làm bài Quiz (Senior Lifecycle)" processRef="Process_Quiz" />
+  </bpmn:collaboration>
+  <bpmn:process id="Process_Quiz" isExecutable="false">
+    <bpmn:laneSet id="LaneSet_1">
+      <bpmn:lane id="Lane_Student" name="Học viên">
+        <bpmn:flowNodeRef>Start_Quiz</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>End_Quiz</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_Answer</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Event_TimeLimit</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_Submit</bpmn:flowNodeRef>
+      </bpmn:lane>
+      <bpmn:lane id="Lane_Backend_Quiz" name="Backend Service">
+        <bpmn:flowNodeRef>Task_ValidateAttempt</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_Shuffle</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_FinalGrade</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_RealTimeSave</bpmn:flowNodeRef>
+      </bpmn:lane>
+      <bpmn:lane id="Lane_Background" name="Background Job">
+        <bpmn:flowNodeRef>Task_BatchCheck</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Event_AutoSubmit</bpmn:flowNodeRef>
+      </bpmn:lane>
+    </bpmn:laneSet>
+    <bpmn:startEvent id="Start_Quiz" name="Bắt đầu">
+      <bpmn:outgoing>Flow_1</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:serviceTask id="Task_ValidateAttempt" name="Validate (Concurrent, MaxAttempts)">
+      <bpmn:incoming>Flow_1</bpmn:incoming>
+      <bpmn:outgoing>Flow_2</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:sequenceFlow id="Flow_1" sourceRef="Start_Quiz" targetRef="Task_ValidateAttempt" />
+    <bpmn:serviceTask id="Task_Shuffle" name="Shuffle Questions (Seed: AttemptId)">
+      <bpmn:incoming>Flow_2</bpmn:incoming>
+      <bpmn:outgoing>Flow_3</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:sequenceFlow id="Flow_2" sourceRef="Task_ValidateAttempt" targetRef="Task_Shuffle" />
+    <bpmn:sequenceFlow id="Flow_3" sourceRef="Task_Shuffle" targetRef="Task_Answer" />
+    <bpmn:sequenceFlow id="Flow_4" sourceRef="Task_Answer" targetRef="Task_RealTimeSave" />
+    <bpmn:sequenceFlow id="Flow_5" sourceRef="Task_RealTimeSave" targetRef="Task_Submit" />
+    <bpmn:sequenceFlow id="Flow_6" sourceRef="Task_Submit" targetRef="Task_FinalGrade" />
+    <bpmn:endEvent id="End_Quiz" name="Xem kết quả">
+      <bpmn:incoming>Flow_7</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:sequenceFlow id="Flow_7" sourceRef="Task_FinalGrade" targetRef="End_Quiz" />
+    <bpmn:serviceTask id="Task_BatchCheck" name="Batch Check Expired Attempts">
+      <bpmn:outgoing>Flow_8</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:sequenceFlow id="Flow_8" sourceRef="Task_BatchCheck" targetRef="Event_AutoSubmit" />
+    <bpmn:sequenceFlow id="Flow_AutoSubmit" sourceRef="Event_AutoSubmit" targetRef="Task_FinalGrade" />
+    <bpmn:sequenceFlow id="Flow_TimeExpired" sourceRef="Event_TimeLimit" targetRef="Event_AutoSubmit" />
+    <bpmn:intermediateCatchEvent id="Event_AutoSubmit" name="Auto-submit Event">
+      <bpmn:incoming>Flow_8</bpmn:incoming>
+      <bpmn:incoming>Flow_TimeExpired</bpmn:incoming>
+      <bpmn:outgoing>Flow_AutoSubmit</bpmn:outgoing>
+      <bpmn:messageEventDefinition id="MessageEventDefinition_1" />
+    </bpmn:intermediateCatchEvent>
+    <bpmn:userTask id="Task_Answer" name="Làm bài (Tương tác UI)">
+      <bpmn:incoming>Flow_3</bpmn:incoming>
+      <bpmn:outgoing>Flow_4</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:boundaryEvent id="Event_TimeLimit" name="Hết giờ" attachedToRef="Task_Answer">
+      <bpmn:outgoing>Flow_TimeExpired</bpmn:outgoing>
+      <bpmn:timerEventDefinition id="TimerEventDefinition_1" />
+    </bpmn:boundaryEvent>
+    <bpmn:userTask id="Task_Submit" name="Nộp bài">
+      <bpmn:incoming>Flow_5</bpmn:incoming>
+      <bpmn:outgoing>Flow_6</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:serviceTask id="Task_FinalGrade" name="Finalize Score &#38; Complete Module">
+      <bpmn:incoming>Flow_6</bpmn:incoming>
+      <bpmn:incoming>Flow_AutoSubmit</bpmn:incoming>
+      <bpmn:outgoing>Flow_7</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:serviceTask id="Task_RealTimeSave" name="Real-time Save &#38; Scoring (JSON)">
+      <bpmn:incoming>Flow_4</bpmn:incoming>
+      <bpmn:outgoing>Flow_5</bpmn:outgoing>
+    </bpmn:serviceTask>
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="Collaboration_Quiz">
+      <bpmndi:BPMNShape id="Participant_Quiz_di" bpmnElement="Participant_Quiz" isHorizontal="true">
+        <dc:Bounds x="160" y="80" width="1180" height="520" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Lane_Background_di" bpmnElement="Lane_Background" isHorizontal="true">
+        <dc:Bounds x="190" y="440" width="1150" height="160" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Lane_Backend_Quiz_di" bpmnElement="Lane_Backend_Quiz" isHorizontal="true">
+        <dc:Bounds x="190" y="250" width="1150" height="190" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Lane_Student_di" bpmnElement="Lane_Student" isHorizontal="true">
+        <dc:Bounds x="190" y="80" width="1150" height="170" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Start_Quiz_di" bpmnElement="Start_Quiz">
+        <dc:Bounds x="222" y="132" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="221" y="175" width="39" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_ValidateAttempt_di" bpmnElement="Task_ValidateAttempt">
+        <dc:Bounds x="260" y="300" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_Shuffle_di" bpmnElement="Task_Shuffle">
+        <dc:Bounds x="410" y="300" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="End_Quiz_di" bpmnElement="End_Quiz">
+        <dc:Bounds x="1032" y="132" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1019" y="108" width="62" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_BatchCheck_di" bpmnElement="Task_BatchCheck">
+        <dc:Bounds x="260" y="480" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_AutoSubmit_di" bpmnElement="Event_AutoSubmit">
+        <dc:Bounds x="532" y="502" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="521" y="545" width="59" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_Answer_di" bpmnElement="Task_Answer">
+        <dc:Bounds x="550" y="110" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_Submit_di" bpmnElement="Task_Submit">
+        <dc:Bounds x="690" y="110" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_FinalGrade_di" bpmnElement="Task_FinalGrade">
+        <dc:Bounds x="730" y="330" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_RealTimeSave_di" bpmnElement="Task_RealTimeSave">
+        <dc:Bounds x="570" y="320" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_TimeLimit_di" bpmnElement="Event_TimeLimit">
+        <dc:Bounds x="532" y="172" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="502" y="203" width="36" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Flow_1_di" bpmnElement="Flow_1">
+        <di:waypoint x="258" y="150" />
+        <di:waypoint x="310" y="150" />
+        <di:waypoint x="310" y="300" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_2_di" bpmnElement="Flow_2">
+        <di:waypoint x="360" y="340" />
+        <di:waypoint x="410" y="340" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_3_di" bpmnElement="Flow_3">
+        <di:waypoint x="460" y="300" />
+        <di:waypoint x="460" y="150" />
+        <di:waypoint x="550" y="150" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_4_di" bpmnElement="Flow_4">
+        <di:waypoint x="620" y="190" />
+        <di:waypoint x="620" y="320" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_5_di" bpmnElement="Flow_5">
+        <di:waypoint x="670" y="360" />
+        <di:waypoint x="700" y="360" />
+        <di:waypoint x="700" y="190" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_6_di" bpmnElement="Flow_6">
+        <di:waypoint x="780" y="190" />
+        <di:waypoint x="780" y="330" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_7_di" bpmnElement="Flow_7">
+        <di:waypoint x="830" y="370" />
+        <di:waypoint x="1050" y="370" />
+        <di:waypoint x="1050" y="168" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_8_di" bpmnElement="Flow_8">
+        <di:waypoint x="360" y="520" />
+        <di:waypoint x="532" y="520" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_AutoSubmit_di" bpmnElement="Flow_AutoSubmit">
+        <di:waypoint x="568" y="520" />
+        <di:waypoint x="780" y="520" />
+        <di:waypoint x="780" y="410" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_TimeExpired_di" bpmnElement="Flow_TimeExpired">
+        <di:waypoint x="550" y="208" />
+        <di:waypoint x="550" y="502" />
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>

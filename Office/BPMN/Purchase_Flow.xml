@@ -1,0 +1,184 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" id="Definitions_2" targetNamespace="http://bpmn.io/schema/bpmn" exporter="bpmn-js (https://demo.bpmn.io)" exporterVersion="18.13.2">
+  <bpmn:process id="Process_Purchase" isExecutable="false">
+    <bpmn:startEvent id="Start_Purchase" name="Bắt đầu mua hàng">
+      <bpmn:outgoing>Flow_1</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:serviceTask id="Task_ValidateBalance" name="Kiểm tra số dư Ví">
+      <bpmn:incoming>Flow_1</bpmn:incoming>
+      <bpmn:outgoing>Flow_2</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:sequenceFlow id="Flow_1" sourceRef="Start_Purchase" targetRef="Task_ValidateBalance" />
+    <bpmn:exclusiveGateway id="Gateway_BalanceCheck" name="Đủ tiền?">
+      <bpmn:incoming>Flow_2</bpmn:incoming>
+      <bpmn:outgoing>Flow_Yes</bpmn:outgoing>
+      <bpmn:outgoing>Flow_No</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:sequenceFlow id="Flow_2" sourceRef="Task_ValidateBalance" targetRef="Gateway_BalanceCheck" />
+    <bpmn:endEvent id="End_Failed_Balance" name="Thất bại (Số dư thấp)">
+      <bpmn:incoming>Flow_No</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:sequenceFlow id="Flow_No" name="Không" sourceRef="Gateway_BalanceCheck" targetRef="End_Failed_Balance" />
+    <bpmn:subProcess id="SubProcess_Transaction" name="Transaction Zone (Atomic)">
+      <bpmn:incoming>Flow_Yes</bpmn:incoming>
+      <bpmn:outgoing>Flow_Success</bpmn:outgoing>
+      <bpmn:startEvent id="Start_Tx">
+        <bpmn:outgoing>Flow_T1</bpmn:outgoing>
+      </bpmn:startEvent>
+      <bpmn:serviceTask id="Task_SpendWallet" name="Trừ tiền Ví (SpendAsync)">
+        <bpmn:incoming>Flow_T1</bpmn:incoming>
+        <bpmn:outgoing>Flow_T2</bpmn:outgoing>
+      </bpmn:serviceTask>
+      <bpmn:sequenceFlow id="Flow_T1" sourceRef="Start_Tx" targetRef="Task_SpendWallet" />
+      <bpmn:serviceTask id="Task_AddAccess" name="Cấp quyền (Enroll/Upgrade)">
+        <bpmn:incoming>Flow_T2</bpmn:incoming>
+        <bpmn:outgoing>Flow_T3</bpmn:outgoing>
+      </bpmn:serviceTask>
+      <bpmn:sequenceFlow id="Flow_T2" sourceRef="Task_SpendWallet" targetRef="Task_AddAccess" />
+      <bpmn:endEvent id="End_Tx">
+        <bpmn:incoming>Flow_T3</bpmn:incoming>
+      </bpmn:endEvent>
+      <bpmn:sequenceFlow id="Flow_T3" sourceRef="Task_AddAccess" targetRef="End_Tx" />
+    </bpmn:subProcess>
+    <bpmn:sequenceFlow id="Flow_Yes" name="Có" sourceRef="Gateway_BalanceCheck" targetRef="SubProcess_Transaction" />
+    <bpmn:boundaryEvent id="Event_TxError" name="Lỗi nghiệp vụ" attachedToRef="SubProcess_Transaction">
+      <bpmn:outgoing>Flow_Error</bpmn:outgoing>
+      <bpmn:errorEventDefinition id="ErrorEventDefinition_1" />
+    </bpmn:boundaryEvent>
+    <bpmn:serviceTask id="Task_Rollback" name="Hoàn tiền ví (Rollback)">
+      <bpmn:incoming>Flow_Error</bpmn:incoming>
+      <bpmn:outgoing>Flow_EndError</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:sequenceFlow id="Flow_Error" sourceRef="Event_TxError" targetRef="Task_Rollback" />
+    <bpmn:endEvent id="End_FinalError" name="Giao dịch thất bại">
+      <bpmn:incoming>Flow_EndError</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:sequenceFlow id="Flow_EndError" sourceRef="Task_Rollback" targetRef="End_FinalError" />
+    <bpmn:serviceTask id="Task_NotifySuccess" name="Gửi Notification thành công">
+      <bpmn:incoming>Flow_Success</bpmn:incoming>
+      <bpmn:outgoing>Flow_Final</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:sequenceFlow id="Flow_Success" sourceRef="SubProcess_Transaction" targetRef="Task_NotifySuccess" />
+    <bpmn:endEvent id="End_Success" name="Hoàn tất">
+      <bpmn:incoming>Flow_Final</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:sequenceFlow id="Flow_Final" sourceRef="Task_NotifySuccess" targetRef="End_Success" />
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="Process_Purchase">
+      <bpmndi:BPMNShape id="Start_Purchase_di" bpmnElement="Start_Purchase">
+        <dc:Bounds x="152" y="172" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="125" y="215" width="90" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_ValidateBalance_di" bpmnElement="Task_ValidateBalance">
+        <dc:Bounds x="240" y="150" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_BalanceCheck_di" bpmnElement="Gateway_BalanceCheck" isMarkerVisible="true">
+        <dc:Bounds x="395" y="165" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="400" y="222" width="41" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="End_Failed_Balance_di" bpmnElement="End_Failed_Balance">
+        <dc:Bounds x="502" y="62" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="479" y="105" width="82" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="End_FinalError_di" bpmnElement="End_FinalError">
+        <dc:Bounds x="1082" y="412" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1058" y="455" width="86" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_Rollback_di" bpmnElement="Task_Rollback">
+        <dc:Bounds x="750" y="370" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="SubProcess_Transaction_di" bpmnElement="SubProcess_Transaction" isExpanded="true">
+        <dc:Bounds x="580" y="110" width="410" height="200" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Start_Tx_di" bpmnElement="Start_Tx">
+        <dc:Bounds x="602" y="192" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_SpendWallet_di" bpmnElement="Task_SpendWallet">
+        <dc:Bounds x="670" y="170" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="End_Tx_di" bpmnElement="End_Tx">
+        <dc:Bounds x="932" y="192" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_AddAccess_di" bpmnElement="Task_AddAccess">
+        <dc:Bounds x="800" y="170" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Flow_T1_di" bpmnElement="Flow_T1">
+        <di:waypoint x="638" y="210" />
+        <di:waypoint x="670" y="210" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_T2_di" bpmnElement="Flow_T2">
+        <di:waypoint x="770" y="210" />
+        <di:waypoint x="800" y="210" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_T3_di" bpmnElement="Flow_T3">
+        <di:waypoint x="900" y="210" />
+        <di:waypoint x="932" y="210" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="Task_NotifySuccess_di" bpmnElement="Task_NotifySuccess">
+        <dc:Bounds x="1040" y="160" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="End_Success_di" bpmnElement="End_Success">
+        <dc:Bounds x="1262" y="182" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1259" y="225" width="43" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_TxError_di" bpmnElement="Event_TxError">
+        <dc:Bounds x="782" y="292" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="817" y="323" width="66" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Flow_1_di" bpmnElement="Flow_1">
+        <di:waypoint x="188" y="190" />
+        <di:waypoint x="240" y="190" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_2_di" bpmnElement="Flow_2">
+        <di:waypoint x="340" y="190" />
+        <di:waypoint x="395" y="190" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_No_di" bpmnElement="Flow_No">
+        <di:waypoint x="420" y="165" />
+        <di:waypoint x="420" y="80" />
+        <di:waypoint x="502" y="80" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="424" y="120" width="33" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_Yes_di" bpmnElement="Flow_Yes">
+        <di:waypoint x="445" y="190" />
+        <di:waypoint x="580" y="190" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="506" y="172" width="15" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_Error_di" bpmnElement="Flow_Error">
+        <di:waypoint x="800" y="328" />
+        <di:waypoint x="800" y="370" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_EndError_di" bpmnElement="Flow_EndError">
+        <di:waypoint x="850" y="410" />
+        <di:waypoint x="966" y="410" />
+        <di:waypoint x="966" y="430" />
+        <di:waypoint x="1082" y="430" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_Success_di" bpmnElement="Flow_Success">
+        <di:waypoint x="990" y="200" />
+        <di:waypoint x="1040" y="200" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_Final_di" bpmnElement="Flow_Final">
+        <di:waypoint x="1140" y="200" />
+        <di:waypoint x="1262" y="200" />
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>

@@ -1,0 +1,157 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" id="Definitions_RAG_v2" targetNamespace="http://bpmn.io/schema/bpmn" exporter="bpmn-js (https://demo.bpmn.io)" exporterVersion="18.13.2">
+  <bpmn:collaboration id="Collaboration_RAG">
+    <bpmn:participant id="Participant_System" name="Hệ thống FSE Learning (RAG Orchestrator)" processRef="Process_RAG" />
+    <bpmn:participant id="Participant_Gemini" name="Google Gemini API (External LLM Provider)" />
+    <bpmn:messageFlow id="Flow_Message_Request" name="Prompt + Context" sourceRef="Task_LLMGenerate" targetRef="Participant_Gemini" />
+    <bpmn:messageFlow id="Flow_Message_Response" name="Generated Content" sourceRef="Participant_Gemini" targetRef="Task_LLMGenerate" />
+  </bpmn:collaboration>
+  <bpmn:process id="Process_RAG" isExecutable="false">
+    <bpmn:laneSet id="LaneSet_1">
+      <bpmn:lane id="Lane_User" name="Người dùng">
+        <bpmn:flowNodeRef>Start_Chat</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>End_Chat</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_ShowError</bpmn:flowNodeRef>
+      </bpmn:lane>
+      <bpmn:lane id="Lane_Backend" name="Backend (Semantic Kernel)">
+        <bpmn:flowNodeRef>Task_Embed</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_SearchVector</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_BuildPrompt</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_LLMGenerate</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Event_AIError</bpmn:flowNodeRef>
+      </bpmn:lane>
+    </bpmn:laneSet>
+    <bpmn:startEvent id="Start_Chat" name="Đặt câu hỏi">
+      <bpmn:outgoing>Flow_1</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:serviceTask id="Task_Embed" name="Generate Embedding">
+      <bpmn:incoming>Flow_1</bpmn:incoming>
+      <bpmn:outgoing>Flow_2</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:sequenceFlow id="Flow_1" sourceRef="Start_Chat" targetRef="Task_Embed" />
+    <bpmn:serviceTask id="Task_SearchVector" name="Similarity Search (Vector DB)">
+      <bpmn:incoming>Flow_2</bpmn:incoming>
+      <bpmn:outgoing>Flow_3</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:sequenceFlow id="Flow_2" sourceRef="Task_Embed" targetRef="Task_SearchVector" />
+    <bpmn:serviceTask id="Task_BuildPrompt" name="Augment Prompt (Context Building)">
+      <bpmn:incoming>Flow_3</bpmn:incoming>
+      <bpmn:outgoing>Flow_4</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:sequenceFlow id="Flow_3" sourceRef="Task_SearchVector" targetRef="Task_BuildPrompt" />
+    <bpmn:serviceTask id="Task_LLMGenerate" name="LLM Generation (External Call)">
+      <bpmn:incoming>Flow_4</bpmn:incoming>
+      <bpmn:outgoing>Flow_5</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:sequenceFlow id="Flow_4" sourceRef="Task_BuildPrompt" targetRef="Task_LLMGenerate" />
+    <bpmn:boundaryEvent id="Event_AIError" name="AI Overload / Timeout" attachedToRef="Task_LLMGenerate">
+      <bpmn:outgoing>Flow_Error_Handle</bpmn:outgoing>
+      <bpmn:errorEventDefinition id="ErrorEventDefinition_1" />
+    </bpmn:boundaryEvent>
+    <bpmn:userTask id="Task_ShowError" name="Thông báo: &#34;Hệ thống AI đang bận&#34;">
+      <bpmn:incoming>Flow_Error_Handle</bpmn:incoming>
+      <bpmn:outgoing>Flow_EndError</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:sequenceFlow id="Flow_Error_Handle" sourceRef="Event_AIError" targetRef="Task_ShowError" />
+    <bpmn:endEvent id="End_Chat" name="Nhận câu trả lời">
+      <bpmn:incoming>Flow_5</bpmn:incoming>
+      <bpmn:incoming>Flow_EndError</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:sequenceFlow id="Flow_5" sourceRef="Task_LLMGenerate" targetRef="End_Chat" />
+    <bpmn:sequenceFlow id="Flow_EndError" sourceRef="Task_ShowError" targetRef="End_Chat" />
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="Collaboration_RAG">
+      <bpmndi:BPMNShape id="Participant_System_di" bpmnElement="Participant_System" isHorizontal="true">
+        <dc:Bounds x="160" y="80" width="1000" height="380" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Lane_Backend_di" bpmnElement="Lane_Backend" isHorizontal="true">
+        <dc:Bounds x="190" y="260" width="970" height="200" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Lane_User_di" bpmnElement="Lane_User" isHorizontal="true">
+        <dc:Bounds x="190" y="80" width="970" height="180" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Start_Chat_di" bpmnElement="Start_Chat">
+        <dc:Bounds x="222" y="122" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="212" y="165" width="56" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_Embed_di" bpmnElement="Task_Embed">
+        <dc:Bounds x="260" y="320" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_SearchVector_di" bpmnElement="Task_SearchVector">
+        <dc:Bounds x="420" y="320" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_BuildPrompt_di" bpmnElement="Task_BuildPrompt">
+        <dc:Bounds x="580" y="320" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_LLMGenerate_di" bpmnElement="Task_LLMGenerate">
+        <dc:Bounds x="740" y="320" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_ShowError_di" bpmnElement="Task_ShowError">
+        <dc:Bounds x="850" y="140" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="End_Chat_di" bpmnElement="End_Chat">
+        <dc:Bounds x="982" y="122" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="961" y="103" width="79" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_AIError_di" bpmnElement="Event_AIError">
+        <dc:Bounds x="802" y="302" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="836" y="286" width="67" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Flow_1_di" bpmnElement="Flow_1">
+        <di:waypoint x="258" y="140" />
+        <di:waypoint x="310" y="140" />
+        <di:waypoint x="310" y="320" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_2_di" bpmnElement="Flow_2">
+        <di:waypoint x="360" y="360" />
+        <di:waypoint x="420" y="360" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_3_di" bpmnElement="Flow_3">
+        <di:waypoint x="520" y="360" />
+        <di:waypoint x="580" y="360" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_4_di" bpmnElement="Flow_4">
+        <di:waypoint x="680" y="360" />
+        <di:waypoint x="740" y="360" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_Error_Handle_di" bpmnElement="Flow_Error_Handle">
+        <di:waypoint x="820" y="302" />
+        <di:waypoint x="820" y="180" />
+        <di:waypoint x="850" y="180" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_5_di" bpmnElement="Flow_5">
+        <di:waypoint x="840" y="360" />
+        <di:waypoint x="1000" y="360" />
+        <di:waypoint x="1000" y="158" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_EndError_di" bpmnElement="Flow_EndError">
+        <di:waypoint x="950" y="140" />
+        <di:waypoint x="982" y="140" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="Participant_Gemini_di" bpmnElement="Participant_Gemini" isHorizontal="true">
+        <dc:Bounds x="160" y="520" width="1000" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Flow_Message_Request_di" bpmnElement="Flow_Message_Request">
+        <di:waypoint x="770" y="400" />
+        <di:waypoint x="770" y="520" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="676" y="433" width="87" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_Message_Response_di" bpmnElement="Flow_Message_Response">
+        <di:waypoint x="810" y="520" />
+        <di:waypoint x="810" y="400" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="823" y="426" width="53" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>

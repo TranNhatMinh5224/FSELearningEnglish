@@ -2,16 +2,17 @@ using LearningEnglish.Domain.Entities;
 
 namespace LearningEnglish.Application.Common.Helpers
 {
-    /// <summary>
-    /// Helper class để tính toán điểm số cho Quiz
-    /// </summary>
+    
+    // Helper class để tính toán điểm số cho Quiz
+  
     public static class QuizScoreCalculator
     {
-        /// <summary>
-        /// Tính tổng điểm tối đa của Quiz dựa trên tất cả Questions
-        /// </summary>
-        /// <param name="quiz">Quiz entity với QuizSections, QuizGroups, Questions đã load</param>
-        /// <returns>Tổng điểm tối đa</returns>
+        
+        //Tính tổng điểm tối đa của Quiz dựa trên tất cả Questions 
+        // Quiz entity với QuizSections, QuizGroups, Questions đã load
+        // Tổng điểm tối đa = sum(group.questions.points) + sum(section.questions.points)
+      
+        
         public static decimal CalculateTotalPossibleScore(Quiz quiz)
         {
             if (quiz == null) return 0m;

@@ -1,0 +1,157 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" id="Definitions_SaaS" targetNamespace="http://bpmn.io/schema/bpmn" exporter="bpmn-js (https://demo.bpmn.io)" exporterVersion="18.13.2">
+  <bpmn:collaboration id="Collaboration_SaaS">
+    <bpmn:participant id="Participant_SaaS" name="Quản trị định mức tài nguyên (SaaS Quota Governance)" processRef="Process_SaaS" />
+  </bpmn:collaboration>
+  <bpmn:process id="Process_SaaS" isExecutable="false">
+    <bpmn:laneSet id="LaneSet_1">
+      <bpmn:lane id="Lane_Teacher" name="Giáo viên">
+        <bpmn:flowNodeRef>Start_CreateCourse</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_InputCourseInfo</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>End_Success</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>End_Blocked</bpmn:flowNodeRef>
+      </bpmn:lane>
+      <bpmn:lane id="Lane_System" name="Hệ thống (Quota Engine)">
+        <bpmn:flowNodeRef>Task_CheckSubscription</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_CountResources</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Gateway_QuotaCheck</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_AssignLimits</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_PersistCourse</bpmn:flowNodeRef>
+      </bpmn:lane>
+    </bpmn:laneSet>
+    <bpmn:startEvent id="Start_CreateCourse" name="Yêu cầu tạo khóa học">
+      <bpmn:outgoing>Flow_1</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:userTask id="Task_InputCourseInfo" name="Nhập thông tin khóa học">
+      <bpmn:incoming>Flow_1</bpmn:incoming>
+      <bpmn:outgoing>Flow_2</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:sequenceFlow id="Flow_1" sourceRef="Start_CreateCourse" targetRef="Task_InputCourseInfo" />
+    <bpmn:serviceTask id="Task_CheckSubscription" name="Xác thực gói SaaS đang hoạt động">
+      <bpmn:incoming>Flow_2</bpmn:incoming>
+      <bpmn:outgoing>Flow_3</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:sequenceFlow id="Flow_2" sourceRef="Task_InputCourseInfo" targetRef="Task_CheckSubscription" />
+    <bpmn:serviceTask id="Task_CountResources" name="Đếm số lượng khóa học hiện tại">
+      <bpmn:incoming>Flow_3</bpmn:incoming>
+      <bpmn:outgoing>Flow_4</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:sequenceFlow id="Flow_3" sourceRef="Task_CheckSubscription" targetRef="Task_CountResources" />
+    <bpmn:exclusiveGateway id="Gateway_QuotaCheck" name="Vượt quá MaxCourses?">
+      <bpmn:incoming>Flow_4</bpmn:incoming>
+      <bpmn:outgoing>Flow_Over</bpmn:outgoing>
+      <bpmn:outgoing>Flow_OK</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:sequenceFlow id="Flow_4" sourceRef="Task_CountResources" targetRef="Gateway_QuotaCheck" />
+    <bpmn:endEvent id="End_Blocked" name="Yêu cầu Nâng cấp (Blocked)">
+      <bpmn:incoming>Flow_Over</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:sequenceFlow id="Flow_Over" name="Có" sourceRef="Gateway_QuotaCheck" targetRef="End_Blocked" />
+    <bpmn:serviceTask id="Task_AssignLimits" name="Tự động gán MaxStudents theo gói">
+      <bpmn:incoming>Flow_OK</bpmn:incoming>
+      <bpmn:outgoing>Flow_5</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:sequenceFlow id="Flow_OK" name="Không" sourceRef="Gateway_QuotaCheck" targetRef="Task_AssignLimits" />
+    <bpmn:serviceTask id="Task_PersistCourse" name="Lưu khóa học vào Database">
+      <bpmn:incoming>Flow_5</bpmn:incoming>
+      <bpmn:outgoing>Flow_Final</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:sequenceFlow id="Flow_5" sourceRef="Task_AssignLimits" targetRef="Task_PersistCourse" />
+    <bpmn:endEvent id="End_Success" name="Tạo thành công">
+      <bpmn:incoming>Flow_Final</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:sequenceFlow id="Flow_Final" sourceRef="Task_PersistCourse" targetRef="End_Success" />
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="Collaboration_SaaS">
+      <bpmndi:BPMNShape id="Participant_SaaS_di" bpmnElement="Participant_SaaS" isHorizontal="true">
+        <dc:Bounds x="160" y="80" width="1000" height="420" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Lane_System_di" bpmnElement="Lane_System" isHorizontal="true">
+        <dc:Bounds x="190" y="230" width="970" height="270" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Lane_Teacher_di" bpmnElement="Lane_Teacher" isHorizontal="true">
+        <dc:Bounds x="190" y="80" width="970" height="150" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Start_CreateCourse_di" bpmnElement="Start_CreateCourse">
+        <dc:Bounds x="222" y="132" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="198" y="186" width="86" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_InputCourseInfo_di" bpmnElement="Task_InputCourseInfo">
+        <dc:Bounds x="310" y="110" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_CheckSubscription_di" bpmnElement="Task_CheckSubscription">
+        <dc:Bounds x="310" y="270" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_CountResources_di" bpmnElement="Task_CountResources">
+        <dc:Bounds x="460" y="270" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_QuotaCheck_di" bpmnElement="Gateway_QuotaCheck" isMarkerVisible="true">
+        <dc:Bounds x="615" y="285" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="606" y="342" width="68" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="End_Blocked_di" bpmnElement="End_Blocked">
+        <dc:Bounds x="752" y="132" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="731" y="102" width="79" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_AssignLimits_di" bpmnElement="Task_AssignLimits">
+        <dc:Bounds x="720" y="270" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_PersistCourse_di" bpmnElement="Task_PersistCourse">
+        <dc:Bounds x="870" y="270" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="End_Success_di" bpmnElement="End_Success">
+        <dc:Bounds x="1012" y="132" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="991" y="108" width="77" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Flow_1_di" bpmnElement="Flow_1">
+        <di:waypoint x="258" y="150" />
+        <di:waypoint x="310" y="150" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_2_di" bpmnElement="Flow_2">
+        <di:waypoint x="360" y="190" />
+        <di:waypoint x="360" y="270" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_3_di" bpmnElement="Flow_3">
+        <di:waypoint x="410" y="310" />
+        <di:waypoint x="460" y="310" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_4_di" bpmnElement="Flow_4">
+        <di:waypoint x="560" y="310" />
+        <di:waypoint x="615" y="310" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_Over_di" bpmnElement="Flow_Over">
+        <di:waypoint x="640" y="285" />
+        <di:waypoint x="640" y="150" />
+        <di:waypoint x="752" y="150" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="648" y="215" width="15" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_OK_di" bpmnElement="Flow_OK">
+        <di:waypoint x="665" y="310" />
+        <di:waypoint x="720" y="310" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="676" y="292" width="33" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_5_di" bpmnElement="Flow_5">
+        <di:waypoint x="820" y="310" />
+        <di:waypoint x="870" y="310" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_Final_di" bpmnElement="Flow_Final">
+        <di:waypoint x="970" y="310" />
+        <di:waypoint x="1030" y="310" />
+        <di:waypoint x="1030" y="168" />
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>
