@@ -194,41 +194,49 @@ Tự động hóa toàn bộ quy trình từ lúc Push code đến khi sản ph�
     - **Frontend**: Build mã nguồn và đồng bộ hóa dữ liệu lên Web Server.
     - **Service Management**: Tự động Restart các **Systemd Service** để áp dụng phiên bản mới mà không cần can thiệp thủ công.
 
-### 🌐 6.2 Hạ tầng Production
-- **Server:** VPS Linux (Ubuntu), quản lý dịch vụ qua Systemd.
-- **Web Server:** **Nginx** được cấu hình làm Reverse Proxy, hỗ trợ cân bằng tải và bảo mật SSL.
-- **Storage Strategy (MinIO):** Triển khai hệ thống **Object Storage** tương thích chuẩn S3 để quản lý tập trung toàn bộ tài nguyên đa phương tiện (Video bài giảng, Audio phát âm, Essay). Giải pháp này giúp hệ thống:
-    - Độc lập với các nhà cung cấp Cloud (Cloud-agnostic).
-    - Tối ưu hóa tốc độ truy xuất dữ liệu thông qua mạng nội bộ Server.
-    - Dễ dàng mở rộng dung lượng lưu trữ (Scaling) mà không làm thay đổi cấu trúc code.
-- **Security:** Quản lý cấu hình nhạy cảm qua GitHub Secrets và biến môi trường (.env).
+### 🌐 6.2 Hạ tầng Production (Native Linux Deployment)
+Hệ thống được triển khai tối ưu hiệu năng trực tiếp trên nền tảng Linux (không qua lớp ảo hóa container cho môi trường chạy chính):
+- **Server:** VPS Linux (Ubuntu), quản lý vòng đời ứng dụng qua **Systemd Services**.
+- **Web Server:** **Nginx** đóng vai trò Reverse Proxy, xử lý SSL (HTTPS), nén dữ liệu và bảo mật đầu cuối.
+- **Database:** PostgreSQL vận hành native để tận dụng tối đa tài nguyên phần cứng.
+- **Storage Strategy (MinIO):** Object Storage tương thích chuẩn S3, quản lý tập trung tài nguyên đa phương tiện (Video, Audio, Essay).
+- **Security:** Quản lý cấu hình qua Environment Variables và GitHub Secrets.
 
 ---
 
-## 🌟 7. Các tính năng tiêu biểu (Key Featured Highlights)
+## 🛠️ 7. Setup & Development
+
+Dự án hỗ trợ hai phương thức thiết lập môi trường phát triển:
+- **Portable Setup (Khuyên dùng):** Sử dụng **Docker Compose** để khởi chạy toàn bộ hệ thống chỉ với một câu lệnh.
+- **Manual Setup:** Cài đặt trực tiếp các công nghệ (.NET 8, Node.js, Postgres, MinIO...).
+
+👉 **[Xem hướng dẫn cài đặt chi tiết tại SETUP.md](./SETUP.md)**
+
+---
+
+## 🌟 8. Các tính năng tiêu biểu (Key Featured Highlights)
 
 Hệ thống vượt xa các nền tảng LMS thông thường nhờ việc tích hợp các giải pháp kỹ thuật chuyên sâu và mô hình kinh doanh hiện đại.
 
-### 🤖 7.1 Hệ thống AI RAG (Retrieval-Augmented Generation)
+### 🤖 8.1 Hệ thống AI RAG (Retrieval-Augmented Generation)
 - **Tư duy:** Không chỉ là một wrapper gọi API AI đơn thuần, hệ thống sử dụng **Semantic Kernel** để điều phối quy trình RAG.
 - **Giá trị:** AI có khả năng truy xuất tri thức từ kho dữ liệu nội bộ (Courses, Policies, Teacher Packages) để đưa ra phản hồi chính xác, giảm thiểu hiện tượng "ảo giác" (Hallucination).
 
-### 📈 7.2 Học tập thích ứng (Adaptive Learning - SM-2)
+### 📈 8.2 Học tập thích ứng (Adaptive Learning - SM-2)
 - **Cơ chế:** Hiện thực hóa thuật toán **SuperMemo-2 (SM-2)** để tự động hóa việc cá nhân hóa lộ trình ôn tập.
 - **Giá trị:** Hệ thống tự động tính toán thời điểm "vàng" (Interval) để nhắc nhở người dùng ôn tập lại từ vựng/kiến thức dựa trên chất lượng phản hồi, tối ưu hóa việc ghi nhớ dài hạn.
 
-### 👩‍🏫 7.3 Mô hình SaaS "Teacher Empowerment"
+### 👩‍🏫 8.3 Mô hình SaaS "Teacher Empowerment"
 - **Cơ chế:** Cung cấp giải pháp **Software-as-a-Service** cho giáo viên. Mỗi giáo viên có thể sở hữu không gian quản lý riêng, lớp học riêng và các gói dịch vụ (Teacher Packages).
 - **Giá trị:** Hệ thống quản lý chặt chẽ hạn ngạch tài nguyên (Quotas) và các gói đăng ký, cho phép nền tảng mở rộng quy mô kinh doanh không giới hạn.
 
-### 💳 7.4 Fintech Wallet &#38; Auto-Payment
+### 💳 8.4 Fintech Wallet & Auto-Payment
 - **Cơ chế:** Tích hợp cổng thanh toán **PayOS (QR Code)** với quy trình cộng tiền tự động. 
 - **Giá trị:** Đảm bảo tính toàn vẹn dữ liệu tài chính thông qua cơ chế **Idempotency Webhook** và hệ thống **Audit Trail** ghi lại mọi biến động số dư ví (Balance History).
 
-### 🎤 7.5 Chấm điểm học thuật bằng AI (AI Academic Grading)
+### 🎤 8.5 Chấm điểm học thuật bằng AI (AI Academic Grading)
 - **Cơ chế:** Tận dụng sức mạnh của **Azure Speech** và **Google Gemini** để chấm điểm tự động.
 - **Giá trị:** Cung cấp phản hồi chi tiết về phát âm (Pronunciation) và nhận xét bài luận (Essay), giúp học sinh tự học hiệu quả mà không cần sự can thiệp liên tục của giáo viên.
 
 ---
 
-.

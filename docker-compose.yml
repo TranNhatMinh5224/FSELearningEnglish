@@ -1,0 +1,90 @@
+version: '3.8'
+
+services:
+  # 1. Database (PostgreSQL with pgvector)
+  postgres:
+    image: ankane/pgvector:latest
+    container_name: elearning-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${DB_USER:-postgres}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-05022004}
+      POSTGRES_DB: ${DB_NAME:-ElearningEnglish2004}
+    ports:
+      - "${DB_PORT:-5433}:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    networks:
+      - elearning-network
+
+  # 2. Object Storage (MinIO)
+  minio:
+    image: minio/minio
+    container_name: elearning-minio
+    restart: unless-stopped
+    ports:
+      - "${MINIO_API_PORT:-9000}:9000"
+      - "${MINIO_BROWSER_PORT:-9001}:9001"
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER:-minioadmin}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:-minioadmin}
+    command: server /data --console-address ":9001"
+    volumes:
+      - miniodata:/data
+    networks:
+      - elearning-network
+
+  # 4. Backend API (.NET 8)
+  backend:
+    build:
+      context: ./BackendELearningEnglish
+      dockerfile: Dockerfile
+    container_name: elearning-backend
+    restart: unless-stopped
+    depends_on:
+      - postgres
+      - minio
+    ports:
+      - "5030:5030"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ConnectionStrings__DefaultConnection=Host=postgres;Port=5432;Database=${DB_NAME:-ElearningEnglish2004};Username=${DB_USER:-postgres};Password=${DB_PASSWORD:-05022004}
+      - MinIO__Endpoint=minio:9000
+      - MinIO__AccessKey=${MINIO_ROOT_USER:-minioadmin}
+      - MinIO__SecretKey=${MINIO_ROOT_PASSWORD:-minioadmin}
+      - MinIO__UseSSL=false
+      - Gemini__ApiKey=${GEMINI_API_KEY}
+      - AzureSpeech__SubscriptionKey=${AZURE_SPEECH_KEY}
+      - AzureSpeech__Region=${AZURE_SPEECH_REGION}
+      - PayOS__ClientId=${PAYOS_CLIENT_ID}
+      - PayOS__ApiKey=${PAYOS_API_KEY}
+      - PayOS__ChecksumKey=${PAYOS_CHECKSUM_KEY}
+      - Jwt__Key=${JWT_KEY}
+      - Jwt__Issuer=${JWT_ISSUER}
+      - Jwt__Audience=${JWT_AUDIENCE}
+    networks:
+      - elearning-network
+
+  # 5. Frontend (React + Nginx)
+  frontend:
+    build:
+      context: ./FrontElearningEnglish
+      dockerfile: Dockerfile
+      args:
+        - REACT_APP_API_BASE_URL=${REACT_APP_API_BASE_URL:-http://localhost:5030/api}
+    container_name: elearning-frontend
+    restart: unless-stopped
+    depends_on:
+      - backend
+    ports:
+      - "3000:80"
+    networks:
+      - elearning-network
+
+networks:
+  elearning-network:
+    driver: bridge
+
+volumes:
+  pgdata:
+  miniodata:
