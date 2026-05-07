@@ -41,24 +41,24 @@ export default function SearchBox({ initialValue = "" }) {
             try {
                 const response = await courseService.searchCourses(searchQuery.trim());
                 const courses = response.data?.data || [];
-                
+
                 // Only show System Courses (type 1) or courses with undefined/null type for safety/debugging
-                const systemCourses = courses.filter(course => 
+                const systemCourses = courses.filter(course =>
                     (course.type === 1 || course.Type === 1)
                 );
-                
+
                 const mappedCourses = systemCourses.map((course) => ({
                     id: course.courseId,
                     courseId: course.courseId,
                     title: course.title || course.Title || "",
                     description: course.description || course.Description || "",
-                    imageUrl: course.imageUrl && course.imageUrl.trim() !== "" 
-                        ? course.imageUrl 
+                    imageUrl: course.imageUrl && course.imageUrl.trim() !== ""
+                        ? course.imageUrl
                         : defaultCourseImage,
                     price: course.price || course.Price || 0,
                     enrollmentCount: course.enrollmentCount || course.EnrollmentCount || 0,
                 }));
-                
+
                 setSearchResults(mappedCourses);
                 setShowDropdown(mappedCourses.length > 0);
             } catch (error) {
@@ -96,7 +96,7 @@ export default function SearchBox({ initialValue = "" }) {
         if (!text || !keyword) return text;
         const regex = new RegExp(`(${keyword})`, 'gi');
         const parts = text.split(regex);
-        return parts.map((part, index) => 
+        return parts.map((part, index) =>
             regex.test(part) ? (
                 <mark key={index} className="search-highlight">{part}</mark>
             ) : part
@@ -131,7 +131,7 @@ export default function SearchBox({ initialValue = "" }) {
             switch (e.key) {
                 case 'ArrowDown':
                     e.preventDefault();
-                    setSelectedIndex(prev => 
+                    setSelectedIndex(prev =>
                         prev < searchResults.length - 1 ? prev + 1 : prev
                     );
                     break;
@@ -177,7 +177,8 @@ export default function SearchBox({ initialValue = "" }) {
                 <FaSearch className="search-icon" />
                 <input
                     type="text"
-                    placeholder="Tìm kiếm khóa học..."
+                    className="search-input"
+                    placeholder="Bạn muốn học gì hôm nay?"
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     onFocus={() => {
