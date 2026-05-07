@@ -5,7 +5,6 @@ import { EnumProvider } from "./Context/EnumContext";
 import { ThemeProvider } from "./Context/ThemeContext";
 import { AssetProvider } from "./Context/AssetContext";
 import { ToastContainer } from "react-toastify";
-const ChatBotWidget = lazy(() => import("./Components/Common/ChatBotWidget/ChatBotWidget"));
 import "react-toastify/dist/ReactToastify.css";
 import "./Components/Common/ModalFix/ModalFix.css";
 import "./Components/Common/Modal/BaseModal.css";
@@ -13,6 +12,8 @@ import "./Components/Common/Modal/BaseModal.css";
 // React Query
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
+
+const ChatBotWidget = lazy(() => import("./Components/Common/ChatBotWidget/ChatBotWidget"));
 
 // Initialize QueryClient
 const queryClient = new QueryClient({
