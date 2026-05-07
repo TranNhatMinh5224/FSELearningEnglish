@@ -55,6 +55,8 @@ const SuggestedCourseCard = ({ course, isEnrolled = false, showEnrolledBadge = t
                     alt={`Ảnh khóa học ${finalTitle}`}
                     className="course-image"
                     imageKey={id || courseId}
+                    width="300"
+                    height="169"
                 />
             </div>
             <div className="course-content">

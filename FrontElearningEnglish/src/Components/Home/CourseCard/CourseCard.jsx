@@ -47,6 +47,8 @@ export default function CourseCard({ course, onClick }) {
                 alt={finalTitle}
                 className="course-image"
                 imageKey={finalId}
+                width="300"
+                height="169"
             />
             <div className="course-info">
                 <h3>{finalTitle}</h3>

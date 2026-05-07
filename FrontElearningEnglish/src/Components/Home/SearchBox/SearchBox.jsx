@@ -217,6 +217,8 @@ export default function SearchBox({ initialValue = "" }) {
                                                 src={course.imageUrl}
                                                 alt=""
                                                 aria-hidden="true"
+                                                width="80"
+                                                height="80"
                                                 className="search-result-image"
                                             />
                                         </div>

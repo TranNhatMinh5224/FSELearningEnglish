@@ -45,7 +45,7 @@ export default function MainHeader() {
           onClick={() => navigate(ROUTE_PATHS.HOME)}
           style={{ cursor: "pointer" }}
         >
-          {logo && <img src={logo} alt="Catalunya English - Logo" className="main-header__logo" />}
+          {logo && <img src={logo} alt="Catalunya English - Logo" width="44" height="44" className="main-header__logo" />}
           <span className="main-header__brand">Catalunya English</span>
         </Navbar.Brand>
 

@@ -48,7 +48,7 @@
 
 .footer-tagline {
   font-size: 1rem;
-  color: #9ca3af;
+  color: #d1d5db;
   font-weight: 600;
   margin-bottom: 12px;
   opacity: 0.9;
@@ -105,7 +105,7 @@
 
 .footer-disclaimer {
   font-size: 0.95rem;
-  color: #9ca3af;
+  color: #d1d5db;
   font-style: italic;
   margin-bottom: 16px;
   line-height: 1.6;
@@ -184,7 +184,7 @@
 }
 
 .footer-bottom p {
-  color: #9ca3af;
+  color: #d1d5db;
   font-size: 1rem;
   margin: 0;
 }
