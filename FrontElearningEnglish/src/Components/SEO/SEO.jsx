@@ -1,7 +1,8 @@
-import { useEffect } from "react";
+import React from "react";
+import { Helmet } from "react-helmet-async";
 
 /**
- * SEO Component for managing page meta tags
+ * SEO Component for managing page meta tags using react-helmet-async
  * @param {Object} props
  * @param {string} props.title - Page title
  * @param {string} props.description - Page description
@@ -9,6 +10,7 @@ import { useEffect } from "react";
  * @param {string} props.image - Open Graph image URL
  * @param {string} props.url - Canonical URL
  * @param {string} props.type - Open Graph type (default: "website")
+ * @param {Object} props.schema - JSON-LD Schema object
  */
 export default function SEO({
   title = "Catalunya English - Học Tiếng Anh Online Hiệu Quả",
@@ -19,68 +21,43 @@ export default function SEO({
   type = "website",
   schema = null,
 }) {
-  useEffect(() => {
-    // Set document title
-    document.title = title;
+  // If schema is an array, wrap it in @graph for better SEO
+  const schemaData = schema ? (Array.isArray(schema) 
+    ? { "@context": "https://schema.org", "@graph": schema }
+    : { "@context": "https://schema.org", ...schema }) : null;
 
-    // Update or create meta tags
-    const updateMetaTag = (name, content, attribute = "name") => {
-      let element = document.querySelector(`meta[${attribute}="${name}"]`);
-      if (!element) {
-        element = document.createElement("meta");
-        element.setAttribute(attribute, name);
-        document.head.appendChild(element);
-      }
-      element.setAttribute("content", content);
-    };
+  return (
+    <Helmet>
+      {/* Primary Meta Tags */}
+      <title>{title}</title>
+      <meta name="title" content={title} />
+      <meta name="description" content={description} />
+      <meta name="keywords" content={keywords} />
 
-    // Primary meta tags
-    updateMetaTag("description", description);
-    updateMetaTag("keywords", keywords);
-    updateMetaTag("title", title);
+      {/* Open Graph / Facebook */}
+      <meta property="og:type" content={type} />
+      <meta property="og:url" content={url} />
+      <meta property="og:title" content={title} />
+      <meta property="og:description" content={description} />
+      <meta property="og:image" content={image} />
 
-    // Open Graph tags
-    updateMetaTag("og:title", title, "property");
-    updateMetaTag("og:description", description, "property");
-    updateMetaTag("og:image", image, "property");
-    updateMetaTag("og:url", url, "property");
-    updateMetaTag("og:type", type, "property");
+      {/* Twitter */}
+      <meta property="twitter:card" content="summary_large_image" />
+      <meta property="twitter:url" content={url} />
+      <meta property="twitter:title" content={title} />
+      <meta property="twitter:description" content={description} />
+      <meta property="twitter:image" content={image} />
 
-    // Twitter Card tags
-    updateMetaTag("twitter:card", "summary_large_image", "property");
-    updateMetaTag("twitter:title", title, "property");
-    updateMetaTag("twitter:description", description, "property");
-    updateMetaTag("twitter:image", image, "property");
+      {/* Canonical URL */}
+      <link rel="canonical" href={url} />
 
-    // Canonical URL
-    let canonical = document.querySelector("link[rel='canonical']");
-    if (!canonical) {
-      canonical = document.createElement("link");
-      canonical.setAttribute("rel", "canonical");
-      document.head.appendChild(canonical);
-    }
-    canonical.setAttribute("href", url);
-
-    // Schema.org JSON-LD
-    let script = document.querySelector("script[type='application/ld+json']");
-    if (schema) {
-      if (!script) {
-        script = document.createElement("script");
-        script.setAttribute("type", "application/ld+json");
-        document.head.appendChild(script);
-      }
-      
-      // If schema is an array, wrap it in @graph for better SEO
-      const schemaData = Array.isArray(schema) 
-        ? { "@context": "https://schema.org", "@graph": schema }
-        : schema;
-        
-      script.textContent = JSON.stringify(schemaData);
-    } else if (script) {
-      script.remove();
-    }
-  }, [title, description, keywords, image, url, type, schema]);
-
-  return null;
+      {/* Schema.org JSON-LD */}
+      {schemaData && (
+        <script type="application/ld+json">
+          {JSON.stringify(schemaData)}
+        </script>
+      )}
+    </Helmet>
+  );
 }
 

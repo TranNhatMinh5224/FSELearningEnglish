@@ -8,17 +8,20 @@ import "./index.css";
 import { AuthProvider } from "./Context/AuthContext";
 import { StreakProvider } from "./Context/StreakContext";
 import { NotificationProvider } from "./Context/NotificationContext";
+import { HelmetProvider } from "react-helmet-async";
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
 
 root.render(
   <React.StrictMode>
-    <AuthProvider>
-      <StreakProvider>
-        <NotificationProvider>
-          <App />
-        </NotificationProvider>
-      </StreakProvider>
-    </AuthProvider>
+    <HelmetProvider>
+      <AuthProvider>
+        <StreakProvider>
+          <NotificationProvider>
+            <App />
+          </NotificationProvider>
+        </StreakProvider>
+      </AuthProvider>
+    </HelmetProvider>
   </React.StrictMode>
 );
