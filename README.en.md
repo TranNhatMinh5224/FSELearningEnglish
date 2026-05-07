@@ -272,11 +272,19 @@ The system is designed with a **Structured Monolith** architecture, combining **
 </div>
 - AI retrieves internal knowledge (Courses, Policies) using **Semantic Kernel** to reduce hallucinations.
 
-### 📈 9.2 Adaptive Learning (SM-2)
+### 📈 9.2 Smart Flashcards (Adaptive Learning - SM-2)
 <div align="center">
   <img src="./Office/Screenshot/Ontaptuvung.png" alt="Adaptive Learning" width="800"/>
 </div>
-- Implements **SuperMemo-2 (SM-2)** algorithm to automate personalized review intervals.
+- **Mechanism:** Implements **SuperMemo-2 (SM-2)** algorithm to automate personalized review intervals via digital flashcards.
+- **Value:** Optimizes long-term memory by calculating the "Golden Interval" for vocabulary reviews based on active recall.
+
+### 🏆 9.3 Gamification & Learning Analytics
+<div align="center">
+  <img src="./Office/Screenshot/lichsulambai.png" alt="Learning Analytics" width="800"/>
+</div>
+- **Mechanism:** Visualizes learning data through interactive charts (Recharts).
+- **Value:** Tracks detailed practice history, accuracy rates, and course completion progress, keeping learners motivated through visible growth.
 
 ### 👩‍🏫 9.3 SaaS "Teacher Empowerment" Model
 <div align="center">

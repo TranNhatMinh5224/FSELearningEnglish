@@ -292,14 +292,23 @@ Hệ thống vượt xa các nền tảng LMS thông thường nhờ việc tíc
 - **Tư duy:** Không chỉ là một wrapper gọi API AI đơn thuần, hệ thống sử dụng **Semantic Kernel** để điều phối quy trình RAG.
 - **Giá trị:** AI có khả năng truy xuất tri thức từ kho dữ liệu nội bộ (Courses, Policies, Teacher Packages) để đưa ra phản hồi chính xác, giảm thiểu hiện tượng "ảo giác" (Hallucination).
 
-### 📈 9.2 Học tập thích ứng (Adaptive Learning - SM-2)
+### 📈 9.2 Hệ thống Flashcard thông minh (Smart Flashcards - SM-2)
 
 <div align="center">
   <img src="./Office/Screenshot/Ontaptuvung.png" alt="Adaptive Learning" width="800"/>
 </div>
 
 - **Cơ chế:** Hiện thực hóa thuật toán **SuperMemo-2 (SM-2)** để tự động hóa việc cá nhân hóa lộ trình ôn tập.
-- **Giá trị:** Hệ thống tự động tính toán thời điểm "vàng" (Interval) để nhắc nhở người dùng ôn tập lại từ vựng/kiến thức dựa trên chất lượng phản hồi, tối ưu hóa việc ghi nhớ dài hạn.
+- **Giá trị:** Hệ thống tự động tạo các bộ Flashcard từ vựng dựa trên bài học, tính toán thời điểm "vàng" (Interval) để nhắc nhở người dùng ôn tập, tối ưu hóa việc ghi nhớ dài hạn từ bộ nhớ ngắn hạn.
+
+### 🏆 9.3 Gamification & Thống kê tiến độ (Learning Analytics)
+
+<div align="center">
+  <img src="./Office/Screenshot/lichsulambai.png" alt="Learning Analytics" width="800"/>
+</div>
+
+- **Cơ chế:** Hệ thống hóa toàn bộ dữ liệu học tập thông qua biểu đồ trực quan (Recharts).
+- **Giá trị:** Theo dõi chi tiết lịch sử làm bài, tỉ lệ trả lời đúng và lộ trình hoàn thành khóa học. Giúp người học luôn giữ được động lực thông qua việc nhìn thấy sự tiến bộ hàng ngày.
 
 ### 👩‍🏫 9.3 Mô hình SaaS "Teacher Empowerment"
 
