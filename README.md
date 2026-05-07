@@ -5,6 +5,8 @@
 </div>
 
 > **Website dự án:** [learning-eng.hocnghiepvu.com](https://learning-eng.hocnghiepvu.com)  
+> **[Tiếng Việt](./README.md) | [English](./README.en.md)**
+
 - **Live Demo:** https://learning-eng.hocnghiepvu.com  
 - **Status:** Production  
 - **Author:** Trần Nhật Minh  
@@ -441,4 +443,17 @@ Hệ thống đã vượt qua các bài kiểm tra áp lực cực hạn bằng 
   <img src="Office/Screenshot/k62.png" width="45%" alt="k6 Load Test Result 2">
 </div>
 
+
+
+## 🤝 Liên hệ (Contact)
+- **Author:** Trần Nhật Minh
+- **LinkedIn:** [linkedin.com/in/trannhatminh05022004](https://www.linkedin.com/in/trannhatminh05022004/)
+- **Facebook:** [facebook.com/Trannhatminh05022004](https://www.facebook.com/Trannhatminh05022004/)
+- **Phone:** 0862359426
+- **Email:** nhatminh5224.forwork@gmail.com
+- **Project URL:** [https://github.com/TranNhatMinh5224/FSELearningEnglish](https://github.com/TranNhatMinh5224/FSELearningEnglish)
+
 ---
+<div align="center">
+  Made with ❤️ by Trần Nhật Minh
+</div>
