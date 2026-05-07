@@ -1,7 +1,7 @@
 namespace LearningEnglish.Application.DTOs
 {
 
-    // DTO hiển thị thông tin cho Essay
+    // DTO hiển thị thông tin cho Essay ( bài kiểm tra viết )
 
     public class EssayDto
     {

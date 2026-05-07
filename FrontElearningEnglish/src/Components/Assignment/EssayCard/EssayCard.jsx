@@ -19,16 +19,16 @@ export default function EssayCard({ assessment, onClick, submission, onViewResul
         return timeLimit;
     };
 
-    // Check if essay has been graded
-    const isGraded = submission && ((submission.teacherScore !== null && submission.teacherScore !== undefined) || 
-                     (submission.TeacherScore !== null && submission.TeacherScore !== undefined) ||
-                     (submission.score !== null && submission.score !== undefined) ||
-                     (submission.Score !== null && submission.Score !== undefined));
+
+    const isGraded = submission && ((submission.teacherScore !== null && submission.teacherScore !== undefined) ||
+        (submission.TeacherScore !== null && submission.TeacherScore !== undefined) ||
+        (submission.score !== null && submission.score !== undefined) ||
+        (submission.Score !== null && submission.Score !== undefined));
 
     return (
-        <Card 
-            className="essay-card" 
-            onClick={isGraded ? undefined : onClick} 
+        <Card
+            className="essay-card"
+            onClick={isGraded ? undefined : onClick}
             style={{ cursor: isGraded ? "default" : "pointer" }}
         >
             <Card.Body>
@@ -55,10 +55,10 @@ export default function EssayCard({ assessment, onClick, submission, onViewResul
                         </div>
                     </Col>
                     <Col xs="auto">
-                        {submission && ((submission.teacherScore !== null && submission.teacherScore !== undefined) || 
-                         (submission.TeacherScore !== null && submission.TeacherScore !== undefined) ||
-                         (submission.score !== null && submission.score !== undefined) ||
-                         (submission.Score !== null && submission.Score !== undefined)) ? (
+                        {submission && ((submission.teacherScore !== null && submission.teacherScore !== undefined) ||
+                            (submission.TeacherScore !== null && submission.TeacherScore !== undefined) ||
+                            (submission.score !== null && submission.score !== undefined) ||
+                            (submission.Score !== null && submission.Score !== undefined)) ? (
                             // Student has been graded - Show score and view result button
                             <div className="d-flex align-items-center gap-3">
                                 <div className="essay-score-badge">
