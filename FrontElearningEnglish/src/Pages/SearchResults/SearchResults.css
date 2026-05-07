@@ -106,6 +106,10 @@
     transition: color 0.3s ease;
 }
 
+.search-results-page .container {
+    margin: 0 auto;
+}
+
 /* Dark theme */
 [data-theme="dark"] .search-results-page {
     background: var(--color-bg-secondary, #1a1a1a);

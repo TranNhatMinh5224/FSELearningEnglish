@@ -95,22 +95,28 @@ export default function SearchResults() {
                             </button>
                         </div>
                     ) : courses.length > 0 ? (
-                        <>
-                            <div className="search-results-count">
-                                Tìm thấy <strong>{courses.length}</strong> khóa học
-                            </div>
-                            <Row className="g-3 g-md-4">
-                                {courses.map((course, index) => (
-                                    <Col key={course.id || index} xs={12} sm={6} lg={4} xl={3}>
-                                        <SuggestedCourseCard
-                                            course={course}
-                                            isEnrolled={course.isEnrolled || false}
-                                            showEnrolledBadge={true}
-                                        />
-                                    </Col>
-                                ))}
-                            </Row>
-                        </>
+                            <section className="suggested-courses-section mt-4">
+                                <div className="search-results-count mb-4">
+                                    Tìm thấy <strong>{courses.length}</strong> khóa học
+                                </div>
+                                <div className="row">
+                                    <div className="col-12 col-lg-8">
+                                        <div className="row g-3 g-md-4">
+                                            {courses.map((course, index) => (
+                                                <div key={course.id || index} className="col-12 col-sm-6 col-lg-4 col-xl-3">
+                                                    <SuggestedCourseCard
+                                                        course={course}
+                                                        isEnrolled={course.isEnrolled || false}
+                                                        showEnrolledBadge={true}
+                                                    />
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+                                    {/* Sidebar placeholder to match home page spacing */}
+                                    <div className="col-12 col-lg-4 d-none d-lg-block"></div>
+                                </div>
+                            </section>
                     ) : keyword ? (
                         <div className="search-no-results-state">
                             <div className="no-results-icon">🔍</div>
