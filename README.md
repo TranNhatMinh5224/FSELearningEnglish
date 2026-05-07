@@ -385,11 +385,17 @@ Dưới đây là một số giao diện nổi bật khác của hệ thống, t
 Hệ thống được kiểm tra và tối ưu hóa chuyên sâu để đáp ứng các tiêu chuẩn khắt khe nhất của **Core Web Vitals**, đạt được những con số ấn tượng trên cả thiết bị di động và máy tính:
 
 <div align="center">
+  <h4>📱 Mobile Audit</h4>
   <img src="https://img.shields.io/badge/SEO-100%2F100-brightgreen?style=for-the-badge&logo=google" alt="SEO 100"/>
   <img src="https://img.shields.io/badge/Accessibility-96%2F100-blue?style=for-the-badge&logo=accessible-icon" alt="Accessibility 96"/>
   <img src="https://img.shields.io/badge/Best_Practices-100%2F100-brightgreen?style=for-the-badge&logo=lighthouse" alt="Best Practices 100"/>
-  <img src="https://img.shields.io/badge/Performance_Mobile-85%2F100-green?style=for-the-badge&logo=speedtest" alt="Performance Mobile 85"/>
-  <img src="https://img.shields.io/badge/Performance_Desktop-97%2F100-brightgreen?style=for-the-badge&logo=speedtest" alt="Performance Desktop 97"/>
+  <img src="https://img.shields.io/badge/Performance-85%2F100-green?style=for-the-badge&logo=speedtest" alt="Performance Mobile 85"/>
+  <br/><br/>
+  <h4>💻 Desktop Audit</h4>
+  <img src="https://img.shields.io/badge/SEO-100%2F100-brightgreen?style=for-the-badge&logo=google" alt="SEO 100"/>
+  <img src="https://img.shields.io/badge/Accessibility-96%2F100-blue?style=for-the-badge&logo=accessible-icon" alt="Accessibility 96"/>
+  <img src="https://img.shields.io/badge/Best_Practices-100%2F100-brightgreen?style=for-the-badge&logo=lighthouse" alt="Best Practices 100"/>
+  <img src="https://img.shields.io/badge/Performance-97%2F100-brightgreen?style=for-the-badge&logo=speedtest" alt="Performance Desktop 97"/>
 </div>
 
 ### 📊 Chi tiết các chỉ số cốt lõi (Core Web Vitals)
