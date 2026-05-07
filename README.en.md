@@ -5,7 +5,7 @@
 </div>
 
 > **Project Website:** [learning-eng.hocnghiepvu.com](https://learning-eng.hocnghiepvu.com)  
-> **[Tiếng Việt](./README.md) | [English](./README.en.md)**
+> **[Read this in Vietnamese 🇻🇳](./README.md)**
 
 - **Live Demo:** https://learning-eng.hocnghiepvu.com  
 - **Status:** Production  
