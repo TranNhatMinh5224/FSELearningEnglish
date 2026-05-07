@@ -367,6 +367,7 @@ The system is designed with a **Structured Monolith** architecture, combining **
 - **Structured Data (Schema.org):** **JSON-LD Schema** for Google Rich Snippets.
 - **Social Branding:** Open Graph and Twitter Cards with professional `og:image`.
 - **Sitemap & Indexing:** Automated `sitemap.xml` and `robots.txt` for efficient crawling.
+- **User Analytics:** Integrated **Google Analytics 4 (GA4)** with a 3s Lazy-loading mechanism to track user behavior without compromising Lighthouse performance scores.
 
 ### 📈 Stress Testing
 - **Scalability:** Passed **2,000 Concurrent Users** without performance degradation.

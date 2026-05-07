@@ -425,6 +425,7 @@ Hệ thống được thiết kế và kiểm thử nghiêm ngặt để đảm 
 - **Dữ liệu cấu trúc (Schema.org):** Tích hợp **JSON-LD Schema** hiển thị Rich Snippets (số sao, giá tiền) trên kết quả tìm kiếm.
 - **Social Branding:** Cấu hình Open Graph (Facebook) và Twitter Cards với ảnh đại diện chia sẻ link chuyên nghiệp.
 - **Sitemap & Indexing:** Tự động hóa `sitemap.xml` và `robots.txt` chuẩn domain, tối ưu hóa quy trình thu thập dữ liệu của Google Bot.
+- **User Analytics:** Tích hợp **Google Analytics 4 (GA4)** với cơ chế Lazy-loading (3s delay) để đo lường hành vi người dùng mà không ảnh hưởng đến điểm hiệu năng Lighthouse.
 
 ### 📈 Kiểm thử áp lực & Giới hạn chịu tải (Stress Testing)
 Hệ thống đã vượt qua các bài kiểm tra áp lực cực hạn bằng **k6** để xác định dung lượng tối đa:
