@@ -60,7 +60,7 @@
 }
 
 .search-box input::placeholder {
-    color: #9ca3af;
+    color: #6b7280; /* Đậm hơn để vượt qua bài test Contrast */
     font-weight: 400;
 }
 
@@ -318,7 +318,7 @@
 
 .result-description {
     font-size: 13px;
-    color: var(--color-text-secondary, #6b7280);
+    color: #595959; /* Đậm hơn để dễ đọc trên mobile */
     margin: 0;
     line-height: 1.5;
     display: -webkit-box;
@@ -346,7 +346,7 @@
     align-items: center;
     gap: 4px;
     font-size: 13px;
-    color: var(--color-text-secondary, #6b7280);
+    color: #595959; /* Tăng độ tương phản */
 }
 
 .result-enrollment svg {
@@ -398,7 +398,7 @@
 
 .no-results-hint {
     font-size: 13px;
-    color: var(--color-text-tertiary, #9ca3af);
+    color: #6b7280; /* Đậm hơn màu cũ */
 }
 
 

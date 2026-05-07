@@ -7,41 +7,45 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="theme-color" content="#41d6e3" />
 
-  <!-- Performance Optimization: Preconnect to critical domains -->
+  <!-- Security and Performance Meta Tags -->
+  <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
   <link rel="preconnect" href="https://accounts.google.com">
   <link rel="preconnect" href="https://connect.facebook.net">
+  <link rel="preconnect" href="https://data.minhduong.id.vn">
   <link rel="dns-prefetch" href="https://accounts.google.com">
   <link rel="dns-prefetch" href="https://connect.facebook.net">
+  <link rel="dns-prefetch" href="https://data.minhduong.id.vn">
   
   <!-- Primary Meta Tags -->
-  <meta name="title" content="Catalunya English - Học Tiếng Anh Online Hiệu Quả" />
-  <meta name="description" content="Catalunya English - Nền tảng học tiếng Anh online với các khóa học chất lượng, bài học tương tác, và công cụ học tập hiện đại. Nâng cao trình độ tiếng Anh của bạn ngay hôm nay!" />
-  <meta name="keywords" content="học tiếng anh, học tiếng anh online, khóa học tiếng anh, luyện thi IELTS, từ vựng tiếng anh, phát âm tiếng anh, Catalunya English" />
-  <meta name="author" content="Catalunya English" />
+  <meta name="title" content="FSE Learning English - Học Tiếng Anh Online Hiệu Quả" />
+  <meta name="description" content="Nền tảng học tiếng Anh online với các khóa học chất lượng, bài học tương tác, và công cụ học tập hiện đại. Nâng cao trình độ tiếng Anh của bạn ngay hôm nay!" />
+  <meta name="keywords" content="học tiếng anh, học tiếng anh online, khóa học tiếng anh, luyện thi IELTS, từ vựng tiếng anh, phát âm tiếng anh, FSE Learning English" />
+  <meta name="author" content="FSE Learning English" />
   <meta name="robots" content="index, follow" />
   <meta name="language" content="Vietnamese" />
   <meta name="revisit-after" content="7 days" />
   
   <!-- Open Graph / Facebook -->
   <meta property="og:type" content="website" />
-  <meta property="og:url" content="https://catalunya-english.com/" />
-  <meta property="og:title" content="Catalunya English - Học Tiếng Anh Online Hiệu Quả" />
+  <meta property="og:url" content="https://learning-eng.hocnghiepvu.com/" />
+  <meta property="og:title" content="FSE Learning English - Học Tiếng Anh Online Hiệu Quả" />
   <meta property="og:description" content="Nền tảng học tiếng Anh online với các khóa học chất lượng, bài học tương tác, và công cụ học tập hiện đại." />
   <meta property="og:image" content="%PUBLIC_URL%/icon.svg" />
   <meta property="og:locale" content="vi_VN" />
-  <meta property="og:site_name" content="Catalunya English" />
+  <meta property="og:site_name" content="FSE Learning English" />
   
   <!-- Twitter -->
   <meta property="twitter:card" content="summary_large_image" />
-  <meta property="twitter:url" content="https://catalunya-english.com/" />
-  <meta property="twitter:title" content="Catalunya English - Học Tiếng Anh Online Hiệu Quả" />
+  <meta property="twitter:url" content="https://learning-eng.hocnghiepvu.com/" />
+  <meta property="twitter:title" content="FSE Learning English - Học Tiếng Anh Online Hiệu Quả" />
   <meta property="twitter:description" content="Nền tảng học tiếng Anh online với các khóa học chất lượng, bài học tương tác, và công cụ học tập hiện đại." />
   <meta property="twitter:image" content="%PUBLIC_URL%/icon.svg" />
   
   <!-- Additional Meta Tags -->
   <meta name="mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="default" />
-  <meta name="apple-mobile-web-app-title" content="Catalunya English" />
+  <meta name="apple-mobile-web-app-title" content="FSE Learning English" />
   <!--
       manifest.json provides metadata used when your web app is installed on a
       user's mobile device or desktop. See https://developers.google.com/web/fundamentals/web-app-manifest/
@@ -77,6 +81,14 @@
       js.defer = true;
       fjs.parentNode.insertBefore(js, fjs);
     }(document, 'script', 'facebook-jssdk'));
+  </script>
+  <!-- Google Analytics (GA4) - Replace G-XXXXXXXXXX with your actual Measurement ID -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag() { dataLayer.push(arguments); }
+    gtag('js', new Date());
+    gtag('config', 'G-XXXXXXXXXX');
   </script>
 </head>
 

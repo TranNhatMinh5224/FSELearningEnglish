@@ -23,7 +23,7 @@
 
 .account-upgrade-section p {
     font-size: var(--font-size-xs, clamp(0.75rem, 0.7rem + 0.25vw, 0.875rem));
-    color: var(--color-text-secondary, #6b7280);
+    color: #555555; /* Đậm hơn để đạt chuẩn Contrast 4.5:1 */
     margin-bottom: 14px;
     line-height: 1.4;
     animation: fadeInUp 0.6s ease-out 0.2s both;

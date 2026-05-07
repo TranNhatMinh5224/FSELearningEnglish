@@ -1,12 +1,12 @@
 const fs = require('fs');
 const path = require('path');
 
-// Configuration
-const BASE_URL = 'https://catalunya-english.com';
+// --- CẤU HÌNH ---
+const BASE_URL = 'https://learning-eng.hocnghiepvu.com';
 const PUBLIC_DIR = path.resolve(__dirname, '../public');
 const SITEMAP_PATH = path.join(PUBLIC_DIR, 'sitemap.xml');
 
-// Static routes
+// 1. Các trang tĩnh (Luôn luôn có)
 const staticRoutes = [
   '',
   '/home',
@@ -15,24 +15,27 @@ const staticRoutes = [
   '/my-courses',
   '/vocabulary-review',
   '/vocabulary-notebook',
+  '/search',
+  '/pricing'
 ];
 
-// In a real scenario, you would fetch these from your API
+// 2. Các trang động (Khóa học, Bài viết...)
+// Sau này bạn có thể viết code ở đây để fetch dữ liệu từ Database/API
 const dynamicRoutes = [
-  // '/course/1',
-  // '/course/2',
+  // Ví dụ: '/course/1', '/course/2', ...
 ];
 
 const generateSitemap = () => {
   const allRoutes = [...staticRoutes, ...dynamicRoutes];
+  const lastMod = new Date().toISOString().split('T')[0];
   
   const sitemapContent = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 ${allRoutes.map(route => `  <url>
     <loc>${BASE_URL}${route}</loc>
-    <lastmod>${new Date().toISOString().split('T')[0]}</lastmod>
-    <changefreq>${route === '' ? 'daily' : 'monthly'}</changefreq>
-    <priority>${route === '' ? '1.0' : '0.8'}</priority>
+    <lastmod>${lastMod}</lastmod>
+    <changefreq>${route === '' ? 'daily' : 'weekly'}</changefreq>
+    <priority>${route === '' ? '1.0' : route.includes('/course/') ? '0.9' : '0.8'}</priority>
   </url>`).join('\n')}
 </urlset>`;
 
@@ -41,9 +44,10 @@ ${allRoutes.map(route => `  <url>
       fs.mkdirSync(PUBLIC_DIR, { recursive: true });
     }
     fs.writeFileSync(SITEMAP_PATH, sitemapContent);
-    console.log(`✅ Sitemap generated successfully at: ${SITEMAP_PATH}`);
+    console.log(`✅ [Sitemap] Đã tạo thành công tại: ${SITEMAP_PATH}`);
+    console.log(`🔗 URL: ${BASE_URL}/sitemap.xml`);
   } catch (error) {
-    console.error('❌ Error generating sitemap:', error);
+    console.error('❌ [Sitemap] Lỗi khi tạo file:', error);
   }
 };
 

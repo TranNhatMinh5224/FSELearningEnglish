@@ -186,12 +186,17 @@ export default function SearchBox({ initialValue = "" }) {
                             setShowDropdown(true);
                         }
                     }}
+                    role="combobox"
+                    aria-autocomplete="list"
+                    aria-expanded={showDropdown}
+                    aria-haspopup="listbox"
+                    aria-controls="search-results-listbox"
                 />
             </div>
             {showDropdown && (
-                <div className="search-dropdown">
+                <div className="search-dropdown" id="search-results-listbox" role="listbox">
                     {isSearching ? (
-                        <div className="search-loading">
+                        <div className="search-loading" role="status">
                             <div className="loading-spinner"></div>
                             <span>Đang tìm kiếm...</span>
                         </div>
@@ -201,6 +206,8 @@ export default function SearchBox({ initialValue = "" }) {
                                 {searchResults.map((course, index) => (
                                     <div
                                         key={course.id}
+                                        role="option"
+                                        aria-selected={selectedIndex === index}
                                         className={`search-result-item ${selectedIndex === index ? 'selected' : ''}`}
                                         onClick={() => handleCourseClick(course.courseId || course.id)}
                                         onMouseEnter={() => setSelectedIndex(index)}
@@ -208,7 +215,8 @@ export default function SearchBox({ initialValue = "" }) {
                                         <div className="result-image-wrapper">
                                             <img
                                                 src={course.imageUrl}
-                                                alt={course.title}
+                                                alt=""
+                                                aria-hidden="true"
                                                 className="search-result-image"
                                             />
                                         </div>

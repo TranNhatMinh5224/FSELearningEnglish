@@ -8,5 +8,5 @@ Disallow: /teacher/
 Disallow: /profile/
 Disallow: /payment/
 
-# Sitemap location (add when sitemap is created)
-# Sitemap: https://catalunya-english.com/sitemap.xml
+# Sitemap location
+Sitemap: https://learning-eng.hocnghiepvu.com/sitemap.xml

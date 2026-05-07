@@ -66,7 +66,7 @@ export default function Home() {
       />
       <MainHeader />
 
-      <div className="home-container">
+      <main id="main-content" className="home-container">
         <Container>
           {/* SEO Helper: Hidden H1 for Search Engines */}
           <h1 className="visually-hidden">Catalunya English - Nền tảng học Tiếng Anh Online hiệu quả</h1>
@@ -93,7 +93,7 @@ export default function Home() {
             </div>
           </section>
         </Container>
-      </div>
+      </main>
 
       <Footer />
 
