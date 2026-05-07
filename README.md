@@ -20,47 +20,7 @@
 
 ---
 
-## 🏗️ 1. Kiến trúc hệ thống (System Architecture)
-
-```mermaid
-graph TD
-    %% CI/CD Flow
-    Developer[Developer] -- Git Push --> GH[GitHub Actions CI/CD]
-    GH -- Deploy --> VPS[Linux VPS Service]
-
-    %% Main Request Flow
-    Client[React 19 Frontend] -- HTTPS --> Nginx{Nginx Reverse Proxy}
-    Nginx -- Proxy --> API[.NET 8 Structured Monolith]
-    
-    subgraph "Core Backend Services"
-        API -- EF Core --> DB[(PostgreSQL + Pgvector)]
-        API -- Local Cache --> RAM[(VPS RAM - MemoryCache)]
-        API -- S3 Protocol --> MinIO[(MinIO Storage)]
-        API -- Background Task --> FFmpeg[FFmpeg Media Engine]
-    end
-    
-    subgraph "External AI & Auth"
-        API -- Semantic Kernel --> Gemini[Google Gemini AI]
-        API -- Speech SDK --> Azure[Azure Speech Services]
-    end
-
-    subgraph "Third-party Integrations"
-        API -- Webhook --> PayOS[PayOS Gateway]
-        API -- SMTP --> Mail[Email Service]
-        API -- REST --> Dict[Oxford/Free Dictionary API]
-    end
-    
-    %% Styling
-    style Nginx fill:#009639,color:#fff
-    style API fill:#512bd4,color:#fff
-    style DB fill:#336791,color:#fff
-    style GH fill:#2088ff,color:#fff
-    style RAM fill:#f39c12,color:#fff
-```
-
----
-
-## 🌍 2. Bối cảnh bài toán (The Problem)
+## 🌍 1. Bối cảnh bài toán (The Problem)
 
 Việc học tiếng Anh tại Việt Nam vẫn gặp nhiều hạn chế cốt lõi:
 - **Thiếu linh hoạt**: Phụ thuộc trung tâm, thời gian cố định.
@@ -84,7 +44,51 @@ Dựa trên bối cảnh đó, đề tài **"Xây dựng nền tảng Hybrid E-l
 
 ---
 
-## 🏗️ 3. Quy trình nghiệp vụ hệ thống (System Workflows - BPMN 2.0)
+## 🏗️ 3. Kiến trúc hệ thống (System Architecture)
+
+```mermaid
+C4Context
+    title Kiến trúc Hệ thống FSELearningEnglish (C4 Model)
+    
+    Person(user, "Người dùng", "Học viên và Giáo viên")
+    Person(dev, "Developer", "Kỹ sư phát triển")
+    
+    System_Boundary(platform, "FSE Learning Platform (Linux VPS)") {
+        Container(spa, "Frontend Application", "React 19", "Giao diện Web tương tác trực quan")
+        Container(proxy, "Reverse Proxy", "Nginx", "Xử lý SSL, Load Balancing & Định tuyến")
+        Container(api, "Backend Monolith", ".NET 8 Web API", "Xử lý nghiệp vụ chính, Clean Architecture")
+        
+        System_Boundary(data, "Data & Storage") {
+            ContainerDb(db, "Database", "PostgreSQL + Pgvector", "Lưu trữ dữ liệu quan hệ và Vector (AI)")
+            ContainerDb(minio, "Object Storage", "MinIO", "Lưu trữ tài nguyên truyền thông chuẩn S3")
+            ContainerDb(cache, "Memory Cache", "VPS RAM", "Rate Limiting và Caching nội bộ")
+        }
+    }
+    
+    System_Ext(github, "GitHub Actions", "CI/CD Pipeline")
+    System_Ext(payos, "PayOS Gateway", "Xử lý thanh toán QR Code")
+    System_Ext(gemini, "Google Gemini", "AI RAG & Chatbot")
+    System_Ext(azure, "Azure Speech", "Chấm điểm phát âm AI")
+
+    Rel(user, spa, "Sử dụng", "HTTPS")
+    Rel(spa, proxy, "Gọi API", "JSON/HTTPS")
+    Rel(proxy, api, "Chuyển tiếp", "Proxy")
+    
+    Rel(api, db, "Đọc/Ghi", "EF Core")
+    Rel(api, minio, "Quản lý File", "S3 Protocol")
+    Rel(api, cache, "Truy xuất nhanh", "In-Memory")
+    
+    Rel(api, payos, "Giao dịch", "Webhook/REST")
+    Rel(api, gemini, "Điều phối AI", "Semantic Kernel")
+    Rel(api, azure, "Phân tích Audio", "Speech SDK")
+    
+    Rel(dev, github, "Push Code", "Git")
+    Rel(github, platform, "Automated Deploy", "SSH")
+```
+
+---
+
+## 🏗️ 4. Quy trình nghiệp vụ hệ thống (System Workflows - BPMN 2.0)
 
 Để đảm bảo hệ thống vận hành ổn định và có khả năng chịu lỗi (Fault-tolerance), toàn bộ logic cốt lõi đã được chuẩn hóa bằng sơ đồ **BPMN 2.0**. Đây là tài liệu nền tảng giúp đội ngũ kỹ thuật hiểu sâu về luồng dữ liệu và các điểm rẽ nhánh nghiệp vụ.
 
@@ -112,7 +116,7 @@ Dựa trên bối cảnh đó, đề tài **"Xây dựng nền tảng Hybrid E-l
     <img src="./Office/BPMN/Purchare.png" alt="Purchase Flow" width="100%"/>
   </details>
 
-### 🧠 3.2 Nhóm Học thuật & Thuật toán (Learning Engine)
+### 🧠 4.2 Nhóm Học thuật & Thuật toán (Learning Engine)
 - **Quiz Lifecycle**: Quản lý bài thi, Auto-save và Auto-submit.  
   [[📄 File XML]](./Office/BPMN/Quiz_Lifecycle.xml)
   <details>
@@ -137,7 +141,7 @@ Dựa trên bối cảnh đó, đề tài **"Xây dựng nền tảng Hybrid E-l
     <img src="./Office/BPMN/SRS_Adaptive_Learning.png" alt="Adaptive SRS" width="100%"/>
   </details>
 
-### 🤖 3.3 Nhóm AI & Quản trị SaaS
+### 🤖 4.3 Nhóm AI & Quản trị SaaS
 - **AI Knowledge Hub (RAG)**: Truy xuất tri thức đa nguồn với Semantic Kernel.  
   [[📄 File XML]](./Office/BPMN/AI_RAG_Flow.xml)
   <details>
@@ -162,7 +166,7 @@ Dựa trên bối cảnh đó, đề tài **"Xây dựng nền tảng Hybrid E-l
     <img src="./Office/BPMN/SaaS_Quota_Governance.png" alt="SaaS Quota" width="100%"/>
   </details>
 
-### 🔐 3.4 Nhóm Bảo mật & Phân quyền
+### 🔐 4.4 Nhóm Bảo mật & Phân quyền
 - **Identity Security**: Đăng ký OTP, chống Spam và bảo mật 5 lớp.  
   [[📄 File XML]](./Office/BPMN/Identity_Security_Flow.xml)
   <details>
@@ -191,7 +195,7 @@ Dựa trên bối cảnh đó, đề tài **"Xây dựng nền tảng Hybrid E-l
 > Toàn bộ các file thiết kế chuyên sâu nằm tại thư mục: [`Office/BPMN/`](./Office/BPMN/)
 
 ---
-## 📄 4. Thiết kế Cơ sở dữ liệu (Database Design)
+## 📄 5. Thiết kế Cơ sở dữ liệu (Database Design)
 
 Hệ thống sử dụng **PostgreSQL** với hơn 40 thực thể được tổ chức khoa học, tập trung vào tính toàn vẹn dữ liệu và khả năng Audit (Kiểm toán).
 
@@ -201,7 +205,7 @@ Hệ thống sử dụng **PostgreSQL** với hơn 40 thực thể được tổ
 > *   🖼️ **Xem sơ đồ:** [Bản vẽ PNG](./Office/DB/Untitled.png) | [📐 Vector SVG (Khuyên dùng)](./Office/DB/Untitled.svg)
 > *   📄 **Tài liệu offline:** [Bản in PDF](./Office/DB/Untitled.pdf) | [💾 Cấu trúc SQL Schema](./Office/DB/Untitled.sql)
 
-### 💎 4.1 Trụ cột nghiệp vụ & Cấu trúc dữ liệu (Core Business Pillars)
+### 💎 5.1 Trụ cột nghiệp vụ & Cấu trúc dữ liệu (Core Business Pillars)
 
 | Module | Các thực thể chính (Entities) | Mối quan hệ cấu trúc dữ liệu |
 | :--- | :--- | :--- |
@@ -215,25 +219,25 @@ Hệ thống sử dụng **PostgreSQL** với hơn 40 thực thể được tổ
 
 ---
 
-## 🚀 5. Kiến trúc & Công nghệ (Tech Stack &#38; Architecture)
+## 🚀 6. Kiến trúc & Công nghệ (Tech Stack &#38; Architecture)
 
 Dự án được xây dựng theo mô hình **Client-Server** tách biệt, tối ưu hóa khả năng mở rộng và bảo trì.
 
-### 💻 5.1 Frontend (React Ecosystem)
+### 💻 6.1 Frontend (React Ecosystem)
 Hệ thống giao diện được thiết kế chú trọng vào trải nghiệm người dùng và hiệu năng, sử dụng các công nghệ hiện đại:
 - **Core:** Xây dựng trên nền tảng **React 19** mới nhất.
 - **State Management &#38; Caching:** Tích hợp **TanStack Query** để tối ưu hóa hiệu năng caching và xử lý mượt mà các trạng thái dữ liệu bất đồng bộ từ API.
 - **UI/UX:** Giao diện trực quan, đảm bảo tính **Responsive 100%** trên mọi thiết bị với **Bootstrap 5**.
 - **Data Visualization:** Trực quan hóa dữ liệu thống kê báo cáo chuyên nghiệp bằng biểu đồ **Recharts**.
 
-### ⚙️ 5.2 Backend (Structured Monolith & Clean Architecture)
+### ⚙️ 6.2 Backend (Structured Monolith & Clean Architecture)
 Hệ thống được thiết kế theo kiến trúc **Structured Monolith** (Monolith có cấu trúc), kết hợp tư duy **Domain-Driven Design (DDD)** và các nguyên tắc **SOLID** để giải quyết các nghiệp vụ giáo dục phức tạp. Việc phân tách rõ rệt 4 lớp giúp hệ thống dễ dàng bảo trì và sẵn sàng tách thành Microservices trong tương lai:
 - **Domain Layer**: Chứa Entities, Enums, Interfaces cốt lõi. Hoàn toàn độc lập với các thư viện bên ngoài.
 - **Application Layer**: Nơi định nghĩa các Use Cases, DTOs, AutoMapper, và Validator (FluentValidation). Áp dụng triệt để pattern **CQRS** (thông qua MediatR) để tách biệt luồng Đọc/Ghi.
 - **Infrastructure Layer**: Giao tiếp với Database (EF Core/PostgreSQL), Caching (Memory Cache), Storage (MinIO), và External APIs (PayOS, Azure Speech, Google Gemini).
 - **Presentation Layer (Web API)**: Quản lý Controllers, custom Middleware (Rate Limiting), và thiết lập Dependency Injection.
 
-### 🧠 5.3 Điểm nhấn Kỹ thuật nâng cao (Advanced Backend Engineering)
+### 🧠 6.3 Điểm nhấn Kỹ thuật nâng cao (Advanced Backend Engineering)
 Để giải quyết các bài toán phức tạp về hiệu năng, bảo mật và quản lý tài nguyên máy chủ, hệ thống không chỉ dừng lại ở các thao tác CRUD cơ bản mà còn áp dụng triệt để các giải pháp phần mềm chuyên sâu:
 - **Design Patterns Thực chiến:**
   - **Strategy Pattern:** Áp dụng cho hệ thống chấm điểm đa dạng (`IScoringStrategy`: *Trắc nghiệm, Điền từ, Nối câu, Sắp xếp...*), giúp dễ dàng thêm loại câu hỏi mới mà không sửa code cũ (Open/Closed Principle).
@@ -249,11 +253,11 @@ Hệ thống được thiết kế theo kiến trúc **Structured Monolith** (Mo
 
 ---
 
-## 🚀 6. Triển khai & Vận hành (Deployment &#38; DevOps)
+## 🚀 7. Triển khai & Vận hành (Deployment &#38; DevOps)
 
 Hệ thống được thiết kế để vận hành tự động (Automation-first), đảm bảo khả năng triển khai nhanh và ổn định.
 
-### 🔄 6.1 Chu trình CI/CD (GitHub Actions)
+### 🔄 7.1 Chu trình CI/CD (GitHub Actions)
 Tự động hóa toàn bộ quy trình từ lúc Push code đến khi sản phẩm lên môi trường Production:
 - **CI Pipeline**: Tự động Build, Restore và kiểm tra lỗi cú pháp cho cả Frontend và Backend.
 - **CD Pipeline**: Sử dụng **Self-hosted Runner** trên VPS Linux để thực hiện:
@@ -261,7 +265,7 @@ Tự động hóa toàn bộ quy trình từ lúc Push code đến khi sản ph�
     - **Frontend**: Build mã nguồn và đồng bộ hóa dữ liệu lên Web Server.
     - **Service Management**: Tự động Restart các **Systemd Service** để áp dụng phiên bản mới mà không cần can thiệp thủ công.
 
-### 🌐 6.2 Hạ tầng Production (Native Linux Deployment)
+### 🌐 7.2 Hạ tầng Production (Native Linux Deployment)
 Hệ thống được triển khai tối ưu hiệu năng trực tiếp trên nền tảng Linux (không qua lớp ảo hóa container cho môi trường chạy chính):
 - **Server:** VPS Linux (Ubuntu), quản lý vòng đời ứng dụng qua **Systemd Services**.
 - **Web Server:** **Nginx** đóng vai trò Reverse Proxy, xử lý SSL (HTTPS), nén dữ liệu và bảo mật đầu cuối.
@@ -271,7 +275,7 @@ Hệ thống được triển khai tối ưu hiệu năng trực tiếp trên n�
 
 ---
 
-## 🛠️ 7. Setup & Development
+## 🛠️ 8. Setup & Development
 
 Dự án hỗ trợ hai phương thức thiết lập môi trường phát triển:
 - **Portable Setup (Khuyên dùng):** Sử dụng **Docker Compose** để khởi chạy toàn bộ hệ thống chỉ với một câu lệnh.
@@ -281,27 +285,27 @@ Dự án hỗ trợ hai phương thức thiết lập môi trường phát tri�
 
 ---
 
-## 🌟 8. Các tính năng tiêu biểu (Key Featured Highlights)
+## 🌟 9. Các tính năng tiêu biểu (Key Featured Highlights)
 
 Hệ thống vượt xa các nền tảng LMS thông thường nhờ việc tích hợp các giải pháp kỹ thuật chuyên sâu và mô hình kinh doanh hiện đại.
 
-### 🤖 8.1 Hệ thống AI RAG (Retrieval-Augmented Generation)
+### 🤖 9.1 Hệ thống AI RAG (Retrieval-Augmented Generation)
 - **Tư duy:** Không chỉ là một wrapper gọi API AI đơn thuần, hệ thống sử dụng **Semantic Kernel** để điều phối quy trình RAG.
 - **Giá trị:** AI có khả năng truy xuất tri thức từ kho dữ liệu nội bộ (Courses, Policies, Teacher Packages) để đưa ra phản hồi chính xác, giảm thiểu hiện tượng "ảo giác" (Hallucination).
 
-### 📈 8.2 Học tập thích ứng (Adaptive Learning - SM-2)
+### 📈 9.2 Học tập thích ứng (Adaptive Learning - SM-2)
 - **Cơ chế:** Hiện thực hóa thuật toán **SuperMemo-2 (SM-2)** để tự động hóa việc cá nhân hóa lộ trình ôn tập.
 - **Giá trị:** Hệ thống tự động tính toán thời điểm "vàng" (Interval) để nhắc nhở người dùng ôn tập lại từ vựng/kiến thức dựa trên chất lượng phản hồi, tối ưu hóa việc ghi nhớ dài hạn.
 
-### 👩‍🏫 8.3 Mô hình SaaS "Teacher Empowerment"
+### 👩‍🏫 9.3 Mô hình SaaS "Teacher Empowerment"
 - **Cơ chế:** Cung cấp giải pháp **Software-as-a-Service** cho giáo viên. Mỗi giáo viên có thể sở hữu không gian quản lý riêng, lớp học riêng và các gói dịch vụ (Teacher Packages).
 - **Giá trị:** Hệ thống quản lý chặt chẽ hạn ngạch tài nguyên (Quotas) và các gói đăng ký, cho phép nền tảng mở rộng quy mô kinh doanh không giới hạn.
 
-### 💳 8.4 Fintech Wallet & Auto-Payment
+### 💳 9.4 Fintech Wallet & Auto-Payment
 - **Cơ chế:** Tích hợp cổng thanh toán **PayOS (QR Code)** với quy trình cộng tiền tự động. 
 - **Giá trị:** Đảm bảo tính toàn vẹn dữ liệu tài chính thông qua cơ chế **Idempotency Webhook** và hệ thống **Audit Trail** ghi lại mọi biến động số dư ví (Balance History).
 
-### 🎤 8.5 Chấm điểm phát âm bằng AI (AI Pronunciation Assessment)
+### 🎤 9.5 Chấm điểm phát âm bằng AI (AI Pronunciation Assessment)
 - **Cơ chế:** Tận dụng sức mạnh của **Azure Speech Services** để nhận diện và phân tích phổ thanh âm theo thời gian thực.
 - **Giá trị:** Cung cấp phản hồi chi tiết tới từng âm tiết (Phonemes) bao gồm độ chính xác, độ trôi chảy và ngữ điệu, giúp học sinh tự luyện nói chuẩn bản xứ mà không cần giáo viên kèm 1-1. *(Lưu ý: Đối với kỹ năng Viết - Essay, hệ thống đề cao sự tương tác nên sử dụng cơ chế Giáo viên chấm thủ công có phản hồi chi tiết).*
 
