@@ -6,7 +6,7 @@ namespace LearningEnglish.Application.DTOs
     {
         public int ProductId { get; set; }
         public ProductType typeproduct { get; set; }
-        public string IdempotencyKey { get; set; } = string.Empty; // UUID from client to prevent duplicate payments
+        public string? IdempotencyKey { get; set; } // UUID from client to prevent duplicate payments
         public PaymentGateway Gateway { get; set; } = PaymentGateway.InternalWallet; // Default to Wallet for all products
     }
     // tạo thông tin thanh toán trả về cho client

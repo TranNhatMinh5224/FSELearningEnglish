@@ -153,7 +153,7 @@ namespace LearningEnglish.Application.Service.PaymentService
                         ProductType = request.typeproduct,
                         ProductId = request.ProductId,
                         OrderCode = orderCode,
-                        IdempotencyKey = request.IdempotencyKey,
+                        IdempotencyKey = string.IsNullOrWhiteSpace(request.IdempotencyKey) ? null : request.IdempotencyKey,
                         Gateway = request.Gateway,
                         Amount = amount,
                         Status = PaymentStatus.Pending,
