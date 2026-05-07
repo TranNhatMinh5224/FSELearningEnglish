@@ -4,6 +4,7 @@ import AppRoutes from "./Routes";
 import { EnumProvider } from "./Context/EnumContext";
 import { ThemeProvider } from "./Context/ThemeContext";
 import { AssetProvider } from "./Context/AssetContext";
+import GoogleAnalytics from "./Components/Common/GoogleAnalytics/GoogleAnalytics";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import "./Components/Common/ModalFix/ModalFix.css";
@@ -30,6 +31,7 @@ function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <BrowserRouter>
+        <GoogleAnalytics />
         <ThemeProvider>
           <EnumProvider>
             <AssetProvider>
