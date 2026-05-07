@@ -16,7 +16,7 @@ export default function SEO({
   title = "Catalunya English - Học Tiếng Anh Online Hiệu Quả",
   description = "Nền tảng học tiếng Anh online với các khóa học chất lượng, bài học tương tác, và công cụ học tập hiện đại.",
   keywords = "học tiếng anh, học tiếng anh online, khóa học tiếng anh, luyện thi IELTS, từ vựng tiếng anh, phát âm tiếng anh, Catalunya English",
-  image = "/logo512.png",
+  image = "/og-image.png",
   url = typeof window !== "undefined" ? window.location.href : "",
   type = "website",
   schema = null,

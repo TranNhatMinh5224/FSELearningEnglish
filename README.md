@@ -378,32 +378,64 @@ Dưới đây là một số giao diện nổi bật khác của hệ thống, t
 
 ---
 
-## 📈 11. Chỉ số hiệu năng (Performance & SEO)
+## 🚀 Hiệu suất & Tối ưu hóa (Lighthouse Audit)
 
-Hệ thống được kiểm tra và tối ưu hóa thông qua **Google Lighthouse**, đạt được những con số ấn tượng chứng minh chất lượng mã nguồn và khả năng tối ưu hạ tầng:
+Hệ thống được kiểm tra và tối ưu hóa chuyên sâu để đáp ứng các tiêu chuẩn khắt khe nhất của **Core Web Vitals**, đạt được những con số ấn tượng trên cả thiết bị di động và máy tính:
 
 <div align="center">
   <img src="https://img.shields.io/badge/SEO-100%2F100-brightgreen?style=for-the-badge&logo=google" alt="SEO 100"/>
-  <img src="https://img.shields.io/badge/Accessibility-87%2F100-blue?style=for-the-badge&logo=accessible-icon" alt="Accessibility 87"/>
-  <img src="https://img.shields.io/badge/Best_Practices-73%2F100-orange?style=for-the-badge&logo=lighthouse" alt="Best Practices 73"/>
-  <img src="https://img.shields.io/badge/Performance_Mobile-77%2F100-yellow?style=for-the-badge&logo=speedtest" alt="Performance Mobile 77"/>
-  <img src="https://img.shields.io/badge/Performance_Desktop-77%2F100-yellow?style=for-the-badge&logo=speedtest" alt="Performance Desktop 77"/>
+  <img src="https://img.shields.io/badge/Accessibility-96%2F100-blue?style=for-the-badge&logo=accessible-icon" alt="Accessibility 96"/>
+  <img src="https://img.shields.io/badge/Best_Practices-100%2F100-brightgreen?style=for-the-badge&logo=lighthouse" alt="Best Practices 100"/>
+  <img src="https://img.shields.io/badge/Performance_Mobile-85%2F100-green?style=for-the-badge&logo=speedtest" alt="Performance Mobile 85"/>
+  <img src="https://img.shields.io/badge/Performance_Desktop-97%2F100-brightgreen?style=for-the-badge&logo=speedtest" alt="Performance Desktop 97"/>
 </div>
 
 ### 📊 Chi tiết các chỉ số cốt lõi (Core Web Vitals)
 
-| Chỉ số | Kết quả (Desktop) | Kết quả (Mobile) | Ý nghĩa kỹ thuật |
-| :--- | :--- | :--- | :--- |
-| **Performance** | **77 / 100** | **77 / 100** | Tăng trưởng vượt bậc (từ 43 lên 77). |
-| **Total Blocking Time** | **0 ms** | **3060 ms** | Desktop đạt mức hoàn hảo về xử lý JS. |
-| **Largest Contentful Paint**| **1.6 s** | **5.5 s** | Tối ưu hóa thời gian hiển thị nội dung chính. |
-| **SEO** | **100 / 100** | **100 / 100** | Điểm tuyệt đối trên mọi nền tảng. |
+| Chỉ số | Kết quả (Desktop) 💻 | Kết quả (Mobile) 📱 | Ý nghĩa kỹ thuật |
+| :--- | :---: | :---: | :--- |
+| **Performance Score** | **97 / 100** | **85 / 100** | Trạng thái nạp trang tối ưu (Vùng xanh). |
+| **Total Blocking Time** | **0 ms** | **20 ms** | Gần như không có hiện tượng giật lag khi tải JS. |
+| **Largest Contentful Paint**| **1.0 s** | **3.6 s** | Nội dung chính hiển thị cực nhanh. |
+| **SEO** | **100 / 100** | **100 / 100** | Tối ưu hóa tìm kiếm tuyệt đối. |
 
-### ⚡ Các bước tối ưu đã thực hiện (Performance Tuning)
-1.  **JS Code Splitting:** Triển khai `React.lazy` và `Suspense` cho toàn bộ hệ thống Routes (60+ trang), giảm 70% dung lượng JS ban đầu.
-2.  **Infrastructure:** Cấu hình **Nginx Gzip (Level 6)** và **Browser Caching** giúp nén dữ liệu truyền tải cực mạnh.
-3.  **Resource Loading:** Áp dụng `preconnect` cho các domain Google/Facebook để giảm thời gian chờ DNS.
-4.  **UI/UX:** Tối ưu hóa **SearchBox** và các Container để duy trì layout ổn định trong mọi trạng thái loading.
-5.  **SEO:** Đạt điểm tuyệt đối **100/100** nhờ hệ thống Metadata chuẩn và Semantic HTML.
+### 🛠 Các chiến lược tối ưu hóa (Performance Tuning)
+1.  **Lazy Loading Third-party Scripts:** Sử dụng Custom Hook `useScript` để trì hoãn nạp Google/Facebook SDK, giúp giảm 99% TBT trên Mobile (từ 3060ms xuống 20ms).
+2.  **Infrastructure Optimization:** Cấu hình **Nginx Gzip (Level 6)** và **Browser Caching (1 year)** giúp nén dữ liệu truyền tải và nạp trang tức thì khi quay lại.
+3.  **Image & Resource Priority:** Áp dụng `loading="lazy"` cho ảnh phụ và `fetchpriority="high"` cho các thành phần quan trọng (LCP). Sẵn sàng cấu trúc hỗ trợ WebP.
+4.  **JS Code Splitting:** Triển khai React `lazy` và `Suspense` cho toàn bộ hệ thống Routes (60+ trang) và các widget nặng như Chatbot.
+5.  **Font & DNS Optimization:** Sử dụng `preconnect` cho Google Fonts và CDN để giảm thời gian chờ DNS/Font-load, loại bỏ hiện tượng giật chữ (FOIT).
+
+### 📸 Minh chứng thực tế
+
+<div align="center">
+  <img src="office/Screenshot/performanceMobile.png" width="45%" alt="Lighthouse Mobile Score">
+  <img src="office/Screenshot/PerformanceDesktop.png" width="45%" alt="Lighthouse Desktop Score">
+</div>
+
+
+## 🛡 Đảm bảo chất lượng & Bảo mật (QA & Security)
+
+Dự án tuân thủ nghiêm ngặt các tiêu chuẩn về độ tin cậy (Reliability) và tính sẵn sàng cao (High Availability), đảm bảo hệ thống vận hành ổn định trong các kịch bản thực tế khắc nghiệt nhất.
+
+### 📈 Kiểm thử áp lực & Giới hạn chịu tải (Stress & Breakpoint Testing)
+Hệ thống đã trải qua các bài kiểm tra áp lực cực hạn bằng **k6** để tìm điểm gãy và xác định dung lượng tối đa:
+- **Ngưỡng tải ổn định (Scalability):** Vượt qua mức **2,000 người dùng truy cập đồng thời** (Concurrent Users) mà không hề có dấu hiệu suy giảm hiệu năng.
+- **Khả năng xử lý (Throughput):** Xử lý thành công **268,810 yêu cầu** trong 5 phút, tương đương trung bình **~900 Requests Per Second (RPS)**.
+- **Độ tin cậy (Reliability):** Tỉ lệ lỗi duy trì ở mức **0.00%** (Gần như tuyệt đối) trong suốt quá trình tăng tải đột ngột.
+- **Độ trễ (Latency):** Phản hồi cực nhanh với ngưỡng p(95) chỉ **252ms**, đảm bảo trải nghiệm mượt mà ngay cả khi hệ thống đang ở mức tải cực đại.
+
+### 🔐 Bảo mật & Độ tin cậy (Security & Reliability)
+- **Infrastructure Security:** Cấu hình Nginx tối ưu với các Header bảo mật chuyên sâu (`CSP`, `HSTS`, `X-Content-Type-Options`, `X-Frame-Options`) giúp ngăn chặn các cuộc tấn công phổ biến như Clickjacking và đánh cắp phiên làm việc.
+- **Data Integrity:** Hệ thống được thiết kế với cơ chế kiểm tra dữ liệu đầu vào nghiêm ngặt, đảm bảo tính toàn vẹn của dữ liệu người dùng và các giao dịch tài chính (Top-up).
+- **Extreme Load Stability:** Vượt qua bài kiểm tra Stress Test với 2,000 user đồng thời, chứng minh khả năng phục hồi và độ ổn định của hạ tầng Server trong các điều kiện truy cập đột biến.
+
+
+### 📸 Minh chứng thực tế (Load Test Evidence)
+
+<div align="center">
+  <img src="office/Screenshot/K6.png" width="45%" alt="k6 Load Test Result 1">
+  <img src="office/Screenshot/k62.png" width="45%" alt="k6 Load Test Result 2">
+</div>
 
 ---
