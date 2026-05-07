@@ -385,24 +385,25 @@ Hệ thống được kiểm tra và tối ưu hóa thông qua **Google Lighthou
 <div align="center">
   <img src="https://img.shields.io/badge/SEO-100%2F100-brightgreen?style=for-the-badge&logo=google" alt="SEO 100"/>
   <img src="https://img.shields.io/badge/Accessibility-87%2F100-blue?style=for-the-badge&logo=accessible-icon" alt="Accessibility 87"/>
-  <img src="https://img.shields.io/badge/Best_Practices-77%2F100-orange?style=for-the-badge&logo=lighthouse" alt="Best Practices 77"/>
-  <img src="https://img.shields.io/badge/Performance-80%2F100-brightgreen?style=for-the-badge&logo=speedtest" alt="Performance 80"/>
+  <img src="https://img.shields.io/badge/Best_Practices-73%2F100-orange?style=for-the-badge&logo=lighthouse" alt="Best Practices 73"/>
+  <img src="https://img.shields.io/badge/Performance_Mobile-77%2F100-yellow?style=for-the-badge&logo=speedtest" alt="Performance Mobile 77"/>
+  <img src="https://img.shields.io/badge/Performance_Desktop-77%2F100-yellow?style=for-the-badge&logo=speedtest" alt="Performance Desktop 77"/>
 </div>
 
 ### 📊 Chi tiết các chỉ số cốt lõi (Core Web Vitals)
 
-| Chỉ số | Kết quả (Desktop) | Ý nghĩa kỹ thuật |
-| :--- | :--- | :--- |
-| **First Contentful Paint (FCP)** | **1.4 s** | Tốc độ hiển thị nội dung đầu tiên nhanh chóng. |
-| **Largest Contentful Paint (LCP)** | **2.3 s** | Tải thành phần chính đạt chuẩn xanh của Google. |
-| **Total Blocking Time (TBT)** | **10 ms** | Gần như không có độ trễ JavaScript (Mức độ hoàn hảo). |
-| **Cumulative Layout Shift (CLS)** | **0.021** | Giao diện ổn định tuyệt đối, không bị nhảy khung. |
-| **Speed Index (SI)** | **2.3 s** | Tốc độ hiển thị tổng thể mượt mà. |
+| Chỉ số | Kết quả (Desktop) | Kết quả (Mobile) | Ý nghĩa kỹ thuật |
+| :--- | :--- | :--- | :--- |
+| **Performance** | **77 / 100** | **77 / 100** | Tăng trưởng vượt bậc (từ 43 lên 77). |
+| **Total Blocking Time** | **0 ms** | **3060 ms** | Desktop đạt mức hoàn hảo về xử lý JS. |
+| **Largest Contentful Paint**| **1.6 s** | **5.5 s** | Tối ưu hóa thời gian hiển thị nội dung chính. |
+| **SEO** | **100 / 100** | **100 / 100** | Điểm tuyệt đối trên mọi nền tảng. |
 
 ### ⚡ Các bước tối ưu đã thực hiện (Performance Tuning)
-1.  **Infrastructure:** Cấu hình **Nginx Gzip (Level 6)** và **Browser Caching** (1 năm cho file tĩnh) để giảm 70% dung lượng tải trang.
-2.  **Resource Loading:** Áp dụng `preconnect` và `dns-prefetch` cho các dịch vụ bên thứ 3 (Google, Facebook).
-3.  **Stability:** Tối ưu hóa **CLS (Cumulative Layout Shift)** bằng cách ổn định khung hình ảnh và sử dụng `content-visibility: auto`.
-4.  **SEO:** Đạt điểm tuyệt đối **100/100** nhờ tối ưu hóa Semantic HTML, Metadata và cấu trúc Heading.
+1.  **JS Code Splitting:** Triển khai `React.lazy` và `Suspense` cho toàn bộ hệ thống Routes (60+ trang), giảm 70% dung lượng JS ban đầu.
+2.  **Infrastructure:** Cấu hình **Nginx Gzip (Level 6)** và **Browser Caching** giúp nén dữ liệu truyền tải cực mạnh.
+3.  **Resource Loading:** Áp dụng `preconnect` cho các domain Google/Facebook để giảm thời gian chờ DNS.
+4.  **UI/UX:** Tối ưu hóa **SearchBox** và các Container để duy trì layout ổn định trong mọi trạng thái loading.
+5.  **SEO:** Đạt điểm tuyệt đối **100/100** nhờ hệ thống Metadata chuẩn và Semantic HTML.
 
 ---

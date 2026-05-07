@@ -27,8 +27,9 @@
 
 .search-box input {
     width: 100%;
-    min-width: clamp(180px, 11.25rem + 1.25vw, 200px);
-    max-width: clamp(800px, 50rem + 20vw, 1200px);
+    /* Fix: Ensure consistent width on all states and prevent collapse */
+    min-width: 300px; 
+    max-width: 1200px;
     padding: 14px 20px 14px 48px;
     border: 2px solid var(--color-border-medium, #d1d5db);
     border-radius: 24px;
@@ -355,10 +356,11 @@
         margin: 0;
     }
     
-    .search-box-container .search-input {
+    .search-box input {
         font-size: 14px;
         padding: 12px 12px 12px 40px;
         border-radius: 12px;
+        min-width: 100%; /* Đảm bảo full width trên mobile */
     }
 
     .search-box-container .search-icon {

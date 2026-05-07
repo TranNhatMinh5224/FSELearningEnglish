@@ -18,7 +18,20 @@ export default function SuggestedCoursesSection({ courses = [] }) {
         <div className="suggested-courses-section">
             <h3 className="fs-3">Catalunya English -Tiếng Anh Số 1 Việt Nam </h3>
             {loading ? (
-                <div className="loading-message">Đang tải khóa học...</div>
+                <div className="row g-3 g-md-4">
+                    {[1, 2, 3, 4].map((i) => (
+                        <div key={i} className="col-12 col-sm-6 col-lg-4 col-xl-3">
+                            <div className="course-card-skeleton">
+                                <div className="skeleton-image"></div>
+                                <div className="skeleton-content">
+                                    <div className="skeleton-title"></div>
+                                    <div className="skeleton-price"></div>
+                                    <div className="skeleton-button"></div>
+                                </div>
+                            </div>
+                        </div>
+                    ))}
+                </div>
             ) : error ? (
                 <div className="error-message">{error.message || "Lỗi khi tải dữ liệu"}</div>
             ) : displayCourses.length > 0 ? (

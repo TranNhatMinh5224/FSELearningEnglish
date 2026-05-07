@@ -4,6 +4,7 @@ import { ROUTE_PATHS } from "./Paths";
 
 // Import pages
 import Loading from "../Pages/Loading/Loading";
+import PageLoader from "../Components/Common/PageLoader/PageLoader";
 const Login = lazy(() => import("../Pages/Login/Login"));
 const Register = lazy(() => import("../Pages/Register/Register"));
 const Home = lazy(() => import("../Pages/Home/Home"));
@@ -79,7 +80,7 @@ export default function AppRoutes() {
   const location = useLocation();
 
   return (
-    <Suspense fallback={<Loading />}>
+    <Suspense fallback={<PageLoader />}>
       <Routes key={location.pathname}>
         {/* Public routes */}
         <Route path={ROUTE_PATHS.ROOT} element={<Loading />} />

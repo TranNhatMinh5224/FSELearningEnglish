@@ -72,9 +72,11 @@ export default function Home() {
           <h1 className="visually-hidden">Catalunya English - Nền tảng học Tiếng Anh Online hiệu quả</h1>
 
           <WelcomeSection displayName={displayName} />
-          <div className="mb-2">
-            <SearchBox />
-          </div>
+          <Row className="mb-4">
+            <Col xs={12}>
+              <SearchBox />
+            </Col>
+          </Row>
           <MyCoursesSection />
 
           <section className="row g-3 g-md-4 mt-3 pt-2">
