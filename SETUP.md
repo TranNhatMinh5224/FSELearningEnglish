@@ -21,7 +21,22 @@ Dành cho những người muốn chạy nhanh dự án mà không cần cài đ
 
 ---
 
-## 💻 2. Phương thức 2: Manual Setup (Cài đặt thủ công)
+## 🛠️ 2. Phương thức 2: Full Stack Development (Hot-reload)
+Dành cho lập trình viên muốn sửa code và thấy thay đổi ngay lập tức (Real-time). Đây là phương thức **chuyên nghiệp nhất** để phát triển.
+
+1.  **Chuẩn bị:** Copy `.env.example` thành `.env`.
+2.  **Khởi chạy:**
+    ```bash
+    docker-compose -f docker-compose.dev.yml up --build
+    ```
+3.  **Tính năng:**
+    *   **Backend:** Tự động khởi động lại khi bạn sửa file `.cs` (nhờ `dotnet watch`).
+    *   **Frontend:** Tự động cập nhật giao diện khi bạn sửa file `.js/.css` (nhờ `webpack dev server`).
+    *   **Database:** Đã tích hợp sẵn Healthcheck để đảm bảo Backend chỉ chạy khi DB đã sẵn sàng.
+
+---
+
+## 💻 3. Phương thức 3: Manual Setup (Cài đặt thủ công)
 Dành cho các nhà phát triển muốn can thiệp sâu vào code và debug trực tiếp.
 
 ### 2.1 Yêu cầu hệ thống (Prerequisites)

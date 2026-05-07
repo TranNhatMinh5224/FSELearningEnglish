@@ -8,7 +8,59 @@
 
 ---
 
-## 🌍 1. Bối cảnh bài toán (The Problem)
+## ⚡ Quick Snapshot (15s Overview)
+
+*   **Core:** AI-Powered English Learning SaaS (Hybrid Model).
+*   **Tech Stack:** React 19 + .NET 8 + PostgreSQL (Pgvector).
+*   **AI Engine:** RAG Chatbot (Semantic Kernel) + Azure Speech + Gemini.
+*   **Adaptive:** Spaced Repetition (SM-2 Algorithm).
+*   **Fintech:** Wallet system + PayOS Integration + Audit Trail.
+*   **Architecture:** Structured Monolith (Clean Architecture) + DDD + SOLID.
+*   **DevOps:** GitHub Actions (CI/CD) + Linux VPS (Nginx, Systemd).
+
+---
+
+## 🏗️ 1. Kiến trúc hệ thống (System Architecture)
+
+```mermaid
+graph TD
+    %% CI/CD Flow
+    Developer[Developer] -- Git Push --> GH[GitHub Actions CI/CD]
+    GH -- Deploy --> VPS[Linux VPS Service]
+
+    %% Main Request Flow
+    Client[React 19 Frontend] -- HTTPS --> Nginx{Nginx Reverse Proxy}
+    Nginx -- Proxy --> API[.NET 8 Structured Monolith]
+    
+    subgraph "Core Backend Services"
+        API -- EF Core --> DB[(PostgreSQL + Pgvector)]
+        API -- Local Cache --> RAM[(VPS RAM - MemoryCache)]
+        API -- S3 Protocol --> MinIO[(MinIO Storage)]
+        API -- Background Task --> FFmpeg[FFmpeg Media Engine]
+    end
+    
+    subgraph "External AI & Auth"
+        API -- Semantic Kernel --> Gemini[Google Gemini AI]
+        API -- Speech SDK --> Azure[Azure Speech Services]
+    end
+
+    subgraph "Third-party Integrations"
+        API -- Webhook --> PayOS[PayOS Gateway]
+        API -- SMTP --> Mail[Email Service]
+        API -- REST --> Dict[Oxford/Free Dictionary API]
+    end
+    
+    %% Styling
+    style Nginx fill:#009639,color:#fff
+    style API fill:#512bd4,color:#fff
+    style DB fill:#336791,color:#fff
+    style GH fill:#2088ff,color:#fff
+    style RAM fill:#f39c12,color:#fff
+```
+
+---
+
+## 🌍 2. Bối cảnh bài toán (The Problem)
 
 Việc học tiếng Anh tại Việt Nam vẫn gặp nhiều hạn chế cốt lõi:
 - **Thiếu linh hoạt**: Phụ thuộc trung tâm, thời gian cố định.
@@ -149,12 +201,17 @@ Hệ thống sử dụng **PostgreSQL** với hơn 40 thực thể được tổ
 > *   🖼️ **Xem sơ đồ:** [Bản vẽ PNG](./Office/DB/Untitled.png) | [📐 Vector SVG (Khuyên dùng)](./Office/DB/Untitled.svg)
 > *   📄 **Tài liệu offline:** [Bản in PDF](./Office/DB/Untitled.pdf) | [💾 Cấu trúc SQL Schema](./Office/DB/Untitled.sql)
 
-### 4.1 Các cụm thực thể chiến lược
-- **🔐 Identity & Access Control**: Quản lý tài khoản và cơ chế phân quyền động (Dynamic Permissions) tới từng Endpoint.
-- **📚 Learning Management (LMS)**: Cấu trúc cây linh hoạt (Course -> Module -> Lesson -> Material) hỗ trợ đa dạng định dạng nội dung.
-- **📊 Progress & Adaptive Logic**: Lưu trữ dấu chân học tập chi tiết, phục vụ báo cáo tiến độ và tham số cho thuật toán SRS.
-- **💳 Fintech & Audit Trail**: Lưu trữ lịch sử biến động số dư ví (Balance Before/After) giúp minh bạch hóa mọi giao dịch tài chính.
-- **🧠 Vector Knowledge Base**: Kho tri thức đã được nhúng (Embedding) phục vụ cho hệ thống AI RAG.
+### 💎 4.1 Trụ cột nghiệp vụ & Cấu trúc dữ liệu (Core Business Pillars)
+
+| Module | Các thực thể chính (Entities) | Mối quan hệ cấu trúc dữ liệu |
+| :--- | :--- | :--- |
+| **🔐 Identity** | `User`, `Role`, `RolePermission` | Áp dụng RBAC, liên kết N-N giữa Role và Permission. |
+| **📚 LMS Core** | `Course`, `Module`, `Lesson`, `Quiz` | Cấu trúc phân cấp 1-N chặt chẽ, tối ưu việc truy vấn nội dung học tập. |
+| **📊 Adaptive** | `Progress`, `QuizResult` | Lưu vết lịch sử làm bài để tính toán tham số SM-2 (Interval, Repetition). |
+| **💳 Fintech** | `Wallet`, `PaymentTransaction`, `WebhookQueue` | Lưu trữ Audit Trail với cơ chế Append-Only để đối soát lịch sử số dư. |
+| **🧠 AI Vector** | `CourseKnowledge`, `PolicyKnowledge` | Tích hợp kiểu dữ liệu Vector (pgvector) để phục vụ AI Semantic Search. |
+| **👩‍🏫 SaaS Mgr** | `TeacherPackage`, `TeacherSubscription` | Quản lý vòng đời gói dịch vụ giáo viên (Start Date, End Date, Quotas). |
+| **📝 Evaluation** | `Essay`, `EssaySubmission`, `Pronunciation` | Liên kết giữa người học và kết quả đánh giá (Giáo viên chấm hoặc AI chấm). |
 
 ---
 
@@ -169,16 +226,26 @@ Hệ thống giao diện được thiết kế chú trọng vào trải nghiệm
 - **UI/UX:** Giao diện trực quan, đảm bảo tính **Responsive 100%** trên mọi thiết bị với **Bootstrap 5**.
 - **Data Visualization:** Trực quan hóa dữ liệu thống kê báo cáo chuyên nghiệp bằng biểu đồ **Recharts**.
 
-### ⚙️ 5.2 Backend (Structured Monolith)
-Hệ thống được thiết kế theo kiến trúc **Structured Monolith** (Monolith có cấu trúc), giúp tối ưu chi phí vận hành nhưng vẫn đảm bảo tính module hóa cao. Backend sử dụng tư tưởng  **Clean Architecture** và các nguyên tắc **SOLID**, kết hợp với tư duy **Domain-Driven Design (DDD)** để giải quyết các nghiệp vụ giáo dục phức tạp.
+### ⚙️ 5.2 Backend (Structured Monolith & Clean Architecture)
+Hệ thống được thiết kế theo kiến trúc **Structured Monolith** (Monolith có cấu trúc), kết hợp tư duy **Domain-Driven Design (DDD)** và các nguyên tắc **SOLID** để giải quyết các nghiệp vụ giáo dục phức tạp. Việc phân tách rõ rệt 4 lớp giúp hệ thống dễ dàng bảo trì và sẵn sàng tách thành Microservices trong tương lai:
+- **Domain Layer**: Chứa Entities, Enums, Interfaces cốt lõi. Hoàn toàn độc lập với các thư viện bên ngoài.
+- **Application Layer**: Nơi định nghĩa các Use Cases, DTOs, AutoMapper, và Validator (FluentValidation). Áp dụng triệt để pattern **CQRS** (thông qua MediatR) để tách biệt luồng Đọc/Ghi.
+- **Infrastructure Layer**: Giao tiếp với Database (EF Core/PostgreSQL), Caching (Memory Cache), Storage (MinIO), và External APIs (PayOS, Azure Speech, Google Gemini).
+- **Presentation Layer (Web API)**: Quản lý Controllers, custom Middleware (Rate Limiting), và thiết lập Dependency Injection.
 
-Việc phân tách rõ rệt 4 lớp (**Domain, Application, Infrastructure, Presentation**) giúp hệ thống dễ dàng bảo trì và sẵn sàng mở rộng thành Microservices trong tương lai. Các công nghệ nền tảng bao gồm **.NET 8**, **PostgreSQL**, và **Semantic Kernel** cho việc điều phối AI.
-
-### 🏗️ 5.3 Chi tiết các lớp kiến trúc (Backend Layers)
-- **Domain Layer**: Tầng trung tâm chứa các thực thể (Entities), Enums và các logic nghiệp vụ thuần túy. Đây là tầng bất biến, không phụ thuộc vào bất kỳ công nghệ hay thư viện bên ngoài nào.
-- **Application Layer**: Chứa các Use Cases của hệ thống (Services). Tầng này xử lý DTOs, Mapping (AutoMapper), Validator và điều phối luồng dữ liệu giữa Domain và các tầng bên ngoài.
-- **Infrastructure Layer**: Hiện thực hóa các giao tiếp với hạ tầng kỹ thuật như EF Core (PostgreSQL), Redis Cache, MinIO Storage, Azure Speech và các tích hợp API bên ngoài (Gemini, PayOS).
-- **Presentation Layer (Web API)**: Tầng giao tiếp với Client, quản lý Controllers, Middleware, xử lý Authentication/Authorization và cấu hình Dependency Injection (DI).
+### 🧠 5.3 Điểm nhấn Kỹ thuật nâng cao (Advanced Backend Engineering)
+Để giải quyết các bài toán phức tạp về hiệu năng, bảo mật và quản lý tài nguyên máy chủ, hệ thống không chỉ dừng lại ở các thao tác CRUD cơ bản mà còn áp dụng triệt để các giải pháp phần mềm chuyên sâu:
+- **Design Patterns Thực chiến:**
+  - **Strategy Pattern:** Áp dụng cho hệ thống chấm điểm đa dạng (`IScoringStrategy`: *Trắc nghiệm, Điền từ, Nối câu, Sắp xếp...*), giúp dễ dàng thêm loại câu hỏi mới mà không sửa code cũ (Open/Closed Principle).
+  - **Repository & Unit of Work:** Quản lý Transaction tập trung, đảm bảo tính nguyên tử (Atomicity) khi thực hiện các giao dịch thanh toán và cập nhật khóa học.
+  - **CQRS Pattern:** Tích hợp `MediatR` để điều phối các luồng xử lý Command/Query phức tạp.
+- **Fault Tolerance & Background Processing:**
+  - **Retry Pattern (Dead-letter Queue):** `WebhookRetryService` tự động gửi lại các webhook bị lỗi để không thất thoát dữ liệu thanh toán.
+  - **Garbage Collection (GC) Jobs:** Loạt `IHostedService` chạy ngầm để dọn dẹp hệ thống (Xóa OTP hết hạn, dọn file tạm MinIO, hủy Payment hết hạn) giúp tiết kiệm bộ nhớ.
+- **Security & Reliability:**
+  - **Rate Limiting:** Chống Brute-force và Spam API bằng cơ chế Fixed Window (VD: Giới hạn số lần nhập mã lớp học/OTP).
+  - **Policy-based Authorization:** Phân quyền động tới từng chức năng nhỏ (Dynamic Permissions) thông qua Custom Authorization Handlers thay vì chỉ dựa vào Role tĩnh.
+  - **Validation Pipeline:** Tích hợp `FluentValidation` để tự động xác thực dữ liệu đầu vào ngay từ tầng API.
 
 ---
 
@@ -234,9 +301,9 @@ Hệ thống vượt xa các nền tảng LMS thông thường nhờ việc tíc
 - **Cơ chế:** Tích hợp cổng thanh toán **PayOS (QR Code)** với quy trình cộng tiền tự động. 
 - **Giá trị:** Đảm bảo tính toàn vẹn dữ liệu tài chính thông qua cơ chế **Idempotency Webhook** và hệ thống **Audit Trail** ghi lại mọi biến động số dư ví (Balance History).
 
-### 🎤 8.5 Chấm điểm học thuật bằng AI (AI Academic Grading)
-- **Cơ chế:** Tận dụng sức mạnh của **Azure Speech** và **Google Gemini** để chấm điểm tự động.
-- **Giá trị:** Cung cấp phản hồi chi tiết về phát âm (Pronunciation) và nhận xét bài luận (Essay), giúp học sinh tự học hiệu quả mà không cần sự can thiệp liên tục của giáo viên.
+### 🎤 8.5 Chấm điểm phát âm bằng AI (AI Pronunciation Assessment)
+- **Cơ chế:** Tận dụng sức mạnh của **Azure Speech Services** để nhận diện và phân tích phổ thanh âm theo thời gian thực.
+- **Giá trị:** Cung cấp phản hồi chi tiết tới từng âm tiết (Phonemes) bao gồm độ chính xác, độ trôi chảy và ngữ điệu, giúp học sinh tự luyện nói chuẩn bản xứ mà không cần giáo viên kèm 1-1. *(Lưu ý: Đối với kỹ năng Viết - Essay, hệ thống đề cao sự tương tác nên sử dụng cơ chế Giáo viên chấm thủ công có phản hồi chi tiết).*
 
 ---
 

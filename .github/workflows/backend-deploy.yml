@@ -18,6 +18,8 @@ concurrency:
 jobs:
   build-and-deploy:
     runs-on: [self-hosted, linux, x64]
+    permissions:
+      contents: write
 
     env:
       DOTNET_INSTALL_DIR: ${{ github.workspace }}/.dotnet
@@ -89,3 +91,11 @@ jobs:
           sudo -n chmod +x efbundle
           # Chạy bundle để update DB (nó sẽ tự đọc appsettings.Production.json nhờ biến môi trường trên)
           ./efbundle
+
+      - name: Create Git Tag
+        if: success()
+        run: |
+          git tag backend-v1.0.${{ github.run_number }}
+          git push origin backend-v1.0.${{ github.run_number }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

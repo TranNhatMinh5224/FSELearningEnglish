@@ -18,6 +18,8 @@ concurrency:
 jobs:
   build-and-deploy:
     runs-on: [self-hosted, Linux, X64]
+    permissions:
+      contents: write
 
     defaults:
       run:
@@ -74,3 +76,11 @@ jobs:
         run: |
           sudo -n systemctl reload nginx
           sudo -n systemctl is-active nginx
+
+      - name: Create Git Tag
+        if: success()
+        run: |
+          git tag frontend-v1.0.${{ github.run_number }}
+          git push origin frontend-v1.0.${{ github.run_number }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
