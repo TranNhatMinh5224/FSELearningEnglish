@@ -7,11 +7,7 @@ import { useScript } from "../hooks/useScript";
 const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
-  // Load heavy third-party scripts with delay to improve Mobile TBT
-  useScript("https://accounts.google.com/gsi/client", { delay: 2000 });
-  useScript("https://connect.facebook.net/en_US/sdk.js", { delay: 2500 });
-  
-  // Lazy load Google Analytics (GA4)
+  // Lazy load Google Analytics (GA4) - Only load if needed
   useScript("https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX", { delay: 3000 });
   
   useEffect(() => {
