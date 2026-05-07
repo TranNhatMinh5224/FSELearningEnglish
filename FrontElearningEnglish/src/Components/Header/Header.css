@@ -149,7 +149,8 @@
 .main-header__right {
   display: flex;
   align-items: center;
-  gap: 1rem; /* Increased from 0.5rem */
+  gap: 1rem;
+  /* Increased from 0.5rem */
   flex-wrap: nowrap;
 }
 
@@ -270,7 +271,8 @@
 .user-info {
   line-height: 1.1;
   font-size: 13px;
-  max-width: 250px; /* Increased from 180px */
+  max-width: 250px;
+  /* Increased from 180px */
   min-width: 0;
 }
 

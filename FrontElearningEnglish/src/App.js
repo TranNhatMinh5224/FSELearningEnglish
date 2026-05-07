@@ -11,7 +11,6 @@ import "./Components/Common/Modal/BaseModal.css";
 
 // React Query
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 
 const ChatBotWidget = lazy(() => import("./Components/Common/ChatBotWidget/ChatBotWidget"));
 

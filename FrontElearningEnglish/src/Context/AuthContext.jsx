@@ -2,10 +2,26 @@ import React, { createContext, useContext, useEffect, useState, useCallback } fr
 import { authService } from "../Services/authService";
 import { tokenStorage } from "../Utils/tokenStorage";
 import logger from "../Utils/logger";
+import { useScript } from "../hooks/useScript";
 
 const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
+  // Load heavy third-party scripts with delay to improve Mobile TBT
+  useScript("https://accounts.google.com/gsi/client", { delay: 2000 });
+  useScript("https://connect.facebook.net/en_US/sdk.js", { delay: 2500 });
+  
+  // Lazy load Google Analytics (GA4)
+  useScript("https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX", { delay: 3000 });
+  
+  useEffect(() => {
+    // Initialize Google Analytics dataLayer
+    window.dataLayer = window.dataLayer || [];
+    window.gtag = function() { window.dataLayer.push(arguments); };
+    window.gtag('js', new Date());
+    window.gtag('config', 'G-XXXXXXXXXX');
+  }, []);
+  
   const [user, setUser] = useState(null);
   const [roles, setRoles] = useState([]);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
