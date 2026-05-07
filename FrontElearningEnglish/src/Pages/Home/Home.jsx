@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Container } from "react-bootstrap";
+import { Container, Row, Col } from "react-bootstrap";
 import "./Home.css";
 import MainHeader from "../../Components/Header/MainHeader";
 import { useAuth } from "../../Context/AuthContext";
