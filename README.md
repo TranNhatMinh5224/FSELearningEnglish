@@ -416,23 +416,26 @@ Hệ thống được kiểm tra và tối ưu hóa chuyên sâu để đáp ứ
 
 ## 🛡 Đảm bảo chất lượng & Bảo mật (QA & Security)
 
-Dự án tuân thủ nghiêm ngặt các tiêu chuẩn về độ tin cậy (Reliability) và tính sẵn sàng cao (High Availability), đảm bảo hệ thống vận hành ổn định trong các kịch bản thực tế khắc nghiệt nhất.
+Hệ thống được thiết kế và kiểm thử nghiêm ngặt để đảm bảo tính sẵn sàng cao (High Availability) và bảo mật tuyệt đối cho dữ liệu người dùng.
 
-### 📈 Kiểm thử áp lực & Giới hạn chịu tải (Stress & Breakpoint Testing)
-Hệ thống đã trải qua các bài kiểm tra áp lực cực hạn bằng **k6** để tìm điểm gãy và xác định dung lượng tối đa:
-- **Ngưỡng tải ổn định (Scalability):** Vượt qua mức **2,000 người dùng truy cập đồng thời** (Concurrent Users) mà không hề có dấu hiệu suy giảm hiệu năng.
-- **Khả năng xử lý (Throughput):** Xử lý thành công **268,810 yêu cầu** trong 5 phút, tương đương trung bình **~900 Requests Per Second (RPS)**.
-- **Độ tin cậy (Reliability):** Tỉ lệ lỗi duy trì ở mức **0.00%** (Gần như tuyệt đối) trong suốt quá trình tăng tải đột ngột.
-- **Độ trễ (Latency):** Phản hồi cực nhanh với ngưỡng p(95) chỉ **252ms**, đảm bảo trải nghiệm mượt mà ngay cả khi hệ thống đang ở mức tải cực đại.
+### 🔍 Tối ưu hóa SEO & Khả năng tìm kiếm (Search Engine Optimization)
+- **Dynamic Metadata:** Triển khai **`react-helmet-async`** quản lý Meta Tags động, giúp Google index chính xác từng khóa học.
+- **Dữ liệu cấu trúc (Schema.org):** Tích hợp **JSON-LD Schema** hiển thị Rich Snippets (số sao, giá tiền) trên kết quả tìm kiếm.
+- **Social Branding:** Cấu hình Open Graph (Facebook) và Twitter Cards với ảnh đại diện chia sẻ link chuyên nghiệp.
+- **Sitemap & Indexing:** Tự động hóa `sitemap.xml` và `robots.txt` chuẩn domain, tối ưu hóa quy trình thu thập dữ liệu của Google Bot.
 
-### 🔐 Bảo mật & Độ tin cậy (Security & Reliability)
-- **Infrastructure Security:** Cấu hình Nginx tối ưu với các Header bảo mật chuyên sâu (`CSP`, `HSTS`, `X-Content-Type-Options`, `X-Frame-Options`) giúp ngăn chặn các cuộc tấn công phổ biến như Clickjacking và đánh cắp phiên làm việc.
-- **Data Integrity:** Hệ thống được thiết kế với cơ chế kiểm tra dữ liệu đầu vào nghiêm ngặt, đảm bảo tính toàn vẹn của dữ liệu người dùng và các giao dịch tài chính (Top-up).
-- **Extreme Load Stability:** Vượt qua bài kiểm tra Stress Test với 2,000 user đồng thời, chứng minh khả năng phục hồi và độ ổn định của hạ tầng Server trong các điều kiện truy cập đột biến.
+### 📈 Kiểm thử áp lực & Giới hạn chịu tải (Stress Testing)
+Hệ thống đã vượt qua các bài kiểm tra áp lực cực hạn bằng **k6** để xác định dung lượng tối đa:
+- **Ngưỡng tải ổn định:** Vượt qua mức **2,000 người dùng truy cập đồng thời** (Concurrent Users) mà không suy giảm hiệu năng.
+- **Khả năng xử lý:** Đạt trung bình **~900 Requests Per Second (RPS)**, xử lý thành công hơn 26 vạn yêu cầu trong 5 phút.
+- **Độ tin cậy:** Tỉ lệ lỗi duy trì ở mức **0.00%**; độ trễ p(95) chỉ **252ms** ngay cả ở mức tải cực đại.
 
+### 🔐 Bảo mật hạ tầng & Dữ liệu (Infrastructure Security)
+- **Hardened Nginx:** Triển khai các Header bảo mật chuyên sâu (`CSP`, `HSTS`, `X-Content-Type-Options`, `X-Frame-Options`) chống Clickjacking và XSS.
+- **Data Integrity:** Cơ chế kiểm tra dữ liệu đầu vào nghiêm ngặt, đảm bảo an toàn cho các giao dịch tài chính (Top-up).
+- **Audit Trail:** Hệ thống ghi vết biến động số dư ví (Balance History) giúp đối soát và ngăn chặn gian lận.
 
-### 📸 Minh chứng thực tế (Load Test Evidence)
-
+### 📸 Minh chứng thực tế (Evidence)
 <div align="center">
   <img src="office/Screenshot/K6.png" width="45%" alt="k6 Load Test Result 1">
   <img src="office/Screenshot/k62.png" width="45%" alt="k6 Load Test Result 2">
