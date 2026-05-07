@@ -1,5 +1,9 @@
 # Catalunya English - Hệ thống học tiếng Anh thông minh tích hợp AI
 
+<div align="center">
+  <img src="./Office/Screenshot/Trangchu.png" alt="Catalunya English Homepage" width="100%"/>
+</div>
+
 > **Website dự án:** [learning-eng.hocnghiepvu.com](https://learning-eng.hocnghiepvu.com)  
 - **Live Demo:** https://learning-eng.hocnghiepvu.com  
 - **Status:** Production  
@@ -290,24 +294,99 @@ Dự án hỗ trợ hai phương thức thiết lập môi trường phát tri�
 Hệ thống vượt xa các nền tảng LMS thông thường nhờ việc tích hợp các giải pháp kỹ thuật chuyên sâu và mô hình kinh doanh hiện đại.
 
 ### 🤖 9.1 Hệ thống AI RAG (Retrieval-Augmented Generation)
+
+<div align="center">
+  <img src="./Office/Screenshot/chatbot0.png" alt="AI RAG Chatbot 1" width="45%"/>
+  <img src="./Office/Screenshot/chatbot1.png" alt="AI RAG Chatbot 2" width="45%"/>
+</div>
+
 - **Tư duy:** Không chỉ là một wrapper gọi API AI đơn thuần, hệ thống sử dụng **Semantic Kernel** để điều phối quy trình RAG.
 - **Giá trị:** AI có khả năng truy xuất tri thức từ kho dữ liệu nội bộ (Courses, Policies, Teacher Packages) để đưa ra phản hồi chính xác, giảm thiểu hiện tượng "ảo giác" (Hallucination).
 
 ### 📈 9.2 Học tập thích ứng (Adaptive Learning - SM-2)
+
+<div align="center">
+  <img src="./Office/Screenshot/Ontaptuvung.png" alt="Adaptive Learning" width="800"/>
+</div>
+
 - **Cơ chế:** Hiện thực hóa thuật toán **SuperMemo-2 (SM-2)** để tự động hóa việc cá nhân hóa lộ trình ôn tập.
 - **Giá trị:** Hệ thống tự động tính toán thời điểm "vàng" (Interval) để nhắc nhở người dùng ôn tập lại từ vựng/kiến thức dựa trên chất lượng phản hồi, tối ưu hóa việc ghi nhớ dài hạn.
 
 ### 👩‍🏫 9.3 Mô hình SaaS "Teacher Empowerment"
+
+<div align="center">
+  <img src="./Office/Screenshot/Giaodiengiaovien.png" alt="Teacher SaaS Dashboard" width="800"/>
+</div>
+
 - **Cơ chế:** Cung cấp giải pháp **Software-as-a-Service** cho giáo viên. Mỗi giáo viên có thể sở hữu không gian quản lý riêng, lớp học riêng và các gói dịch vụ (Teacher Packages).
 - **Giá trị:** Hệ thống quản lý chặt chẽ hạn ngạch tài nguyên (Quotas) và các gói đăng ký, cho phép nền tảng mở rộng quy mô kinh doanh không giới hạn.
 
 ### 💳 9.4 Fintech Wallet & Auto-Payment
+
+<div align="center">
+  <img src="./Office/Screenshot/naptien.png" alt="Fintech Wallet" width="800"/>
+</div>
+
 - **Cơ chế:** Tích hợp cổng thanh toán **PayOS (QR Code)** với quy trình cộng tiền tự động. 
 - **Giá trị:** Đảm bảo tính toàn vẹn dữ liệu tài chính thông qua cơ chế **Idempotency Webhook** và hệ thống **Audit Trail** ghi lại mọi biến động số dư ví (Balance History).
 
 ### 🎤 9.5 Chấm điểm phát âm bằng AI (AI Pronunciation Assessment)
+
+<div align="center">
+  <img src="./Office/Screenshot/champhatam.png" alt="AI Pronunciation Assessment" width="800"/>
+</div>
+
 - **Cơ chế:** Tận dụng sức mạnh của **Azure Speech Services** để nhận diện và phân tích phổ thanh âm theo thời gian thực.
 - **Giá trị:** Cung cấp phản hồi chi tiết tới từng âm tiết (Phonemes) bao gồm độ chính xác, độ trôi chảy và ngữ điệu, giúp học sinh tự luyện nói chuẩn bản xứ mà không cần giáo viên kèm 1-1. *(Lưu ý: Đối với kỹ năng Viết - Essay, hệ thống đề cao sự tương tác nên sử dụng cơ chế Giáo viên chấm thủ công có phản hồi chi tiết).*
 
 ---
 
+## 📸 10. Thư viện Giao diện (UI Gallery)
+
+Dưới đây là một số giao diện nổi bật khác của hệ thống, thể hiện sự chỉn chu từ UX/UI đến tính năng:
+
+<details>
+  <summary><b>1. Không gian Học tập & Bài giảng</b> (Click để mở rộng)</summary>
+  <br/>
+  <div align="center">
+    <i>Trang tổng quan khóa học</i><br/>
+    <img src="./Office/Screenshot/Trangkhoahoc.png" alt="Trang Khóa học" width="800"/><br/><br/>
+    <i>Giao diện học bài và xem Video</i><br/>
+    <img src="./Office/Screenshot/baigiang.png" alt="Bài giảng 1" width="400"/>
+    <img src="./Office/Screenshot/baigiang2.png" alt="Bài giảng 2" width="400"/><br/><br/>
+    <i>Giao diện làm bài và kết thúc Quiz</i><br/>
+    <img src="./Office/Screenshot/lambaiquiz.png" alt="Làm bài Quiz" width="400"/>
+    <img src="./Office/Screenshot/ketthucbaiquuz.png" alt="Kết thúc Quiz" width="400"/>
+  </div>
+</details>
+
+<details>
+  <summary><b>2. Trang Quản trị Hệ thống (Admin Dashboards)</b> (Click để mở rộng)</summary>
+  <br/>
+  <div align="center">
+    <i>Dashboard Tổng quan (Doanh thu, Học viên)</i><br/>
+    <img src="./Office/Screenshot/dashboard.png" alt="Dashboard Tổng quan" width="800"/><br/><br/>
+    <i>Quản trị phân quyền động (RBAC) & Người dùng</i><br/>
+    <img src="./Office/Screenshot/dashboadRBAC.png" alt="Phân quyền RBAC" width="400"/>
+    <img src="./Office/Screenshot/dashboadusser.png" alt="Quản lý User" width="400"/><br/><br/>
+    <i>Quản trị danh sách khóa học</i><br/>
+    <img src="./Office/Screenshot/dashboardcourse.png" alt="Quản lý khóa học" width="800"/>
+  </div>
+</details>
+
+<details>
+  <summary><b>3. Báo cáo, Tài chính & Lịch sử</b> (Click để mở rộng)</summary>
+  <br/>
+  <div align="center">
+    <i>Giám sát lịch sử giao dịch toàn hệ thống</i><br/>
+    <img src="./Office/Screenshot/Dardboardlsgiaodich.png" alt="Lịch sử giao dịch" width="800"/><br/><br/>
+    <i>Lịch sử nạp tiền vào ví của cá nhân</i><br/>
+    <img src="./Office/Screenshot/lichsunaptien.png" alt="Lịch sử nạp tiền" width="800"/><br/><br/>
+    <i>Thống kê lịch sử làm bài</i><br/>
+    <img src="./Office/Screenshot/lichsulambai.png" alt="Lịch sử làm bài" width="800"/><br/><br/>
+    <i>Dashboard Quản lý bài nộp (Essay/Writing)</i><br/>
+    <img src="./Office/Screenshot/DarshboardQLbainop.png" alt="Quản lý bài nộp" width="800"/>
+  </div>
+</details>
+
+---
