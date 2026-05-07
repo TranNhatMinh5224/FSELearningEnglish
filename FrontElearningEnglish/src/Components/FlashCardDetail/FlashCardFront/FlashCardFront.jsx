@@ -59,9 +59,9 @@ export default function FlashCardFront({ flashcard, onAudioClick }) {
                         dangerouslySetInnerHTML={{ __html: clozeExample }}
                     />
                 )}
-
-                <p className="flashcard-hint">Ấn vào thẻ để lật</p>
             </div>
+            
+            <p className="flashcard-hint">Ấn vào thẻ để lật</p>
         </div>
     );
 }

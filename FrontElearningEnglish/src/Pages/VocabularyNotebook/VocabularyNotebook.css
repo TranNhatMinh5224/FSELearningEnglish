@@ -1,5 +1,5 @@
 .vocabulary-notebook-container {
-    min-height: calc(125vh - 70px);
+    min-height: calc(100vh - 70px);
     padding: var(--padding-container-xl, clamp(2rem, 1.5rem + 2.5vw, 4rem)) var(--padding-container-md, clamp(1rem, 0.75rem + 1.25vw, 2rem));
     padding-top: calc(var(--padding-container-xl, clamp(2rem, 1.5rem + 2.5vw, 4rem)) + 70px);
     background: var(--color-bg-secondary, #f5f5f5);
@@ -133,7 +133,7 @@
 }
 
 .vocabulary-list {
-    max-height: calc(125vh - clamp(250px, 15.625rem + 3vw, 300px));
+    max-height: calc(100vh - clamp(250px, 15.625rem + 3vw, 300px));
     overflow-y: auto;
     display: flex;
     flex-direction: column;
@@ -417,3 +417,13 @@
     }
 }
 
+
+
+@media (min-width: 992px) {
+  .vocabulary-notebook-container {
+    min-height: calc(125vh - 70px);
+  }
+  .vocabulary-list {
+    max-height: calc(125vh - clamp(250px, 15.625rem + 3vw, 300px));
+  }
+}

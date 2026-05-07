@@ -1,7 +1,6 @@
-/* Quiz Results Page V3 - Modern E-learning Style */
 .quiz-results-page-v3 {
     background-color: var(--quiz-bg-color, #f8fafc);
-    min-height: 125vh;
+    min-height: 100vh;
 }
 
 .quiz-results-content-v3 {
@@ -210,4 +209,10 @@
     width: 3rem;
     height: 3rem;
     color: #41d6e3 !important;
+}
+
+@media (min-width: 992px) {
+    .quiz-results-page-v3 {
+        min-height: 125vh; /* Compensate for desktop zoom: 0.8 */
+    }
 }

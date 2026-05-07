@@ -26,7 +26,7 @@ export default function LectureDetail() {
     const [loadingTree, setLoadingTree] = useState(true);
     const [loadingLecture, setLoadingLecture] = useState(false);
     const [error, setError] = useState("");
-    const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+    const [sidebarCollapsed, setSidebarCollapsed] = useState(() => window.innerWidth < 768);
     const [sidebarWidth, setSidebarWidth] = useState(300);
     const isResizingRef = useRef(false);
 

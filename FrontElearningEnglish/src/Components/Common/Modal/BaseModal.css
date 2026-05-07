@@ -49,7 +49,7 @@
 .modal-modern .modal-body {
   background-color: var(--color-bg-secondary, #f6f8fb);
   padding: 1.5rem 2rem;
-  max-height: calc(125vh - 180px);
+  max-height: calc(100vh - 180px);
   overflow-y: auto;
   transition: background-color 0.3s ease;
 }
@@ -344,5 +344,12 @@
   .modal-modern .modal-footer .btn {
     width: 100%;
     margin: 0;
+  }
+}
+
+
+@media (min-width: 992px) {
+  .modal-modern .modal-body {
+    max-height: calc(125vh - 180px);
   }
 }

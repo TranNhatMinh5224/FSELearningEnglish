@@ -1,5 +1,5 @@
 .search-results-page {
-    min-height: 125vh;
+    min-height: 100vh;
     background: var(--color-bg-secondary, #f6f8fb);
     padding-top: 100px;
     padding-bottom: 40px;
@@ -148,4 +148,11 @@
         max-width: 100%;
         margin-bottom: 1.5rem;
     }
+}
+
+
+@media (min-width: 992px) {
+  .search-results-page {
+    min-height: 125vh;
+  }
 }

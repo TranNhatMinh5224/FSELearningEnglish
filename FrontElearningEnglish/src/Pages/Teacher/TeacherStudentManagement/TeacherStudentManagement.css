@@ -1,5 +1,5 @@
 .teacher-student-management-container {
-  min-height: 125vh;
+  min-height: 100vh;
   background-color: #f5f5f5;
   padding: 20px;
   padding-top: calc(20px + 70px);
@@ -223,5 +223,11 @@
 @media (max-width: 768px) {
   .add-student-btn {
     width: 100%;
+  }
+}
+
+@media (min-width: 992px) {
+  .teacher-student-management-container {
+    min-height: 125vh;
   }
 }

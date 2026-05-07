@@ -1,5 +1,5 @@
 .admin-quiz-section-management-container {
-  min-height: 125vh;
+  min-height: 100vh;
   background: linear-gradient(135deg, #e0f2fe 0%, #f0f9ff 100%);
 }
 
@@ -130,4 +130,11 @@
   transform: translateY(-2px);
   box-shadow: 0 4px 12px rgba(245, 87, 108, 0.4);
   color: white;
+}
+
+
+@media (min-width: 992px) {
+  .admin-quiz-section-management-container {
+    min-height: 125vh;
+  }
 }

@@ -2,7 +2,7 @@
   padding: var(--padding-container-lg, clamp(1.5rem, 1rem + 2.5vw, 3rem)) 0;
   padding-top: calc(var(--padding-container-lg, clamp(1.5rem, 1rem + 2.5vw, 3rem)) + 100px) !important;
   background: var(--color-bg-secondary, #f6f8fb);
-  min-height: calc(125vh - 70px);
+  min-height: calc(100vh - 70px);
 }
 
 /* Bootstrap Container tự xử lý padding responsive - KHÔNG override */
@@ -19,5 +19,11 @@
   .home-container {
     padding: var(--padding-container-sm, clamp(0.75rem, 0.5rem + 1.25vw, 1.5rem)) 0;
     padding-top: calc(var(--padding-container-sm, clamp(0.75rem, 0.5rem + 1.25vw, 1.5rem)) + 80px) !important;
+  }
+}
+
+@media (min-width: 992px) {
+  .home-container {
+    min-height: calc(125vh - 70px);
   }
 }

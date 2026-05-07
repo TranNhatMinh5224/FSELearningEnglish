@@ -15,7 +15,7 @@
 .create-admin-modal .modal-body {
   background-color: #f8fafc;
   padding: 1.5rem 2rem;
-  max-height: calc(125vh - 180px);
+  max-height: calc(100vh - 180px);
   overflow-y: auto;
 }
 
@@ -155,4 +155,11 @@
 .create-admin-modal .modal-footer .btn-primary:disabled {
   opacity: 0.6;
   cursor: not-allowed;
+}
+
+
+@media (min-width: 992px) {
+  .create-admin-modal .modal-body {
+    max-height: calc(125vh - 180px);
+  }
 }

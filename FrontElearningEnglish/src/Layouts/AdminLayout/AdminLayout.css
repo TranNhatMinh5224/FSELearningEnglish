@@ -14,7 +14,7 @@
 
 .admin-layout {
   display: flex;
-  min-height: 125vh;
+  min-height: 100vh;
   background-color: var(--color-bg-secondary, #f8fafc);
   font-family: 'Inter', system-ui, -apple-system, sans-serif;
 }
@@ -297,4 +297,10 @@
 .status-info {
   background-color: #e0f2fe;
   color: #075985;
+}
+
+@media (min-width: 992px) {
+  .admin-layout {
+    min-height: 125vh;
+  }
 }

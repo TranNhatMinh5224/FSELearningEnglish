@@ -1,7 +1,7 @@
 /* AdminDashboard Page Styles */
 .dashboard-container {
   background-color: #f9fafb;
-  min-height: 125vh;
+  min-height: 100vh;
 }
 
 .admin-card {
@@ -36,5 +36,12 @@
   
   .row.g-4 {
     row-gap: 1rem;
+  }
+}
+
+
+@media (min-width: 992px) {
+  .dashboard-container {
+    min-height: 125vh;
   }
 }

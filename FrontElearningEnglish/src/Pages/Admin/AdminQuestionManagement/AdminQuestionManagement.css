@@ -1,5 +1,5 @@
 .admin-question-management-container {
-  min-height: 125vh;
+  min-height: 100vh;
   background: linear-gradient(135deg, #e0f2fe 0%, #f0f9ff 100%);
   padding: 20px 0;
 }
@@ -42,4 +42,11 @@
   align-items: center;
   justify-content: center;
   border-radius: 6px;
+}
+
+
+@media (min-width: 992px) {
+  .admin-question-management-container {
+    min-height: 125vh;
+  }
 }

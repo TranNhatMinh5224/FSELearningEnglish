@@ -92,20 +92,22 @@ const PaymentMonitoring = () => {
 
     const getStatusBadgeClass = (status) => {
         switch (status) {
-            case 0: return "badge-pending";    // Pending
-            case 1: return "badge-completed";  // Completed
-            case 2: return "badge-failed";     // Failed
-            case 3: return "badge-cancelled";  // Cancelled
+            case 1: return "badge-pending";    // Pending
+            case 2: return "badge-completed";  // Completed
+            case 3: return "badge-failed";     // Failed
+            case 4: return "badge-secondary";  // Expired
+            case 5: return "badge-cancelled";  // Cancelled
             default: return "badge-secondary";
         }
     };
 
     const getStatusText = (status) => {
         switch (status) {
-            case 0: return "Đang chờ";
-            case 1: return "Thành công";
-            case 2: return "Thất bại";
-            case 3: return "Đã hủy";
+            case 1: return "Đang chờ";
+            case 2: return "Thành công";
+            case 3: return "Thất bại";
+            case 4: return "Hết hạn";
+            case 5: return "Đã hủy";
             default: return "Không xác định";
         }
     };
@@ -202,10 +204,11 @@ const PaymentMonitoring = () => {
                     <FaFilter className="text-muted" />
                     <select className="form-select status-select" value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)}>
                         <option value="">Tất cả trạng thái</option>
-                        <option value="0">Đang chờ</option>
-                        <option value="1">Thành công</option>
-                        <option value="2">Thất bại</option>
-                        <option value="3">Đã hủy</option>
+                        <option value="1">Đang chờ</option>
+                        <option value="2">Thành công</option>
+                        <option value="3">Thất bại</option>
+                        <option value="4">Hết hạn</option>
+                        <option value="5">Đã hủy</option>
                     </select>
                 </div>
                 <div className="filter-item">

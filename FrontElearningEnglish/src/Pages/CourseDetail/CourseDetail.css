@@ -2,7 +2,7 @@
     padding: var(--padding-container-lg, clamp(1.5rem, 1rem + 2.5vw, 3rem)) 0;
     padding-top: calc(var(--padding-container-lg, clamp(1.5rem, 1rem + 2.5vw, 3rem)) + 70px);
     background: var(--color-bg-secondary, #f6f8fb);
-    min-height: calc(125vh - 70px);
+    min-height: calc(100vh - 70px);
 }
 
 .course-detail-container .container {
@@ -108,3 +108,10 @@
     }
 }
 
+
+
+@media (min-width: 992px) {
+  .course-detail-container {
+    min-height: calc(125vh - 70px);
+  }
+}

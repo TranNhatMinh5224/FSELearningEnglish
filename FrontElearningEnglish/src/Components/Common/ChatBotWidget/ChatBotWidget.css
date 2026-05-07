@@ -59,7 +59,7 @@
   width: 380px;
   max-width: calc(100vw - 40px);
   height: 540px;
-  max-height: calc(125vh - 130px);
+  max-height: calc(100vh - 130px);
   background: var(--cb-bg, #fff);
   border-radius: 20px;
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.18);
@@ -313,4 +313,11 @@
   color: #ff4d6d;
   padding: 2px 14px 8px;
   text-align: center;
+}
+
+
+@media (min-width: 992px) {
+  .chatbot-panel {
+    max-height: calc(125vh - 130px);
+  }
 }

@@ -1,5 +1,5 @@
 .teacher-submission-management-container {
-  min-height: calc(125vh - 70px);
+  min-height: calc(100vh - 70px);
   background: var(--color-bg-secondary, #f6f8fb);
   padding: 40px 80px 20px 80px;
   padding-top: 120px !important;
@@ -73,4 +73,10 @@
   background: rgba(255, 255, 255, 0.4);
   z-index: 10;
   border-radius: 8px;
-}
+}
+
+@media (min-width: 992px) {
+  .teacher-submission-management-container {
+    min-height: calc(125vh - 70px);
+  }
+}

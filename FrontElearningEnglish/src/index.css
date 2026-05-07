@@ -111,7 +111,7 @@ body .course-detail-page {
 .modal-backdrop,
 .modal {
   width: 125vw !important;
-  height: 125vh !important;
+  height: 100vh !important;
 }
 
 /* Fix jitter: Prevent body shift when modal opens under zoom: 0.8 */
@@ -147,4 +147,10 @@ body.modal-open {
   display: flex;
   justify-content: center;
   align-items: center;
+}
+
+@media (min-width: 992px) {
+  .modal-backdrop, .modal {
+    height: 125vh !important;
+  }
 }

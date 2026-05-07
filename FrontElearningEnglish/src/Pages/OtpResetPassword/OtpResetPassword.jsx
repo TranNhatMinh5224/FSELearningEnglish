@@ -35,6 +35,10 @@ export default function OtpResetPassword() {
     try {
       const res = await authService.forgotPassword({ email: email.trim() });
       if (res.data && res.data.success === true) {
+        const message = res.data.message || "";
+        if (message.toLowerCase().includes("chưa được đăng ký")) {
+          return { success: false, message: message };
+        }
         return { success: true };
       }
       return { success: false, message: res.data?.message };

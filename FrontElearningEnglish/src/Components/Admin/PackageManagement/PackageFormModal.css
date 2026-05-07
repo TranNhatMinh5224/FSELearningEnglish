@@ -17,7 +17,7 @@
 .package-form-modal .modal-body {
   background-color: #f8fafc;
   padding: 1.5rem 2rem;
-  max-height: calc(125vh - 180px);
+  max-height: calc(100vh - 180px);
   overflow-y: auto;
 }
 
@@ -171,4 +171,10 @@
 .package-form-modal .char-count.text-danger {
   color: #dc2626;
   background: #fee2e2;
+}
+
+@media (min-width: 992px) {
+  .package-form-modal .modal-body {
+    max-height: calc(125vh - 180px);
+  }
 }

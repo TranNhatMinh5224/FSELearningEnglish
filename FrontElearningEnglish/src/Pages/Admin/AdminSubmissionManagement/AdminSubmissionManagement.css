@@ -1,5 +1,5 @@
 .admin-submission-management-container {
-  min-height: calc(125vh - 80px);
+  min-height: calc(100vh - 80px);
   background-color: #f8f9fa;
 }
 
@@ -97,4 +97,11 @@
   background: rgba(255, 255, 255, 0.4);
   z-index: 10;
   border-radius: 12px;
+}
+
+
+@media (min-width: 992px) {
+  .admin-submission-management-container {
+    min-height: calc(125vh - 80px);
+  }
 }

@@ -52,7 +52,15 @@ export default function ForgotPassword() {
       const res = await authService.forgotPassword({ email: email.trim() });
 
       if (res.data && res.data.success === true) {
-        setSuccess("OTP đã được gửi đến email của bạn!");
+        // Backend trả về success=true nhưng kèm thông báo chưa đăng ký (cơ chế chống enumerate nhưng lộ message)
+        // Frontend cần bắt message này để chặn người dùng khỏi việc sang trang OTP chờ vô ích
+        const message = res.data.message || "";
+        if (message.toLowerCase().includes("chưa được đăng ký")) {
+          setError(message);
+          return;
+        }
+
+        setSuccess("Mã OTP khôi phục mật khẩu đã được gửi đến email của bạn!");
         setEmailError("");
 
         setTimeout(() => {

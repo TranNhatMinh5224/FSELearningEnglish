@@ -1,5 +1,5 @@
 .flashcard-review-session-container {
-    min-height: 125vh;
+    min-height: 100vh;
     padding: 0px 0;
     background: var(--color-bg-secondary, #f5f5f5);
 }
@@ -102,4 +102,10 @@
 
 .back-button:hover {
     background: var(--color-secondary-cyan-dark, #35c4d0);
+}
+
+@media (min-width: 992px) {
+  .flashcard-review-session-container {
+    min-height: 125vh;
+  }
 }

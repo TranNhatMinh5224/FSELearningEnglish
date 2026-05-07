@@ -183,4 +183,8 @@
   margin-left: 8px;
 }
 
-
+@media (min-width: 992px) {
+  .otp-container {
+    min-height: 125vh; /* Compensate for desktop zoom: 0.8 */
+  }
+}

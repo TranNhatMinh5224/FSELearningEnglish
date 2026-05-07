@@ -59,9 +59,9 @@ export default function FlashCardBack({ flashcard, onAudioClick }) {
                         <p className="flashcard-example-translation-text">{exampleTranslation}</p>
                     </div>
                 )}
-                
-                <p className="flashcard-hint">Ấn vào thẻ để lật lại</p>
             </div>
+            
+            <p className="flashcard-hint">Ấn vào thẻ để lật lại</p>
         </div>
     );
 }

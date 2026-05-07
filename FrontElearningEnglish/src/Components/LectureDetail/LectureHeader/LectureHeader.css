@@ -4,11 +4,11 @@
 
 .lecture-header {
     flex-shrink: 0;
-    height: 56px;
+    min-height: 56px; /* Changed from fixed height to min-height */
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 0 24px;
+    padding: 8px 24px; /* Added some padding to handle wrapping better */
     background-color: #ffffff;
     border-bottom: 1px solid rgba(0, 0, 0, 0.05);
     z-index: 10;
@@ -150,8 +150,8 @@
 
 @media (max-width: 575.98px) {
     .lecture-header {
-        padding: 0 12px;
-        height: 56px;
+        padding: 8px 12px;
+        min-height: 56px;
     }
 
     .lecture-breadcrumb {

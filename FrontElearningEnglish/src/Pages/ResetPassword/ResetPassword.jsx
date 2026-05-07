@@ -37,17 +37,23 @@ export default function ResetPassword() {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
-  // Validate password requirements (giống như ChangePassword nhưng đơn giản hơn)
+  // Validate password requirements (Đồng bộ chuẩn xác với Backend IsPasswordStrong)
   const validatePassword = (password) => {
     const errors = [];
-    if (password.length < 6) {
-      errors.push("ít nhất 6 ký tự");
+    if (password.length < 8) {
+      errors.push("ít nhất 8 ký tự");
     }
     if (password.length > 20) {
       errors.push("không quá 20 ký tự");
     }
     if (!/[A-Z]/.test(password)) {
       errors.push("chữ hoa");
+    }
+    if (!/[a-z]/.test(password)) {
+      errors.push("chữ thường");
+    }
+    if (!/\d/.test(password)) {
+      errors.push("số");
     }
     if (!/[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]/.test(password)) {
       errors.push("ký tự đặc biệt");

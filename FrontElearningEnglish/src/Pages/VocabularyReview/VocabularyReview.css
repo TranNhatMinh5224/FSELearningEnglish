@@ -1,5 +1,5 @@
 .vocabulary-review-container {
-    min-height: calc(125vh - 70px);
+    min-height: calc(100vh - 70px);
     padding: clamp(2rem, 1.5rem + 2.5vw, 4rem) clamp(1rem, 0.75rem + 1.25vw, 2rem);
     padding-top: calc(70px + clamp(2rem, 1.5rem + 2.5vw, 4rem));
     background: var(--color-bg-secondary, #f5f5f5);
@@ -170,5 +170,11 @@
 
     .vocabulary-review-card {
         padding: clamp(1.5rem, 1rem + 2.5vw, 2rem) clamp(1rem, 0.75rem + 1.25vw, 1.5rem);
+    }
+}
+
+@media (min-width: 992px) {
+    .vocabulary-review-container {
+        min-height: calc(125vh - 70px);
     }
 }

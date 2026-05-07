@@ -46,15 +46,16 @@
 /* Bootstrap utilities: d-flex, flex-column, align-items-center, justify-content-center */
 .flashcard-back-content {
     flex: 1;
-    padding: 15px 20px;
+    padding: 15px 20px 45px 20px; /* Increased bottom padding to 45px */
     gap: 12px;
-    position: relative;
     text-align: center;
     overflow-y: auto;
     display: flex;
     flex-direction: column;
     align-items: center;
+    width: 100%;
 }
+
 
 /* Custom scrollbar for better look */
 .flashcard-back-content::-webkit-scrollbar {
@@ -161,12 +162,17 @@
 
 .flashcard-hint {
     position: absolute;
-    bottom: 15px;
+    bottom: 12px;
     left: 50%;
     transform: translateX(-50%);
     font-size: clamp(0.75rem, 0.7rem + 0.25vw, 0.875rem);
     color: var(--color-text-tertiary, #9ca3af);
     margin: 0;
+    pointer-events: none;
+    background: rgba(255, 255, 255, 0.8); /* Semi-transparent background matching card bg */
+    padding: 2px 8px;
+    border-radius: 4px;
+    z-index: 5;
 }
 
 /* Bootstrap responsive breakpoints */
@@ -189,7 +195,7 @@
     }
 
     .flashcard-back-content {
-        padding: 15px;
+        padding: 15px 15px 35px 15px; /* Increased bottom padding for mobile */
     }
 }
 

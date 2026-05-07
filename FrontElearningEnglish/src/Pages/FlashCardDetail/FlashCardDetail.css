@@ -2,7 +2,7 @@
     padding: var(--padding-container-lg, clamp(1.5rem, 1rem + 2.5vw, 3rem)) 0;
     padding-top: calc(70px + clamp(2rem, 1.5rem + 2.5vw, 3.125rem));
     background: var(--color-bg-secondary, #f6f8fb);
-    min-height: calc(125vh - 70px);
+    min-height: calc(100vh - 70px);
     transition: background-color 0.3s ease;
 }
 
@@ -91,3 +91,10 @@
     }
 }
 
+
+
+@media (min-width: 992px) {
+  .flashcard-detail-container {
+    min-height: calc(125vh - 70px);
+  }
+}

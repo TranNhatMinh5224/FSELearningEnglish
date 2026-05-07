@@ -1,6 +1,6 @@
 .admin-lesson-detail-container {
   background-color: #f5f7fa;
-  min-height: 125vh;
+  min-height: 100vh;
 }
 
 .breadcrumb-section {
@@ -555,5 +555,11 @@
   .module-content-header {
     flex-direction: column;
     align-items: flex-start;
+  }
+}
+
+@media (min-width: 992px) {
+  .admin-lesson-detail-container {
+    min-height: 125vh;
   }
 }

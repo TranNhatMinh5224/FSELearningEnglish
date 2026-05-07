@@ -15,7 +15,7 @@
     height: 500px;
     perspective: 1000px;
     cursor: pointer;
-    flex: 0 0 auto;
+    flex: 1 1 auto; /* Allow shrinking so buttons fit */
 }
 
 /* Bootstrap utilities: d-flex, align-items-center, justify-content-center */

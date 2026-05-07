@@ -2,7 +2,7 @@
     padding: var(--padding-container-lg, clamp(1.5rem, 1rem + 2.5vw, 3rem)) 0;
     padding-top: calc(var(--padding-container-lg, clamp(1.5rem, 1rem + 2.5vw, 3rem)) + 100px);
     background: var(--color-bg-secondary, #f6f8fb);
-    min-height: calc(125vh - 70px);
+    min-height: calc(100vh - 70px);
 }
 
 /* Bootstrap utilities được sử dụng trong JSX - không cần CSS này nữa */
@@ -333,4 +333,10 @@
         padding: var(--padding-container-sm, clamp(0.75rem, 0.5rem + 1.25vw, 1.5rem));
         padding-top: calc(var(--padding-container-sm, clamp(0.75rem, 0.5rem + 1.25vw, 1.5rem)) + 130px);
     }
+}
+
+@media (min-width: 992px) {
+  .my-courses-container {
+    min-height: calc(125vh - 70px);
+  }
 }

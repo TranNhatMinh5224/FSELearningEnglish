@@ -1,5 +1,5 @@
 .admin-module-lecture-detail-container {
-  min-height: 125vh;
+  min-height: 100vh;
   background: linear-gradient(to bottom, #f8f9fa 0%, #ffffff 100%);
 }
 
@@ -87,5 +87,12 @@
     width: 100%;
     display: flex;
     justify-content: flex-end;
+  }
+}
+
+
+@media (min-width: 992px) {
+  .admin-module-lecture-detail-container {
+    min-height: 125vh;
   }
 }

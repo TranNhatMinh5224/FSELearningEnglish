@@ -65,10 +65,26 @@
 /* Bootstrap utilities: d-flex, flex-column, align-items-center */
 .flashcard-content {
     flex: 1;
-    padding: 0 25px 30px 25px;
+    padding: 0 25px 45px 25px; /* Increased bottom padding to 45px to clear the hint */
     gap: 16px;
-    position: relative;
+    overflow-y: auto; /* Enable scrolling for long content */
+    width: 100%;
 }
+
+/* Scrollbar styling for Front */
+.flashcard-content::-webkit-scrollbar {
+    width: 4px;
+}
+
+.flashcard-content::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.flashcard-content::-webkit-scrollbar-thumb {
+    background: rgba(0, 0, 0, 0.1);
+    border-radius: 10px;
+}
+
 
 .flashcard-word-front {
     font-size: clamp(1.25rem, 1.1rem + 1vw, 2rem);
@@ -97,12 +113,17 @@
 
 .flashcard-hint {
     position: absolute;
-    bottom: 15px;
+    bottom: 12px;
     left: 50%;
     transform: translateX(-50%);
     font-size: clamp(0.75rem, 0.7rem + 0.25vw, 0.875rem);
     color: var(--color-text-tertiary, #9ca3af);
     margin: 0;
+    pointer-events: none;
+    background: rgba(255, 250, 205, 0.8); /* Semi-transparent background matching card bg */
+    padding: 2px 8px;
+    border-radius: 4px;
+    z-index: 5;
 }
 
 /* Bootstrap responsive breakpoints */
@@ -130,7 +151,7 @@
     }
 
     .flashcard-content {
-        padding: 0 15px 20px 15px;
+        padding: 0 15px 35px 15px; /* Increased bottom padding for mobile */
     }
 }
 

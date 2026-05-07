@@ -2,7 +2,7 @@
 
 .admin-course-detail-container {
   background-color: #f5f7fa;
-  min-height: 125vh;
+  min-height: 100vh;
 }
 
 .breadcrumb-section {
@@ -347,5 +347,12 @@
   .lesson-actions {
     width: 100%;
     justify-content: flex-end;
+  }
+}
+
+
+@media (min-width: 992px) {
+  .admin-course-detail-container {
+    min-height: 125vh;
   }
 }

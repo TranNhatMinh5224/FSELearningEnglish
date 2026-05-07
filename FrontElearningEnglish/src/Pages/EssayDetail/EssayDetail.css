@@ -2,7 +2,7 @@
     padding: var(--padding-container-lg, clamp(1.5rem, 1rem + 2.5vw, 3rem)) 0;
     padding-top: calc(70px + clamp(1.5rem, 1rem + 2.25vw, 3.125rem));
     background: linear-gradient(135deg, #f8fafc 0%, #e0e7ff 50%, #fce7f3 100%);
-    min-height: calc(125vh - 70px);
+    min-height: calc(100vh - 70px);
     position: relative;
 }
 
@@ -68,4 +68,11 @@
     font-weight: 600;
     color: #1e293b;
     line-height: 1.5;
+}
+
+
+@media (min-width: 992px) {
+  .essay-detail-container {
+    min-height: calc(125vh - 70px);
+  }
 }

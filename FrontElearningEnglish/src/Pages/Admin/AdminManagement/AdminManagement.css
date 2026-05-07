@@ -1,6 +1,6 @@
 .admin-management-container {
   background-color: #f8f9fa;
-  min-height: calc(125vh - 80px);
+  min-height: calc(100vh - 80px);
 }
 
 .avatar-circle {
@@ -54,4 +54,11 @@
 .btn-outline-danger:hover {
   transform: translateY(-2px);
   transition: all 0.2s ease;
+}
+
+
+@media (min-width: 992px) {
+  .admin-management-container {
+    min-height: calc(125vh - 80px);
+  }
 }
