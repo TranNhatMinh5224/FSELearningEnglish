@@ -51,43 +51,56 @@ Dựa trên bối cảnh đó, đề tài **"Xây dựng nền tảng Hybrid E-l
 ## 🏗️ 3. Kiến trúc hệ thống (System Architecture)
 
 ```mermaid
-C4Context
-    title Kiến trúc Hệ thống FSELearningEnglish (C4 Model)
-    
-    Person(user, "Người dùng", "Học viên và Giáo viên")
-    Person(dev, "Developer", "Kỹ sư phát triển")
-    
-    System_Boundary(platform, "FSE Learning Platform (Linux VPS)") {
-        Container(spa, "Frontend Application", "React 19", "Giao diện Web tương tác trực quan")
-        Container(proxy, "Reverse Proxy", "Nginx", "Xử lý SSL, Load Balancing & Định tuyến")
-        Container(api, "Backend Monolith", ".NET 8 Web API", "Xử lý nghiệp vụ chính, Clean Architecture")
-        
-        System_Boundary(data, "Data & Storage") {
-            ContainerDb(db, "Database", "PostgreSQL + Pgvector", "Lưu trữ dữ liệu quan hệ và Vector (AI)")
-            ContainerDb(minio, "Object Storage", "MinIO", "Lưu trữ tài nguyên truyền thông chuẩn S3")
-            ContainerDb(cache, "Memory Cache", "VPS RAM", "Rate Limiting và Caching nội bộ")
-        }
-    }
-    
-    System_Ext(github, "GitHub Actions", "CI/CD Pipeline")
-    System_Ext(payos, "PayOS Gateway", "Xử lý thanh toán QR Code")
-    System_Ext(gemini, "Google Gemini", "AI RAG & Chatbot")
-    System_Ext(azure, "Azure Speech", "Chấm điểm phát âm AI")
+graph TD
+    %% Định nghĩa phong cách
+    classDef platform fill:#e1f5fe,stroke:#01579b,stroke-width:2px,color:#01579b,font-weight:bold;
+    classDef storage fill:#fff3e0,stroke:#e65100,stroke-width:1px,color:#e65100;
+    classDef external fill:#f3e5f5,stroke:#4a148c,stroke-width:1px,color:#4a148c;
+    classDef actor fill:#f5f5f5,stroke:#616161,stroke-width:2px,color:#333;
+    classDef component fill:#ffffff,stroke:#333,stroke-width:1px;
 
-    Rel(user, spa, "Sử dụng", "HTTPS")
-    Rel(spa, proxy, "Gọi API", "JSON/HTTPS")
-    Rel(proxy, api, "Chuyển tiếp", "Proxy")
+    %% Khối Actors
+    User((Người dùng<br/>Học viên & Giáo viên)):::actor
+    Dev((Developer)):::actor
+
+    %% Khối Platform
+    subgraph Platform [FSE Learning Platform - Linux VPS]
+        direction TB
+        Proxy[Nginx Reverse Proxy]:::component
+        SPA[Frontend Application<br/>React 19]:::component
+        API[Backend Monolith<br/>.NET 8 Web API]:::component
+        
+        subgraph DataGroup [Data & Storage]
+            DB[(PostgreSQL<br/>+ Pgvector)]:::storage
+            MinIO[(MinIO<br/>Object Storage)]:::storage
+            Cache[Memory Cache<br/>Rate Limit/Cache]:::storage
+        end
+    end
     
-    Rel(api, db, "Đọc/Ghi", "EF Core")
-    Rel(api, minio, "Quản lý File", "S3 Protocol")
-    Rel(api, cache, "Truy xuất nhanh", "In-Memory")
+    %% Khối External
+    GitHub[GitHub Actions<br/>CI/CD Pipeline]:::external
+    PayOS[PayOS Gateway<br/>QR Payment]:::external
+    Gemini[Google Gemini<br/>AI RAG Chatbot]:::external
+    Azure[Azure Speech<br/>AI Pronunciation]:::external
+
+    %% Kết nối
+    User ---|HTTPS| SPA
+    Dev ---|Git Push| GitHub
+    GitHub ---|SSH Deploy| Platform
     
-    Rel(api, payos, "Giao dịch", "Webhook/REST")
-    Rel(api, gemini, "Điều phối AI", "Semantic Kernel")
-    Rel(api, azure, "Phân tích Audio", "Speech SDK")
+    SPA ---|REST API| Proxy
+    Proxy ---|Forward| API
     
-    Rel(dev, github, "Push Code", "Git")
-    Rel(github, platform, "Automated Deploy", "SSH")
+    API ---|EF Core| DB
+    API ---|S3 Protocol| MinIO
+    API ---|In-Memory| Cache
+    
+    API -.-|Webhook/REST| PayOS
+    API -.-|Semantic Kernel| Gemini
+    API -.-|Speech SDK| Azure
+
+    class Platform platform;
+    class DataGroup storage;
 ```
 
 ---
