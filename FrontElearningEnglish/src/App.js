@@ -1,10 +1,11 @@
+import { lazy, Suspense } from "react";
 import { BrowserRouter } from "react-router-dom";
 import AppRoutes from "./Routes";
 import { EnumProvider } from "./Context/EnumContext";
 import { ThemeProvider } from "./Context/ThemeContext";
 import { AssetProvider } from "./Context/AssetContext";
 import { ToastContainer } from "react-toastify";
-import ChatBotWidget from "./Components/Common/ChatBotWidget/ChatBotWidget";
+const ChatBotWidget = lazy(() => import("./Components/Common/ChatBotWidget/ChatBotWidget"));
 import "react-toastify/dist/ReactToastify.css";
 import "./Components/Common/ModalFix/ModalFix.css";
 import "./Components/Common/Modal/BaseModal.css";
@@ -34,7 +35,9 @@ function App() {
             <AssetProvider>
               <AppRoutes />
               <ToastContainer position="top-right" autoClose={3000} />
-              <ChatBotWidget />
+              <Suspense fallback={null}>
+                <ChatBotWidget />
+              </Suspense>
             </AssetProvider>
           </EnumProvider>
         </ThemeProvider>

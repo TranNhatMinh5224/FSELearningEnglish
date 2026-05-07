@@ -48,59 +48,33 @@ Dựa trên bối cảnh đó, đề tài **"Xây dựng nền tảng Hybrid E-l
 
 ---
 
-## 🏗️ 3. Kiến trúc hệ thống (System Architecture)
+## 🏗️ 3. Kiến trúc hạ tầng & Hệ thống (Infrastructure & Architecture)
 
-```mermaid
-graph TD
-    %% Định nghĩa phong cách
-    classDef platform fill:#e1f5fe,stroke:#01579b,stroke-width:2px,color:#01579b,font-weight:bold;
-    classDef storage fill:#fff3e0,stroke:#e65100,stroke-width:1px,color:#e65100;
-    classDef external fill:#f3e5f5,stroke:#4a148c,stroke-width:1px,color:#4a148c;
-    classDef actor fill:#f5f5f5,stroke:#616161,stroke-width:2px,color:#333;
-    classDef component fill:#ffffff,stroke:#333,stroke-width:1px;
+Hệ thống được thiết kế theo mô hình **Hybrid Cloud Infrastructure**, tối ưu hóa bảo mật và hiệu suất thông qua các lớp điều phối kỹ thuật chuyên sâu:
 
-    %% Khối Actors
-    User((Người dùng<br/>Học viên & Giáo viên)):::actor
-    Dev((Developer)):::actor
+### 🌐 3.1 Bản đồ hạ tầng (Infrastructure Map)
 
-    %% Khối Platform
-    subgraph Platform [FSE Learning Platform - Linux VPS]
-        direction TB
-        Proxy[Nginx Reverse Proxy]:::component
-        SPA[Frontend Application<br/>React 19]:::component
-        API[Backend Monolith<br/>.NET 8 Web API]:::component
-        
-        subgraph DataGroup [Data & Storage]
-            DB[(PostgreSQL<br/>+ Pgvector)]:::storage
-            MinIO[(MinIO<br/>Object Storage)]:::storage
-            Cache[Memory Cache<br/>Rate Limit/Cache]:::storage
-        end
-    end
-    
-    %% Khối External
-    GitHub[GitHub Actions<br/>CI/CD Pipeline]:::external
-    PayOS[PayOS Gateway<br/>QR Payment]:::external
-    Gemini[Google Gemini<br/>AI RAG Chatbot]:::external
-    Azure[Azure Speech<br/>AI Pronunciation]:::external
+| Thành phần | Công nghệ | Trách nhiệm chính |
+| :--- | :--- | :--- |
+| **Bảo mật & DNS** | **Cloudflare** | Quản lý SSL/TLS, lá chắn WAF chặn DDoS và tối ưu hóa CDN. |
+| **Reverse Proxy** | **Nginx** | Điều phối traffic, hỗ trợ **Byte-range requests** để stream media và giới hạn upload **300MB**. |
+| **Frontend Server** | **Nginx Native** | Phục vụ mã nguồn React 19 (Static files), xử lý Routing thông qua `try_files`. |
+| **Backend API** | **.NET 8 Kestrel** | Xử lý logic nghiệp vụ, chạy cô lập tại cổng 5030 trên Localhost để bảo mật. |
+| **Object Storage** | **MinIO** | Lưu trữ tập trung tài nguyên Media (Video/Audio) tương thích chuẩn S3. |
+| **Database** | **PostgreSQL** | Lưu trữ dữ liệu quan hệ và Vector tri thức cho AI (pgvector). |
 
-    %% Kết nối
-    User ---|HTTPS| SPA
-    Dev ---|Git Push| GitHub
-    GitHub ---|SSH Deploy| Platform
-    
-    SPA ---|REST API| Proxy
-    Proxy ---|Forward| API
-    
-    API ---|EF Core| DB
-    API ---|S3 Protocol| MinIO
-    API ---|In-Memory| Cache
-    
-    API -.-|Webhook/REST| PayOS
-    API -.-|Semantic Kernel| Gemini
-    API -.-|Speech SDK| Azure
+### 📂 3.2 Cấu trúc dự án (Project Map - Clean Architecture)
 
-    class Platform platform;
-    class DataGroup storage;
+Dự án áp dụng mô hình **Structured Monolith** với sự phân tách rõ rệt giữa logic nghiệp vụ và hạ tầng kỹ thuật:
+
+```text
+FSELearningEnglish/
+├── BackendELearningEnglish/
+│   ├── LearningEnglish.Domain/          # Heart: Chứa Entities, Enums, quy tắc nghiệp vụ cốt lõi.
+│   ├── LearningEnglish.Application/     # Logic: Use-cases, DTOs, CQRS (MediatR), Validators.
+│   ├── LearningEnglish.Infrastructure/  # Service: EF Core, MinIO, PayOS, AI Semantic Kernel.
+│   └── LearningEnglish.API/             # Port: Controllers, Middlewares, Auth, Service Registry.
+└── FrontElearningEnglish/               # UI: React 19, bootrap 5 , CSS, TanStack Query, Recharts.
 ```
 
 ---
@@ -374,7 +348,7 @@ Dưới đây là một số giao diện nổi bật khác của hệ thống, t
 </details>
 
 <details>
-  <summary><b>2. Trang Quản trị Hệ thống (Admin Dashboards)</b> (Click để mở rộng)</summary>
+  <summary><b>2. Quản trị Hệ thống & SaaS Dashboard</b> (Click để mở rộng)</summary>
   <br/>
   <div align="center">
     <i>Dashboard Tổng quan (Doanh thu, Học viên)</i><br/>
@@ -382,24 +356,53 @@ Dưới đây là một số giao diện nổi bật khác của hệ thống, t
     <i>Quản trị phân quyền động (RBAC) & Người dùng</i><br/>
     <img src="./Office/Screenshot/dashboadRBAC.png" alt="Phân quyền RBAC" width="400"/>
     <img src="./Office/Screenshot/dashboadusser.png" alt="Quản lý User" width="400"/><br/><br/>
-    <i>Quản trị danh sách khóa học</i><br/>
-    <img src="./Office/Screenshot/dashboardcourse.png" alt="Quản lý khóa học" width="800"/>
+    <i>Quản trị danh sách khóa học và Bài nộp (Teacher)</i><br/>
+    <img src="./Office/Screenshot/dashboardcourse.png" alt="Quản lý khóa học" width="400"/>
+    <img src="./Office/Screenshot/DarshboardQLbainop.png" alt="Quản lý bài nộp" width="400"/>
   </div>
 </details>
 
 <details>
-  <summary><b>3. Báo cáo, Tài chính & Lịch sử</b> (Click để mở rộng)</summary>
+  <summary><b>3. Cá nhân hóa, Tài chính & Lịch sử (User Portal)</b> (Click để mở rộng)</summary>
   <br/>
   <div align="center">
-    <i>Giám sát lịch sử giao dịch toàn hệ thống</i><br/>
+    <i>Lịch sử giao dịch và biến động số dư cá nhân</i><br/>
     <img src="./Office/Screenshot/Dardboardlsgiaodich.png" alt="Lịch sử giao dịch" width="800"/><br/><br/>
-    <i>Lịch sử nạp tiền vào ví của cá nhân</i><br/>
-    <img src="./Office/Screenshot/lichsunaptien.png" alt="Lịch sử nạp tiền" width="800"/><br/><br/>
-    <i>Thống kê lịch sử làm bài</i><br/>
-    <img src="./Office/Screenshot/lichsulambai.png" alt="Lịch sử làm bài" width="800"/><br/><br/>
-    <i>Dashboard Quản lý bài nộp (Essay/Writing)</i><br/>
-    <img src="./Office/Screenshot/DarshboardQLbainop.png" alt="Quản lý bài nộp" width="800"/>
+    <i>Giao diện nạp tiền và lịch sử nạp tiền vào ví</i><br/>
+    <img src="./Office/Screenshot/naptien.png" alt="Nạp tiền" width="400"/>
+    <img src="./Office/Screenshot/lichsunaptien.png" alt="Lịch sử nạp tiền" width="400"/><br/><br/>
+    <i>Thống kê lịch sử làm bài và tiến trình học tập</i><br/>
+    <img src="./Office/Screenshot/lichsulambai.png" alt="Lịch sử làm bài" width="800"/>
   </div>
 </details>
+
+---
+
+## 📈 11. Chỉ số hiệu năng (Performance & SEO)
+
+Hệ thống được kiểm tra và tối ưu hóa thông qua **Google Lighthouse**, đạt được những con số ấn tượng chứng minh chất lượng mã nguồn và khả năng tối ưu hạ tầng:
+
+<div align="center">
+  <img src="https://img.shields.io/badge/SEO-100%2F100-brightgreen?style=for-the-badge&logo=google" alt="SEO 100"/>
+  <img src="https://img.shields.io/badge/Accessibility-87%2F100-blue?style=for-the-badge&logo=accessible-icon" alt="Accessibility 87"/>
+  <img src="https://img.shields.io/badge/Best_Practices-77%2F100-orange?style=for-the-badge&logo=lighthouse" alt="Best Practices 77"/>
+  <img src="https://img.shields.io/badge/Performance-80%2F100-brightgreen?style=for-the-badge&logo=speedtest" alt="Performance 80"/>
+</div>
+
+### 📊 Chi tiết các chỉ số cốt lõi (Core Web Vitals)
+
+| Chỉ số | Kết quả (Desktop) | Ý nghĩa kỹ thuật |
+| :--- | :--- | :--- |
+| **First Contentful Paint (FCP)** | **1.4 s** | Tốc độ hiển thị nội dung đầu tiên nhanh chóng. |
+| **Largest Contentful Paint (LCP)** | **2.3 s** | Tải thành phần chính đạt chuẩn xanh của Google. |
+| **Total Blocking Time (TBT)** | **10 ms** | Gần như không có độ trễ JavaScript (Mức độ hoàn hảo). |
+| **Cumulative Layout Shift (CLS)** | **0.021** | Giao diện ổn định tuyệt đối, không bị nhảy khung. |
+| **Speed Index (SI)** | **2.3 s** | Tốc độ hiển thị tổng thể mượt mà. |
+
+### ⚡ Các bước tối ưu đã thực hiện (Performance Tuning)
+1.  **Infrastructure:** Cấu hình **Nginx Gzip (Level 6)** và **Browser Caching** (1 năm cho file tĩnh) để giảm 70% dung lượng tải trang.
+2.  **Resource Loading:** Áp dụng `preconnect` và `dns-prefetch` cho các dịch vụ bên thứ 3 (Google, Facebook).
+3.  **Stability:** Tối ưu hóa **CLS (Cumulative Layout Shift)** bằng cách ổn định khung hình ảnh và sử dụng `content-visibility: auto`.
+4.  **SEO:** Đạt điểm tuyệt đối **100/100** nhờ tối ưu hóa Semantic HTML, Metadata và cấu trúc Heading.
 
 ---
