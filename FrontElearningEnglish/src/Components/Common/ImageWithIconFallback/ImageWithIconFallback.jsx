@@ -55,19 +55,16 @@ export default function ImageWithIconFallback({
 
     // Show image if available
     return (
-        <picture className={className} style={style}>
-            {/* Nếu có URL ảnh kết thúc bằng .webp hoặc tương lai có ảnh webp, trình duyệt sẽ ưu tiên nạp */}
-            <source srcSet={finalImageUrl.replace(/\.(jpe?g|png)$/i, '.webp')} type="image/webp" />
-            <img
-                src={finalImageUrl}
-                alt={alt}
-                className={`image-with-icon-fallback-image ${className}`}
-                style={style}
-                onError={handleImageError}
-                decoding="async"
-                loading="lazy" // Cải thiện LCP & CLS trên Mobile
-                {...props}
-            />
-        </picture>
+        <img
+            src={finalImageUrl}
+            alt={alt}
+            className={`image-with-icon-fallback-image ${className}`}
+            style={style}
+            onError={handleImageError}
+            decoding="async"
+            loading="lazy"
+            fetchpriority={props.fetchpriority || "auto"}
+            {...props}
+        />
     );
 }
