@@ -96,6 +96,7 @@ export default function SearchResults() {
                         </div>
                     ) : courses.length > 0 ? (
                             <section className="suggested-courses-section mt-4">
+                                <h2 className="visually-hidden">Danh sách kết quả tìm kiếm</h2>
                                 <div className="search-results-count mb-4">
                                     Tìm thấy <strong>{courses.length}</strong> khóa học
                                 </div>

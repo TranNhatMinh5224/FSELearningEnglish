@@ -42,6 +42,7 @@ export default function SuggestedCoursesSection({ courses = [] }) {
                                 course={course}
                                 isEnrolled={course.isEnrolled || false}
                                 showEnrolledBadge={true}
+                                priority={index < 2}
                             />
                         </div>
                     ))}

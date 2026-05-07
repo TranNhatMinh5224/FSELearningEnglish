@@ -18,6 +18,19 @@
     transform-style: preserve-3d;
     perspective: 1000px;
     border: 1px solid transparent;
+    will-change: transform, box-shadow; /* Tăng tốc GPU */
+}
+
+/* Mobile optimization: Simplify effects to reduce main-thread work */
+@media (max-width: 767.98px) {
+    .suggested-course-card {
+        min-height: 340px; /* Hơi nhỏ hơn trên mobile */
+    }
+    
+    .suggested-course-card:hover {
+        transform: translateY(-4px) scale(1.01); /* Bỏ rotateX/Y trên mobile */
+        box-shadow: 0 10px 20px rgba(65, 214, 227, 0.2);
+    }
 }
 
 .suggested-course-card.enrolled-course {
@@ -219,8 +232,8 @@
 
 .suggested-course-card .course-price {
     font-size: 15px;
-    font-weight: 500;
-    color: var(--color-secondary-cyan, #41d6e3);
+    font-weight: 600;
+    color: #007c89; /* Cyan đậm hơn để đạt chuẩn Accessibility */
     text-align: center;
     margin: 0 auto 12px auto;
     padding: 0;

@@ -5,7 +5,7 @@ import { useAssets } from "../../../Context/AssetContext";
 import ImageWithIconFallback from "../../Common/ImageWithIconFallback/ImageWithIconFallback";
 import "./SuggestedCourseCard.css";
 
-const SuggestedCourseCard = ({ course, isEnrolled = false, showEnrolledBadge = true }) => {
+const SuggestedCourseCard = ({ course, isEnrolled = false, showEnrolledBadge = true, priority = false }) => {
     const navigate = useNavigate();
     const { getDefaultCourseImage } = useAssets();
     const {
@@ -57,10 +57,12 @@ const SuggestedCourseCard = ({ course, isEnrolled = false, showEnrolledBadge = t
                     imageKey={id || courseId}
                     width="300"
                     height="169"
+                    fetchpriority={priority ? "high" : "auto"}
+                    loading={priority ? "eager" : "lazy"}
                 />
             </div>
             <div className="course-content">
-                <h4 className="course-title">{finalTitle}</h4>
+                <h3 className="course-title">{finalTitle}</h3>
                 <div className="course-price">{formatPrice(price)}</div>
                 <button 
                     className={`course-action-btn ${isEnrolled ? 'enrolled' : ''}`}

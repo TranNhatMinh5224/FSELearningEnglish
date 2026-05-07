@@ -61,6 +61,7 @@ export default function ImageWithIconFallback({
             className={`image-with-icon-fallback-image ${className}`}
             style={style}
             onError={handleImageError}
+            decoding="async"
             {...props}
         />
     );
