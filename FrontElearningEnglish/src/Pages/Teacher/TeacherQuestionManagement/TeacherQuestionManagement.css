@@ -1,7 +1,7 @@
 .teacher-question-management-container {
   min-height: 100vh;
   background: #ffffff;
-  padding: 2.5rem 80px 5rem 80px;
+  padding: 2.5rem 0 5rem 0;
   padding-top: calc(70px + 2rem);
 }
 

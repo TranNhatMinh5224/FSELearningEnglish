@@ -1,12 +1,12 @@
 .admin-quiz-essay-management-container {
   min-height: 100vh;
-  background-color: #f8fafc !important;
+  background-color: #ffffff !important;
   padding-bottom: 5rem;
 }
 
 .admin-quiz-essay-management-container .admin-breadcrumb-wrapper {
   padding: 1.5rem 2rem 0.5rem;
-  background-color: #f8fafc;
+  background-color: #ffffff !important;
 }
 
 .admin-quiz-essay-management-container .lesson-detail-content {
@@ -51,22 +51,30 @@
 .admin-quiz-essay-management-container .create-quiz-button {
   background: #6d28d9 !important;
   color: white !important;
-  border-radius: 12px;
-  padding: 0.875rem 2rem;
+  border-radius: 16px;
+  padding: 1rem 2.5rem;
   font-weight: 700;
-  box-shadow: 0 4px 15px rgba(109, 40, 217, 0.25);
-  transition: all 0.3s ease;
+  font-size: 1.1rem;
+  box-shadow: 0 8px 20px rgba(109, 40, 217, 0.2);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  border: none !important;
+  display: flex;
+  align-items: center;
+  gap: 12px;
 }
 
 .admin-quiz-essay-management-container .create-essay-button {
-  background: #74CEDE !important;
-  color: white !important;
-  border-radius: 12px;
-  padding: 0.875rem 2rem;
+  background: white !important;
+  color: #6d28d9 !important;
+  border: 2px solid #6d28d9 !important;
+  border-radius: 16px;
+  padding: 1rem 2.5rem;
   font-weight: 700;
-  box-shadow: 0 4px 15px rgba(116, 206, 222, 0.25);
-  transition: all 0.3s ease;
-  border: none !important;
+  font-size: 1.1rem;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  display: flex;
+  align-items: center;
+  gap: 12px;
 }
 
 .admin-quiz-essay-management-container .create-quiz-button:hover,

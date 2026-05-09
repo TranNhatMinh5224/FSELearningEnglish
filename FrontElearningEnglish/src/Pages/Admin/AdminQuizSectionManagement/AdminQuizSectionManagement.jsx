@@ -143,7 +143,8 @@ export default function AdminQuizSectionManagement() {
   const quizTitle = quiz?.title || quiz?.Title || "Quiz";
 
   return (
-    <div className="admin-quiz-section-management-container">
+    <>
+      <div className="admin-quiz-section-management-container">
       <div className="admin-breadcrumb-wrapper">
         <Container fluid>
           <div className="breadcrumb-section pt-0">
@@ -250,6 +251,7 @@ export default function AdminQuizSectionManagement() {
       </>
     )}
   </Container>
+</div>
 
       {/* Create Section Modal */}
       {quizId && (
@@ -329,6 +331,6 @@ export default function AdminQuizSectionManagement() {
         autoClose={true}
         autoCloseDelay={1500}
       />
-    </div>
+    </>
   );
 }

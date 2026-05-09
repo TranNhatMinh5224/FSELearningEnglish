@@ -1,13 +1,13 @@
 /* Admin Course Detail Styles */
 
 .admin-course-detail-container {
-  background-color: #ffffff;
+  background-color: #ffffff !important;
   min-height: 100vh;
 }
 
 .admin-breadcrumb-wrapper {
   padding: 1.5rem 2rem 0;
-  background: #ffffff;
+  background: #ffffff !important;
 }
 
 .breadcrumb-section {

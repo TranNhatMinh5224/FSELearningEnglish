@@ -247,9 +247,9 @@ export default function TeacherModuleFlashCardDetail() {
                  ))}
             </Row>
           )}
-            </div>
-          </Container>
         </div>
+      </Container>
+    </div>
 
       <CreateFlashCardModal 
         show={showCreateModal}

@@ -63,7 +63,7 @@ export default function ImageWithIconFallback({
             onError={handleImageError}
             decoding="async"
             loading="lazy"
-            fetchpriority={props.fetchpriority || "auto"}
+            fetchPriority={props.fetchPriority || "auto"}
             {...props}
         />
     );

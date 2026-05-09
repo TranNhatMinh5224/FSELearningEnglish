@@ -239,9 +239,9 @@ export default function TeacherModuleLectureDetail() {
               onReorder={handleReorder}
             />
           )}
-            </div>
-          </Container>
         </div>
+      </Container>
+    </div>
 
       <CreateLectureModal
         show={showCreateModal}

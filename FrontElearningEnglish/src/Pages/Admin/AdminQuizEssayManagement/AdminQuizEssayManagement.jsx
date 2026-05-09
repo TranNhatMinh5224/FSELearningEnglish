@@ -208,207 +208,209 @@ export default function AdminQuizEssayManagement() {
   }
 
   return (
-    <div className="admin-quiz-essay-management-container">
-      <div className="admin-breadcrumb-wrapper">
-        <Container fluid>
-          <div className="breadcrumb-section pt-0">
-            <Breadcrumb
-              items={[
-                { label: "Quản lý khóa học", path: ROUTE_PATHS.ADMIN.COURSES },
-                { label: course?.title || course?.Title || "Khóa học", path: `/admin/courses/${courseId}` },
-                { label: lesson?.title || lesson?.Title || "Bài học", path: `/admin/courses/${courseId}/lesson/${lessonId}` },
-                { label: module?.name || module?.Name || "Module", path: `/admin/courses/${courseId}/lesson/${lessonId}?moduleId=${moduleId}` },
-                { label: "Quản lý bài tập", isCurrent: true }
-              ]}
-              showHomeIcon={false}
-            />
-          </div>
-        </Container>
-      </div>
-
-      <Container fluid className="lesson-detail-content px-4">
-        {loading ? (
-          <div className="text-center py-5">
-            <div className="spinner-border text-primary" role="status">
-              <span className="visually-hidden">Đang tải...</span>
+    <>
+      <div className="admin-quiz-essay-management-container">
+        <div className="admin-breadcrumb-wrapper">
+          <Container fluid>
+            <div className="breadcrumb-section pt-0">
+              <Breadcrumb
+                items={[
+                  { label: "Quản lý khóa học", path: ROUTE_PATHS.ADMIN.COURSES },
+                  { label: course?.title || course?.Title || "Khóa học", path: `/admin/courses/${courseId}` },
+                  { label: lesson?.title || lesson?.Title || "Bài học", path: `/admin/courses/${courseId}/lesson/${lessonId}` },
+                  { label: module?.name || module?.Name || "Module", path: `/admin/courses/${courseId}/lesson/${lessonId}?moduleId=${moduleId}` },
+                  { label: "Quản lý bài tập", isCurrent: true }
+                ]}
+                showHomeIcon={false}
+              />
             </div>
-          </div>
-        ) : error ? (
-          <div className="alert alert-danger text-center">{error}</div>
-        ) : (
-          <>
-            <div className="mb-4 question-header-section mt-0">
-          <div className="text-center mb-4">
-            <h1 className="mb-2 fw-bold premium-gradient-text">Quản lý nội dung bài kiểm tra</h1>
-            {assessment && (
-              <div className="assessment-context-info">
-                <h4 className="text-primary mb-2">{assessment.title || assessment.Title}</h4>
-                <div className="d-flex justify-content-center gap-4 text-muted small flex-wrap">
-                  {(assessment.openAt || assessment.OpenAt) && (
-                    <span><strong>Mở lúc:</strong> {new Date(assessment.openAt || assessment.OpenAt).toLocaleString('vi-VN')}</span>
-                  )}
-                  {(assessment.dueAt || assessment.DueAt) && (
-                    <span><strong>Hạn chót:</strong> {new Date(assessment.dueAt || assessment.DueAt).toLocaleString('vi-VN')}</span>
-                  )}
-                  {(assessment.timeLimit || assessment.TimeLimit) && (
-                    <span><strong>Thời gian:</strong> {assessment.timeLimit || assessment.TimeLimit}</span>
+          </Container>
+        </div>
+
+        <Container fluid className="lesson-detail-content px-4">
+          {loading ? (
+            <div className="text-center py-5">
+              <div className="spinner-border text-primary" role="status">
+                <span className="visually-hidden">Đang tải...</span>
+              </div>
+            </div>
+          ) : error ? (
+            <div className="alert alert-danger text-center">{error}</div>
+          ) : (
+            <>
+              <div className="mb-4 question-header-section mt-0">
+                <div className="text-center mb-4">
+                  <h1 className="mb-2 fw-bold premium-gradient-text">Quản lý nội dung bài kiểm tra</h1>
+                  {assessment && (
+                    <div className="assessment-context-info">
+                      <h4 className="text-primary mb-2">{assessment.title || assessment.Title}</h4>
+                      <div className="d-flex justify-content-center gap-4 text-muted small flex-wrap">
+                        {(assessment.openAt || assessment.OpenAt) && (
+                          <span><strong>Mở lúc:</strong> {new Date(assessment.openAt || assessment.OpenAt).toLocaleString('vi-VN')}</span>
+                        )}
+                        {(assessment.dueAt || assessment.DueAt) && (
+                          <span><strong>Hạn chót:</strong> {new Date(assessment.dueAt || assessment.DueAt).toLocaleString('vi-VN')}</span>
+                        )}
+                        {(assessment.timeLimit || assessment.TimeLimit) && (
+                          <span><strong>Thời gian:</strong> {assessment.timeLimit || assessment.TimeLimit}</span>
+                        )}
+                      </div>
+                    </div>
                   )}
                 </div>
+
+                <div className="d-flex justify-content-center gap-3 mb-4">
+                  <div className="header-stats-badge stats-badge-quiz">
+                    <FaList />
+                    <span>{quizzes.length} Quizzes</span>
+                  </div>
+                  <div className="header-stats-badge stats-badge-essay">
+                    <FaList />
+                    <span>{essays.length} Essays</span>
+                  </div>
+                </div>
               </div>
-            )}
-          </div>
 
-          <div className="d-flex justify-content-center gap-3 mb-4">
-            <div className="header-stats-badge stats-badge-quiz">
-              <FaList />
-              <span>{quizzes.length} Quizzes</span>
-            </div>
-            <div className="header-stats-badge stats-badge-essay">
-              <FaList />
-              <span>{essays.length} Essays</span>
-            </div>
-          </div>
-        </div>
+              {/* Create Buttons */}
+              <div className="d-flex justify-content-center gap-4 mb-5 flex-wrap">
+                <button
+                  className="btn create-quiz-button"
+                  onClick={() => setShowCreateQuizModal(true)}
+                >
+                  <FaPlus /> Tạo Quiz mới
+                </button>
+                <button
+                  className="btn create-essay-button"
+                  onClick={() => setShowCreateEssayModal(true)}
+                >
+                  <FaPlus /> Tạo Essay mới
+                </button>
+              </div>
 
-        {/* Create Buttons */}
-        <div className="d-flex justify-content-center gap-4 mb-5 flex-wrap">
-          <button
-            className="btn create-quiz-button"
-            onClick={() => setShowCreateQuizModal(true)}
-          >
-            <FaPlus /> Tạo Quiz mới
-          </button>
-          <button
-            className="btn create-essay-button"
-            onClick={() => setShowCreateEssayModal(true)}
-          >
-            <FaPlus /> Tạo Essay mới
-          </button>
-        </div>
+              {/* Content Sections */}
+              <Row className="g-4">
+                {/* Quizzes Section */}
+                <Col md={6}>
+                  <div className="card shadow-sm border-0 rounded-4 p-4 h-100 bg-white">
+                    <h2 className="h4 fw-bold text-dark mb-4 d-flex align-items-center gap-2">
+                      <span className="section-dot quiz"></span>
+                      Các bài Quiz đã tạo
+                    </h2>
+                    <div className="d-flex flex-column gap-3">
+                      {quizzes.length > 0 ? (
+                        quizzes.map((quiz) => {
+                          const quizId = quiz.quizId || quiz.QuizId;
+                          const quizTitle = quiz.title || quiz.Title || "Untitled Quiz";
+                          const quizStatus = quiz.status !== undefined ? quiz.status : quiz.Status;
+                          const statusInfo = getStatusLabel(quizStatus);
 
-        {/* Content Sections */}
-        <Row className="g-4">
-          {/* Quizzes Section */}
-          <Col md={6}>
-            <div className="card shadow-sm border-0 rounded-4 p-4 h-100 bg-white">
-              <h2 className="h4 fw-bold text-dark mb-4 d-flex align-items-center gap-2">
-                <span className="section-dot quiz"></span>
-                Các bài Quiz đã tạo
-              </h2>
-              <div className="d-flex flex-column gap-3">
-                {quizzes.length > 0 ? (
-                  quizzes.map((quiz) => {
-                    const quizId = quiz.quizId || quiz.QuizId;
-                    const quizTitle = quiz.title || quiz.Title || "Untitled Quiz";
-                    const quizStatus = quiz.status !== undefined ? quiz.status : quiz.Status;
-                    const statusInfo = getStatusLabel(quizStatus);
-
-                    return (
-                      <div
-                        key={quizId}
-                        className="admin-assessment-card"
-                        onClick={() => navigate(`/admin/courses/${courseId}/lesson/${lessonId}/module/${moduleId}/assessment/${assessmentId}/quiz/${quizId}/sections`)}
-                      >
-                        <div className="card-info">
-                          <div className="card-header-row">
-                            <h5 className="card-title">{quizTitle}</h5>
-                            <span className="badge-quiz">QUIZ</span>
-                          </div>
-                          <div className="card-meta-container">
-                            <div className="card-meta-row status-row">
-                              <strong>Trạng thái:</strong>
-                              <span className={`status-pill status-${statusInfo.label.toLowerCase()}`}>
-                                {statusInfo.label}
-                              </span>
+                          return (
+                            <div
+                              key={quizId}
+                              className="admin-assessment-card"
+                              onClick={() => navigate(`/admin/courses/${courseId}/lesson/${lessonId}/module/${moduleId}/assessment/${assessmentId}/quiz/${quizId}/sections`)}
+                            >
+                              <div className="card-info">
+                                <div className="card-header-row">
+                                  <h5 className="card-title">{quizTitle}</h5>
+                                  <span className="badge-quiz">QUIZ</span>
+                                </div>
+                                <div className="card-meta-container">
+                                  <div className="card-meta-row status-row">
+                                    <strong>Trạng thái:</strong>
+                                    <span className={`status-pill status-${statusInfo.label.toLowerCase()}`}>
+                                      {statusInfo.label}
+                                    </span>
+                                  </div>
+                                </div>
+                              </div>
+                              <div className="card-actions" onClick={(e) => e.stopPropagation()}>
+                                <button
+                                  className="btn-action edit"
+                                  title="Sửa Quiz"
+                                  onClick={() => handleEditQuiz(quiz)}
+                                >
+                                  <FaEdit />
+                                </button>
+                                <button
+                                  className="btn-action delete"
+                                  title="Xóa Quiz"
+                                  onClick={() => handleDeleteQuizClick(quiz)}
+                                >
+                                  <FaTrash />
+                                </button>
+                              </div>
                             </div>
-                          </div>
-                        </div>
-                        <div className="card-actions" onClick={(e) => e.stopPropagation()}>
-                          <button
-                            className="btn-action edit"
-                            title="Sửa Quiz"
-                            onClick={() => handleEditQuiz(quiz)}
-                          >
-                            <FaEdit />
-                          </button>
-                          <button
-                            className="btn-action delete"
-                            title="Xóa Quiz"
-                            onClick={() => handleDeleteQuizClick(quiz)}
-                          >
-                            <FaTrash />
-                          </button>
-                        </div>
-                      </div>
-                    );
-                  })
-                ) : (
-                  <div className="text-center text-muted py-5">Chưa có Quiz nào</div>
-                )}
-              </div>
-            </div>
-          </Col>
+                          );
+                        })
+                      ) : (
+                        <div className="text-center text-muted py-5">Chưa có Quiz nào</div>
+                      )}
+                    </div>
+                  </div>
+                </Col>
 
-          {/* Essays Section */}
-          <Col md={6}>
-            <div className="card shadow-sm border-0 rounded-4 p-4 h-100 bg-white">
-              <h2 className="h4 fw-bold text-dark mb-4 d-flex align-items-center gap-2">
-                <span className="section-dot essay"></span>
-                Các bài Essay đã tạo
-              </h2>
-              <div className="d-flex flex-column gap-3">
-                {essays.length > 0 ? (
-                  essays.map((essay) => {
-                    const essayId = essay.essayId || essay.EssayId;
-                    const essayTitle = essay.title || essay.Title || "Untitled Essay";
+                {/* Essays Section */}
+                <Col md={6}>
+                  <div className="card shadow-sm border-0 rounded-4 p-4 h-100 bg-white">
+                    <h2 className="h4 fw-bold text-dark mb-4 d-flex align-items-center gap-2">
+                      <span className="section-dot essay"></span>
+                      Các bài Essay đã tạo
+                    </h2>
+                    <div className="d-flex flex-column gap-3">
+                      {essays.length > 0 ? (
+                        essays.map((essay) => {
+                          const essayId = essay.essayId || essay.EssayId;
+                          const essayTitle = essay.title || essay.Title || "Untitled Essay";
 
-                    return (
-                      <div
-                        key={essayId}
-                        className="admin-assessment-card"
-                        onClick={() => handleViewEssay(essay)}
-                      >
-                        <div className="card-info">
-                          <div className="card-header-row">
-                            <h5 className="card-title">{essayTitle}</h5>
-                            <span className="badge-essay">ESSAY</span>
-                          </div>
-                          <div className="card-meta-container">
-                            <div className="card-meta-row status-row">
-                              <strong>Trạng thái:</strong>
-                              <span className="status-pill status-active">Hoạt động</span>
+                          return (
+                            <div
+                              key={essayId}
+                              className="admin-assessment-card"
+                              onClick={() => handleViewEssay(essay)}
+                            >
+                              <div className="card-info">
+                                <div className="card-header-row">
+                                  <h5 className="card-title">{essayTitle}</h5>
+                                  <span className="badge-essay">ESSAY</span>
+                                </div>
+                                <div className="card-meta-container">
+                                  <div className="card-meta-row status-row">
+                                    <strong>Trạng thái:</strong>
+                                    <span className="status-pill status-active">Hoạt động</span>
+                                  </div>
+                                </div>
+                              </div>
+                              <div className="card-actions" onClick={(e) => e.stopPropagation()}>
+                                <button
+                                  className="btn-action edit"
+                                  title="Sửa Essay"
+                                  onClick={() => handleEditEssay(essay)}
+                                >
+                                  <FaEdit />
+                                </button>
+                                <button
+                                  className="btn-action delete"
+                                  title="Xóa Essay"
+                                  onClick={() => handleDeleteEssayClick(essay)}
+                                >
+                                  <FaTrash />
+                                </button>
+                              </div>
                             </div>
-                          </div>
-                        </div>
-                        <div className="card-actions" onClick={(e) => e.stopPropagation()}>
-                          <button
-                            className="btn-action edit"
-                            title="Sửa Essay"
-                            onClick={() => handleEditEssay(essay)}
-                          >
-                            <FaEdit />
-                          </button>
-                          <button
-                            className="btn-action delete"
-                            title="Xóa Essay"
-                            onClick={() => handleDeleteEssayClick(essay)}
-                          >
-                            <FaTrash />
-                          </button>
-                        </div>
-                      </div>
-                    );
-                  })
-                ) : (
-                  <div className="text-center text-muted py-5">Chưa có Essay nào</div>
-                )}
-              </div>
-            </div>
-          </Col>
-        </Row>
-      </>
-    )}
-  </Container>
+                          );
+                        })
+                      ) : (
+                        <div className="text-center text-muted py-5">Chưa có Essay nào</div>
+                      )}
+                    </div>
+                  </div>
+                </Col>
+              </Row>
+            </>
+          )}
+        </Container>
+      </div>
 
       {/* Create Quiz Modal */}
       {assessmentId && (
@@ -569,6 +571,6 @@ export default function AdminQuizEssayManagement() {
         essayId={selectedEssayId}
         isAdmin={true}
       />
-    </div>
+    </>
   );
 }

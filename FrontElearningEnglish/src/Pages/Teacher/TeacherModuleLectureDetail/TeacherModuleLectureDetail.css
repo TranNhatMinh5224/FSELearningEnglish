@@ -1,8 +1,8 @@
 .teacher-module-lecture-detail-container {
   min-height: 100vh;
   background: #fdfdfd;
-  padding: 2.5rem 1rem;
-  padding-top: calc(2.5rem + 70px);
+  padding: 2.5rem 0 5rem 0;
+  padding-top: calc(70px + 2rem);
 }
 
 .lecture-management-header {

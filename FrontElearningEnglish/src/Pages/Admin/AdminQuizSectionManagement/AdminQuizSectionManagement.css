@@ -1,6 +1,6 @@
 .admin-quiz-section-management-container {
   min-height: 100vh;
-  background: #ffffff !important;
+  background-color: #ffffff !important;
 }
 
 /* Premium Header Styles */
@@ -30,16 +30,24 @@
 }
 
 .premium-btn {
-    background: linear-gradient(135deg, #8E2DE2 0%, #4A00E0 100%);
-    border: none;
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    background: #6d28d9 !important;
+    color: white !important;
+    border-radius: 16px !important;
+    padding: 0.8rem 2rem !important;
+    font-weight: 700 !important;
+    font-size: 1.1rem !important;
+    box-shadow: 0 8px 20px rgba(109, 40, 217, 0.2) !important;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    border: none !important;
+    display: flex;
+    align-items: center;
+    gap: 12px;
 }
 
 .premium-btn:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 15px rgba(142, 45, 226, 0.3) !important;
-    background: linear-gradient(135deg, #9b44e8 0%, #5608ea 100%);
-    color: white !important;
+    transform: translateY(-3px) !important;
+    box-shadow: 0 12px 25px rgba(109, 40, 217, 0.3) !important;
+    filter: brightness(1.1);
 }
 
 .sections-list {
