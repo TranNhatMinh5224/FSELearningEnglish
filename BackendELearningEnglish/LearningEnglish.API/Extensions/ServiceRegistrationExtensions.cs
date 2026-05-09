@@ -508,6 +508,7 @@ public static class ServiceRegistrationExtensions // Lớp static chứa các ex
     private static void RegisterExternalServices(IServiceCollection services)
     {    
         services.AddScoped<IAudioConverterService, AudioConverterService>(); // Dịch vụ chuyển đổi định dạng âm thanh 
+        services.AddSingleton<ImageProcessingService>(); // Xử lý resize + nén ảnh sang WebP trước khi upload MinIO
         services.AddScoped<IMinioFileStorage, MinioFileStorageService>(); // Dịch vụ lõi lưu trữ/truy xuất file trên MinIO 
 
         services.AddScoped<ICourseImageService, CourseImageService>(); // Xử lý ảnh đại diện khóa học 

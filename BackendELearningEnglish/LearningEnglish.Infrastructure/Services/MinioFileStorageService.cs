@@ -5,6 +5,7 @@ using Microsoft.Extensions.Logging;
 using AutoMapper;
 using LearningEnglish.Application.Common;
 using LearningEnglish.Infrastructure.Common.Helpers;
+using LearningEnglish.Infrastructure.Services;
 using Minio;
 using Minio.Exceptions;
 using System;
@@ -21,16 +22,18 @@ namespace LearningEnglish.Infrastructure.MinioFileStorage
         private readonly IMapper _mapper;
         private readonly IMinioClient _minioClient; // client để kết nối với minio server
         private readonly ILogger<MinioFileStorageService> _logger;
+        private readonly ImageProcessingService _imageProcessing;
 
         // Prevent stampede when multiple requests try to create the same bucket concurrently
         private static readonly ConcurrentDictionary<string, SemaphoreSlim> _bucketLocks =
             new(StringComparer.OrdinalIgnoreCase);
 
-        public MinioFileStorageService(IMapper mapper, IMinioClient minioClient, ILogger<MinioFileStorageService> logger)
+        public MinioFileStorageService(IMapper mapper, IMinioClient minioClient, ILogger<MinioFileStorageService> logger, ImageProcessingService imageProcessing)
         {
             _mapper = mapper;
             _minioClient = minioClient;
             _logger = logger;
+            _imageProcessing = imageProcessing;
         }
 
         private async Task<bool> EnsureBucketExistsAsync(string bucketName)
@@ -101,30 +104,58 @@ namespace LearningEnglish.Infrastructure.MinioFileStorage
                     return response;
                 }
 
+                // --- Xử lý ảnh: resize + nén WebP trước khi upload ---
+                Stream uploadStream;
+                long uploadSize;
+                string contentType;
+                string extension;
+
+                if (_imageProcessing.IsImage(file))
+                {
+                    // Ảnh → resize về max 900x600, chuyển sang WebP
+                    var (processedStream, processedContentType, processedExtension) =
+                        await _imageProcessing.ProcessImageAsync(file);
+
+                    uploadStream = processedStream;
+                    uploadSize = processedStream.Length;
+                    contentType = processedContentType;
+                    extension = processedExtension; // .webp
+                }
+                else
+                {
+                    // File khác (audio, video, pdf...) → upload nguyên bản
+                    uploadStream = file.OpenReadStream();
+                    uploadSize = file.Length;
+                    contentType = file.ContentType;
+                    extension = Path.GetExtension(file.FileName);
+                }
+
                 // tạo tempkey cho file
-                var extension = Path.GetExtension(file.FileName);
                 var datetime = DateTime.UtcNow.ToString("yyyyMMddHHmmss");
                 var objectKey = $"{tempFolder}/{datetime}/{Guid.NewGuid()}{extension}";
                 objectKey = NormalizeKey(objectKey);
 
+                var imageUrl = BuildPublicUrl.BuildURL(BucketName, objectKey); // gọi helper để tạo url public
 
-                var imageUrl = BuildPublicUrl.BuildURL(BucketName, objectKey);// gọi helper để tạo url public
+                var putfile = new PutObjectArgs()
+                    .WithBucket(BucketName)
+                    .WithObject(objectKey)
+                    .WithStreamData(uploadStream)
+                    .WithObjectSize(uploadSize)
+                    .WithContentType(contentType);
 
-                var putfile = new PutObjectArgs() // tạo object args để upload file
-                    .WithBucket(BucketName) // tên bucket
-                    .WithObject(objectKey) // đặt tên file trên minio server
-                    .WithStreamData(file.OpenReadStream()) // lấy stream từ IFormFile
-                    .WithObjectSize(file.Length) // kích thước file
-                    .WithContentType(file.ContentType); // kiểu file 
+                await _minioClient.PutObjectAsync(putfile);
 
-                await _minioClient.PutObjectAsync(putfile); // upload file lên minio serverl
+                // Giải phóng stream nếu là ảnh đã xử lý
+                if (_imageProcessing.IsImage(file))
+                    await uploadStream.DisposeAsync();
                 _logger?.LogInformation("Uploaded temp object. Bucket={Bucket}, Key={Key}", BucketName, objectKey);
 
                 response.Data = new ResultUploadDto
                 {
-                    TempKey = objectKey, // chú ý: property trong DTO nên là TempKey (đúng PascalCase)
+                    TempKey = objectKey,
                     ImageUrl = imageUrl,
-                    ImageType = file.ContentType
+                    ImageType = contentType // WebP nếu là ảnh, nguyên bản nếu là file khác
                 };
                 response.Success = true;
                 response.Message = "File uploaded successfully.";
