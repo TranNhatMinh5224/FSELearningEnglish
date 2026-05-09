@@ -1,13 +1,17 @@
 .course-management-container {
   padding: 40px 80px 20px 80px;
-  padding-top: 120px !important;
+  padding-top: 120px;
   background: var(--color-bg-secondary, #f6f8fb);
   min-height: calc(100vh - 70px);
   max-width: 1400px;
   margin: 0 auto;
 }
 
-/* Bootstrap utilities: d-flex, justify-content-between, align-items-center */
+/* Specificity to avoid important */
+body .course-management-container {
+  padding-top: 120px;
+}
+
 .course-management-header {
   margin-bottom: 50px;
 }
@@ -18,13 +22,8 @@
   color: var(--color-text-primary, #1f2937);
   margin: 0;
   letter-spacing: -0.5px;
-  /* background: linear-gradient(135deg, #1f2937 0%, #4b5563 100%); */
-  /* -webkit-background-clip: text; */
-  /* -webkit-text-fill-color: transparent; */
-  /* background-clip: text; */
 }
 
-/* Bootstrap utilities: d-flex, align-items-center */
 .create-course-btn {
   gap: 12px;
   padding: 14px 28px;
@@ -65,13 +64,13 @@
   box-shadow:
     0 8px 20px rgba(65, 214, 227, 0.4),
     0 4px 8px rgba(65, 214, 227, 0.3);
+  color: white;
 }
 
 .create-course-btn:active {
   transform: translateY(-1px);
 }
 
-/* Bootstrap utilities: d-flex, align-items-center, justify-content-center */
 .create-course-icon {
   font-size: 16px;
   position: relative;
@@ -97,12 +96,10 @@
   color: var(--color-status-error, #ef4444);
 }
 
-/* Bootstrap Row/Col được sử dụng trong JSX - responsive tự động */
 .courses-grid {
   margin-bottom: 30px;
 }
 
-/* Bootstrap utilities: d-flex, justify-content-center */
 .pagination-wrapper {
   margin-top: 10px;
   margin-bottom: 0;
@@ -115,7 +112,6 @@
   font-size: 16px;
 }
 
-/* Bootstrap responsive tự xử lý - chỉ thêm styling */
 @media (max-width: 1024px) {
   .course-management-container {
     padding: 30px 50px;

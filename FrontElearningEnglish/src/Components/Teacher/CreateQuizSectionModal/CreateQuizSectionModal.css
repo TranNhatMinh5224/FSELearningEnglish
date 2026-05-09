@@ -21,6 +21,7 @@
   overflow-y: auto;
 }
 
+
 .create-quiz-section-modal .modal-body::-webkit-scrollbar {
   width: 6px;
 }

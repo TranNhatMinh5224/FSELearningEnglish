@@ -136,8 +136,8 @@ export default function TeacherStudentManagement() {
   return (
     <>
       <TeacherHeader />
-      <div className="teacher-student-management-container">
-        <Container fluid className="student-management-content">
+      <div className="teacher-breadcrumb-section">
+        <Container fluid className="content-wrapper">
           <div className="breadcrumb-section pt-0">
             <Breadcrumb
               items={[
@@ -148,6 +148,10 @@ export default function TeacherStudentManagement() {
               showHomeIcon={false}
             />
           </div>
+        </Container>
+      </div>
+      <div className="teacher-main-page-content">
+        <Container fluid className="content-wrapper">
           <div className="student-management-header d-flex justify-content-between align-items-center flex-column flex-md-row gap-3">
             <h2 className="page-title">Quản lý học viên</h2>
             <button 

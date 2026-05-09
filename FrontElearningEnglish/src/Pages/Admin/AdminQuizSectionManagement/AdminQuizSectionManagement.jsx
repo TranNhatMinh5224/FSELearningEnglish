@@ -9,6 +9,7 @@ import { courseService } from "../../../Services/courseService";
 import { lessonService } from "../../../Services/lessonService";
 import { teacherService } from "../../../Services/teacherService";
 import { quizService } from "../../../Services/quizService";
+import { adminService } from "../../../Services/adminService";
 import { ROUTE_PATHS } from "../../../Routes/Paths";
 import CreateQuizSectionModal from "../../../Components/Teacher/CreateQuizSectionModal/CreateQuizSectionModal";
 import SuccessModal from "../../../Components/Common/SuccessModal/SuccessModal";
@@ -24,6 +25,7 @@ export default function AdminQuizSectionManagement() {
   const [assessment, setAssessment] = useState(null);
   const [course, setCourse] = useState(null);
   const [lesson, setLesson] = useState(null);
+  const [module, setModule] = useState(null);
   const [sections, setSections] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -47,12 +49,13 @@ export default function AdminQuizSectionManagement() {
       setLoading(true);
       setError("");
 
-      const [quizRes, sectionsRes, assessRes, courseRes, lessonRes] = await Promise.all([
+      const [quizRes, sectionsRes, assessRes, courseRes, lessonRes, moduleRes] = await Promise.all([
         quizService.getAdminQuizById(quizId),
         quizService.getAdminQuizSectionsByQuiz(quizId),
         assessmentService.getAdminAssessmentById(assessmentId),
         courseService.getCourseById(courseId),
-        lessonService.getLessonById(lessonId)
+        lessonService.getLessonById(lessonId),
+        adminService.getModuleById(moduleId)
       ]);
 
       if (quizRes.data?.success) setQuiz(quizRes.data.data);
@@ -60,6 +63,7 @@ export default function AdminQuizSectionManagement() {
       if (assessRes.data?.success) setAssessment(assessRes.data.data);
       if (courseRes.data?.success) setCourse(courseRes.data.data);
       if (lessonRes.data?.success) setLesson(lessonRes.data.data);
+      if (moduleRes.data?.success) setModule(moduleRes.data.data);
 
     } catch (err) {
       console.error("Error fetching data:", err);
@@ -136,51 +140,41 @@ export default function AdminQuizSectionManagement() {
     return null;
   }
 
-  if (loading) {
-    return (
-      <div className="admin-quiz-section-management-container">
-        <Container fluid className="p-0">
+  const quizTitle = quiz?.title || quiz?.Title || "Quiz";
+
+  return (
+    <div className="admin-quiz-section-management-container">
+      <div className="admin-breadcrumb-wrapper">
+        <Container fluid>
+          <div className="breadcrumb-section pt-0">
+            <Breadcrumb
+              items={[
+                { label: "Quản lý khóa học", path: ROUTE_PATHS.ADMIN.COURSES },
+                { label: course?.title || course?.Title || "Khóa học", path: `/admin/courses/${courseId}` },
+                { label: lesson?.title || lesson?.Title || "Bài học", path: `/admin/courses/${courseId}/lesson/${lessonId}` },
+                { label: module?.name || module?.Name || "Module", path: `/admin/courses/${courseId}/lesson/${lessonId}?moduleId=${moduleId}` },
+                { label: assessment?.title || assessment?.Title || "Bài tập", path: `/admin/courses/${courseId}/lesson/${lessonId}/module/${moduleId}/assessment/${assessmentId}` },
+                { label: "Quản lý Section", isCurrent: true }
+              ]}
+              showHomeIcon={false}
+            />
+          </div>
+        </Container>
+      </div>
+
+      <Container fluid className="lesson-detail-content px-4">
+        {loading ? (
           <div className="text-center py-5">
             <div className="spinner-border text-primary" role="status">
               <span className="visually-hidden">Đang tải...</span>
             </div>
           </div>
-        </Container>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="admin-quiz-section-management-container">
-        <Container fluid className="p-0">
+        ) : error ? (
           <div className="alert alert-danger text-center">{error}</div>
-        </Container>
-      </div>
-    );
-  }
-
-  const quizTitle = quiz?.title || quiz?.Title || "Quiz";
-
-  return (
-    <div className="admin-quiz-section-management-container">
-      <Container fluid className="p-0">
-        {/* Breadcrumb */}
-        <div className="breadcrumb-section mt-3">
-          <Breadcrumb
-            items={[
-              { label: "Admin: Khóa học", path: ROUTE_PATHS.ADMIN.COURSES },
-              { label: course?.title || course?.Title || "Khóa học", path: `/admin/courses/${courseId}` },
-              { label: lesson?.title || lesson?.Title || "Bài học", path: `/admin/courses/${courseId}/lesson/${lessonId}?moduleId=${moduleId}` },
-              { label: assessment?.title || assessment?.Title || "Bài tập", path: `/admin/courses/${courseId}/lesson/${lessonId}/module/${moduleId}/assessment/${assessmentId}/manage` },
-              { label: "Quản lý Section", isCurrent: true }
-            ]}
-            showHomeIcon={false}
-          />
-        </div>
-
+        ) : (
+          <>
         {/* Header */}
-        <div className="mb-4 question-header-section mt-4">
+        <div className="mb-4 question-header-section mt-0">
           <div className="d-flex align-items-center justify-content-between flex-wrap gap-3">
             <div className="title-wrapper">
               <h2 className="mb-0 fw-bold premium-gradient-text">Quản lý Quiz: {quizTitle}</h2>
@@ -248,11 +242,14 @@ export default function AdminQuizSectionManagement() {
                     </div>
                   </div>
                 </div>
-              );
-            })}
-          </div>
-        )}
-      </Container>
+                );
+              })}
+            </div>
+          )}
+
+      </>
+    )}
+  </Container>
 
       {/* Create Section Modal */}
       {quizId && (

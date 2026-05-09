@@ -4,10 +4,10 @@ import ActionButtons from "../../../Common/ActionButtons";
 import { PiBookOpenDuotone } from "react-icons/pi";
 import "./AdminLessonCard.css";
 
-export default function AdminLessonCard({ 
-    lesson, 
-    onClick, 
-    onUpdate, 
+export default function AdminLessonCard({
+    lesson,
+    onClick,
+    onUpdate,
     onDelete,
     getDefaultLessonImage
 }) {
@@ -37,7 +37,7 @@ export default function AdminLessonCard({
                 <ActionButtons
                     onUpdate={onUpdate}
                     onDelete={onDelete}
-                    updateTitle="Chỉnh sửa bài học"
+                    updateText="Cập nhật"
                     deleteTitle="Xóa bài học"
                 />
             </div>

@@ -29,7 +29,8 @@ export default function UserTable({
   onUpgrade, 
   onToggleStatus,
   onAdjustBalance,
-  canAdjustBalance
+  canAdjustBalance,
+  pageSize = 10
 }) {
   const getStatusBadge = (status) => {
     if (status === 'Active' || status === 1) {
@@ -39,30 +40,48 @@ export default function UserTable({
   };
 
   return (
-    <div className="admin-card">
+    <div className="user-management-table-card">
       <div className="table-responsive">
         <table className="admin-table">
           <thead>
             <tr>
-              <th>User Info</th>
-              <th>Role</th>
-              <th>Phone</th>
-              <th>Status</th>
-              <th>Actions</th>
+              <th style={{width: '30%'}}>User Info</th>
+              <th style={{width: '15%'}}>Role</th>
+              <th style={{width: '20%'}}>Phone</th>
+              <th style={{width: '15%'}}>Status</th>
+              <th style={{width: '20%'}}>Actions</th>
             </tr>
           </thead>
-          <tbody>
-            {loading ? (
-              <tr>
-                <td colSpan="5" className="text-center py-4">
-                  <div className="spinner-border text-primary" role="status">
-                    <span className="visually-hidden">Loading...</span>
-                  </div>
-                </td>
-              </tr>
+          <tbody className={loading ? "table-loading-fade" : ""}>
+            {loading && users.length === 0 ? (
+              // Show skeleton rows ONLY on initial load
+              Array.from({ length: pageSize }).map((_, index) => (
+                <tr key={`skeleton-${index}`}>
+                  <td>
+                    <div className="d-flex align-items-center">
+                      <div className="skeleton skeleton-avatar me-2"></div>
+                      <div>
+                        <div className="skeleton skeleton-text" style={{ width: '120px' }}></div>
+                        <div className="skeleton skeleton-text" style={{ width: '180px' }}></div>
+                      </div>
+                    </div>
+                  </td>
+                  <td><div className="skeleton skeleton-badge"></div></td>
+                  <td><div className="skeleton skeleton-text" style={{ width: '100px' }}></div></td>
+                  <td><div className="skeleton skeleton-badge"></div></td>
+                  <td>
+                    <div className="d-flex gap-2">
+                      <div className="skeleton skeleton-circle"></div>
+                      <div className="skeleton skeleton-circle"></div>
+                      <div className="skeleton skeleton-circle"></div>
+                      <div className="skeleton skeleton-circle"></div>
+                    </div>
+                  </td>
+                </tr>
+              ))
             ) : users.length === 0 ? (
               <tr>
-                <td colSpan="5" className="text-center py-4 text-muted">
+                <td colSpan="5" className="text-center py-5 text-muted">
                   No users found
                 </td>
               </tr>
@@ -133,7 +152,7 @@ export default function UserTable({
                         title="Xem lịch sử giao dịch"
                         onClick={() => window.location.href = `/admin/payment-monitoring?search=${email}`}
                       >
-                        <MdAttachMoney style={{ transform: 'rotate(15deg)' }} /> {/* Using money icon represent transactions */}
+                        <MdAttachMoney style={{ transform: 'rotate(15deg)' }} />
                       </button>
                       
                       <button 

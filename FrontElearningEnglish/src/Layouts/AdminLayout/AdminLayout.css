@@ -1,7 +1,7 @@
 :root {
   --admin-sidebar-width: 260px;
   --admin-header-height: 64px;
-  --admin-bg-color: #f8fafc;
+  --admin-bg-color: #ffffff;
   /* Soft Porcelain */
   --admin-sidebar-bg: var(--color-sidebar-bg, #1e293b);
   /* Deep Royal Blue */
@@ -15,7 +15,7 @@
 .admin-layout {
   display: flex;
   min-height: 100vh;
-  background-color: var(--color-bg-secondary, #f8fafc);
+  background-color: #ffffff;
   font-family: 'Inter', system-ui, -apple-system, sans-serif;
 }
 
@@ -262,7 +262,7 @@
   font-weight: 600;
   color: var(--color-text-secondary, #64748b);
   border-bottom: 1px solid var(--color-border-medium, #e2e8f0);
-  background-color: var(--color-bg-secondary, #f8fafc);
+  background-color: #ffffff;
 }
 
 .admin-table td {

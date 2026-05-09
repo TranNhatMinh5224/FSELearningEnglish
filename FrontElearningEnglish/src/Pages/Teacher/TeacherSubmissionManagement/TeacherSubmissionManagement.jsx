@@ -2,6 +2,8 @@ import React, { useState, useEffect } from "react";
 import { Container, Nav, Tab } from "react-bootstrap";
 import { FaFileAlt, FaClipboardList } from "react-icons/fa";
 import TeacherHeader from "../../../Components/Header/TeacherHeader";
+import Breadcrumb from "../../../Components/Common/Breadcrumb/Breadcrumb";
+import { ROUTE_PATHS } from "../../../Routes/Paths";
 import { useAuth } from "../../../Context/AuthContext";
 import { teacherService } from "../../../Services/teacherService";
 import EssaySubmissionTab from "../../../Components/Teacher/SubmissionManagement/EssaySubmissionTab/EssaySubmissionTab";
@@ -83,6 +85,13 @@ export default function TeacherSubmissionManagement() {
       <TeacherHeader />
       <div className="teacher-submission-management-container">
         <div className="tab-wrapper">
+          <div className="submission-breadcrumb">
+            <Breadcrumb
+              items={[{ label: "Quản lý bài nộp", path: ROUTE_PATHS.TEACHER_SUBMISSION_MANAGEMENT, isCurrent: true }]}
+              showHomeIcon={false}
+            />
+          </div>
+
           <div className="mb-4">
             <h1 className="mb-0 fw-bold text-primary">Quản lý bài nộp</h1>
             <p className="text-muted mt-2">Xem và chấm bài nộp của học sinh</p>

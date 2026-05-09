@@ -13,6 +13,7 @@ import { quizService } from "../../../Services/quizService";
 import { courseService } from "../../../Services/courseService";
 import { lessonService } from "../../../Services/lessonService";
 import { assessmentService } from "../../../Services/assessmentService";
+import { adminService } from "../../../Services/adminService";
 import { ROUTE_PATHS } from "../../../Routes/Paths";
 import { useAuth } from "../../../Context/AuthContext";
 import { useQuestionTypes } from "../../../hooks/useQuestionTypes";
@@ -31,6 +32,7 @@ export default function AdminQuestionManagement() {
   const [assessment, setAssessment] = useState(null);
   const [quiz, setQuiz] = useState(null);
   const [section, setSection] = useState(null);
+  const [module, setModule] = useState(null);
   const [contextData, setContextData] = useState({ title: "", subtitle: "" });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -61,14 +63,15 @@ export default function AdminQuestionManagement() {
     setLoading(true);
     setError("");
     try {
-      const [qRes, gRes, sectionRes, quizRes, assessRes, courseRes, lessonRes] = await Promise.all([
+      const [qRes, gRes, sectionRes, quizRes, assessRes, courseRes, lessonRes, moduleRes] = await Promise.all([
         questionService.getAdminQuestionsBySection(sectionId),
         quizService.getAdminQuizGroupsBySection(sectionId),
         quizService.getAdminQuizSectionById(sectionId),
         quizService.getAdminQuizById(quizId),
         assessmentService.getAdminAssessmentById(assessmentId),
         courseService.getCourseById(courseId),
-        lessonService.getLessonById(lessonId)
+        lessonService.getLessonById(lessonId),
+        adminService.getModuleById(moduleId)
       ]);
 
       if (qRes.data?.success) setQuestions(qRes.data.data || []);
@@ -82,6 +85,7 @@ export default function AdminQuestionManagement() {
       if (assessRes.data?.success) setAssessment(assessRes.data.data);
       if (courseRes.data?.success) setCourse(courseRes.data.data);
       if (lessonRes.data?.success) setLesson(lessonRes.data.data);
+      if (moduleRes.data?.success) setModule(moduleRes.data.data);
 
     } catch (err) {
       console.error(err);
@@ -260,23 +264,29 @@ export default function AdminQuestionManagement() {
   if (!isAuthenticated || !isAdmin) return null;
 
   return (
-    <div className="admin-question-management-container">
-      <Container fluid className="py-4 p-0">
+    <div className="admin-lesson-detail-container">
+      <div className="admin-breadcrumb-wrapper">
+        <Container fluid>
+          <div className="breadcrumb-section pt-0">
+            <Breadcrumb
+              items={[
+                { label: "Quản lý khóa học", path: ROUTE_PATHS.ADMIN.COURSES },
+                { label: course?.title || course?.Title || "Khóa học", path: `/admin/courses/${courseId}` },
+                { label: lesson?.title || lesson?.Title || "Bài học", path: `/admin/courses/${courseId}/lesson/${lessonId}` },
+                { label: module?.name || module?.Name || "Module", path: `/admin/courses/${courseId}/lesson/${lessonId}?moduleId=${moduleId}` },
+                { label: assessment?.title || assessment?.Title || "Bài tập", path: `/admin/courses/${courseId}/lesson/${lessonId}/module/${moduleId}/assessment/${assessmentId}` },
+                { label: quiz?.title || quiz?.Title || "Quiz", path: `/admin/courses/${courseId}/lesson/${lessonId}/module/${moduleId}/assessment/${assessmentId}/quiz/${quizId}/sections` },
+                { label: section?.title || section?.Title || "Section", isCurrent: true }
+              ]}
+              showHomeIcon={false}
+            />
+          </div>
+        </Container>
+      </div>
+
+      <Container fluid className="lesson-detail-content px-4 py-4">
         <div className="d-flex justify-content-between align-items-center mb-4">
           <div>
-            <div className="breadcrumb-wrapper mb-3">
-              <Breadcrumb
-                items={[
-                  { label: "Admin: Khóa học", path: ROUTE_PATHS.ADMIN.COURSES },
-                  { label: course?.title || course?.Title || "Khóa học", path: `/admin/courses/${courseId}` },
-                  { label: lesson?.title || lesson?.Title || "Bài học", path: `/admin/courses/${courseId}/lesson/${lessonId}?moduleId=${moduleId}` },
-                  { label: assessment?.title || assessment?.Title || "Bài tập", path: `/admin/courses/${courseId}/lesson/${lessonId}/module/${moduleId}/assessment/${assessmentId}/manage` },
-                  { label: quiz?.title || quiz?.Title || "Quiz", path: `/admin/courses/${courseId}/lesson/${lessonId}/module/${moduleId}/assessment/${assessmentId}/quiz/${quizId}/sections` },
-                  { label: section?.title || section?.Title || "Section", isCurrent: true }
-                ]}
-                showHomeIcon={false}
-              />
-            </div>
             <h2 className="mb-0 text-primary fw-bold">{contextData.title}</h2>
             {contextData.subtitle && <p className="text-muted mb-0">{contextData.subtitle}</p>}
           </div>

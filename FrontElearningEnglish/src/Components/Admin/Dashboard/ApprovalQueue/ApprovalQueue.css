@@ -1,0 +1,100 @@
+/* ApprovalQueue Component Styles - Fintech Edition */
+.approval-queue-card {
+  border-left: 4px solid var(--fintech-warning);
+}
+
+.badge-count {
+  background: rgba(245, 158, 11, 0.1);
+  color: var(--fintech-warning);
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: 20px;
+}
+
+.queue-item {
+  display: flex;
+  align-items: center;
+  padding: 14px 0;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.queue-item:last-child {
+  border-bottom: none;
+}
+
+.queue-icon-wrapper {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: #f8fafc;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.queue-icon {
+  font-size: 1.2rem;
+}
+
+.queue-icon.course { color: var(--fintech-primary); }
+.queue-icon.essay { color: var(--fintech-danger); }
+
+.queue-content {
+  flex-grow: 1;
+}
+
+.queue-title {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--text-main);
+  line-height: 1.2;
+}
+
+.queue-subtitle {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+.btn-queue-action {
+  background: var(--fintech-primary);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 6px 14px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  transition: all 0.2s ease;
+}
+
+.btn-queue-action:hover {
+  background: #5b21b6;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(109, 40, 217, 0.2);
+}
+
+.btn-link-all {
+  background: transparent;
+  border: 1px dashed #e2e8f0;
+  color: var(--text-muted);
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 8px;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+}
+
+.btn-link-all:hover {
+  background: #f8fafc;
+  color: var(--fintech-primary);
+  border-style: solid;
+  border-color: var(--fintech-primary);
+}
+
+.skeleton-item {
+  padding: 14px 0;
+}

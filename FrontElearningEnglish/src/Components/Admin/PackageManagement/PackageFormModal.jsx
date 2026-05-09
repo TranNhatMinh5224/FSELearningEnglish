@@ -154,7 +154,7 @@ export default function PackageFormModal({ show, onClose, onSuccess, packageToEd
             onHide={onClose} 
             size="lg" 
             centered
-            className="modal-modern"
+            className="modal-modern modal-package-size"
         >
             <Modal.Header closeButton={false} className="modal-header-cyan">
                 <Modal.Title className="fw-bold modal-title-centered text-white">

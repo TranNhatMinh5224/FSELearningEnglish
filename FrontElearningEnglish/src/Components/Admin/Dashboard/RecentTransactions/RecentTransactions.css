@@ -1,0 +1,98 @@
+/* RecentTransactions Component Styles - Fintech Edition */
+.recent-transactions-card {
+  height: 100%;
+}
+
+.btn-view-all {
+  background: none;
+  border: none;
+  color: var(--fintech-primary);
+  font-size: 0.8rem;
+  font-weight: 700;
+  padding: 4px 12px;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+
+.btn-view-all:hover {
+  background: rgba(109, 40, 217, 0.05);
+  text-decoration: underline;
+}
+
+.transaction-item {
+  display: flex;
+  align-items: center;
+  padding: 12px 0;
+  border-bottom: 1px solid #f1f5f9;
+  transition: all 0.2s ease;
+}
+
+.transaction-item:last-child {
+  border-bottom: none;
+}
+
+.transaction-item:hover {
+  transform: translateX(4px);
+}
+
+.user-avatar-box {
+  width: 40px;
+  height: 40px;
+  background: linear-gradient(135deg, var(--fintech-primary), var(--fintech-secondary));
+  color: white;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 1.1rem;
+  flex-shrink: 0;
+}
+
+.transaction-info {
+  flex-grow: 1;
+}
+
+.transaction-info .user-name {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--text-main);
+  line-height: 1.2;
+}
+
+.transaction-info .product-name {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 180px;
+}
+
+.transaction-meta .amount {
+  font-size: 0.9rem;
+  color: var(--text-main);
+}
+
+.status-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  margin-top: 4px;
+}
+
+.status-icon {
+  font-size: 0.9rem;
+}
+
+.status-success { color: var(--fintech-success); }
+.status-warning { color: var(--fintech-warning); }
+.status-danger { color: var(--fintech-danger); }
+.status-muted { color: var(--text-muted); }
+
+.skeleton-item {
+  padding: 12px 0;
+}

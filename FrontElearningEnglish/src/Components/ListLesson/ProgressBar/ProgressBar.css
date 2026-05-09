@@ -62,7 +62,8 @@
     font-size: 1.25rem;
     font-weight: 800;
     color: #1a202c;
-    letter-spacing: -0.025em;
+    letter-spacing: 0;
+    padding-left: 2px; /* Tránh việc chữ T bị khuất do font bold */
 }
 
 .progress-stats-inline {

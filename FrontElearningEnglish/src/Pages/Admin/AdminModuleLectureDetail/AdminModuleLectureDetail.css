@@ -1,6 +1,6 @@
 .admin-module-lecture-detail-container {
   min-height: 100vh;
-  background: linear-gradient(to bottom, #f8f9fa 0%, #ffffff 100%);
+  background-color: #ffffff !important;
 }
 
 .lecture-management-header {

@@ -1,30 +1,62 @@
-/* UserDistributionChart Component Styles */
-.user-distribution-container {
-  height: 350px;
+/* UserDistributionChart Styles - Fintech Edition */
+.pie-chart-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
-.user-chart-wrapper {
-  width: 100%;
-  height: 220px;
-}
-
-.user-stats-badges {
+.pie-center-label {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
   text-align: center;
-  margin-top: 0.5rem;
+  display: flex;
+  flex-direction: column;
 }
 
-.user-stats-badges .badge {
-  margin-right: 0.5rem;
-  padding: 0.5rem 1rem;
-  font-size: 0.875rem;
+.total-value {
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: var(--text-main);
+  line-height: 1;
 }
 
-.badge.bg-success.bg-opacity-10 {
-  background-color: rgba(16, 185, 129, 0.1) !important;
-  color: #059669 !important;
+.total-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  margin-top: 4px;
 }
 
-.badge.bg-warning.bg-opacity-10 {
-  background-color: rgba(245, 158, 11, 0.1) !important;
-  color: #d97706 !important;
+.pie-legend {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.pie-legend-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.pie-legend-item .dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+
+.pie-legend-item .name {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-main);
+  flex: 1;
+}
+
+.pie-legend-item .value {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--text-muted);
 }

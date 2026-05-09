@@ -5,27 +5,48 @@
 @import './Theme/dark-theme-overrides.css';
 @import './Theme/modal-premium.css';
 
-/* Desktop Scaling: Keep the compact layout only on screens wider than mobile/tablet */
+
+/* Desktop Scaling: Pattern Production Chuẩn 
+   Tách biệt Zoom của nội dung App ra khỏi Body để không làm nổ tung Modals/Backdrops */
 @media (min-width: 992px) {
   body {
-    zoom: 0.8;
-    /* Force 80% scale by default for desktop based on user preference */
+    zoom: 1; /* Body luôn giữ tỷ lệ 1 để Modals hiển thị chuẩn 100% màn hình */
+    overflow-x: hidden;
+    background-color: #ffffff;
+  }
+
+  #app-scale-root {
+    zoom: 0.8; /* Chỉ zoom nội dung bên trong App */
+    width: 100%; /* Cần 100% để khớp với Viewport khi đã zoom */
+    min-height: 125vh; /* Bù trừ chiều cao để background luôn che phủ hết */
+    background-color: #ffffff;
+    display: block;
+    position: relative;
+    margin: 0;
   }
 }
 
-/* Mobile/Tablet: Use standard scale for accessibility and responsive reliability */
+/* Mobile/Tablet: Tỷ lệ 1:1 mặc định */
 @media (max-width: 991.98px) {
-  body {
+  body, #app-scale-root {
     zoom: 1;
+    width: 100%;
   }
 }
 
 body {
-  color: var(--color-text-primary, #111827); /* Ensure default text contrast */
+  color: var(--color-text-primary, #111827);
+  /* Ensure default text contrast */
 }
 
-h1, h2, h3, h4, h5, h6 {
-  color: var(--color-text-primary, #111827); /* Ensure heading contrast */
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  color: var(--color-text-primary, #111827);
+  /* Ensure heading contrast */
 }
 
 code {
@@ -54,31 +75,31 @@ code {
 
   /* Exception: Background wrappers for Header, Footer, and other 'trần full' sections 
      Must remain 100% width of the zoomed body */
-  .main-header,
-  footer.footer,
-  .footer-container,
-  .home-container,
-  .course-detail-container,
-  .list-module-container,
-  .list-lesson-container,
-  .quiz-detail-container,
-  .profile-container,
-  .essay-detail-container,
-  .flashcard-detail-container,
-  .my-courses-container {
-    max-width: none !important;
-    width: 100% !important;
-    left: 0 !important;
-    right: 0 !important;
+  body .main-header,
+  body footer.footer,
+  body .footer-container,
+  body .home-container,
+  body .course-detail-container,
+  body .list-module-container,
+  body .list-lesson-container,
+  body .quiz-detail-container,
+  body .profile-container,
+  body .essay-detail-container,
+  body .flashcard-detail-container,
+  body .my-courses-container {
+    max-width: none;
+    width: 100%;
+    left: 0;
+    right: 0;
   }
 
   /* But the container INSIDE those background wrappers (like header content) 
      SHOUD be restricted to 80% to align with the rest of the content */
-  .main-header .container-fluid,
-  footer .container-fluid {
-    width: 80% !important;
-    max-width: 1440px !important;
-    margin: 0 auto !important;
+  body .main-header .container-fluid,
+  body footer .container-fluid {
+    width: 80%;
+    max-width: 1440px;
+    margin: 0 auto;
   }
 }
 
@@ -91,74 +112,46 @@ code {
   main .course-detail-page {
     width: 85%;
     max-width: 1440px;
-    margin: 0 auto;
+    margin-left: auto;
+    margin-right: auto;
   }
 }
 
-@media (max-width: 991.98px) {
+/* --- Shared Teacher Layout Utilities --- */
+.teacher-breadcrumb-section {
+  background-color: transparent;
+  padding-top: 100px;
+  /* Space for fixed header */
+  margin-bottom: 0;
+}
 
-  main .lecture-detail-page,
-  main .quiz-detail-page,
-  main .results-container,
-  main .course-detail-page {
-    width: 100%;
-    padding: 0 1rem;
+.teacher-main-page-content {
+  padding-top: 20px;
+  padding-bottom: 40px;
+  background-color: transparent;
+}
+
+.content-wrapper {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding-left: 80px;
+  padding-right: 80px;
+}
+
+@media (max-width: 1024px) {
+  .content-wrapper {
+    padding-left: 50px;
+    padding-right: 50px;
   }
 }
 
-/* Global Header Offset - Prevent content from being hidden under the fixed header */
-body .lecture-detail-page,
-body .quiz-detail-page,
-body .results-container,
-body .course-detail-page {
-  padding-top: 80px;
-  /* Standard header height + some breathing room */
-}
+@media (max-width: 768px) {
+  .teacher-breadcrumb-section {
+    padding-top: 90px;
+  }
 
-/* Fix Bootstrap modals not covering the full screen horizontally/vertically under zoom: 0.8 */
-.modal-backdrop,
-.modal {
-  width: 125vw !important;
-  height: 100vh !important;
-}
-
-/* Fix jitter: Prevent body shift when modal opens under zoom: 0.8 */
-body.modal-open {
-  padding-right: 0 !important;
-  overflow: hidden !important;
-}
-
-/* Global Modal Standardization - Centered Titles & Support for PremiumCloseButton */
-.modal-modern .modal-header {
-  position: relative;
-  display: flex !important;
-  justify-content: center !important;
-  align-items: center !important;
-  text-align: center;
-  padding: 1.5rem 2.5rem !important;
-  /* Extra padding for the absolute close button */
-}
-
-.modal-header-cyan {
-  background: #54BFCE !important;
-  border-bottom: none !important;
-}
-
-.modal-modern .modal-header .modal-title,
-.modal-modern .modal-header h3,
-.modal-modern .modal-header h5 {
-  margin: 0 !important;
-  text-align: center !important;
-  flex: 1 !important;
-  width: 100% !important;
-  font-weight: 700;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
-@media (min-width: 992px) {
-  .modal-backdrop, .modal {
-    height: 125vh !important;
+  .content-wrapper {
+    padding-left: 24px;
+    padding-right: 24px;
   }
 }

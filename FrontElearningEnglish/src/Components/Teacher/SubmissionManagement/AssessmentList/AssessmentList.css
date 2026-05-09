@@ -15,6 +15,8 @@
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   background: white;
+  display: flex;
+  flex-direction: column;
 }
 
 .assessment-card:hover {
@@ -28,16 +30,38 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 54px;
-  height: 54px;
-  background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+  width: 48px;
+  height: 48px;
+  background: linear-gradient(135deg, #f0fdfa 0%, #ccfbf1 100%);
   border-radius: 12px;
-  margin-right: 4px;
+  flex-shrink: 0;
 }
 
 .assessment-title {
-  font-size: 16px;
-  font-weight: 600;
-  color: #1f2937;
+  font-size: 1rem;
+  font-weight: 700;
+  color: #1e293b;
+  margin-bottom: 0.25rem;
+  line-height: 1.4;
+}
+
+.assessment-badge {
+  font-size: 0.65rem !important;
+  text-transform: uppercase;
+  letter-spacing: 0.025em;
+  padding: 0.35em 0.65em !important;
+}
+
+.date-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.75rem;
+  color: #64748b;
+  margin-top: 4px;
+}
+
+.date-row.danger {
+  color: #ef4444;
 }
 

@@ -144,21 +144,25 @@ export default function AdminModuleLectureDetail() {
   }
 
   return (
-    <div className="admin-module-lecture-detail-container">
-      <Container fluid className="p-0">
-        <div className="breadcrumb-section mt-3">
-          <Breadcrumb
-            items={[
-              { label: "Admin: Khóa học", path: ROUTE_PATHS.ADMIN.COURSES },
-              { label: course?.title || course?.Title || "Khóa học", path: `/admin/courses/${courseId}` },
-              { label: lesson?.title || lesson?.Title || "Bài học", path: `/admin/courses/${courseId}/lesson/${lessonId}?moduleId=${moduleId}` },
-              { label: "Quản lý bài giảng", isCurrent: true }
-            ]}
-            showHomeIcon={false}
-          />
-        </div>
+    <div className="admin-lesson-detail-container">
+      <div className="admin-breadcrumb-wrapper">
+        <Container fluid>
+          <div className="breadcrumb-section pt-0">
+            <Breadcrumb
+              items={[
+                { label: "Quản lý khóa học", path: ROUTE_PATHS.ADMIN.COURSES },
+                { label: course?.title || course?.Title || "Khóa học", path: `/admin/courses/${courseId}` },
+                { label: lesson?.title || lesson?.Title || "Bài học", path: `/admin/courses/${courseId}/lesson/${lessonId}` },
+                { label: "Quản lý bài giảng", isCurrent: true }
+              ]}
+              showHomeIcon={false}
+            />
+          </div>
+        </Container>
+      </div>
 
-        <div className="lecture-management-header mb-4 mt-4">
+      <Container fluid className="lesson-detail-content px-4">
+        <div className="lecture-management-header mb-4 mt-0">
           <div className="d-flex align-items-center justify-content-between">
             <div className="header-content d-flex align-items-center gap-3">
               <div>

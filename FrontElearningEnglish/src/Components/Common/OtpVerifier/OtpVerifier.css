@@ -5,6 +5,8 @@
   align-items: center;
   background: linear-gradient(135deg, #7abfec 0%, #fdf2f8 100%);
   padding: 20px;
+  position: relative; 
+  overflow: hidden;
 }
 
 .otp-box {
@@ -86,20 +88,23 @@
   font-weight: 600;
 }
 
-/* Bootstrap Button primary override */
-.otp-btn.btn-primary {
-  background: linear-gradient(to right, #41d6e3 0%, #06b6d4 100%) !important;
-  border: none !important;
+/* Bootstrap Button primary override - specificity to avoid important */
+.otp-container .otp-btn.btn-primary {
+  background: linear-gradient(to right, #41d6e3 0%, #06b6d4 100%);
+  border: none;
   border-radius: 12px;
   font-weight: 600;
   box-shadow: 0 4px 12px rgba(65, 214, 227, 0.3);
   transition: all 0.3s ease;
+  color: white;
 }
 
-.otp-btn.btn-primary:hover:not(:disabled) {
+.otp-container .otp-btn.btn-primary:hover:not(:disabled) {
   transform: translateY(-2px);
   box-shadow: 0 6px 20px rgba(65, 214, 227, 0.4);
   opacity: 0.95;
+  color: white;
+  background: linear-gradient(to right, #41d6e3 0%, #06b6d4 100%);
 }
 
 .otp-btn.btn-primary:active:not(:disabled) {
@@ -181,6 +186,66 @@
   font-size: 13px;
   color: #ef4444;
   margin-left: 8px;
+}
+
+/* ===========================
+   LOGO POSITIONING - Match Login/Register
+=========================== */
+.auth-logo-container {
+  position: absolute;
+  top: 2rem;
+  left: 2rem;
+  z-index: 2;
+}
+
+.auth-logo-container .header {
+  gap: 12px;
+}
+
+.auth-logo-container .header-logo {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.auth-logo-container .header-title {
+  color: var(--color-text-white, white);
+  font-size: clamp(16px, 1rem + 0.5vw, 20px);
+  font-weight: 600;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+@media (max-width: 768px) {
+  .auth-logo-container {
+    bottom: clamp(1rem, 0.75rem + 1.25vw, 1.5rem);
+    left: clamp(1rem, 0.75rem + 1.25vw, 1.5rem);
+    top: auto; /* Reset top on mobile */
+  }
+
+  .auth-logo-container .header-logo {
+    width: 40px;
+    height: 40px;
+  }
+
+  .auth-logo-container .header-title {
+    font-size: clamp(14px, 0.875rem + 0.25vw, 18px);
+  }
+}
+
+@media (max-width: 576px) {
+  .auth-logo-container .header {
+    gap: 8px;
+  }
+
+  .auth-logo-container .header-logo {
+    width: 36px;
+    height: 36px;
+  }
+
+  .auth-logo-container .header-title {
+    font-size: 14px;
+  }
 }
 
 @media (min-width: 992px) {

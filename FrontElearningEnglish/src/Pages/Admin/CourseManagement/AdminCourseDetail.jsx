@@ -6,6 +6,7 @@ import Breadcrumb from "../../../Components/Common/Breadcrumb/Breadcrumb";
 import { useAuth } from "../../../Context/AuthContext";
 import { adminService } from "../../../Services/adminService";
 import { useAssets } from "../../../Context/AssetContext";
+import { ROUTE_PATHS } from "../../../Routes/Paths";
 import CourseFormModal from "../../../Components/Admin/CourseManagement/CourseFormModal/CourseFormModal";
 import CreateLessonModal from "../../../Components/Teacher/CreateLessonModal/CreateLessonModal";
 import SuccessModal from "../../../Components/Common/SuccessModal/SuccessModal";
@@ -13,7 +14,7 @@ import NotificationModal from "../../../Components/Common/NotificationModal/Noti
 import ConfirmModal from "../../../Components/Common/ConfirmModal/ConfirmModal";
 import CourseDescription from "../../../Components/Courses/CourseDescription/CourseDescription";
 import AdminLessonCard from "../../../Components/Admin/CourseManagement/AdminLessonCard/AdminLessonCard";
-import { FaPlus } from "react-icons/fa";
+import { FaPlus, FaEdit, FaUsers } from "react-icons/fa";
 import { PiGraduationCapDuotone } from "react-icons/pi";
 import ImageWithIconFallback from "../../../Components/Common/ImageWithIconFallback/ImageWithIconFallback";
 
@@ -182,16 +183,20 @@ export default function AdminCourseDetail() {
 
   return (
     <div className="admin-course-detail-container">
+      <div className="admin-breadcrumb-wrapper">
+        <Container fluid>
+          <div className="breadcrumb-section pt-0">
+            <Breadcrumb
+                items={[
+                  { label: "Quản lý khóa học", path: ROUTE_PATHS.ADMIN.COURSES },
+                  { label: courseTitle, isCurrent: true }
+                ]}
+                showHomeIcon={false}
+              />
+          </div>
+        </Container>
+      </div>
       <Container fluid className="course-detail-content p-0">
-        <div className="breadcrumb-section pt-0">
-          <Breadcrumb
-            items={[
-              { label: "Quản lý khóa học", path: "/admin/courses" },
-              { label: courseTitle, isCurrent: true }
-            ]}
-            showHomeIcon={false}
-          />
-        </div>
         <Row>
           {/* Left Column - Course Info */}
           <Col md={4} className="course-info-column">
@@ -235,6 +240,7 @@ export default function AdminCourseDetail() {
                   className="update-course-btn"
                   onClick={() => setShowUpdateModal(true)}
                 >
+                  <FaEdit className="btn-icon" />
                   Cập nhật khóa học
                 </button>
                 
@@ -242,6 +248,7 @@ export default function AdminCourseDetail() {
                   className="manage-students-btn"
                   onClick={() => navigate(`/admin/courses/${courseId}/students`)}
                 >
+                  <FaUsers className="btn-icon" />
                   Quản lý học viên
                 </button>
               </div>

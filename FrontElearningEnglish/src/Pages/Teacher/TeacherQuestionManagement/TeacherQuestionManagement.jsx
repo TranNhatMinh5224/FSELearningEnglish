@@ -23,20 +23,20 @@ export default function TeacherQuestionManagement() {
   const { courseId, lessonId, moduleId, assessmentId, quizId, sectionId, groupId } = useParams();
   const navigate = useNavigate();
   const { user, roles, isAuthenticated } = useAuth();
-  
+
   // Auto-detect admin role from AuthContext
   const isAdmin = roles && roles.some(role => {
     const roleName = typeof role === 'string' ? role : (role?.name || '');
     return ["SuperAdmin", "ContentAdmin", "FinanceAdmin", "Admin"].includes(roleName);
   });
-  
+
   const isTeacher = (roles && roles.some(role => {
     const roleName = typeof role === 'string' ? role : (role?.name || '');
     return roleName === "Teacher";
-  })) || 
-  user?.teacherSubscription?.isTeacher === true || 
-  isAdmin;
-  
+  })) ||
+    user?.teacherSubscription?.isTeacher === true ||
+    isAdmin;
+
   const [questions, setQuestions] = useState([]);
   const [groups, setGroups] = useState([]); // Store groups list
   const [course, setCourse] = useState(null);
@@ -47,7 +47,7 @@ export default function TeacherQuestionManagement() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [notification, setNotification] = useState({ isOpen: false, type: "info", message: "" });
-  
+
 
 
   // Question Modal states
@@ -58,7 +58,7 @@ export default function TeacherQuestionManagement() {
   // Question Delete Modal
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [questionToDelete, setQuestionToDelete] = useState(null);
-  
+
   // Group Modals (Edit/Delete)
   const [showGroupEditModal, setShowGroupEditModal] = useState(false);
   const [groupToUpdate, setGroupToUpdate] = useState(null);
@@ -91,7 +91,7 @@ export default function TeacherQuestionManagement() {
             if (adminGroupRes.data?.success) gData = adminGroupRes.data.data;
           } catch (e) { console.error("Admin group fallback failed"); }
         }
-        
+
         if (gData) {
           title = `Group: ${gData.name || gData.Name || "Untitled Group"}`;
           subtitle = gData.title || gData.Title;
@@ -119,12 +119,12 @@ export default function TeacherQuestionManagement() {
         if (sData) {
           title = `Section: ${sData.title || sData.Title || "Untitled Section"}`;
         }
-        
+
         // Parallel fetch for questions and groups in section
         const fetchSectionContent = async () => {
           let qList = [];
           let gList = [];
-          
+
           try {
             const qRes = await questionService.getQuestionsBySection(sectionId);
             if (qRes.data?.success) qList = Array.isArray(qRes.data.data) ? qRes.data.data : (qRes.data.data?.questions || []);
@@ -147,7 +147,7 @@ export default function TeacherQuestionManagement() {
               }
             } catch (e) { console.error("Admin groups fallback failed"); }
           }
-          
+
           return { qList, gList };
         };
 
@@ -217,7 +217,7 @@ export default function TeacherQuestionManagement() {
   const handleCreateSuccess = (newQuestion) => {
     setSuccessMessage("Tạo câu hỏi thành công!");
     setShowSuccessModal(true);
-    fetchData(); 
+    fetchData();
   };
 
   const handleUpdateSuccess = (updatedQuestion) => {
@@ -228,42 +228,42 @@ export default function TeacherQuestionManagement() {
 
   // --- Group Handlers ---
   const handleGroupEditSuccess = () => {
-      setSuccessMessage("Cập nhật Group thành công!");
-      setShowSuccessModal(true);
-      fetchData();
+    setSuccessMessage("Cập nhật Group thành công!");
+    setShowSuccessModal(true);
+    fetchData();
   };
 
   const confirmDeleteGroup = async () => {
-      if (!groupToDelete) return;
-      try {
-          const res = isAdmin
-            ? await quizService.deleteAdminQuizGroup(groupToDelete.quizGroupId)
-            : await quizService.deleteQuizGroup(groupToDelete.quizGroupId);
-          if (res.data?.success) {
-              setSuccessMessage("Xóa Group thành công!");
-              setShowSuccessModal(true);
-              setShowGroupDeleteModal(false);
-              fetchData();
-          } else {
-              setNotification({ isOpen: true, type: "error", message: res.data?.message || "Xóa thất bại" });
-          }
-      } catch (err) {
-          console.error(err);
-          setNotification({ isOpen: true, type: "error", message: "Lỗi khi xóa Group" });
+    if (!groupToDelete) return;
+    try {
+      const res = isAdmin
+        ? await quizService.deleteAdminQuizGroup(groupToDelete.quizGroupId)
+        : await quizService.deleteQuizGroup(groupToDelete.quizGroupId);
+      if (res.data?.success) {
+        setSuccessMessage("Xóa Group thành công!");
+        setShowSuccessModal(true);
+        setShowGroupDeleteModal(false);
+        fetchData();
+      } else {
+        setNotification({ isOpen: true, type: "error", message: res.data?.message || "Xóa thất bại" });
       }
+    } catch (err) {
+      console.error(err);
+      setNotification({ isOpen: true, type: "error", message: "Lỗi khi xóa Group" });
+    }
   };
 
 
   // --- Common Handlers ---
   const handleAddQuestion = (targetGroup = null) => {
-      setTargetGroupId(targetGroup ? targetGroup.quizGroupId : null); // If null, it's standalone (or new group creation context)
-      setQuestionToUpdate(null);
-      setShowCreateModal(true);
+    setTargetGroupId(targetGroup ? targetGroup.quizGroupId : null); // If null, it's standalone (or new group creation context)
+    setQuestionToUpdate(null);
+    setShowCreateModal(true);
   };
 
   const handleEditQuestion = (question) => {
     setQuestionToUpdate(question);
-    setTargetGroupId(question.quizGroupId); 
+    setTargetGroupId(question.quizGroupId);
     setShowCreateModal(true);
   };
 
@@ -295,91 +295,91 @@ export default function TeacherQuestionManagement() {
   const standaloneQuestions = questions.filter(q => !q.quizGroupId);
   const questionsByGroup = {};
   questions.forEach(q => {
-      if (q.quizGroupId) {
-          if (!questionsByGroup[q.quizGroupId]) questionsByGroup[q.quizGroupId] = [];
-          questionsByGroup[q.quizGroupId].push(q);
-      }
+    if (q.quizGroupId) {
+      if (!questionsByGroup[q.quizGroupId]) questionsByGroup[q.quizGroupId] = [];
+      questionsByGroup[q.quizGroupId].push(q);
+    }
   });
 
   const renderQuestionCard = (q, index, isGrouped = false) => {
-      // Helper to render body content based on type
-      const renderQuestionBody = () => {
-          if (q.type === 5) { // Matching
-              let pairs = [];
-              try {
-                  if (q.matchingPairs) pairs = q.matchingPairs; // from draft
-                  else if (q.correctAnswersJson) pairs = JSON.parse(q.correctAnswersJson);
-              } catch (e) { console.error("Error parsing matching pairs", e); }
+    // Helper to render body content based on type
+    const renderQuestionBody = () => {
+      if (q.type === 5) { // Matching
+        let pairs = [];
+        try {
+          if (q.matchingPairs) pairs = q.matchingPairs; // from draft
+          else if (q.correctAnswersJson) pairs = JSON.parse(q.correctAnswersJson);
+        } catch (e) { console.error("Error parsing matching pairs", e); }
 
-              if (pairs.length > 0) {
-                  return (
-                      <div className="mt-2 bg-light p-2 rounded small">
-                          {pairs.map((p, i) => (
-                              <div key={i} className="d-flex align-items-center gap-2 mb-1">
-                                  <span className="fw-bold text-dark">{p.key}</span>
-                                  <span className="text-muted">➡</span>
-                                  <span className="text-dark">{p.value}</span>
-                              </div>
-                          ))}
-                      </div>
-                  );
-              }
-          }
-          
-          if (q.type === 6) { // Ordering
-              return (
-                  <ol className="mt-2 ps-3 mb-0 small">
-                      {q.options?.map((opt, idx) => (
-                          <li key={idx} className="mb-1 text-dark">
-                              {opt.text}
-                          </li>
-                      ))}
-                  </ol>
-              );
-          }
-
-          // Default (MCQ, FillBlank, etc.)
+        if (pairs.length > 0) {
           return (
-            <ul className="list-unstyled options-preview mb-0 small text-muted mt-2">
-                {q.options?.map((opt, idx) => (
-                    <li key={idx} className={`mb-1 ${opt.isCorrect ? "text-success fw-bold" : ""}`}>
-                        {opt.isCorrect && "✓ "} {opt.text}
-                    </li>
-                ))}
-            </ul>
+            <div className="mt-2 bg-light p-2 rounded small">
+              {pairs.map((p, i) => (
+                <div key={i} className="d-flex align-items-center gap-2 mb-1">
+                  <span className="fw-bold text-dark">{p.key}</span>
+                  <span className="text-muted">➡</span>
+                  <span className="text-dark">{p.value}</span>
+                </div>
+              ))}
+            </div>
           );
-      };
+        }
+      }
 
+      if (q.type === 6) { // Ordering
+        return (
+          <ol className="mt-2 ps-3 mb-0 small">
+            {q.options?.map((opt, idx) => (
+              <li key={idx} className="mb-1 text-dark">
+                {opt.text}
+              </li>
+            ))}
+          </ol>
+        );
+      }
+
+      // Default (MCQ, FillBlank, etc.)
       return (
-        <Card key={q.questionId || q.tempId} className="mb-3 border-0 shadow-sm question-card">
-            <Card.Body className="p-3">
-                <div className="d-flex justify-content-between">
-                <div className="d-flex gap-3 w-100">
-                    <div className="question-index text-center pt-1">
-                        <span className="badge rounded-pill bg-secondary">#{index + 1}</span>
-                    </div>
-                    <div className="flex-grow-1">
-                        <div className="d-flex align-items-center gap-2 mb-2">
-                            <Badge bg="info">{getQuestionTypeLabel(q.type)}</Badge>
-                            <span className="text-muted small">Points: {q.points}</span>
-                        </div>
-                        <h6 className="question-stem mb-1 fw-bold text-break">{q.stemText}</h6>
-                        {renderQuestionBody()}
-                    </div>
-                </div>
-
-                <div className="action-buttons d-flex flex-column gap-2 justify-content-start ms-2">
-                    <Button variant="light" size="sm" onClick={() => handleEditQuestion(q)} title="Sửa">
-                    <FaEdit className="text-primary" />
-                    </Button>
-                    <Button variant="light" size="sm" onClick={() => handleDeleteQuestion(q)} title="Xóa">
-                    <FaTrash className="text-danger" />
-                    </Button>
-                </div>
-                </div>
-            </Card.Body>
-        </Card>
+        <ul className="list-unstyled options-preview mb-0 small text-muted mt-2">
+          {q.options?.map((opt, idx) => (
+            <li key={idx} className={`mb-1 ${opt.isCorrect ? "text-success fw-bold" : ""}`}>
+              {opt.isCorrect && "✓ "} {opt.text}
+            </li>
+          ))}
+        </ul>
       );
+    };
+
+    return (
+      <Card key={q.questionId || q.tempId} className="mb-3 border-0 shadow-sm question-card">
+        <Card.Body className="p-3">
+          <div className="d-flex justify-content-between">
+            <div className="d-flex gap-3 w-100">
+              <div className="question-index text-center pt-1">
+                <span className="badge rounded-pill bg-secondary">#{index + 1}</span>
+              </div>
+              <div className="flex-grow-1">
+                <div className="d-flex align-items-center gap-2 mb-2">
+                  <Badge bg="info">{getQuestionTypeLabel(q.type)}</Badge>
+                  <span className="text-muted small">Points: {q.points}</span>
+                </div>
+                <h6 className="question-stem mb-1 fw-bold text-break">{q.stemText}</h6>
+                {renderQuestionBody()}
+              </div>
+            </div>
+
+            <div className="action-buttons d-flex flex-column gap-2 justify-content-start ms-2">
+              <Button variant="light" size="sm" onClick={() => handleEditQuestion(q)} title="Sửa">
+                <FaEdit className="text-primary" />
+              </Button>
+              <Button variant="light" size="sm" onClick={() => handleDeleteQuestion(q)} title="Xóa">
+                <FaTrash className="text-danger" />
+              </Button>
+            </div>
+          </div>
+        </Card.Body>
+      </Card>
+    );
   };
 
   return (
@@ -404,12 +404,12 @@ export default function TeacherQuestionManagement() {
                 />
                 <h1 className="premium-gradient-text mt-3 mb-0">Quản lý kho câu hỏi</h1>
               </div>
-              
+
               <div className="d-flex gap-3 align-items-center">
                 {contextData.title && (
-                   <div className="section-pill">
-                     {contextData.title}
-                   </div>
+                  <div className="section-pill">
+                    {contextData.title}
+                  </div>
                 )}
                 <div className="header-stats-badge">
                   <FaRegListAlt />
@@ -420,101 +420,101 @@ export default function TeacherQuestionManagement() {
 
             <div className="d-flex gap-3 mt-4">
               <Button variant="primary" className="premium-btn shadow-sm px-4 py-2" onClick={() => handleAddQuestion(null)}>
-                  <FaPlus className="me-2" /> Thêm câu hỏi mới
+                <FaPlus className="me-2" /> Thêm câu hỏi mới
               </Button>
             </div>
           </div>
 
           {/* Content */}
           {loading ? (
-             <div className="text-center py-5"><div className="spinner-border text-primary"></div></div>
+            <div className="text-center py-5"><div className="spinner-border text-primary"></div></div>
           ) : error ? (
             <div className="alert alert-danger">{error}</div>
           ) : (
             <div className="question-content-area">
-                
-                {/* 1. Standalone Questions */}
-                {standaloneQuestions.length > 0 && (
-                    <div className="mb-4">
-                        <h5 className="text-muted border-bottom pb-2 mb-3">Câu hỏi lẻ ({standaloneQuestions.length})</h5>
-                        {standaloneQuestions.map((q, idx) => renderQuestionCard(q, idx))}
-                    </div>
-                )}
 
-                {/* 2. Groups Display */}
-                {groups.map((group) => {
-                    const groupQuestions = questionsByGroup[group.quizGroupId] || [];
-                    return (
-                        <div key={group.quizGroupId} className="mb-5 group-container">
-                            {/* Group Header Bar */}
-                            <div className="group-header-bar bg-light border rounded p-3 mb-3 d-flex justify-content-between align-items-center shadow-sm" style={{borderLeft: '5px solid #0d6efd'}}>
-                                <div className="flex-grow-1 me-3">
-                                    <div className="d-flex align-items-center gap-2 mb-2">
-                                        <FaLayerGroup className="text-primary"/>
-                                        <Badge bg="secondary">Total: {group.sumScore} pts</Badge>
-                                    </div>
-                                    <div className="text-primary fw-bold" style={{
-                                        fontSize: '0.95rem',
-                                        display: '-webkit-box',
-                                        WebkitLineClamp: '2',
-                                        WebkitBoxOrient: 'vertical',
-                                        overflow: 'hidden',
-                                        textOverflow: 'ellipsis',
-                                        lineHeight: '1.4'
-                                    }} title={group.name}>
-                                        {group.name}
-                                    </div>
-                                    {group.title && (
-                                        <div className="text-muted small mt-1" style={{
-                                            display: '-webkit-box',
-                                            WebkitLineClamp: '1',
-                                            WebkitBoxOrient: 'vertical',
-                                            overflow: 'hidden',
-                                            textOverflow: 'ellipsis'
-                                        }} title={group.title}>
-                                            {group.title}
-                                        </div>
-                                    )}
-                                </div>
-                                <div className="d-flex gap-2">
-                                    <Button variant="outline-primary" size="sm" onClick={() => handleAddQuestion(group)}>
-                                        <FaPlus className="me-1"/> Thêm câu hỏi vào nhóm
-                                    </Button>
-                                    <Button variant="outline-secondary" size="sm" onClick={() => { setGroupToUpdate(group); setShowGroupEditModal(true); }}>
-                                        <FaEdit />
-                                    </Button>
-                                    <Button variant="outline-danger" size="sm" onClick={() => { setGroupToDelete(group); setShowGroupDeleteModal(true); }}>
-                                        <FaTrash />
-                                    </Button>
-                                </div>
-                            </div>
+              {/* 1. Standalone Questions */}
+              {standaloneQuestions.length > 0 && (
+                <div className="mb-4">
+                  <h5 className="text-muted border-bottom pb-2 mb-3">Câu hỏi lẻ ({standaloneQuestions.length})</h5>
+                  {standaloneQuestions.map((q, idx) => renderQuestionCard(q, idx))}
+                </div>
+              )}
 
-                            {/* Group Questions List (Indented) */}
-                            <div className="group-questions-list ps-4 ms-2 border-start border-3 border-light">
-                                {groupQuestions.length === 0 ? (
-                                    <div className="text-muted fst-italic py-2 ps-3">Chưa có câu hỏi nào trong nhóm này.</div>
-                                ) : (
-                                    groupQuestions.map((q, idx) => renderQuestionCard(q, idx, true))
-                                )}
-                            </div>
+              {/* 2. Groups Display */}
+              {groups.map((group) => {
+                const groupQuestions = questionsByGroup[group.quizGroupId] || [];
+                return (
+                  <div key={group.quizGroupId} className="mb-5 group-container">
+                    {/* Group Header Bar */}
+                    <div className="group-header-bar bg-light border rounded p-3 mb-3 d-flex justify-content-between align-items-center shadow-sm" style={{ borderLeft: '5px solid #0d6efd' }}>
+                      <div className="flex-grow-1 me-3">
+                        <div className="d-flex align-items-center gap-2 mb-2">
+                          <FaLayerGroup className="text-primary" />
+                          <Badge bg="secondary">Total: {group.sumScore} pts</Badge>
                         </div>
-                    );
-                })}
-
-                {/* Bulk Drafts */}
-                {questions.length === 0 && groups.length === 0 && (
-                    <div className="text-center py-5 text-muted bg-light rounded">
-                        <p className="mb-3">Chưa có nội dung nào.</p>
-                        <Button variant="primary" onClick={() => handleAddQuestion(null)}>Tạo nội dung đầu tiên</Button>
+                        <div className="text-primary fw-bold" style={{
+                          fontSize: '0.95rem',
+                          display: '-webkit-box',
+                          WebkitLineClamp: '2',
+                          WebkitBoxOrient: 'vertical',
+                          overflow: 'hidden',
+                          textOverflow: 'ellipsis',
+                          lineHeight: '1.4'
+                        }} title={group.name}>
+                          {group.name}
+                        </div>
+                        {group.title && (
+                          <div className="text-muted small mt-1" style={{
+                            display: '-webkit-box',
+                            WebkitLineClamp: '1',
+                            WebkitBoxOrient: 'vertical',
+                            overflow: 'hidden',
+                            textOverflow: 'ellipsis'
+                          }} title={group.title}>
+                            {group.title}
+                          </div>
+                        )}
+                      </div>
+                      <div className="d-flex gap-2">
+                        <Button variant="outline-primary" size="sm" onClick={() => handleAddQuestion(group)}>
+                          <FaPlus className="me-1" /> Thêm câu hỏi vào nhóm
+                        </Button>
+                        <Button variant="outline-secondary" size="sm" onClick={() => { setGroupToUpdate(group); setShowGroupEditModal(true); }}>
+                          <FaEdit />
+                        </Button>
+                        <Button variant="outline-danger" size="sm" onClick={() => { setGroupToDelete(group); setShowGroupDeleteModal(true); }}>
+                          <FaTrash />
+                        </Button>
+                      </div>
                     </div>
-                )}
+
+                    {/* Group Questions List (Indented) */}
+                    <div className="group-questions-list ps-4 ms-2 border-start border-3 border-light">
+                      {groupQuestions.length === 0 ? (
+                        <div className="text-muted fst-italic py-2 ps-3">Chưa có câu hỏi nào trong nhóm này.</div>
+                      ) : (
+                        groupQuestions.map((q, idx) => renderQuestionCard(q, idx, true))
+                      )}
+                    </div>
+                  </div>
+                );
+              })}
+
+              {/* Bulk Drafts */}
+              {questions.length === 0 && groups.length === 0 && (
+                <div className="text-center py-5 text-muted bg-light rounded">
+                  <p className="mb-3">Chưa có nội dung nào.</p>
+                  <Button variant="primary" onClick={() => handleAddQuestion(null)}>Tạo nội dung đầu tiên</Button>
+                </div>
+              )}
             </div>
           )}
         </Container>
       </div>
 
       {/* Question Modal */}
-      <CreateQuestionModal 
+      <CreateQuestionModal
         show={showCreateModal}
         onClose={() => {
           setShowCreateModal(false);
@@ -527,18 +527,18 @@ export default function TeacherQuestionManagement() {
         questionToUpdate={questionToUpdate}
         isAdmin={isAdmin}
       />
-      
+
       {/* Group Modals */}
       <CreateQuizGroupModal
-          show={showGroupEditModal}
-          onClose={() => setShowGroupEditModal(false)}
-          onSuccess={handleGroupEditSuccess}
-          quizSectionId={sectionId}
-          groupToUpdate={groupToUpdate}
-          isAdmin={isAdmin}
+        show={showGroupEditModal}
+        onClose={() => setShowGroupEditModal(false)}
+        onSuccess={handleGroupEditSuccess}
+        quizSectionId={sectionId}
+        groupToUpdate={groupToUpdate}
+        isAdmin={isAdmin}
       />
 
-      <ConfirmModal 
+      <ConfirmModal
         isOpen={showGroupDeleteModal}
         onClose={() => setShowGroupDeleteModal(false)}
         onConfirm={confirmDeleteGroup}
@@ -550,7 +550,7 @@ export default function TeacherQuestionManagement() {
       />
 
       {/* Question Delete */}
-      <ConfirmModal 
+      <ConfirmModal
         isOpen={showDeleteModal}
         onClose={() => setShowDeleteModal(false)}
         onConfirm={confirmDeleteQuestion}
@@ -561,7 +561,7 @@ export default function TeacherQuestionManagement() {
         type="danger"
       />
 
-      <SuccessModal 
+      <SuccessModal
         isOpen={showSuccessModal}
         onClose={() => setShowSuccessModal(false)}
         title="Thành công"

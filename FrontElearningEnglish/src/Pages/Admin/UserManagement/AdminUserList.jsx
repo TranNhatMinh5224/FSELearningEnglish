@@ -249,6 +249,7 @@ return (
       setActiveTab={setActiveTab}
       searchTerm={searchTerm}
       setSearchTerm={setSearchTerm}
+      onSearch={fetchUsers}
     />
 
     {/* USER TABLE */}
@@ -260,6 +261,7 @@ return (
       onToggleStatus={handleToggleStatus}
       onAdjustBalance={openAdjustBalanceModal}
       canAdjustBalance={canAdjustBalance}
+      pageSize={pagination.pageSize}
     />
 
     <CustomPagination

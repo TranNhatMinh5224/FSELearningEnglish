@@ -1,5 +1,7 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { useParams, useNavigate } from "react-router-dom";
+import { FaPlus, FaEdit, FaUsers, FaExpand } from "react-icons/fa";
+import { PiGraduationCapDuotone, PiBookOpenDuotone } from "react-icons/pi";
 import { Container, Row, Col } from "react-bootstrap";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
@@ -17,10 +19,9 @@ import NotificationModal from "../../../Components/Common/NotificationModal/Noti
 import ConfirmModal from "../../../Components/Common/ConfirmModal/ConfirmModal";
 import LessonLimitModal from "../../../Components/Common/LessonLimitModal/LessonLimitModal";
 import ClassCodeModal from "../../../Components/Teacher/ClassCodeModal/ClassCodeModal";
-import ActionButtons from "../../../Components/Common/ActionButtons";
-import { FaPlus, FaExpand } from "react-icons/fa";
-import { PiGraduationCapDuotone, PiBookOpenDuotone } from "react-icons/pi";
 import ImageWithIconFallback from "../../../Components/Common/ImageWithIconFallback/ImageWithIconFallback";
+import AdminLessonCard from "../../../Components/Admin/CourseManagement/AdminLessonCard/AdminLessonCard";
+import CourseDescription from "../../../Components/Courses/CourseDescription/CourseDescription";
 import { ROUTE_PATHS } from "../../../Routes/Paths";
 
 export default function TeacherCourseDetail() {
@@ -135,7 +136,7 @@ export default function TeacherCourseDetail() {
           const maxLessons = matchedPackage.maxLessons || 0;
 
           // Get current lesson count in this course
-          const currentLessonCount = lessons.length || totalLessons || 0;
+          const currentLessonCount = lessons.length || 0;
 
           if (currentLessonCount >= maxLessons) {
             // Show limit modal
@@ -224,25 +225,29 @@ export default function TeacherCourseDetail() {
 
   const courseTitle = course.title || course.Title || "Khóa học";
   const courseDescription = course.description || course.Description || "";
-  const courseImage = course.imageUrl || course.ImageUrl || getDefaultCourseImage();
   const classCode = course.classCode || course.ClassCode || "";
   const totalLessons = course.totalLessons || course.TotalLessons || 0;
   const totalStudents = course.totalStudents || course.TotalStudents || 0;
+  const price = course.price || course.Price || 0;
 
   return (
     <>
       <TeacherHeader />
-      <div className="teacher-course-detail-container">
-        <Container fluid className="course-detail-content">
+      <div className="teacher-breadcrumb-section">
+        <Container fluid className="content-wrapper">
           <div className="breadcrumb-section pt-0">
             <Breadcrumb
               items={[
-                { label: "Quản lý khoá học", path: ROUTE_PATHS.TEACHER_COURSE_MANAGEMENT },
+                { label: "Quản lý khóa học", path: ROUTE_PATHS.TEACHER_COURSE_MANAGEMENT },
                 { label: courseTitle, isCurrent: true }
               ]}
               showHomeIcon={false}
             />
           </div>
+        </Container>
+      </div>
+      <div className="teacher-main-page-content">
+        <Container fluid className="content-wrapper">
           <Row>
             {/* Left Column - Course Info */}
             <Col md={4} className="course-info-column">
@@ -258,43 +263,57 @@ export default function TeacherCourseDetail() {
                 </div>
                 <div className="course-info-content">
                   <h2 className="course-title">{courseTitle}</h2>
-                  <div className="course-description">
-                    {courseDescription ? (
-                      <ReactMarkdown remarkPlugins={[remarkGfm]}>
-                        {courseDescription}
-                      </ReactMarkdown>
-                    ) : (
-                      <p className="text-muted">Khóa học này chưa có mô tả chi tiết.</p>
-                    )}
+                  <div className="course-info-subsection">
+                    <CourseDescription description={courseDescription} />
                   </div>
 
                   <div className="course-details">
                     <div className="course-detail-item">
                       <label>Mã khóa học:</label>
-                      <div className="course-code-wrapper">
-                        <input
-                          type="text"
-                          value={classCode}
-                          readOnly
-                          className="course-code-input"
-                        />
-                        <button
-                          className="expand-code-btn"
-                          onClick={() => setShowClassCodeModal(true)}
-                          title="Hiển thị mã lớp"
-                        >
-                          <FaExpand />
-                        </button>
+                      <div className="course-code-display-group">
+                        <div className="code-value">{classCode}</div>
+                        <div className="code-actions">
+                          <button
+                            className="code-action-btn"
+                            onClick={() => {
+                              navigator.clipboard.writeText(classCode);
+                              setNotification({ isOpen: true, type: "success", message: "Đã sao chép mã khóa học!" });
+                            }}
+                            title="Sao chép"
+                          >
+                            <FaEdit size={14} />
+                          </button>
+                          <button
+                            className="code-action-btn expand"
+                            onClick={() => setShowClassCodeModal(true)}
+                            title="Mở rộng"
+                          >
+                            <FaExpand size={14} />
+                          </button>
+                        </div>
                       </div>
                     </div>
 
                     <div className="course-detail-item">
-                      <label>Bài học:</label>
+                      <div className="detail-label-group">
+                        <label>Giá:</label>
+                      </div>
+                      <span className="course-stat-value">{price > 0 ? `${price.toLocaleString()} đ` : "Miễn phí"}</span>
+                    </div>
+
+                    <div className="course-detail-item">
+                      <div className="detail-label-group">
+                        <PiBookOpenDuotone className="detail-icon" />
+                        <label>Bài học:</label>
+                      </div>
                       <span className="course-stat-value">{totalLessons}</span>
                     </div>
 
                     <div className="course-detail-item">
-                      <label>Tổng số học sinh:</label>
+                      <div className="detail-label-group">
+                        <FaUsers className="detail-icon" />
+                        <label>Tổng số học sinh:</label>
+                      </div>
                       <span className="course-stat-value">{totalStudents}</span>
                     </div>
                   </div>
@@ -303,13 +322,15 @@ export default function TeacherCourseDetail() {
                     className="update-course-btn"
                     onClick={() => setShowUpdateModal(true)}
                   >
-                    Cập nhật
+                    <FaEdit className="btn-icon" />
+                    Cập nhật khóa học
                   </button>
 
                   <button
                     className="manage-students-btn"
                     onClick={() => navigate(`/teacher/course/${courseId}/students`)}
                   >
+                    <FaUsers className="btn-icon" />
                     Quản lý học viên
                   </button>
                 </div>
@@ -319,41 +340,27 @@ export default function TeacherCourseDetail() {
             {/* Right Column - Lessons List */}
             <Col md={8} className="lessons-column">
               <div className="lessons-section">
+                <div className="lessons-header">
+                  <h3>Danh sách bài học</h3>
+                </div>
+
                 {lessons.length > 0 ? (
-                  lessons.map((lesson, index) => {
-                    const lessonId = lesson.lessonId || lesson.LessonId;
-                    const lessonTitle = lesson.title || lesson.Title || `Lesson ${index + 1}`;
-                    const lessonImage = lesson.imageUrl || lesson.ImageUrl || getDefaultLessonImage();
-                    return (
-                      <div
-                        key={lessonId || index}
-                        className="lesson-item"
-                        onClick={() => navigate(`/teacher/course/${courseId}/lesson/${lessonId}`)}
-                        style={{ cursor: 'pointer' }}
-                      >
-                        <div className="lesson-item-content">
-                          <ImageWithIconFallback
-                            imageUrl={lesson.imageUrl || lesson.ImageUrl}
-                            fallbackImageUrl={getDefaultLessonImage()}
-                            icon={<PiBookOpenDuotone size={64} />}
-                            alt={lessonTitle}
-                            className="lesson-image"
-                          />
-                          <span className="lesson-title">{lessonTitle}</span>
-                        </div>
-                        <div className="lesson-actions" onClick={(e) => e.stopPropagation()}>
-                          <ActionButtons
-                            onUpdate={(e) => handleUpdateLesson(lesson, e)}
-                            onDelete={(e) => handleDeleteClick(lesson, e)}
-                            updateTitle="Cập nhật bài học"
-                            deleteTitle="Xóa bài học"
-                          />
-                        </div>
-                      </div>
-                    );
-                  })
+                  <div className="admin-lessons-list">
+                    {lessons.map((lesson, index) => (
+                      <AdminLessonCard
+                        key={lesson.lessonId || lesson.LessonId || index}
+                        lesson={lesson}
+                        onClick={() => navigate(`/teacher/course/${courseId}/lesson/${lesson.lessonId || lesson.LessonId}`)}
+                        onUpdate={(e) => handleUpdateLesson(lesson, e)}
+                        onDelete={(e) => handleDeleteClick(lesson, e)}
+                        getDefaultLessonImage={getDefaultLessonImage}
+                      />
+                    ))}
+                  </div>
                 ) : (
-                  <div className="no-lessons-message">Chưa có bài học nào</div>
+                  <div className="no-lessons-message">
+                    <p>Chưa có bài học nào</p>
+                  </div>
                 )}
 
                 <button
@@ -364,7 +371,7 @@ export default function TeacherCourseDetail() {
                   }}
                 >
                   <FaPlus className="add-icon" />
-                  Thêm Lesson
+                  Thêm bài học
                 </button>
               </div>
             </Col>

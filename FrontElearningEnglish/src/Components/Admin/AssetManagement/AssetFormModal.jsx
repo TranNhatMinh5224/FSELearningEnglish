@@ -184,7 +184,7 @@ export default function AssetFormModal({ show, onClose, onSuccess, assetToEdit }
             onHide={onClose}
             centered
             size="lg"
-            className="modal-modern asset-form-modal"
+            className="modal-modern asset-form-modal modal-asset-size"
             dialogClassName="asset-form-modal-dialog"
         >
             <Modal.Header closeButton={false} className="modal-header-cyan">

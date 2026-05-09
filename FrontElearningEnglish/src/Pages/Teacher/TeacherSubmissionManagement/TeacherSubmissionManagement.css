@@ -7,6 +7,10 @@
   margin: 0 auto;
 }
 
+.teacher-submission-management-container .submission-breadcrumb {
+  margin-bottom: 18px;
+}
+
 /* Responsive Sync with CourseManagement */
 @media (max-width: 1024px) {
   .teacher-submission-management-container {

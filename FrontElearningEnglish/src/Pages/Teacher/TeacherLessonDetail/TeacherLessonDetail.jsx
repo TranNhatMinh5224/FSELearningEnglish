@@ -2,18 +2,16 @@ import React, { useState, useEffect, useCallback } from "react";
 import { useParams, useNavigate, useSearchParams } from "react-router-dom";
 import { Container, Row, Col } from "react-bootstrap";
 import "./TeacherLessonDetail.css";
-import TeacherHeader from "../../../Components/Header/TeacherHeader";
 import Breadcrumb from "../../../Components/Common/Breadcrumb/Breadcrumb";
 import { useAuth } from "../../../Context/AuthContext";
 import { useModuleTypes } from "../../../hooks/useModuleTypes";
 import { teacherService } from "../../../Services/teacherService";
-import { lectureService } from "../../../Services/lectureService";
-import { flashcardService } from "../../../Services/flashcardService";
 import { assessmentService } from "../../../Services/assessmentService";
 import { quizService } from "../../../Services/quizService";
 import { essayService } from "../../../Services/essayService";
 import { useAssets } from "../../../Context/AssetContext";
 import CreateLessonModal from "../../../Components/Teacher/CreateLessonModal/CreateLessonModal";
+import TeacherHeader from "../../../Components/Header/TeacherHeader";
 import CreateModuleModal from "../../../Components/Teacher/CreateModuleModal/CreateModuleModal";
 import CreateAssessmentModal from "../../../Components/Teacher/CreateAssessmentModal/CreateAssessmentModal";
 import SuccessModal from "../../../Components/Common/SuccessModal/SuccessModal";
@@ -21,16 +19,16 @@ import NotificationModal from "../../../Components/Common/NotificationModal/Noti
 import ConfirmModal from "../../../Components/Common/ConfirmModal/ConfirmModal";
 import ActionButtons from "../../../Components/Common/ActionButtons";
 import { FaPlus, FaEdit } from "react-icons/fa";
-import { PiBookOpenDuotone, PiLayoutDuotone, PiCardsDuotone, PiExamDuotone } from "react-icons/pi";
 import ImageWithIconFallback from "../../../Components/Common/ImageWithIconFallback/ImageWithIconFallback";
 import { ROUTE_PATHS } from "../../../Routes/Paths";
+import { PiBookOpenDuotone, PiLayoutDuotone, PiCardsDuotone, PiExamDuotone } from "react-icons/pi";
 
 export default function TeacherLessonDetail() {
   const { courseId, lessonId } = useParams();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const { user, roles, isAuthenticated } = useAuth();
-  const { isLecture, isFlashCard, isAssessment, isClickable, getModuleTypePath } = useModuleTypes();
+  const { isLecture, isFlashCard, isAssessment, isClickable } = useModuleTypes();
   const { getDefaultLessonImage } = useAssets();
   const [course, setCourse] = useState(null);
   const [lesson, setLesson] = useState(null);
@@ -67,14 +65,14 @@ export default function TeacherLessonDetail() {
     const roleName = typeof role === 'string' ? role : (role?.name || '');
     return ["SuperAdmin", "ContentAdmin", "FinanceAdmin", "Admin"].includes(roleName);
   });
-  
+
   const isTeacher = (roles && roles.some(role => {
     const roleName = typeof role === 'string' ? role : (role?.name || '');
     return roleName === "Teacher";
-  })) || 
-  user?.teacherSubscription?.isTeacher === true || 
-  isAdmin;
-  
+  })) ||
+    user?.teacherSubscription?.isTeacher === true ||
+    isAdmin;
+
   const handleUpdateSuccess = () => {
     setShowUpdateModal(false);
     setShowSuccessModal(true);
@@ -170,88 +168,75 @@ export default function TeacherLessonDetail() {
     }
   }, [lessonId]);
 
-  // Handle module click - fetch content based on module type
-  const handleModuleClick = useCallback(async (module) => {
+  // Handle module click - navigate to dedicated management page
+  const handleModuleClick = useCallback((module) => {
     const contentTypeValue = module.contentType || module.ContentType;
     const contentTypeNum = typeof contentTypeValue === 'number' ? contentTypeValue : parseInt(contentTypeValue);
+    const moduleId = module.moduleId || module.ModuleId;
 
-    setSelectedModule(module);
-    setLoadingContent(true);
-    setContentError("");
+    if (isLecture(contentTypeNum)) {
+      navigate(ROUTE_PATHS.TEACHER_CREATE_LECTURE(courseId, lessonId, moduleId));
+    } else if (isFlashCard(contentTypeNum)) {
+      navigate(ROUTE_PATHS.TEACHER_CREATE_FLASHCARD(courseId, lessonId, moduleId));
+    } else if (isAssessment(contentTypeNum)) {
+      // Update URL with moduleId for Assessment to support breadcrumbs and deep linking
+      navigate(`/teacher/course/${courseId}/lesson/${lessonId}?moduleId=${moduleId}`, { replace: true });
 
-    try {
-      const moduleId = module.moduleId || module.ModuleId;
+      setSelectedModule(module);
+      setLoadingContent(true);
+      setContentError("");
 
-      if (isLecture(contentTypeNum)) {
-        // Lecture module - fetch lectures
-        const response = await lectureService.getTeacherLecturesByModule(moduleId);
+      assessmentService.getTeacherAssessmentsByModule(moduleId)
+        .then(response => {
+          if (response.data?.success && response.data?.data) {
+            const assessments = response.data.data || [];
+            setModuleContent(assessments);
 
-        if (response.data?.success && response.data?.data) {
-          setModuleContent(response.data.data || []);
-        } else {
-          setContentError("Không thể tải danh sách lectures");
+            // Fetch quiz and essay info for each assessment
+            const typePromises = assessments.map(async (assessment) => {
+              const assessmentId = assessment.assessmentId || assessment.AssessmentId;
+              if (!assessmentId) return null;
+
+              try {
+                const [quizRes, essayRes] = await Promise.all([
+                  quizService.getTeacherQuizzesByAssessment(assessmentId),
+                  essayService.getTeacherEssaysByAssessment(assessmentId)
+                ]);
+
+                const hasQuiz = quizRes.data?.success && quizRes.data?.data && quizRes.data.data.length > 0;
+                const hasEssay = essayRes.data?.success && essayRes.data?.data && essayRes.data.data.length > 0;
+
+                return { assessmentId, hasQuiz, hasEssay };
+              } catch (error) {
+                console.error(`Error fetching types for assessment ${assessmentId}:`, error);
+                return { assessmentId, hasQuiz: false, hasEssay: false };
+              }
+            });
+
+            Promise.all(typePromises).then(types => {
+              const typesMap = {};
+              types.forEach(type => {
+                if (type) {
+                  typesMap[type.assessmentId] = { hasQuiz: type.hasQuiz, hasEssay: type.hasEssay };
+                }
+              });
+              setAssessmentTypes(typesMap);
+            });
+          } else {
+            setContentError("Không thể tải danh sách assessments");
+            setModuleContent([]);
+          }
+        })
+        .catch(error => {
+          console.error("Error fetching content:", error);
+          setContentError("Có lỗi xảy ra khi tải danh sách");
           setModuleContent([]);
-        }
-      } else if (isFlashCard(contentTypeNum)) {
-        // FlashCard module - fetch flashcards
-        const response = await flashcardService.getTeacherFlashcardsByModule(moduleId);
-
-        if (response.data?.success && response.data?.data) {
-          setModuleContent(response.data.data || []);
-        } else {
-          setContentError("Không thể tải danh sách flashcards");
-          setModuleContent([]);
-        }
-      } else if (isAssessment(contentTypeNum)) {
-        // Assessment module - fetch assessments
-        const response = await assessmentService.getTeacherAssessmentsByModule(moduleId);
-
-        if (response.data?.success && response.data?.data) {
-          const assessments = response.data.data || [];
-          setModuleContent(assessments);
-
-          // Fetch quiz and essay info for each assessment
-          const typePromises = assessments.map(async (assessment) => {
-            const assessmentId = assessment.assessmentId || assessment.AssessmentId;
-            if (!assessmentId) return null;
-
-            try {
-              const [quizRes, essayRes] = await Promise.all([
-                quizService.getTeacherQuizzesByAssessment(assessmentId),
-                essayService.getTeacherEssaysByAssessment(assessmentId)
-              ]);
-
-              const hasQuiz = quizRes.data?.success && quizRes.data?.data && quizRes.data.data.length > 0;
-              const hasEssay = essayRes.data?.success && essayRes.data?.data && essayRes.data.data.length > 0;
-
-              return { assessmentId, hasQuiz, hasEssay };
-            } catch (error) {
-              console.error(`Error fetching types for assessment ${assessmentId}:`, error);
-              return { assessmentId, hasQuiz: false, hasEssay: false };
-            }
-          });
-
-          const types = await Promise.all(typePromises);
-          const typesMap = {};
-          types.forEach(type => {
-            if (type) {
-              typesMap[type.assessmentId] = { hasQuiz: type.hasQuiz, hasEssay: type.hasEssay };
-            }
-          });
-          setAssessmentTypes(typesMap);
-        } else {
-          setContentError("Không thể tải danh sách assessments");
-          setModuleContent([]);
-        }
-      }
-    } catch (error) {
-      console.error("Error fetching content:", error);
-      setContentError("Có lỗi xảy ra khi tải danh sách");
-      setModuleContent([]);
-    } finally {
-      setLoadingContent(false);
+        })
+        .finally(() => {
+          setLoadingContent(false);
+        });
     }
-  }, [courseId, lessonId, isLecture, isFlashCard, isAssessment]);
+  }, [courseId, lessonId, isLecture, isFlashCard, isAssessment, navigate]);
 
   useEffect(() => {
     if (!isAuthenticated || !isTeacher) {
@@ -264,40 +249,35 @@ export default function TeacherLessonDetail() {
     fetchModules();
   }, [isAuthenticated, isTeacher, navigate, fetchCourseDetail, fetchLessonDetail, fetchModules]);
 
-  // Handle auto-selecting module from query param
+  // Handle auto-selecting module from query param (Only for Assessment since others navigate away)
   useEffect(() => {
     const moduleIdParam = searchParams.get("moduleId");
-    if (moduleIdParam && modules.length > 0 && !selectedModule) {
-      const targetModule = modules.find(
-        (m) => (m.moduleId || m.ModuleId).toString() === moduleIdParam
-      );
-      if (targetModule) {
-        handleModuleClick(targetModule);
+
+    // Check if we need to sync state with URL
+    const currentSelectedId = selectedModule ? (selectedModule.moduleId || selectedModule.ModuleId).toString() : null;
+
+    if (moduleIdParam) {
+      // If URL has moduleId but state doesn't match, sync it
+      if (currentSelectedId !== moduleIdParam && modules.length > 0) {
+        const targetModule = modules.find(
+          (m) => (m.moduleId || m.ModuleId).toString() === moduleIdParam
+        );
+        if (targetModule) {
+          const type = targetModule.contentType || targetModule.ContentType;
+          if (isAssessment(type)) {
+            handleModuleClick(targetModule);
+          }
+        }
+      }
+    } else {
+      // If NO moduleId in URL but state is set, user likely navigated back/clicked breadcrumb -> clear state
+      if (selectedModule) {
+        setSelectedModule(null);
+        setModuleContent([]);
+        setLoadingContent(false);
       }
     }
-  }, [searchParams, modules, selectedModule, handleModuleClick]);
-
-  // Handle edit lecture
-  const handleEditLecture = (lecture) => {
-    const lectureId = lecture.lectureId || lecture.LectureId;
-    const moduleId = selectedModule.moduleId || selectedModule.ModuleId;
-    navigate(ROUTE_PATHS.TEACHER_EDIT_LECTURE(courseId, lessonId, moduleId, lectureId));
-  };
-
-  // Handle edit flashcard
-  const handleEditFlashcard = (flashcard) => {
-    // Backend returns flashCardId (camelCase with capital C)
-    const flashcardId = flashcard.flashCardId || flashcard.flashcardId || flashcard.FlashcardId || flashcard.FlashCardId || flashcard.id || flashcard.Id;
-    const moduleId = selectedModule.moduleId || selectedModule.ModuleId;
-
-    if (!flashcardId) {
-      console.error("Flashcard ID not found. Available keys:", Object.keys(flashcard));
-      setNotification({ isOpen: true, type: "error", message: "Không tìm thấy ID của flashcard. Vui lòng thử lại." });
-      return;
-    }
-
-    navigate(ROUTE_PATHS.TEACHER_EDIT_FLASHCARD(courseId, lessonId, moduleId, flashcardId));
-  };
+  }, [searchParams, modules, selectedModule, handleModuleClick, isAssessment]);
 
   const handleDeleteModuleClick = (module) => {
     setModuleToDelete(module);
@@ -335,7 +315,6 @@ export default function TeacherLessonDetail() {
   if (loading) {
     return (
       <>
-        <TeacherHeader />
         <div className="teacher-lesson-detail-container">
           <div className="loading-message">Đang tải thông tin bài học...</div>
         </div>
@@ -346,7 +325,6 @@ export default function TeacherLessonDetail() {
   if (error || !lesson) {
     return (
       <>
-        <TeacherHeader />
         <div className="teacher-lesson-detail-container">
           <div className="error-message">{error || "Không tìm thấy bài học"}</div>
         </div>
@@ -359,20 +337,25 @@ export default function TeacherLessonDetail() {
   const lessonImage = lesson.imageUrl || lesson.ImageUrl || getDefaultLessonImage();
 
   return (
-    <>
+    <div className="teacher-lesson-detail-container">
       <TeacherHeader />
-      <div className="teacher-lesson-detail-container">
-        <Container fluid className="lesson-detail-content">
+      <div className="teacher-breadcrumb-section">
+        <Container fluid className="content-wrapper">
           <div className="breadcrumb-section pt-0">
             <Breadcrumb
               items={[
-                { label: "Quản lý khoá học", path: ROUTE_PATHS.TEACHER_COURSE_MANAGEMENT },
+                { label: "Quản lý khóa học", path: ROUTE_PATHS.TEACHER_COURSE_MANAGEMENT },
                 { label: course?.title || course?.Title || courseId, path: `/teacher/course/${courseId}` },
-                { label: lessonTitle, isCurrent: true }
+                { label: lessonTitle, path: selectedModule ? `/teacher/course/${courseId}/lesson/${lessonId}` : undefined, isCurrent: !selectedModule },
+                ...(selectedModule ? [{ label: selectedModule.name || selectedModule.Name || "Module", isCurrent: true }] : [])
               ]}
               showHomeIcon={false}
             />
           </div>
+        </Container>
+      </div>
+      <div className="teacher-main-page-content">
+        <Container fluid className="content-wrapper">
           <Row>
             {/* Left Column - Lesson Info */}
             <Col md={4} className="lesson-info-column">
@@ -395,7 +378,7 @@ export default function TeacherLessonDetail() {
                     onClick={() => setShowUpdateModal(true)}
                   >
                     <FaEdit className="btn-icon" />
-                    Cập nhật Bài học
+                    Cập nhật bài học
                   </button>
                 </div>
               </div>
@@ -404,7 +387,7 @@ export default function TeacherLessonDetail() {
             {/* Right Column - Modules List or Module Content */}
             <Col md={8} className="modules-column">
               {selectedModule ? (
-                // Module Content View (Lectures/Flashcards List)
+                // Module Content View (Assessment List only now)
                 <div className="modules-section">
                   <div className="module-content-header">
                     <h3 className="module-content-title">
@@ -414,11 +397,7 @@ export default function TeacherLessonDetail() {
 
                   {loadingContent ? (
                     <div className="loading-message">
-                      Đang tải danh sách {(() => {
-                        const contentTypeValue = selectedModule.contentType || selectedModule.ContentType;
-                        const contentTypeNum = typeof contentTypeValue === 'number' ? contentTypeValue : parseInt(contentTypeValue);
-                        return getModuleTypePath(contentTypeNum);
-                      })()}...
+                      Đang tải danh sách...
                     </div>
                   ) : contentError ? (
                     <div className="error-message">{contentError}</div>
@@ -427,76 +406,6 @@ export default function TeacherLessonDetail() {
                       <div className="module-content-list">
                         {moduleContent.length > 0 ? (
                           moduleContent.map((item, index) => {
-                            const contentTypeValue = selectedModule.contentType || selectedModule.ContentType;
-                            const contentTypeNum = typeof contentTypeValue === 'number' ? contentTypeValue : parseInt(contentTypeValue);
-
-                            if (isLecture(contentTypeNum)) {
-                              // Lecture
-                              const lectureId = item.lectureId || item.LectureId;
-                              const lectureTitle = item.title || item.Title || `Lecture ${index + 1}`;
-                              const lectureDescription = item.markdownContent || item.MarkdownContent || "";
-
-                              return (
-                                <div key={lectureId || index} className="content-item">
-                                  <div className="content-item-info">
-                                    <h4 className="content-item-title">{lectureTitle}</h4>
-                                    {lectureDescription && (
-                                      <p className="content-item-description">
-                                        {lectureDescription.length > 100
-                                          ? lectureDescription.substring(0, 100) + "..."
-                                          : lectureDescription}
-                                      </p>
-                                    )}
-                                  </div>
-                                  <button
-                                    className="content-item-edit-btn"
-                                    onClick={() => handleEditLecture(item)}
-                                    title="Sửa"
-                                  >
-                                    <FaEdit className="edit-icon" />
-                                    Sửa
-                                  </button>
-                                </div>
-                              );
-                            } else if (isFlashCard(contentTypeNum)) {
-                              // FlashCard - backend returns flashCardId (camelCase with capital C)
-                              const flashcardId = item.flashCardId || item.flashcardId || item.FlashcardId || item.FlashCardId;
-                              const word = item.word || item.Word || `Flashcard ${index + 1}`;
-                              const meaning = item.meaning || item.Meaning || "";
-                              const pronunciation = item.pronunciation || item.Pronunciation || "";
-                              const partOfSpeech = item.partOfSpeech || item.PartOfSpeech || "";
-
-                              return (
-                                <div key={flashcardId || index} className="content-item">
-                                  <div className="content-item-info">
-                                    <h4 className="content-item-title">{word}</h4>
-                                    {pronunciation && (
-                                      <p className="content-item-description" style={{ fontStyle: 'italic', color: '#6b7280' }}>
-                                        {pronunciation}
-                                      </p>
-                                    )}
-                                    {meaning && (
-                                      <p className="content-item-description">
-                                        <strong>Nghĩa:</strong> {meaning}
-                                      </p>
-                                    )}
-                                    {partOfSpeech && (
-                                      <p className="content-item-description" style={{ fontSize: '12px', color: '#9ca3af' }}>
-                                        {partOfSpeech}
-                                      </p>
-                                    )}
-                                  </div>
-                                  <button
-                                    className="content-item-edit-btn"
-                                    onClick={() => handleEditFlashcard(item)}
-                                    title="Sửa"
-                                  >
-                                    <FaEdit className="edit-icon" />
-                                    Sửa
-                                  </button>
-                                </div>
-                              );
-                            } else if (isAssessment(contentTypeNum)) {
                             // Extract assessment details
                             const assessmentId = item.assessmentId || item.AssessmentId;
                             const title = item.title || item.Title || "Assessment";
@@ -524,168 +433,90 @@ export default function TeacherLessonDetail() {
                             };
 
                             // Content type indicators
-                            const typeInfo = {
-                              hasQuiz: Array.isArray(item.quizzes) && item.quizzes.length > 0,
-                              hasEssay: Array.isArray(item.essays) && item.essays.length > 0
-                            };
+                            const typeInfo = assessmentTypes[assessmentId] || { hasQuiz: false, hasEssay: false };
 
-                              return (
-                                <div
-                                  key={assessmentId || index}
-                                  className="content-item"
-                                  style={{ cursor: 'pointer' }}
-                                  onClick={() => {
-                                    // Navigate to teacher's assessment management (open manage page/modal)
-                                    navigate(ROUTE_PATHS.TEACHER_QUIZ_ESSAY_MANAGEMENT(courseId, lessonId, moduleId, assessmentId));
-                                  }}
-                                >
+                            return (
+                              <div
+                                key={assessmentId || index}
+                                className="content-item"
+                                onClick={() => {
+                                  // Navigate to teacher's assessment management
+                                  navigate(ROUTE_PATHS.TEACHER_QUIZ_ESSAY_MANAGEMENT(courseId, lessonId, moduleId, assessmentId));
+                                }}
+                              >
                                   <div className="content-item-info">
-                                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '8px' }}>
-                                      <h4 className="content-item-title" style={{ margin: 0 }}>{title}</h4>
-                                      <div style={{ display: 'flex', gap: '8px' }}>
-                                        {typeInfo.hasQuiz && (
-                                          <span style={{
-                                            padding: '4px 8px',
-                                            borderRadius: '4px',
-                                            fontSize: '11px',
-                                            fontWeight: '600',
-                                            backgroundColor: '#e3f2fd',
-                                            color: '#1976d2'
-                                          }}>
-                                            Quiz
-                                          </span>
-                                        )}
-                                        {typeInfo.hasEssay && (
-                                          <span style={{
-                                            padding: '4px 8px',
-                                            borderRadius: '4px',
-                                            fontSize: '11px',
-                                            fontWeight: '600',
-                                            backgroundColor: '#f3e5f5',
-                                            color: '#7b1fa2'
-                                          }}>
-                                            Essay
-                                          </span>
-                                        )}
-                                        {!typeInfo.hasQuiz && !typeInfo.hasEssay && (
-                                          <span style={{
-                                            padding: '4px 8px',
-                                            borderRadius: '4px',
-                                            fontSize: '11px',
-                                            fontWeight: '600',
-                                            backgroundColor: '#f5f5f5',
-                                            color: '#757575'
-                                          }}>
-                                            Chưa có nội dung
-                                          </span>
+                                    <div className="item-header">
+                                      <h4 className="content-item-title">{title}</h4>
+                                      <div className="item-badges">
+                                        {typeInfo.hasQuiz || typeInfo.hasEssay ? (
+                                          <>
+                                            {typeInfo.hasQuiz && <span className="badge-quiz">QUIZ</span>}
+                                            {typeInfo.hasEssay && <span className="badge-essay">ESSAY</span>}
+                                          </>
+                                        ) : (
+                                          <span className="no-content-badge">Chưa có nội dung</span>
                                         )}
                                       </div>
                                     </div>
-                                    {description && (
-                                      <p className="content-item-description">
-                                        {description.length > 100
-                                          ? description.substring(0, 100) + "..."
-                                          : description}
-                                      </p>
-                                    )}
-                                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '16px', marginTop: '8px', fontSize: '12px', color: '#6b7280' }}>
-                                      {timeLimit && (
-                                        <span><strong>Thời gian:</strong> {timeLimit}</span>
-                                      )}
-                                      {openAt && (
-                                        <span><strong>Bắt đầu:</strong> {formatDateTime(openAt)}</span>
-                                      )}
-                                      {dueAt && (
-                                        <span><strong>Kết thúc:</strong> {formatDateTime(dueAt)}</span>
-                                      )}
-                                      {totalPoints > 0 && (
-                                        <span><strong>Tổng điểm:</strong> {totalPoints}</span>
-                                      )}
-                                      {passingScore > 0 && (
-                                        <span><strong>Điểm đạt:</strong> {passingScore}%</span>
-                                      )}
-                                      <span><strong>Trạng thái:</strong> {isPublished ? 'Đã xuất bản' : 'Chưa xuất bản'}</span>
+                                    <div className="item-meta-container">
+                                      <div className="item-meta-row main-meta">
+                                        {timeLimit && (
+                                          <span><strong>Thời gian:</strong> {timeLimit}</span>
+                                        )}
+                                        {openAt && (
+                                          <span><strong>Bắt đầu:</strong> {formatDateTime(openAt)}</span>
+                                        )}
+                                        {dueAt && (
+                                          <span><strong>Kết thúc:</strong> {formatDateTime(dueAt)}</span>
+                                        )}
+                                      </div>
+                                      <div className="item-meta-row status-row">
+                                        <span>
+                                          <strong>Trạng thái:</strong>
+                                          <span className={`status-tag ${isPublished ? 'published' : 'draft'}`}>
+                                            {isPublished ? 'Đã xuất bản' : 'Chưa xuất bản'}
+                                          </span>
+                                        </span>
+                                      </div>
                                     </div>
                                   </div>
-                                  <button
-                                    className="content-item-edit-btn"
-                                    onClick={(e) => {
-                                      e.stopPropagation();
-                                      setAssessmentToUpdate(item);
-                                      setShowUpdateAssessmentModal(true);
-                                    }}
-                                    title="Sửa Assessment"
-                                  >
-                                    <FaEdit className="edit-icon" />
-                                    Sửa
-                                  </button>
-                                </div>
-                              );
-                            }
-                            return null;
+                                <ActionButtons
+                                  onUpdate={(e) => {
+                                    e.stopPropagation();
+                                    setAssessmentToUpdate(item);
+                                    setShowUpdateAssessmentModal(true);
+                                  }}
+                                  onDelete={(e) => {
+                                    e.stopPropagation();
+                                  }}
+                                  updateText="Cập nhật"
+                                  showUpdateText={true}
+                                  updateTitle="Sửa assessment"
+                                />
+                              </div>
+                            );
                           })
                         ) : (
                           <div className="no-content-message">
-                            {(() => {
-                              const contentTypeValue = selectedModule.contentType || selectedModule.ContentType;
-                              const contentTypeNum = typeof contentTypeValue === 'number' ? contentTypeValue : parseInt(contentTypeValue);
-                              if (isLecture(contentTypeNum)) {
-                                return "Chưa có lecture nào trong module này";
-                              } else if (isFlashCard(contentTypeNum)) {
-                                return "Chưa có flashcard nào trong module này";
-                              } else if (isAssessment(contentTypeNum)) {
-                                return "Chưa có assessment nào trong module này";
-                              }
-                              return "Chưa có nội dung nào trong module này";
-                            })()}
+                            Chưa có assessment nào trong module này
                           </div>
                         )}
                       </div>
 
-                      {/* Create Button */}
+                      {/* Create Button for Assessment */}
                       {(() => {
-                        const contentTypeValue = selectedModule.contentType || selectedModule.ContentType;
-                        const contentTypeNum = typeof contentTypeValue === 'number' ? contentTypeValue : parseInt(contentTypeValue);
                         const moduleId = selectedModule.moduleId || selectedModule.ModuleId;
-
-                        if (isLecture(contentTypeNum)) {
-                          return (
-                            <button
-                              className="module-create-btn lecture-btn"
-                              onClick={() => {
-                                navigate(ROUTE_PATHS.TEACHER_CREATE_LECTURE(courseId, lessonId, moduleId));
-                              }}
-                            >
-                              <FaPlus className="add-icon" />
-                              Tạo Lecture
-                            </button>
-                          );
-                        } else if (isFlashCard(contentTypeNum)) {
-                          return (
-                            <button
-                              className="module-create-btn flashcard-btn"
-                              onClick={() => {
-                                navigate(ROUTE_PATHS.TEACHER_CREATE_FLASHCARD(courseId, lessonId, moduleId));
-                              }}
-                            >
-                              <FaPlus className="add-icon" />
-                              Tạo Flashcard
-                            </button>
-                          );
-                        } else if (isAssessment(contentTypeNum)) {
-                          return (
-                            <button
-                              className="module-create-btn assessment-btn"
-                              onClick={() => {
-                                setShowCreateAssessmentModal(true);
-                              }}
-                            >
-                              <FaPlus className="add-icon" />
-                              Thêm Assessment
-                            </button>
-                          );
-                        }
-                        return null;
+                        return (
+                          <button
+                            className="module-create-btn assessment-btn"
+                            onClick={() => {
+                              setShowCreateAssessmentModal(true);
+                            }}
+                          >
+                            <FaPlus className="add-icon" />
+                            Thêm Assessment
+                          </button>
+                        );
                       })()}
                     </>
                   )}
@@ -694,114 +525,98 @@ export default function TeacherLessonDetail() {
                 // Modules List View
                 <div className="modules-section">
                   <div className="modules-header">
-                    <h3>Danh sách Module</h3>
+                    <h3>Danh sách module</h3>
                   </div>
                   <div className="modules-list">
-                  {modules.length > 0 ? (
-                    modules.map((module, index) => {
-                      const moduleId = module.moduleId || module.ModuleId;
-                      const moduleName = module.name || module.Name || `Module ${index + 1}`;
-                      const moduleImage = module.imageUrl || module.ImageUrl || null; // Module dùng React icon, không cần default image
+                    {modules.length > 0 ? (
+                      modules.map((module, index) => {
+                        const moduleId = module.moduleId || module.ModuleId;
+                        const moduleName = module.name || module.Name || `Module ${index + 1}`;
 
-                      // Get contentType - could be number (enum) or string (ContentTypeName)
-                      const contentTypeValue = module.contentType || module.ContentType;
-                      const contentTypeName = module.contentTypeName || module.ContentTypeName;
+                        const contentTypeValue = module.contentType || module.ContentType;
+                        const contentTypeName = module.contentTypeName || module.ContentTypeName;
 
-                      // Map enum number to name if needed (matching backend ModuleType enum)
-                      const contentTypeMap = {
-                        1: "Lecture",
-                        2: "FlashCard",
-                        3: "Assessment"
-                      };
+                        const contentTypeMap = {
+                          1: "Lecture",
+                          2: "FlashCard",
+                          3: "Assessment"
+                        };
 
-                      const displayContentType = contentTypeName || contentTypeMap[contentTypeValue] || contentTypeValue || "Unknown";
+                        const displayContentType = contentTypeName || contentTypeMap[contentTypeValue] || contentTypeValue || "Unknown";
+                        const contentTypeNum = typeof contentTypeValue === 'number' ? contentTypeValue : parseInt(contentTypeValue);
 
-                      const contentTypeNum = typeof contentTypeValue === 'number' ? contentTypeValue : parseInt(contentTypeValue);
-
-                      // Handle module click - navigate to corresponding screen based on module type
-                      const handleModuleItemClick = () => {
-                        if (!isClickable(contentTypeNum)) return;
-                        
-                        const moduleIdValue = module.moduleId || module.ModuleId;
-                        
-                        if (isLecture(contentTypeNum)) {
-                          // Navigate to create lecture page
-                          navigate(ROUTE_PATHS.TEACHER_CREATE_LECTURE(courseId, lessonId, moduleIdValue));
-                        } else if (isFlashCard(contentTypeNum)) {
-                          // Navigate to create flashcard page
-                          navigate(ROUTE_PATHS.TEACHER_CREATE_FLASHCARD(courseId, lessonId, moduleIdValue));
-                        } else if (isAssessment(contentTypeNum)) {
-                          // For Assessment, show content list in current screen (existing behavior)
+                        const handleModuleItemClick = () => {
+                          if (!isClickable(contentTypeNum)) return;
                           handleModuleClick(module);
-                        }
-                      };
+                        };
 
-                      return (
-                        <div
-                          key={moduleId || index}
-                          className="module-item"
-                          onClick={handleModuleItemClick}
-                          style={{ cursor: isClickable(contentTypeNum) ? 'pointer' : 'default' }}
-                        >
-                          <div className="module-item-content">
-                            <ImageWithIconFallback
-                              imageUrl={module.imageUrl || module.ImageUrl}
-                              icon={(() => {
-                                if (isLecture(contentTypeNum)) return <PiLayoutDuotone size={28} />;
-                                if (isFlashCard(contentTypeNum)) return <PiCardsDuotone size={28} />;
-                                if (isAssessment(contentTypeNum)) return <PiExamDuotone size={28} />;
-                                return <PiLayoutDuotone size={24} />;
-                              })()}
-                              alt={moduleName}
-                              className="module-image"
-                              iconClassName={`module-icon-wrapper ${isLecture(contentTypeNum) ? 'lecture' : isFlashCard(contentTypeNum) ? 'flashcard' : isAssessment(contentTypeNum) ? 'assessment' : ''}`}
-                            />
-                            <div className="module-info">
-                              <span className="module-name">{moduleName}</span>
-                              <span className="module-type">{displayContentType}</span>
+                        return (
+                          <div
+                            key={moduleId || index}
+                            className="module-item"
+                            onClick={handleModuleItemClick}
+                            style={{ cursor: isClickable(contentTypeNum) ? 'pointer' : 'default' }}
+                          >
+                            <div className="module-item-content">
+                              <ImageWithIconFallback
+                                imageUrl={module.imageUrl || module.ImageUrl}
+                                icon={(() => {
+                                  if (isLecture(contentTypeNum)) return <PiLayoutDuotone size={24} />;
+                                  if (isFlashCard(contentTypeNum)) return <PiCardsDuotone size={24} />;
+                                  if (isAssessment(contentTypeNum)) return <PiExamDuotone size={24} />;
+                                  return <PiLayoutDuotone size={24} />;
+                                })()}
+                                alt={moduleName}
+                                className="module-image"
+                                iconClassName={`module-icon-wrapper ${isLecture(contentTypeNum) ? 'lecture' : isFlashCard(contentTypeNum) ? 'flashcard' : isAssessment(contentTypeNum) ? 'assessment' : ''}`}
+                              />
+                              <div className="module-info">
+                                <span className="module-name">{moduleName}</span>
+                                <span className="module-type">{displayContentType}</span>
+                              </div>
                             </div>
-                          </div>
-                          <div className="module-actions" onClick={(e) => e.stopPropagation()}>
-                            <ActionButtons
-                              onUpdate={async (e) => {
-                                e.stopPropagation();
-                                try {
-                                  setLoadingModuleDetail(true);
-                                  const moduleId = module.moduleId || module.ModuleId;
-                                  const response = await teacherService.getModuleById(moduleId);
+                            <div className="module-actions" onClick={(e) => e.stopPropagation()}>
+                              <ActionButtons
+                                onUpdate={async (e) => {
+                                  e.stopPropagation();
+                                  try {
+                                    setLoadingModuleDetail(true);
+                                    const moduleId = module.moduleId || module.ModuleId;
+                                    const response = await teacherService.getModuleById(moduleId);
 
-                                  if (response.data?.success && response.data?.data) {
-                                    setModuleToUpdate(response.data.data);
-                                    setShowUpdateModuleModal(true);
-                                  } else {
-                                    console.warn("Failed to fetch module detail, using list data");
+                                    if (response.data?.success && response.data?.data) {
+                                      setModuleToUpdate(response.data.data);
+                                      setShowUpdateModuleModal(true);
+                                    } else {
+                                      setModuleToUpdate(module);
+                                      setShowUpdateModuleModal(true);
+                                    }
+                                  } catch (error) {
+                                    console.error("Error fetching module detail:", error);
                                     setModuleToUpdate(module);
                                     setShowUpdateModuleModal(true);
+                                  } finally {
+                                    setLoadingModuleDetail(false);
                                   }
-                                } catch (error) {
-                                  console.error("Error fetching module detail:", error);
-                                  setModuleToUpdate(module);
-                                  setShowUpdateModuleModal(true);
-                                } finally {
-                                  setLoadingModuleDetail(false);
-                                }
-                              }}
-                              onDelete={(e) => {
-                                e.stopPropagation();
-                                handleDeleteModuleClick(module);
-                              }}
-                              updateTitle="Cập nhật module"
-                              deleteTitle="Xóa module"
-                              updateText={loadingModuleDetail ? "Đang tải..." : "Cập nhật"}
-                              updateDisabled={loadingModuleDetail}
-                            />
+                                }}
+                                onDelete={(e) => {
+                                  e.stopPropagation();
+                                  handleDeleteModuleClick(module);
+                                }}
+                                updateTitle="Cập nhật module"
+                                deleteTitle="Xóa module"
+                                updateText={loadingModuleDetail ? "Đang tải..." : "Cập nhật"}
+                                updateDisabled={loadingModuleDetail}
+                              />
+                            </div>
                           </div>
-                        </div>
-                      );
-                    })
-                  ) : (
-                    <div className="no-modules-message">Chưa có module nào</div>
-                  )}
+                        );
+                      })
+                    ) : (
+                      <div className="no-modules-message">
+                        <p>Chưa có module nào cho bài học này</p>
+                      </div>
+                    )}
                   </div>
 
                   <button
@@ -809,8 +624,9 @@ export default function TeacherLessonDetail() {
                     onClick={() => setShowCreateModuleModal(true)}
                   >
                     <FaPlus className="add-icon" />
-                    Thêm Module
+                    Thêm module
                   </button>
+
                 </div>
               )}
             </Col>
@@ -818,37 +634,16 @@ export default function TeacherLessonDetail() {
         </Container>
       </div>
 
-      {/* Update Lesson Modal */}
+      {/* Modals */}
       <CreateLessonModal
         show={showUpdateModal}
         onClose={() => setShowUpdateModal(false)}
         onSuccess={handleUpdateSuccess}
         courseId={courseId}
-        lessonData={{
-          ...lesson,
-          lessonId: lesson.lessonId || lesson.LessonId || parseInt(lessonId)
-        }}
+        lessonData={lesson}
         isUpdateMode={true}
       />
 
-      {/* Success Modal for Lesson Update */}
-      <SuccessModal
-        isOpen={showSuccessModal}
-        onClose={() => setShowSuccessModal(false)}
-        title="Cập nhật bài học thành công"
-        message="Bài học của bạn đã được cập nhật thành công!"
-        autoClose={true}
-        autoCloseDelay={1500}
-      />
-
-      <NotificationModal
-        isOpen={notification.isOpen}
-        onClose={() => setNotification({ ...notification, isOpen: false })}
-        type={notification.type}
-        message={notification.message}
-      />
-
-      {/* Create Module Modal */}
       <CreateModuleModal
         show={showCreateModuleModal}
         onClose={() => setShowCreateModuleModal(false)}
@@ -856,7 +651,6 @@ export default function TeacherLessonDetail() {
         lessonId={lessonId}
       />
 
-      {/* Update Module Modal */}
       <CreateModuleModal
         show={showUpdateModuleModal}
         onClose={() => {
@@ -865,7 +659,6 @@ export default function TeacherLessonDetail() {
         }}
         onSuccess={() => {
           setShowUpdateModuleModal(false);
-          setModuleToUpdate(null);
           setShowUpdateModuleSuccessModal(true);
           fetchModules();
         }}
@@ -874,92 +667,87 @@ export default function TeacherLessonDetail() {
         isUpdateMode={true}
       />
 
-      {/* Success Modal for Module Update */}
-      <SuccessModal
-        isOpen={showUpdateModuleSuccessModal}
-        onClose={() => setShowUpdateModuleSuccessModal(false)}
-        title="Cập nhật module thành công"
-        message="Module của bạn đã được cập nhật thành công!"
-        autoClose={true}
-        autoCloseDelay={1500}
+      <CreateAssessmentModal
+        show={showCreateAssessmentModal}
+        onClose={() => setShowCreateAssessmentModal(false)}
+        onSuccess={() => {
+          setShowCreateAssessmentModal(false);
+          setShowCreateAssessmentSuccessModal(true);
+          if (selectedModule) handleModuleClick(selectedModule);
+        }}
+        moduleId={selectedModule?.moduleId || selectedModule?.ModuleId}
       />
 
-      {/* Create Assessment Modal */}
-      {selectedModule && (
-        <CreateAssessmentModal
-          show={showCreateAssessmentModal}
-          onClose={() => setShowCreateAssessmentModal(false)}
-          onSuccess={(assessmentId) => {
-            setShowCreateAssessmentModal(false);
-            setShowCreateAssessmentSuccessModal(true);
-            
-            // If we have an assessmentId and a selected module, redirect to management page
-            if (assessmentId && selectedModule) {
-              const moduleId = selectedModule.moduleId || selectedModule.ModuleId;
-              navigate(ROUTE_PATHS.TEACHER_QUIZ_ESSAY_MANAGEMENT(courseId, lessonId, moduleId, assessmentId));
-            } else if (selectedModule) {
-              // Reload assessments list as fallback
-              handleModuleClick(selectedModule);
-            }
-          }}
-          moduleId={selectedModule.moduleId || selectedModule.ModuleId}
-        />
-      )}
-
-      {/* Success Modal for Assessment Creation */}
-      <SuccessModal
-        isOpen={showCreateAssessmentSuccessModal}
-        onClose={() => setShowCreateAssessmentSuccessModal(false)}
-        title="Tạo Assessment thành công"
-        message="Assessment của bạn đã được tạo thành công!"
-        autoClose={true}
-        autoCloseDelay={1500}
+      <CreateAssessmentModal
+        show={showUpdateAssessmentModal}
+        onClose={() => {
+          setShowUpdateAssessmentModal(false);
+          setAssessmentToUpdate(null);
+        }}
+        onSuccess={() => {
+          setShowUpdateAssessmentModal(false);
+          setShowUpdateAssessmentSuccessModal(true);
+          if (selectedModule) handleModuleClick(selectedModule);
+        }}
+        moduleId={selectedModule?.moduleId || selectedModule?.ModuleId}
+        assessmentData={assessmentToUpdate}
+        isUpdateMode={true}
       />
 
-      {/* Update Assessment Modal */}
-      {selectedModule && assessmentToUpdate && (
-        <CreateAssessmentModal
-          show={showUpdateAssessmentModal}
-          onClose={() => {
-            setShowUpdateAssessmentModal(false);
-            setAssessmentToUpdate(null);
-          }}
-          onSuccess={() => {
-            setShowUpdateAssessmentModal(false);
-            setAssessmentToUpdate(null);
-            setShowUpdateAssessmentSuccessModal(true);
-            // Reload assessments list
-            if (selectedModule) {
-              handleModuleClick(selectedModule);
-            }
-          }}
-          moduleId={selectedModule.moduleId || selectedModule.ModuleId}
-          assessmentData={assessmentToUpdate}
-          isUpdateMode={true}
-        />
-      )}
-
-      {/* Success Modal for Assessment Update */}
       <SuccessModal
-        isOpen={showUpdateAssessmentSuccessModal}
-        onClose={() => setShowUpdateAssessmentSuccessModal(false)}
-        title="Cập nhật Assessment thành công"
-        message="Assessment của bạn đã được cập nhật thành công!"
+        isOpen={showSuccessModal}
+        onClose={() => setShowSuccessModal(false)}
+        title="Thành công"
+        message="Đã cập nhật bài học thành công!"
         autoClose={true}
-        autoCloseDelay={1500}
+        autoCloseDelay={2000}
       />
 
-      {/* Success Modal for Module Creation */}
       <SuccessModal
         isOpen={showModuleSuccessModal}
         onClose={() => setShowModuleSuccessModal(false)}
-        title="Thêm module thành công"
-        message="Module của bạn đã được thêm thành công!"
+        title="Thành công"
+        message="Đã tạo module mới thành công!"
         autoClose={true}
-        autoCloseDelay={1500}
+        autoCloseDelay={2000}
       />
 
-      {/* Confirm Delete Module Modal */}
+      <SuccessModal
+        isOpen={showUpdateModuleSuccessModal}
+        onClose={() => setShowUpdateModuleSuccessModal(false)}
+        title="Thành công"
+        message="Đã cập nhật module thành công!"
+        autoClose={true}
+        autoCloseDelay={2000}
+      />
+
+      <SuccessModal
+        isOpen={showCreateAssessmentSuccessModal}
+        onClose={() => setShowCreateAssessmentSuccessModal(false)}
+        title="Thành công"
+        message="Đã tạo assessment mới thành công!"
+        autoClose={true}
+        autoCloseDelay={2000}
+      />
+
+      <SuccessModal
+        isOpen={showUpdateAssessmentSuccessModal}
+        onClose={() => setShowUpdateAssessmentSuccessModal(false)}
+        title="Thành công"
+        message="Đã cập nhật assessment thành công!"
+        autoClose={true}
+        autoCloseDelay={2000}
+      />
+
+      <SuccessModal
+        isOpen={showDeleteModuleSuccessModal}
+        onClose={() => setShowDeleteModuleSuccessModal(false)}
+        title="Thành công"
+        message="Đã xóa module thành công!"
+        autoClose={true}
+        autoCloseDelay={2000}
+      />
+
       <ConfirmModal
         isOpen={showDeleteModuleModal}
         onClose={() => {
@@ -968,22 +756,19 @@ export default function TeacherLessonDetail() {
         }}
         onConfirm={confirmDeleteModule}
         title="Xác nhận xóa module"
-        message="Bạn có chắc chắn muốn xóa module này không?"
+        message="Bạn có chắc chắn muốn xóa module này không? Tất cả nội dung bên trong sẽ bị xóa vĩnh viễn."
         itemName={moduleToDelete ? (moduleToDelete.name || moduleToDelete.Name) : ""}
         type="delete"
         confirmText="Xác nhận xóa"
         loading={deletingModule}
       />
 
-      {/* Success Modal for Delete Module */}
-      <SuccessModal
-        isOpen={showDeleteModuleSuccessModal}
-        onClose={() => setShowDeleteModuleSuccessModal(false)}
-        title="Xóa module thành công"
-        message="Module đã được xóa thành công!"
-        autoClose={true}
-        autoCloseDelay={1500}
+      <NotificationModal
+        isOpen={notification.isOpen}
+        onClose={() => setNotification({ ...notification, isOpen: false })}
+        type={notification.type}
+        message={notification.message}
       />
-    </>
+    </div>
   );
 }

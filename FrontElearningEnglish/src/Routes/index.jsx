@@ -152,8 +152,8 @@ export default function AppRoutes() {
           <Route path="courses/:courseId" element={<AdminCourseDetail />} />
           <Route path="courses/:courseId/students" element={<AdminStudentManagement />} />
           <Route path="courses/:courseId/lesson/:lessonId" element={<AdminLessonDetail />} />
-          <Route path="courses/:courseId/lesson/:lessonId/module/:moduleId/lecture/create" element={<AdminModuleLectureDetail />} />
-          <Route path="courses/:courseId/lesson/:lessonId/module/:moduleId/flashcard/create" element={<AdminModuleFlashCardDetail />} />
+          <Route path="courses/:courseId/lesson/:lessonId/module/:moduleId/lecture/manage" element={<AdminModuleLectureDetail />} />
+          <Route path="courses/:courseId/lesson/:lessonId/module/:moduleId/flashcard/manage" element={<AdminModuleFlashCardDetail />} />
           <Route path="courses/:courseId/lesson/:lessonId/module/:moduleId/assessment/:assessmentId" element={<AdminQuizEssayManagement />} />
           <Route path="courses/:courseId/lesson/:lessonId/module/:moduleId/assessment/:assessmentId/quiz/:quizId/sections" element={<AdminQuizSectionManagement />} />
           <Route path="courses/:courseId/lesson/:lessonId/module/:moduleId/assessment/:assessmentId/quiz/:quizId/section/:sectionId/questions" element={<AdminQuestionManagement />} />

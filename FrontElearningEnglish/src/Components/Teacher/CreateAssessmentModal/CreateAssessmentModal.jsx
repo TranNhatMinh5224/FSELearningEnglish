@@ -4,6 +4,7 @@ import { FaInfoCircle, FaClock, FaToggleOn } from "react-icons/fa";
 import { assessmentService } from "../../../Services/assessmentService";
 import ConfirmModal from "../../Common/ConfirmModal/ConfirmModal";
 import SmartDateInput from "../../Common/SmartDateInput/SmartDateInput";
+import DurationInput from "../../Common/DurationInput/DurationInput";
 import PremiumCloseButton from "../../Common/PremiumCloseButton/PremiumCloseButton";
 import "./CreateAssessmentModal.css";
 
@@ -322,69 +323,22 @@ export default function CreateAssessmentModal({
               </div>
 
               <div className="form-group mb-0">
-                <label className="form-label required">Thời gian làm bài</label>
-                <div className="time-limit-container">
-                  <div className="time-input-group">
-                    <input
-                      type="number"
-                      className={`form-control time-input ${errors.timeLimit ? "is-invalid" : ""}`}
-                      value={hours}
-                      onChange={(e) => {
-                        const val = parseInt(e.target.value, 10);
-                        setHours(isNaN(val) ? 0 : Math.min(23, Math.max(0, val)));
-                        setErrors({ ...errors, timeLimit: null });
-                      }}
-                      onBlur={(e) => {
-                        const val = parseInt(e.target.value, 10);
-                        setHours(isNaN(val) ? 0 : Math.min(23, Math.max(0, val)));
-                      }}
-                      min="0"
-                      max="23"
-                    />
-                    <span className="time-label">giờ</span>
-                  </div>
-                  <div className="time-input-group">
-                    <input
-                      type="number"
-                      className={`form-control time-input ${errors.timeLimit ? "is-invalid" : ""}`}
-                      value={minutes}
-                      onChange={(e) => {
-                        const val = parseInt(e.target.value, 10);
-                        setMinutes(isNaN(val) ? 0 : Math.min(59, Math.max(0, val)));
-                        setErrors({ ...errors, timeLimit: null });
-                      }}
-                      onBlur={(e) => {
-                        const val = parseInt(e.target.value, 10);
-                        setMinutes(isNaN(val) ? 0 : Math.min(59, Math.max(0, val)));
-                      }}
-                      min="0"
-                      max="59"
-                    />
-                    <span className="time-label">phút</span>
-                  </div>
-                  <div className="time-input-group">
-                    <input
-                      type="number"
-                      className={`form-control time-input ${errors.timeLimit ? "is-invalid" : ""}`}
-                      value={seconds}
-                      onChange={(e) => {
-                        const val = parseInt(e.target.value, 10);
-                        setSeconds(isNaN(val) ? 0 : Math.min(59, Math.max(0, val)));
-                        setErrors({ ...errors, timeLimit: null });
-                      }}
-                      onBlur={(e) => {
-                        const val = parseInt(e.target.value, 10);
-                        setSeconds(isNaN(val) ? 0 : Math.min(59, Math.max(0, val)));
-                      }}
-                      min="0"
-                      max="59"
-                    />
-                    <span className="time-label">giây</span>
-                  </div>
-                </div>
-                <div className="text-primary small mt-2 d-flex align-items-start">
-                  <FaInfoCircle className="me-1 mt-1 flex-shrink-0" />
-                  <span><strong>Lưu ý:</strong> Đây là tổng thời gian đếm ngược cho toàn bộ bài thi. Học viên sẽ bị thu bài khi hết giờ này.</span>
+                <DurationInput
+                  label="Thời gian làm bài"
+                  required
+                  hours={hours}
+                  minutes={minutes}
+                  seconds={seconds}
+                  onChange={({ hours, minutes, seconds }) => {
+                    setHours(hours);
+                    setMinutes(minutes);
+                    setSeconds(seconds);
+                    setErrors({ ...errors, timeLimit: null });
+                  }}
+                />
+                <div className="text-primary small mt-3 d-flex align-items-start">
+                  <FaInfoCircle className="me-2 mt-1 flex-shrink-0" />
+                  <span><strong>Lưu ý:</strong> Đây là tổng thời gian đếm ngược. Học viên sẽ bị thu bài khi hết giờ này.</span>
                 </div>
                 {errors.timeLimit && <div className="text-danger small mt-1">{errors.timeLimit}</div>}
               </div>

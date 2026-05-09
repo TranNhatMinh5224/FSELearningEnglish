@@ -3,6 +3,8 @@ import { Modal, Button, Form, Row, Col } from "react-bootstrap";
 import { policyService } from "../../../Services/policyService";
 import { toast } from "react-toastify";
 import PremiumCloseButton from "../../Common/PremiumCloseButton/PremiumCloseButton";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 
 export default function PolicyFormModal({ show, onClose, onSuccess, policyToEdit }) {
   const [formData, setFormData] = useState({
@@ -64,7 +66,7 @@ export default function PolicyFormModal({ show, onClose, onSuccess, policyToEdit
   };
 
   return (
-    <Modal show={show} onHide={onClose} size="lg" centered className="modal-modern">
+    <Modal show={show} onHide={onClose} size="lg" centered className="modal-modern modal-policy-size">
       <Modal.Header closeButton={false} className="modal-header-cyan">
         <Modal.Title className="fw-bold modal-title-centered text-white">
           {policyToEdit ? "Cập nhật chính sách" : "Thêm chính sách mới"}
@@ -112,18 +114,40 @@ export default function PolicyFormModal({ show, onClose, onSuccess, policyToEdit
             </Form.Select>
           </Form.Group>
           <Form.Group className="mb-3">
-            <Form.Label className="fw-semibold">Nội dung (Markdown)</Form.Label>
-            <Form.Control
-              as="textarea"
-              rows={10}
-              name="contentMarkdown"
-              value={formData.contentMarkdown}
-              onChange={handleChange}
-              placeholder="Nhập nội dung chính sách bằng Markdown..."
-              required
-            />
+            <Form.Label className="fw-semibold text-primary">Nội dung Chính sách (Markdown)</Form.Label>
+            <Row>
+              <Col md={6}>
+                <div className="d-flex flex-column h-100">
+                  <Form.Label className="small text-muted mb-1">Trình soạn thảo</Form.Label>
+                  <Form.Control
+                    as="textarea"
+                    rows={18}
+                    name="contentMarkdown"
+                    value={formData.contentMarkdown}
+                    onChange={handleChange}
+                    placeholder="Nhập nội dung chính sách bằng Markdown..."
+                    required
+                    className="font-monospace"
+                  />
+                </div>
+              </Col>
+              <Col md={6}>
+                <div className="d-flex flex-column h-100">
+                  <Form.Label className="small text-muted mb-1">Xem trước (Preview)</Form.Label>
+                  <div className="markdown-preview-box">
+                    {formData.contentMarkdown ? (
+                      <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                        {formData.contentMarkdown}
+                      </ReactMarkdown>
+                    ) : (
+                      <em className="text-muted">Xem trước nội dung tại đây...</em>
+                    )}
+                  </div>
+                </div>
+              </Col>
+            </Row>
             <Form.Text className="text-muted">
-              Nội dung này sẽ được AI sử dụng để làm tri thức trả lời người dùng.
+              Nội dung này sẽ được AI sử dụng để làm tri thức trả lời người dùng. Bạn có thể sử dụng các thẻ Markdown như # H1, **Bold**, - List...
             </Form.Text>
           </Form.Group>
         </Modal.Body>

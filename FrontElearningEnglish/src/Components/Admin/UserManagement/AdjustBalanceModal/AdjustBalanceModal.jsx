@@ -34,7 +34,7 @@ export default function AdjustBalanceModal({ show, onClose, user, onConfirm }) {
     };
 
     return (
-        <Modal show={show} onHide={onClose} centered size="lg" className="modal-modern">
+        <Modal show={show} onHide={onClose} centered size="lg" className="modal-modern modal-balance-size">
             <Modal.Header closeButton={false}>
                 <Modal.Title className="fw-bold modal-title-centered">Điều chỉnh số dư</Modal.Title>
                 <PremiumCloseButton onClick={onClose} />

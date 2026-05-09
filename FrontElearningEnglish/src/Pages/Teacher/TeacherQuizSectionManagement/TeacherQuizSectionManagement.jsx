@@ -61,9 +61,9 @@ export default function TeacherQuizSectionManagement() {
   const isTeacher = (roles && roles.some(role => {
     const roleName = typeof role === 'string' ? role : (role?.name || '');
     return roleName === "Teacher";
-  })) || 
-  user?.teacherSubscription?.isTeacher === true || 
-  isAdmin;
+  })) ||
+    user?.teacherSubscription?.isTeacher === true ||
+    isAdmin;
 
   const fetchData = useCallback(async () => {
     try {
@@ -309,101 +309,102 @@ export default function TeacherQuizSectionManagement() {
   const quizTitle = quiz?.title || quiz?.Title || "Quiz";
 
   return (
-    <>
+    <div className="teacher-quiz-section-management-container">
       <TeacherHeader />
-      <div className="teacher-quiz-section-management-container">
-        <Container>
-          {/* Premium Header */}
-          <div className="quiz-section-management-header">
-            <div className="d-flex align-items-center justify-content-between mb-4 flex-wrap gap-3">
-              <div className="d-flex flex-column">
-                <Breadcrumb
-                  items={[
-                    { label: "Quản lý khoá học", path: ROUTE_PATHS.TEACHER_COURSE_MANAGEMENT },
-                    { label: course?.title || course?.Title || "Khoá học", path: `/teacher/course/${courseId}` },
-                    { label: lesson?.title || lesson?.Title || "Bài học", path: `/teacher/course/${courseId}/lesson/${lessonId}` },
-                    { label: assessment?.title || assessment?.Title || "Quản lý bài tập", path: ROUTE_PATHS.TEACHER_QUIZ_ESSAY_MANAGEMENT(courseId, lessonId, moduleId, assessmentId) },
-                    { label: "Quản lý Quiz", isCurrent: true }
-                  ]}
-                  showHomeIcon={true}
-                />
-                <h1 className="premium-gradient-text mt-3 mb-0">Thiết lập cấu trúc Quiz: {quizTitle}</h1>
-              </div>
-              
-              <div className="d-flex gap-3 align-items-center">
-                <div className="header-stats-badge">
-                  <FaRegListAlt />
-                  <span>{sections.length} Sections</span>
+      <div className="teacher-breadcrumb-section">
+        <Container fluid className="content-wrapper">
+          <div className="breadcrumb-section pt-0">
+            <Breadcrumb
+              items={[
+                { label: "Quản lý khóa học", path: ROUTE_PATHS.TEACHER_COURSE_MANAGEMENT },
+                { label: course?.title || course?.Title || "Khóa học", path: `/teacher/course/${courseId}` },
+                { label: lesson?.title || lesson?.Title || "Bài học", path: `/teacher/course/${courseId}/lesson/${lessonId}` },
+                { label: assessment?.title || assessment?.Title || "Quản lý bài tập", path: ROUTE_PATHS.TEACHER_QUIZ_ESSAY_MANAGEMENT(courseId, lessonId, moduleId, assessmentId) },
+                { label: "Quản lý Quiz", isCurrent: true }
+              ]}
+              showHomeIcon={false}
+            />
+          </div>
+        </Container>
+      </div>
+
+      <div className="teacher-main-page-content">
+        <Container fluid className="content-wrapper">
+          <div className="quiz-management-card">
+            <div className="quiz-header-section">
+              <div className="header-info">
+                <h1 className="quiz-title">Thiết lập cấu trúc Quiz: {quizTitle}</h1>
+                <div className="header-meta">
+                  <div className="meta-badge">
+                    <FaRegListAlt />
+                    <span>{sections.length} Sections</span>
+                  </div>
                 </div>
               </div>
+
+              <div className="header-actions">
+                <button
+                  className="add-section-btn"
+                  onClick={() => setShowCreateSectionModal(true)}
+                >
+                  <FaPlus /> Thêm section mới
+                </button>
+              </div>
             </div>
 
-            <div className="d-flex gap-3 mt-4">
-              <button
-                className="premium-btn-primary d-flex align-items-center gap-2"
-                onClick={() => setShowCreateSectionModal(true)}
-              >
-                <FaPlus /> Thêm Section mới
-              </button>
-            </div>
-          </div>
+            {/* Sections List */}
+            {sections.length === 0 ? (
+              <div className="no-sections-message">
+                <p>Chưa có section nào. Hãy tạo section đầu tiên!</p>
+              </div>
+            ) : (
+              <div className="sections-grid">
+                {sections.map((section) => {
+                  const sectionId = section.quizSectionId || section.QuizSectionId;
+                  const sectionTitle = section.title || section.Title || "Untitled Section";
+                  const sectionDescription = section.description || section.Description;
 
-          {/* Sections List */}
-          {sections.length === 0 ? (
-            <div className="text-center text-muted py-5">
-              <p>Chưa có Section nào. Hãy tạo Section đầu tiên!</p>
-            </div>
-          ) : (
-            <div className="sections-list">
-              {sections.map((section) => {
-                const sectionId = section.quizSectionId || section.QuizSectionId;
-                const sectionTitle = section.title || section.Title || "Untitled Section";
-                const sectionDescription = section.description || section.Description;
-
-                return (
-                  <div key={sectionId} className="section-card mb-4">
-                    <div className="section-header">
-                      <div className="section-info">
-                        <h3 
-                            className="section-title text-primary cursor-pointer" 
+                  return (
+                    <div key={sectionId} className="section-item-card">
+                      <div className="section-item-content">
+                        <div className="section-item-info" onClick={() => handleManageQuestionsSection(sectionId)}>
+                          <h3 className="section-item-title">{sectionTitle}</h3>
+                          {sectionDescription && (
+                            <p className="section-item-description">{sectionDescription}</p>
+                          )}
+                        </div>
+                        <div className="section-item-actions">
+                          <button
+                            className="btn-manage-content"
                             onClick={() => handleManageQuestionsSection(sectionId)}
-                            style={{cursor: 'pointer'}}
-                        >
-                            {sectionTitle}
-                        </h3>
-                        {sectionDescription && (
-                          <p className="section-description text-muted">{sectionDescription}</p>
-                        )}
-                      </div>
-                      <div className="section-actions">
-                        <button
-                          className="btn btn-primary text-white me-2"
-                          onClick={() => handleManageQuestionsSection(sectionId)}
-                          title="Quản lý nội dung (Câu hỏi & Nhóm)"
-                        >
-                          <FaList className="me-1" /> Quản lý nội dung
-                        </button>
-                        <button
-                          className="btn btn-edit-section"
-                          onClick={() => handleEditSection(section)}
-                          title="Sửa Section"
-                        >
-                          <FaEdit />
-                        </button>
-                        <button
-                          className="btn btn-delete-section"
-                          onClick={() => handleDeleteSectionClick(section)}
-                          title="Xóa Section"
-                        >
-                          <FaTrash />
-                        </button>
+                            title="Quản lý nội dung"
+                          >
+                            <FaList className="me-2" /> Quản lý nội dung
+                          </button>
+                          <div className="action-icons">
+                            <button
+                              className="icon-btn edit"
+                              onClick={() => handleEditSection(section)}
+                              title="Sửa"
+                            >
+                              <FaEdit />
+                            </button>
+                            <button
+                              className="icon-btn delete"
+                              onClick={() => handleDeleteSectionClick(section)}
+                              title="Xóa"
+                            >
+                              <FaTrash />
+                            </button>
+                          </div>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                );
-              })}
-            </div>
-          )}
+                  );
+                })}
+              </div>
+            )}
+          </div>
         </Container>
       </div>
 
@@ -559,7 +560,7 @@ export default function TeacherQuizSectionManagement() {
         autoClose={true}
         autoCloseDelay={1500}
       />
-    </>
+    </div>
   );
 }
 

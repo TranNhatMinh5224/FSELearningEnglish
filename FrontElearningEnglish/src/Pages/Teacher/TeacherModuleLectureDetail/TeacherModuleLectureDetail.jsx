@@ -181,12 +181,12 @@ export default function TeacherModuleLectureDetail() {
   return (
     <>
       <TeacherHeader />
-      <div className="teacher-module-lecture-detail-container">
-        <Container>
-          <div className="breadcrumb-section mt-3">
+      <div className="teacher-breadcrumb-section">
+        <Container fluid className="content-wrapper">
+          <div className="breadcrumb-section pt-0">
             <Breadcrumb
               items={[
-                { label: "Quản lý khoá học", path: ROUTE_PATHS.TEACHER_COURSE_MANAGEMENT },
+                { label: "Quản lý khóa học", path: ROUTE_PATHS.TEACHER_COURSE_MANAGEMENT },
                 { label: course?.title || course?.Title || "Khóa học", path: `/teacher/course/${courseId}` },
                 { label: lesson?.title || lesson?.Title || "Bài học", path: `/teacher/course/${courseId}/lesson/${lessonId}` },
                 { label: "Quản lý bài giảng", isCurrent: true }
@@ -194,8 +194,12 @@ export default function TeacherModuleLectureDetail() {
               showHomeIcon={false}
             />
           </div>
+        </Container>
+      </div>
 
-          <div className="lecture-management-header mb-4 mt-4">
+      <div className="teacher-main-page-content">
+        <Container fluid className="content-wrapper">
+          <div className="lecture-management-header mb-4 mt-0">
             <div className="d-flex align-items-center justify-content-between">
               <div className="header-content">
                 <h2 className="mb-1 fw-bold text-primary">Quản lý bài giảng</h2>
