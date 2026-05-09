@@ -1,6 +1,21 @@
 .teacher-course-detail-container {
-  background-color: transparent;
+  background-color: #ffffff;
   min-height: 100vh;
+  padding: 2.5rem 80px 5rem 80px;
+  padding-top: calc(70px + 2rem);
+}
+
+@media (max-width: 1024px) {
+  .teacher-course-detail-container {
+    padding: 2.5rem 40px 5rem 40px;
+  }
+}
+
+@media (max-width: 768px) {
+  .teacher-course-detail-container {
+    padding: 2rem 20px 4rem 20px;
+    padding-top: calc(70px + 1.5rem);
+  }
 }
 
 .course-detail-content {

@@ -136,22 +136,19 @@ export default function TeacherStudentManagement() {
   return (
     <>
       <TeacherHeader />
-      <div className="teacher-breadcrumb-section">
-        <Container fluid className="content-wrapper">
-          <div className="breadcrumb-section pt-0">
+      <div className="teacher-student-management-container">
+        <Container fluid className="p-0 content-wrapper">
+          <div className="mb-4">
             <Breadcrumb
               items={[
                 { label: "Quản lý khoá học", path: ROUTE_PATHS.TEACHER_COURSE_MANAGEMENT },
                 { label: courseTitle, path: `/teacher/course/${courseId}` },
                 { label: "Quản lý học viên", isCurrent: true }
               ]}
-              showHomeIcon={false}
+              showHomeIcon={true}
+              className="breadcrumb-compact"
             />
           </div>
-        </Container>
-      </div>
-      <div className="teacher-main-page-content">
-        <Container fluid className="content-wrapper">
           <div className="student-management-header d-flex justify-content-between align-items-center flex-column flex-md-row gap-3">
             <h2 className="page-title">Quản lý học viên</h2>
             <button 

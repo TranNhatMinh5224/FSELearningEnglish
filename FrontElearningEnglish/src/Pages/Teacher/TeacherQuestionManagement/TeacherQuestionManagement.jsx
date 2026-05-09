@@ -386,23 +386,27 @@ export default function TeacherQuestionManagement() {
     <>
       <TeacherHeader />
       <div className="teacher-question-management-container">
-        <Container>
+        <Container fluid className="p-0 content-wrapper">
+          <div className="mb-4">
+            <Breadcrumb
+              items={[
+                { label: "Quản lý khoá học", path: ROUTE_PATHS.TEACHER_COURSE_MANAGEMENT },
+                { label: course?.title || course?.Title || "Khoá học", path: `/teacher/course/${courseId}` },
+                { label: lesson?.title || lesson?.Title || "Bài học", path: `/teacher/course/${courseId}/lesson/${lessonId}` },
+                { label: assessment?.title || assessment?.Title || "Quản lý bài tập", path: ROUTE_PATHS.TEACHER_QUIZ_ESSAY_MANAGEMENT(courseId, lessonId, moduleId, assessmentId) },
+                { label: "Quản lý Quiz", path: ROUTE_PATHS.TEACHER_QUIZ_SECTION_MANAGEMENT(courseId, lessonId, moduleId, assessmentId, quizId) },
+                { label: "Quản lý câu hỏi", isCurrent: true }
+              ]}
+              showHomeIcon={true}
+              className="breadcrumb-compact"
+            />
+          </div>
+
           {/* Premium Header */}
-          <div className="question-header-section">
+          <div className="question-header-section mt-0">
             <div className="d-flex align-items-center justify-content-between mb-4 flex-wrap gap-3">
               <div className="d-flex flex-column">
-                <Breadcrumb
-                  items={[
-                    { label: "Quản lý khoá học", path: ROUTE_PATHS.TEACHER_COURSE_MANAGEMENT },
-                    { label: course?.title || course?.Title || "Khoá học", path: `/teacher/course/${courseId}` },
-                    { label: lesson?.title || lesson?.Title || "Bài học", path: `/teacher/course/${courseId}/lesson/${lessonId}` },
-                    { label: assessment?.title || assessment?.Title || "Quản lý bài tập", path: ROUTE_PATHS.TEACHER_QUIZ_ESSAY_MANAGEMENT(courseId, lessonId, moduleId, assessmentId) },
-                    { label: quiz?.title || quiz?.Title || "Quản lý Quiz", path: ROUTE_PATHS.TEACHER_QUIZ_SECTION_MANAGEMENT(courseId, lessonId, moduleId, assessmentId, quizId) },
-                    { label: "Quản lý câu hỏi", isCurrent: true }
-                  ]}
-                  showHomeIcon={true}
-                />
-                <h1 className="premium-gradient-text mt-3 mb-0">Quản lý kho câu hỏi</h1>
+                <h1 className="premium-gradient-text mb-0">Quản lý kho câu hỏi</h1>
               </div>
 
               <div className="d-flex gap-3 align-items-center">

@@ -181,28 +181,25 @@ export default function TeacherModuleLectureDetail() {
   return (
     <>
       <TeacherHeader />
-      <div className="teacher-breadcrumb-section">
-        <Container fluid className="content-wrapper">
-          <div className="breadcrumb-section pt-0">
+      <div className="teacher-module-lecture-detail-container">
+        <Container fluid className="p-0 content-wrapper">
+          <div className="mb-4">
             <Breadcrumb
               items={[
-                { label: "Quản lý khóa học", path: ROUTE_PATHS.TEACHER_COURSE_MANAGEMENT },
-                { label: course?.title || course?.Title || "Khóa học", path: `/teacher/course/${courseId}` },
+                { label: "Quản lý khoá học", path: ROUTE_PATHS.TEACHER_COURSE_MANAGEMENT },
+                { label: course?.title || course?.Title || "Khoá học", path: `/teacher/course/${courseId}` },
                 { label: lesson?.title || lesson?.Title || "Bài học", path: `/teacher/course/${courseId}/lesson/${lessonId}` },
                 { label: "Quản lý bài giảng", isCurrent: true }
               ]}
-              showHomeIcon={false}
+              showHomeIcon={true}
+              className="breadcrumb-compact"
             />
           </div>
-        </Container>
-      </div>
-
-      <div className="teacher-main-page-content">
-        <Container fluid className="content-wrapper">
-          <div className="lecture-management-header mb-4 mt-0">
+          <div className="teacher-main-page-content p-0 border-0 shadow-none bg-transparent">
+            <div className="lecture-management-header mb-4 mt-0">
             <div className="d-flex align-items-center justify-content-between">
               <div className="header-content">
-                <h2 className="mb-1 fw-bold text-primary">Quản lý bài giảng</h2>
+                <h2 className="premium-gradient-text mb-1 fw-bold">Quản lý bài giảng</h2>
                 <div className="d-flex align-items-center gap-3">
                   <span className="module-name text-muted">
                     {module?.name || module?.Name || "Module"}
@@ -242,8 +239,9 @@ export default function TeacherModuleLectureDetail() {
               onReorder={handleReorder}
             />
           )}
-        </Container>
-      </div>
+            </div>
+          </Container>
+        </div>
 
       <CreateLectureModal
         show={showCreateModal}

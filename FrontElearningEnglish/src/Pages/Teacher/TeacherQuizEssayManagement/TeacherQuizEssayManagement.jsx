@@ -297,9 +297,9 @@ export default function TeacherQuizEssayManagement() {
   return (
     <>
       <TeacherHeader />
-      <div className="teacher-breadcrumb-section">
-        <Container fluid className="content-wrapper">
-          <div className="breadcrumb-section pt-0">
+      <div className="teacher-quiz-essay-management-container">
+        <Container fluid className="p-0 content-wrapper">
+          <div className="mb-4">
             <Breadcrumb
               items={[
                 { label: "Quản lý khóa học", path: ROUTE_PATHS.TEACHER_COURSE_MANAGEMENT },
@@ -308,13 +308,10 @@ export default function TeacherQuizEssayManagement() {
                 { label: "Quản lý bài tập", isCurrent: true }
               ]}
               showHomeIcon={true}
+              className="breadcrumb-compact"
             />
           </div>
-        </Container>
-      </div>
 
-      <div className="teacher-quiz-essay-management-container">
-        <Container fluid className="content-wrapper">
           {/* Premium Header */}
           <div className="quiz-essay-management-header mt-0">
             <div className="d-flex align-items-center justify-content-between mb-4 flex-wrap gap-3">

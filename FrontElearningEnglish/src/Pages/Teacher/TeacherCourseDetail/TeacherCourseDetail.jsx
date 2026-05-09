@@ -233,21 +233,18 @@ export default function TeacherCourseDetail() {
   return (
     <>
       <TeacherHeader />
-      <div className="teacher-breadcrumb-section">
-        <Container fluid className="content-wrapper">
-          <div className="breadcrumb-section pt-0">
+      <div className="teacher-course-detail-container">
+        <Container fluid className="p-0 content-wrapper">
+          <div className="mb-4">
             <Breadcrumb
               items={[
                 { label: "Quản lý khóa học", path: ROUTE_PATHS.TEACHER_COURSE_MANAGEMENT },
                 { label: courseTitle, isCurrent: true }
               ]}
-              showHomeIcon={false}
+              showHomeIcon={true}
+              className="breadcrumb-compact"
             />
           </div>
-        </Container>
-      </div>
-      <div className="teacher-main-page-content">
-        <Container fluid className="content-wrapper">
           <Row>
             {/* Left Column - Course Info */}
             <Col md={4} className="course-info-column">

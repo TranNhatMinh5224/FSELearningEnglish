@@ -4,7 +4,6 @@ import { Container, Row, Col } from "react-bootstrap";
 import CustomPagination from "../../../Components/Common/Pagination/CustomPagination";
 import "./CourseManagement.css";
 import TeacherHeader from "../../../Components/Header/TeacherHeader";
-import Breadcrumb from "../../../Components/Common/Breadcrumb/Breadcrumb";
 import { useAuth } from "../../../Context/AuthContext";
 import { teacherService } from "../../../Services/teacherService";
 import { teacherPackageService } from "../../../Services/teacherPackageService";
@@ -14,6 +13,7 @@ import CreateCourseModal from "../../../Components/Teacher/CreateCourseModal/Cre
 import CourseLimitModal from "../../../Components/Common/CourseLimitModal/CourseLimitModal";
 import SuccessModal from "../../../Components/Common/SuccessModal/SuccessModal";
 import TeacherCourseCard from "../../../Components/Teacher/TeacherCourseCard/TeacherCourseCard";
+import Breadcrumb from "../../../Components/Common/Breadcrumb/Breadcrumb";
 
 export default function CourseManagement() {
   const { user, roles, isAuthenticated } = useAuth();
@@ -173,23 +173,19 @@ export default function CourseManagement() {
   return (
     <>
       <TeacherHeader />
-
-      <div className="teacher-breadcrumb-section">
-        <Container fluid className="content-wrapper">
-          <div className="pt-0">
+      <div className="teacher-course-management-container">
+        <Container fluid className="p-0 content-wrapper">
+          <div className="mb-4">
             <Breadcrumb
-              items={[{ label: "Quản lý khóa học", isCurrent: true }]}
-              showHomeIcon={false}
+              items={[{ label: "Quản lý khoá học", isCurrent: true }]}
+              showHomeIcon={true}
+              className="breadcrumb-compact"
             />
           </div>
-        </Container>
-      </div>
 
-      <div className="teacher-main-page-content">
-        <Container fluid className="content-wrapper">
-          <div className="course-management-header d-flex justify-content-between align-items-center flex-column flex-md-row gap-4">
+          <div className="course-management-header d-flex justify-content-between align-items-center flex-column flex-md-row gap-4 mt-0">
             <div className="welcome-section">
-              <h1>Chào mừng giáo viên {displayName}!</h1>
+              <h1 className="premium-gradient-text">Chào mừng giáo viên {displayName}!</h1>
             </div>
             <button className="create-course-btn d-flex align-items-center" onClick={handleCreateCourse}>
               <FaPlus className="create-course-icon d-flex align-items-center justify-content-center" />

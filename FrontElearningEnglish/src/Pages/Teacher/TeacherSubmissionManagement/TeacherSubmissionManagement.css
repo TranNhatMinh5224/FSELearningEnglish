@@ -1,10 +1,8 @@
 .teacher-submission-management-container {
-  min-height: calc(100vh - 70px);
-  background: var(--color-bg-secondary, #f6f8fb);
-  padding: 40px 80px 20px 80px;
-  padding-top: 120px !important;
-  max-width: 1400px;
-  margin: 0 auto;
+  min-height: 100vh;
+  background: #ffffff;
+  padding: 2.5rem 80px 5rem 80px;
+  padding-top: calc(70px + 2rem);
 }
 
 .teacher-submission-management-container .submission-breadcrumb {
@@ -14,15 +12,15 @@
 /* Responsive Sync with CourseManagement */
 @media (max-width: 1024px) {
   .teacher-submission-management-container {
-    padding: 30px 50px;
-    padding-top: 120px !important;
+    padding: 2.5rem 40px 5rem 40px;
+    padding-top: calc(70px + 2rem);
   }
 }
 
 @media (max-width: 768px) {
   .teacher-submission-management-container {
-    padding: 24px 24px;
-    padding-top: 120px !important;
+    padding: 2rem 20px 4rem 20px;
+    padding-top: calc(70px + 1.5rem);
   }
 }
 

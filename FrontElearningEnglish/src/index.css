@@ -6,12 +6,13 @@
 @import './Theme/modal-premium.css';
 
 
-/* Desktop Scaling: Pattern Production Chuẩn 
-   Tách biệt Zoom của nội dung App ra khỏi Body để không làm nổ tung Modals/Backdrops */
+
 @media (min-width: 992px) {
   body {
-    zoom: 1; /* Body luôn giữ tỷ lệ 1 để Modals hiển thị chuẩn 100% màn hình */
+    zoom: 1; 
     overflow-x: hidden;
+    overflow-y: scroll; 
+    scrollbar-gutter: stable;
     background-color: #ffffff;
   }
 
@@ -37,6 +38,7 @@
 body {
   color: var(--color-text-primary, #111827);
   /* Ensure default text contrast */
+  scrollbar-gutter: stable;
 }
 
 h1,

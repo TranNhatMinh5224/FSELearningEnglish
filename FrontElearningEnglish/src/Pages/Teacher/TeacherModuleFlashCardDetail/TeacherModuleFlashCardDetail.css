@@ -1,6 +1,6 @@
 .teacher-module-flashcard-detail-container {
   min-height: 100vh;
-  background: #fdfdfd;
+  background: #ffffff;
   padding: 2.5rem 1rem;
   padding-top: calc(2.5rem + 70px);
 }
@@ -209,6 +209,27 @@ textarea.form-control {
 .form-actions .btn:disabled {
   opacity: 0.6;
   cursor: not-allowed;
+}
+
+.teacher-module-flashcard-detail-container {
+  min-height: 100vh;
+  background: #ffffff;
+  padding: 2.5rem 80px 5rem 80px;
+  padding-top: calc(70px + 2rem);
+}
+
+@media (max-width: 1024px) {
+  .teacher-module-flashcard-detail-container {
+    padding: 2.5rem 40px 5rem 40px;
+    padding-top: calc(70px + 2rem);
+  }
+}
+
+@media (max-width: 768px) {
+  .teacher-module-flashcard-detail-container {
+    padding: 2rem 20px 4rem 20px;
+    padding-top: calc(70px + 1.5rem);
+  }
 }
 
 .alert {

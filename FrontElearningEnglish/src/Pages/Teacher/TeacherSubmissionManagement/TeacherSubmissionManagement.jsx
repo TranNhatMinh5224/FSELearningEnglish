@@ -84,18 +84,21 @@ export default function TeacherSubmissionManagement() {
     <>
       <TeacherHeader />
       <div className="teacher-submission-management-container">
-        <div className="tab-wrapper">
-          <div className="submission-breadcrumb">
+        <Container fluid className="p-0 content-wrapper">
+          <div className="mb-4">
             <Breadcrumb
-              items={[{ label: "Quản lý bài nộp", path: ROUTE_PATHS.TEACHER_SUBMISSION_MANAGEMENT, isCurrent: true }]}
-              showHomeIcon={false}
+              items={[{ label: "Quản lý bài nộp", isCurrent: true }]}
+              showHomeIcon={true}
+              className="breadcrumb-compact"
             />
           </div>
 
           <div className="mb-4">
-            <h1 className="mb-0 fw-bold text-primary">Quản lý bài nộp</h1>
+            <h1 className="premium-gradient-text mb-0">Quản lý bài nộp</h1>
             <p className="text-muted mt-2">Xem và chấm bài nộp của học sinh</p>
           </div>
+
+          <div className="tab-wrapper p-0 border-0 shadow-none bg-transparent">
 
           <Tab.Container activeKey={activeTab} onSelect={(k) => setActiveTab(k || "essay")}>
             <Nav variant="tabs" className="mb-4 border-0">
@@ -131,8 +134,9 @@ export default function TeacherSubmissionManagement() {
             </Tab.Content>
           </Tab.Container>
         </div>
-      </div>
-    </>
+      </Container>
+    </div>
+  </>
   );
 }
 

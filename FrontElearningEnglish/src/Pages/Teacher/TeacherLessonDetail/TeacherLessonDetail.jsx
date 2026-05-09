@@ -179,9 +179,6 @@ export default function TeacherLessonDetail() {
     } else if (isFlashCard(contentTypeNum)) {
       navigate(ROUTE_PATHS.TEACHER_CREATE_FLASHCARD(courseId, lessonId, moduleId));
     } else if (isAssessment(contentTypeNum)) {
-      // Update URL with moduleId for Assessment to support breadcrumbs and deep linking
-      navigate(`/teacher/course/${courseId}/lesson/${lessonId}?moduleId=${moduleId}`, { replace: true });
-
       setSelectedModule(module);
       setLoadingContent(true);
       setContentError("");
@@ -269,13 +266,6 @@ export default function TeacherLessonDetail() {
           }
         }
       }
-    } else {
-      // If NO moduleId in URL but state is set, user likely navigated back/clicked breadcrumb -> clear state
-      if (selectedModule) {
-        setSelectedModule(null);
-        setModuleContent([]);
-        setLoadingContent(false);
-      }
     }
   }, [searchParams, modules, selectedModule, handleModuleClick, isAssessment]);
 
@@ -315,8 +305,23 @@ export default function TeacherLessonDetail() {
   if (loading) {
     return (
       <>
+        <TeacherHeader />
         <div className="teacher-lesson-detail-container">
-          <div className="loading-message">Đang tải thông tin bài học...</div>
+          <Container fluid className="content-wrapper">
+            <div className="mb-3">
+              <Breadcrumb
+                items={[
+                  { label: "Quản lý khóa học", path: ROUTE_PATHS.TEACHER_COURSE_MANAGEMENT },
+                  { label: courseId, path: `/teacher/course/${courseId}` },
+                  { label: "Bài học", isCurrent: true }
+                ]}
+                showHomeIcon={false}
+              />
+            </div>
+            <div className="teacher-main-page-content">
+              <div className="loading-message">Đang tải thông tin bài học...</div>
+            </div>
+          </Container>
         </div>
       </>
     );
@@ -325,8 +330,23 @@ export default function TeacherLessonDetail() {
   if (error || !lesson) {
     return (
       <>
+        <TeacherHeader />
         <div className="teacher-lesson-detail-container">
-          <div className="error-message">{error || "Không tìm thấy bài học"}</div>
+          <Container fluid className="content-wrapper">
+            <div className="mb-3">
+              <Breadcrumb
+                items={[
+                  { label: "Quản lý khóa học", path: ROUTE_PATHS.TEACHER_COURSE_MANAGEMENT },
+                  { label: courseId, path: `/teacher/course/${courseId}` },
+                  { label: "Bài học", isCurrent: true }
+                ]}
+                showHomeIcon={false}
+              />
+            </div>
+            <div className="teacher-main-page-content">
+              <div className="error-message">{error || "Không tìm thấy bài học"}</div>
+            </div>
+          </Container>
         </div>
       </>
     );
@@ -337,25 +357,35 @@ export default function TeacherLessonDetail() {
   const lessonImage = lesson.imageUrl || lesson.ImageUrl || getDefaultLessonImage();
 
   return (
-    <div className="teacher-lesson-detail-container">
+    <>
       <TeacherHeader />
-      <div className="teacher-breadcrumb-section">
-        <Container fluid className="content-wrapper">
-          <div className="breadcrumb-section pt-0">
+      <div className="teacher-lesson-detail-container">
+        <Container fluid className="p-0 content-wrapper">
+          <div className="mb-4">
             <Breadcrumb
               items={[
                 { label: "Quản lý khóa học", path: ROUTE_PATHS.TEACHER_COURSE_MANAGEMENT },
                 { label: course?.title || course?.Title || courseId, path: `/teacher/course/${courseId}` },
-                { label: lessonTitle, path: selectedModule ? `/teacher/course/${courseId}/lesson/${lessonId}` : undefined, isCurrent: !selectedModule },
+                { 
+                  label: lessonTitle,
+                  path: !selectedModule ? undefined : `/teacher/course/${courseId}/lesson/${lessonId}`,
+                  onClick: selectedModule
+                    ? () => {
+                        setSelectedModule(null);
+                        setModuleContent([]);
+                        setLoadingContent(false);
+                        navigate(`/teacher/course/${courseId}/lesson/${lessonId}`, { replace: true });
+                      }
+                    : undefined,
+                  isCurrent: !selectedModule
+                },
                 ...(selectedModule ? [{ label: selectedModule.name || selectedModule.Name || "Module", isCurrent: true }] : [])
               ]}
-              showHomeIcon={false}
+              showHomeIcon={true}
+              className="breadcrumb-compact"
             />
           </div>
-        </Container>
-      </div>
       <div className="teacher-main-page-content">
-        <Container fluid className="content-wrapper">
           <Row>
             {/* Left Column - Lesson Info */}
             <Col md={4} className="lesson-info-column">
@@ -631,8 +661,8 @@ export default function TeacherLessonDetail() {
               )}
             </Col>
           </Row>
-        </Container>
-      </div>
+        </div>
+      </Container>
 
       {/* Modals */}
       <CreateLessonModal
@@ -769,6 +799,7 @@ export default function TeacherLessonDetail() {
         type={notification.type}
         message={notification.message}
       />
-    </div>
+      </div>
+    </>
   );
 }

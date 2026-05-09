@@ -281,10 +281,24 @@ export default function TeacherQuizSectionManagement() {
       <>
         <TeacherHeader />
         <div className="teacher-quiz-section-management-container">
-          <Container>
-            <div className="text-center py-5">
-              <div className="spinner-border text-primary" role="status">
-                <span className="visually-hidden">Đang tải...</span>
+          <Container fluid className="p-0 content-wrapper">
+            <div className="mb-4">
+              <Breadcrumb
+                items={[
+                  { label: "Quản lý khóa học", path: ROUTE_PATHS.TEACHER_COURSE_MANAGEMENT },
+                  { label: course?.title || course?.Title || "Khóa học", path: `/teacher/course/${courseId}` },
+                  { label: lesson?.title || lesson?.Title || "Bài học", path: `/teacher/course/${courseId}/lesson/${lessonId}` },
+                  { label: assessment?.title || assessment?.Title || "Quản lý bài tập", path: ROUTE_PATHS.TEACHER_QUIZ_ESSAY_MANAGEMENT(courseId, lessonId, moduleId, assessmentId) },
+                  { label: "Quản lý Quiz", isCurrent: true }
+                ]}
+                showHomeIcon={true}
+              />
+            </div>
+            <div className="teacher-main-page-content">
+              <div className="text-center py-5">
+                <div className="spinner-border text-primary" role="status">
+                  <span className="visually-hidden">Đang tải...</span>
+                </div>
               </div>
             </div>
           </Container>
@@ -298,8 +312,22 @@ export default function TeacherQuizSectionManagement() {
       <>
         <TeacherHeader />
         <div className="teacher-quiz-section-management-container">
-          <Container>
-            <div className="alert alert-danger text-center">{error}</div>
+          <Container fluid className="p-0 content-wrapper">
+            <div className="mb-4">
+              <Breadcrumb
+                items={[
+                  { label: "Quản lý khóa học", path: ROUTE_PATHS.TEACHER_COURSE_MANAGEMENT },
+                  { label: course?.title || course?.Title || "Khóa học", path: `/teacher/course/${courseId}` },
+                  { label: lesson?.title || lesson?.Title || "Bài học", path: `/teacher/course/${courseId}/lesson/${lessonId}` },
+                  { label: assessment?.title || assessment?.Title || "Quản lý bài tập", path: ROUTE_PATHS.TEACHER_QUIZ_ESSAY_MANAGEMENT(courseId, lessonId, moduleId, assessmentId) },
+                  { label: "Quản lý Quiz", isCurrent: true }
+                ]}
+                showHomeIcon={true}
+              />
+            </div>
+            <div className="teacher-main-page-content">
+              <div className="alert alert-danger text-center">{error}</div>
+            </div>
           </Container>
         </div>
       </>
@@ -309,11 +337,11 @@ export default function TeacherQuizSectionManagement() {
   const quizTitle = quiz?.title || quiz?.Title || "Quiz";
 
   return (
-    <div className="teacher-quiz-section-management-container">
+    <>
       <TeacherHeader />
-      <div className="teacher-breadcrumb-section">
-        <Container fluid className="content-wrapper">
-          <div className="breadcrumb-section pt-0">
+      <div className="teacher-quiz-section-management-container">
+        <Container fluid className="p-0 content-wrapper">
+          <div className="mb-4">
             <Breadcrumb
               items={[
                 { label: "Quản lý khóa học", path: ROUTE_PATHS.TEACHER_COURSE_MANAGEMENT },
@@ -322,14 +350,12 @@ export default function TeacherQuizSectionManagement() {
                 { label: assessment?.title || assessment?.Title || "Quản lý bài tập", path: ROUTE_PATHS.TEACHER_QUIZ_ESSAY_MANAGEMENT(courseId, lessonId, moduleId, assessmentId) },
                 { label: "Quản lý Quiz", isCurrent: true }
               ]}
-              showHomeIcon={false}
-            />
-          </div>
-        </Container>
-      </div>
+              showHomeIcon={true}
+            className="breadcrumb-compact"
+          />
+        </div>
 
       <div className="teacher-main-page-content">
-        <Container fluid className="content-wrapper">
           <div className="quiz-management-card">
             <div className="quiz-header-section">
               <div className="header-info">
@@ -405,8 +431,8 @@ export default function TeacherQuizSectionManagement() {
               </div>
             )}
           </div>
-        </Container>
-      </div>
+        </div>
+      </Container>
 
       {/* Create Section Modal */}
       {quizId && (
@@ -560,7 +586,8 @@ export default function TeacherQuizSectionManagement() {
         autoClose={true}
         autoCloseDelay={1500}
       />
-    </div>
+      </div>
+    </>
   );
 }
 

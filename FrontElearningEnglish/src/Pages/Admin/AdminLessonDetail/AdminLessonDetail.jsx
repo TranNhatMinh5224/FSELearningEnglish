@@ -171,9 +171,6 @@ export default function AdminLessonDetail() {
     } else if (isFlashCard(contentTypeNum)) {
       navigate(`/admin/courses/${courseId}/lesson/${lessonId}/module/${moduleId}/flashcard/manage`);
     } else if (isAssessment(contentTypeNum)) {
-      // Update URL with moduleId for Assessment to support breadcrumbs and deep linking
-      navigate(`/admin/courses/${courseId}/lesson/${lessonId}?moduleId=${moduleId}`, { replace: true });
-      
       setSelectedModule(module);
       setLoadingContent(true);
       setContentError("");
@@ -228,13 +225,6 @@ export default function AdminLessonDetail() {
             handleModuleClick(targetModule);
           }
         }
-      }
-    } else {
-      // If NO moduleId in URL but state is set, user likely navigated back/clicked breadcrumb -> clear state
-      if (selectedModule) {
-        setSelectedModule(null);
-        setModuleContent([]);
-        setLoadingContent(false);
       }
     }
   }, [searchParams, modules, selectedModule, handleModuleClick, isAssessment]);
@@ -304,7 +294,19 @@ export default function AdminLessonDetail() {
                 items={[
                   { label: "Quản lý khóa học", path: ROUTE_PATHS.ADMIN.COURSES },
                   { label: course?.title || course?.Title || courseId, path: `/admin/courses/${courseId}` },
-                  { label: lessonTitle, path: selectedModule ? `/admin/courses/${courseId}/lesson/${lessonId}` : undefined, isCurrent: !selectedModule },
+                  {
+                    label: lessonTitle,
+                    path: !selectedModule ? undefined : `/admin/courses/${courseId}/lesson/${lessonId}`,
+                    onClick: selectedModule
+                      ? () => {
+                          setSelectedModule(null);
+                          setModuleContent([]);
+                          setLoadingContent(false);
+                          navigate(`/admin/courses/${courseId}/lesson/${lessonId}`, { replace: true });
+                        }
+                      : undefined,
+                    isCurrent: !selectedModule
+                  },
                   ...(selectedModule ? [{ label: selectedModule.name || selectedModule.Name || "Module", isCurrent: true }] : [])
                 ]}
                 showHomeIcon={false}
