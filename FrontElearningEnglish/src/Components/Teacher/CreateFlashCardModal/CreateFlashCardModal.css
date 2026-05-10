@@ -13,8 +13,8 @@
 }
 
 .create-flashcard-modal .modal-header {
-  background: #54BFCE;
-  padding: 24px 32px;
+  background: linear-gradient(135deg, #6d28d9 0%, #a855f7 60%, #54BFCE 100%);
+  padding: 22px 32px;
   border-bottom: none;
   display: flex;
   justify-content: center;
@@ -77,9 +77,74 @@
   font-size: 1.2rem;
 }
 
+/* === TOOLBAR: Tra Từ / AI Gen === */
+.flashcard-action-toolbar {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-bottom: 18px;
+}
+
+.fc-toolbar-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 8px 18px;
+  border-radius: 999px;
+  border: none;
+  font-weight: 600;
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: all 0.22s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  letter-spacing: 0.01em;
+}
+
+/* Tra từ — teal */
+.fc-lookup-btn {
+  background: linear-gradient(135deg, #e0f7f9 0%, #b2ebf2 100%);
+  color: #0891b2;
+  border: 1.5px solid #a5f3fc;
+}
+.fc-lookup-btn:hover {
+  background: linear-gradient(135deg, #0891b2 0%, #06b6d4 100%);
+  color: #fff;
+  border-color: transparent;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(8, 145, 178, 0.3);
+}
+
+/* AI Gen — purple gradient */
+.fc-aigen-btn {
+  background: linear-gradient(135deg, #6d28d9 0%, #a855f7 100%);
+  color: #fff;
+  border: 1.5px solid transparent;
+}
+.fc-aigen-btn:hover {
+  background: linear-gradient(135deg, #5b21b6 0%, #9333ea 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(109, 40, 217, 0.4);
+}
+
+/* === CARD HEADER ICON PILL === */
+.card-header-icon-wrap {
+  width: 32px;
+  height: 32px;
+  border-radius: 10px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  font-size: 1rem;
+}
+.icon-wrap-blue   { background: #eff6ff; color: #3b82f6; }
+.icon-wrap-green  { background: #f0fdf4; color: #10b981; }
+.icon-wrap-purple { background: #f5f3ff; color: #8b5cf6; }
+
 .icon-blue { color: #3b82f6; }
 .icon-green { color: #10b981; }
 .icon-purple { color: #8b5cf6; }
+
 
 /* Inputs & Labels */
 .premium-label {
@@ -289,19 +354,22 @@
 }
 
 .btn-primary-custom {
-  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+  background: linear-gradient(135deg, #6d28d9 0%, #a855f7 100%);
   border: none;
   font-weight: 700;
   padding: 14px 40px;
   border-radius: 16px;
   color: white;
   transition: all 0.3s;
-  box-shadow: 0 10px 20px rgba(37, 99, 235, 0.2);
+  box-shadow: 0 10px 20px rgba(109, 40, 217, 0.25);
+  display: inline-flex;
+  align-items: center;
 }
 
 .btn-primary-custom:hover:not(:disabled) {
   transform: translateY(-2px);
-  box-shadow: 0 15px 30px rgba(37, 99, 235, 0.3);
+  box-shadow: 0 15px 30px rgba(109, 40, 217, 0.4);
+  background: linear-gradient(135deg, #5b21b6 0%, #9333ea 100%);
 }
 
 /* Scrollbar Styling */

@@ -19,7 +19,7 @@ import NotificationModal from "../../../Components/Common/NotificationModal/Noti
 import ConfirmModal from "../../../Components/Common/ConfirmModal/ConfirmModal";
 import ActionButtons from "../../../Components/Common/ActionButtons";
 import { FaPlus, FaEdit } from "react-icons/fa";
-import { PiBookOpenFill, PiLayoutDuotone, PiCardsDuotone, PiExamDuotone, PiBookOpenDuotone } from "react-icons/pi";
+import { PiBookOpenFill, PiLayoutDuotone, PiCardsDuotone, PiExamDuotone, PiBookOpenDuotone, PiTrayDuotone } from "react-icons/pi";
 import ImageWithIconFallback from "../../../Components/Common/ImageWithIconFallback/ImageWithIconFallback";
 
 export default function AdminLessonDetail() {
@@ -98,11 +98,11 @@ export default function AdminLessonDetail() {
       if (response.data?.success && response.data?.data) {
         setLesson(response.data.data);
       } else {
-        setError("Không thể tải thông tin bài học");
+        setError("Không thể tải thông tin chương học");
       }
     } catch (err) {
       console.error("Error fetching lesson detail:", err);
-      setError("Không thể tải thông tin bài học");
+      setError("Không thể tải thông tin chương học");
     } finally {
       setLoading(false);
     }
@@ -267,7 +267,7 @@ export default function AdminLessonDetail() {
   if (loading) {
     return (
       <div className="admin-lesson-detail-container">
-        <div className="loading-message">Đang tải thông tin bài học...</div>
+        <div className="loading-message">Đang tải thông tin chương học...</div>
       </div>
     );
   }
@@ -275,12 +275,12 @@ export default function AdminLessonDetail() {
   if (error || !lesson) {
     return (
       <div className="admin-lesson-detail-container">
-        <div className="error-message">{error || "Không tìm thấy bài học"}</div>
+        <div className="error-message">{error || "Không tìm thấy chương học"}</div>
       </div>
     );
   }
 
-  const lessonTitle = lesson.title || lesson.Title || "Bài học";
+  const lessonTitle = lesson.title || lesson.Title || "Chương học";
   const lessonDescription = lesson.description || lesson.Description || "";
   const lessonImage = lesson.imageUrl || lesson.ImageUrl || getDefaultLessonImage();
 
@@ -307,7 +307,7 @@ export default function AdminLessonDetail() {
                       : undefined,
                     isCurrent: !selectedModule
                   },
-                  ...(selectedModule ? [{ label: selectedModule.name || selectedModule.Name || "Module", isCurrent: true }] : [])
+                  ...(selectedModule ? [{ label: selectedModule.name || selectedModule.Name || "Bài học", isCurrent: true }] : [])
                 ]}
                 showHomeIcon={false}
               />
@@ -337,7 +337,7 @@ export default function AdminLessonDetail() {
                     onClick={() => setShowUpdateModal(true)}
                   >
                     <FaEdit className="btn-icon" />
-                    Cập nhật Bài học
+                    Cập nhật Chương học
                   </button>
                 </div>
               </div>
@@ -350,7 +350,7 @@ export default function AdminLessonDetail() {
                 <div className="modules-section">
                   <div className="module-content-header">
                     <h3 className="module-content-title">
-                      {selectedModule.name || selectedModule.Name || "Module"}
+                      {selectedModule.name || selectedModule.Name || "Bài học"}
                     </h3>
                   </div>
 
@@ -473,9 +473,9 @@ export default function AdminLessonDetail() {
                               } else if (isFlashCard(contentTypeNum)) {
                                 return "Chưa có flashcard nào trong module này";
                               } else if (isAssessment(contentTypeNum)) {
-                                return "Chưa có assessment nào trong module này";
+                                return "Chưa có assessment nào trong bài học này";
                               }
-                              return "Chưa có nội dung nào trong module này";
+                              return "Chưa có nội dung nào trong bài học này";
                             })()}
                           </div>
                         )}
@@ -533,7 +533,7 @@ export default function AdminLessonDetail() {
                 // Modules List View
                 <div className="modules-section">
                   <div className="modules-header">
-                    <h3>Danh sách Module</h3>
+                    <h3>Danh sách Bài học</h3>
                   </div>
                   <div className="modules-list">
                   {modules.length > 0 ? (
@@ -617,8 +617,8 @@ export default function AdminLessonDetail() {
                                 e.stopPropagation();
                                 handleDeleteModuleClick(module);
                               }}
-                              updateTitle="Cập nhật module"
-                              deleteTitle="Xóa module"
+                              updateTitle="Cập nhật bài học"
+                              deleteTitle="Xóa bài học"
                               updateText={loadingModuleDetail ? "Đang tải..." : "Cập nhật"}
                               updateDisabled={loadingModuleDetail}
                             />
@@ -627,7 +627,13 @@ export default function AdminLessonDetail() {
                       );
                     })
                   ) : (
-                    <div className="no-modules-message">Chưa có module nào</div>
+                    <div className="no-modules-message">
+                      <div className="empty-icon-wrapper">
+                        <PiTrayDuotone />
+                      </div>
+                      <h4>Chưa có bài học nào</h4>
+                      <p>Chương học này chưa có nội dung bài học. Vui lòng khởi tạo các bài học liên quan.</p>
+                    </div>
                   )}
                   </div>
 
@@ -636,7 +642,7 @@ export default function AdminLessonDetail() {
                     onClick={() => setShowCreateModuleModal(true)}
                   >
                     <FaPlus className="add-icon" />
-                    Thêm Module
+                    Thêm Bài học
                   </button>
                 </div>
               )}
@@ -663,8 +669,8 @@ export default function AdminLessonDetail() {
       <SuccessModal
         isOpen={showSuccessModal}
         onClose={() => setShowSuccessModal(false)}
-        title="Cập nhật bài học thành công"
-        message="Bài học của bạn đã được cập nhật thành công!"
+        title="Cập nhật chương học thành công"
+        message="Chương học của bạn đã được cập nhật thành công!"
         autoClose={true}
         autoCloseDelay={1500}
       />
@@ -701,8 +707,8 @@ export default function AdminLessonDetail() {
       <SuccessModal
         isOpen={showUpdateModuleSuccessModal}
         onClose={() => setShowUpdateModuleSuccessModal(false)}
-        title="Cập nhật module thành công"
-        message="Module của bạn đã được cập nhật thành công!"
+        title="Cập nhật bài học thành công"
+        message="Bài học của bạn đã được cập nhật thành công!"
         autoClose={true}
         autoCloseDelay={1500}
       />
@@ -773,8 +779,8 @@ export default function AdminLessonDetail() {
       <SuccessModal
         isOpen={showModuleSuccessModal}
         onClose={() => setShowModuleSuccessModal(false)}
-        title="Thêm module thành công"
-        message="Module của bạn đã được thêm thành công!"
+        title="Thêm bài học thành công"
+        message="Bài học của bạn đã được thêm thành công!"
         autoClose={true}
         autoCloseDelay={1500}
       />
@@ -787,8 +793,8 @@ export default function AdminLessonDetail() {
           setModuleToDelete(null);
         }}
         onConfirm={confirmDeleteModule}
-        title="Xác nhận xóa module"
-        message="Bạn có chắc chắn muốn xóa module này không?"
+        title="Xác nhận xóa bài học"
+        message="Bạn có chắc chắn muốn xóa bài học này không?"
         itemName={moduleToDelete ? (moduleToDelete.name || moduleToDelete.Name) : ""}
         type="delete"
         confirmText="Xác nhận xóa"

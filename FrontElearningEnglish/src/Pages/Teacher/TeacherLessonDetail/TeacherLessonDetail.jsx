@@ -21,7 +21,7 @@ import ActionButtons from "../../../Components/Common/ActionButtons";
 import { FaPlus, FaEdit } from "react-icons/fa";
 import ImageWithIconFallback from "../../../Components/Common/ImageWithIconFallback/ImageWithIconFallback";
 import { ROUTE_PATHS } from "../../../Routes/Paths";
-import { PiBookOpenDuotone, PiLayoutDuotone, PiCardsDuotone, PiExamDuotone } from "react-icons/pi";
+import { PiBookOpenDuotone, PiLayoutDuotone, PiCardsDuotone, PiExamDuotone, PiTrayDuotone } from "react-icons/pi";
 
 export default function TeacherLessonDetail() {
   const { courseId, lessonId } = useParams();
@@ -106,11 +106,11 @@ export default function TeacherLessonDetail() {
       if (response.data?.success && response.data?.data) {
         setLesson(response.data.data);
       } else {
-        setError("Không thể tải thông tin bài học");
+        setError("Không thể tải thông tin chương học");
       }
     } catch (err) {
       console.error("Error fetching lesson detail:", err);
-      setError("Không thể tải thông tin bài học");
+      setError("Không thể tải thông tin chương học");
     } finally {
       setLoading(false);
     }
@@ -319,7 +319,7 @@ export default function TeacherLessonDetail() {
               />
             </div>
             <div className="teacher-main-page-content">
-              <div className="loading-message">Đang tải thông tin bài học...</div>
+              <div className="loading-message">Đang tải thông tin chương học...</div>
             </div>
           </Container>
         </div>
@@ -344,7 +344,7 @@ export default function TeacherLessonDetail() {
               />
             </div>
             <div className="teacher-main-page-content">
-              <div className="error-message">{error || "Không tìm thấy bài học"}</div>
+              <div className="error-message">{error || "Không tìm thấy chương học"}</div>
             </div>
           </Container>
         </div>
@@ -408,7 +408,7 @@ export default function TeacherLessonDetail() {
                     onClick={() => setShowUpdateModal(true)}
                   >
                     <FaEdit className="btn-icon" />
-                    Cập nhật bài học
+                    Cập nhật chương học
                   </button>
                 </div>
               </div>
@@ -421,7 +421,7 @@ export default function TeacherLessonDetail() {
                 <div className="modules-section">
                   <div className="module-content-header">
                     <h3 className="module-content-title">
-                      {selectedModule.name || selectedModule.Name || "Module"}
+                      {selectedModule.name || selectedModule.Name || "Bài học"}
                     </h3>
                   </div>
 
@@ -528,7 +528,7 @@ export default function TeacherLessonDetail() {
                           })
                         ) : (
                           <div className="no-content-message">
-                            Chưa có assessment nào trong module này
+                            Chưa có assessment nào trong bài học này
                           </div>
                         )}
                       </div>
@@ -555,13 +555,13 @@ export default function TeacherLessonDetail() {
                 // Modules List View
                 <div className="modules-section">
                   <div className="modules-header">
-                    <h3>Danh sách module</h3>
+                    <h3>Danh sách bài học</h3>
                   </div>
                   <div className="modules-list">
                     {modules.length > 0 ? (
                       modules.map((module, index) => {
                         const moduleId = module.moduleId || module.ModuleId;
-                        const moduleName = module.name || module.Name || `Module ${index + 1}`;
+                        const moduleName = module.name || module.Name || `Bài học ${index + 1}`;
 
                         const contentTypeValue = module.contentType || module.ContentType;
                         const contentTypeName = module.contentTypeName || module.ContentTypeName;
@@ -633,8 +633,8 @@ export default function TeacherLessonDetail() {
                                   e.stopPropagation();
                                   handleDeleteModuleClick(module);
                                 }}
-                                updateTitle="Cập nhật module"
-                                deleteTitle="Xóa module"
+                                updateTitle="Cập nhật bài học"
+                                deleteTitle="Xóa bài học"
                                 updateText={loadingModuleDetail ? "Đang tải..." : "Cập nhật"}
                                 updateDisabled={loadingModuleDetail}
                               />
@@ -643,10 +643,14 @@ export default function TeacherLessonDetail() {
                         );
                       })
                     ) : (
-                      <div className="no-modules-message">
-                        <p>Chưa có module nào cho bài học này</p>
-                      </div>
-                    )}
+                  <div className="no-modules-message">
+                    <div className="empty-icon-wrapper">
+                      <PiTrayDuotone />
+                    </div>
+                    <h4>Chưa có bài học nào</h4>
+                    <p>Chương học này hiện đang trống. Hãy thêm các bài học mới để bắt đầu giảng dạy.</p>
+                  </div>
+                )}
                   </div>
 
                   <button
@@ -654,7 +658,7 @@ export default function TeacherLessonDetail() {
                     onClick={() => setShowCreateModuleModal(true)}
                   >
                     <FaPlus className="add-icon" />
-                    Thêm module
+                    Thêm bài học
                   </button>
 
                 </div>
@@ -728,7 +732,7 @@ export default function TeacherLessonDetail() {
         isOpen={showSuccessModal}
         onClose={() => setShowSuccessModal(false)}
         title="Thành công"
-        message="Đã cập nhật bài học thành công!"
+        message="Đã cập nhật chương học thành công!"
         autoClose={true}
         autoCloseDelay={2000}
       />
@@ -737,7 +741,7 @@ export default function TeacherLessonDetail() {
         isOpen={showModuleSuccessModal}
         onClose={() => setShowModuleSuccessModal(false)}
         title="Thành công"
-        message="Đã tạo module mới thành công!"
+        message="Đã tạo bài học mới thành công!"
         autoClose={true}
         autoCloseDelay={2000}
       />
@@ -746,7 +750,7 @@ export default function TeacherLessonDetail() {
         isOpen={showUpdateModuleSuccessModal}
         onClose={() => setShowUpdateModuleSuccessModal(false)}
         title="Thành công"
-        message="Đã cập nhật module thành công!"
+        message="Đã cập nhật bài học thành công!"
         autoClose={true}
         autoCloseDelay={2000}
       />
@@ -773,7 +777,7 @@ export default function TeacherLessonDetail() {
         isOpen={showDeleteModuleSuccessModal}
         onClose={() => setShowDeleteModuleSuccessModal(false)}
         title="Thành công"
-        message="Đã xóa module thành công!"
+        message="Đã xóa bài học thành công!"
         autoClose={true}
         autoCloseDelay={2000}
       />
@@ -785,8 +789,8 @@ export default function TeacherLessonDetail() {
           setModuleToDelete(null);
         }}
         onConfirm={confirmDeleteModule}
-        title="Xác nhận xóa module"
-        message="Bạn có chắc chắn muốn xóa module này không? Tất cả nội dung bên trong sẽ bị xóa vĩnh viễn."
+        title="Xác nhận xóa bài học"
+        message="Bạn có chắc chắn muốn xóa bài học này không? Tất cả nội dung bên trong sẽ bị xóa vĩnh viễn."
         itemName={moduleToDelete ? (moduleToDelete.name || moduleToDelete.Name) : ""}
         type="delete"
         confirmText="Xác nhận xóa"

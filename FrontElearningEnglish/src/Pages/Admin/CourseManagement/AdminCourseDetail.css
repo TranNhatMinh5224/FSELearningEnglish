@@ -305,6 +305,71 @@
   color: #718096;
 }
 
+.no-lessons-message {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 4rem 2rem;
+  background: #f8fafc;
+  border: 2px dashed #e2e8f0;
+  border-radius: 20px;
+  text-align: center;
+  margin: 1.5rem 0;
+}
+
+.empty-icon-wrapper {
+  background: white;
+  width: 80px;
+  height: 80px;
+  border-radius: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 1.5rem;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+  color: #94a3b8;
+  font-size: 2.5rem;
+}
+
+.no-lessons-message h4 {
+  font-weight: 700;
+  color: #1e293b;
+  margin-bottom: 0.5rem;
+}
+
+.no-lessons-message p {
+  color: #64748b;
+  font-size: 0.95rem;
+  max-width: 320px;
+  margin: 0 auto;
+}
+
+.add-lesson-btn-main {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 1rem 1.5rem;
+  background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
+  border: none;
+  border-radius: 12px;
+  color: white;
+  font-weight: 700;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  margin-top: 1.5rem;
+  box-shadow: 0 4px 15px rgba(59, 130, 246, 0.2);
+}
+
+.add-lesson-btn-main:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 10px 25px rgba(139, 92, 246, 0.4);
+  filter: brightness(1.1);
+}
+
 .lesson-actions {
   display: flex;
   align-items: center;
@@ -318,32 +383,25 @@
   justify-content: center;
   gap: 0.5rem;
   padding: 1rem 1.5rem;
-  background: #74CEDE;
+  background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
   border: none;
-  border-radius: 8px;
+  border-radius: 12px;
   color: white;
   font-weight: 600;
   font-size: 1rem;
   cursor: pointer;
   transition: all 0.3s ease;
   margin-top: 1.5rem;
+  box-shadow: 0 4px 15px rgba(59, 130, 246, 0.2);
 }
 
 .add-lesson-btn:hover {
-  background: #5BB8C8;
-  transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(116, 206, 222, 0.4);
+  background: linear-gradient(135deg, #2563eb 0%, #7c3aed 100%);
+  box-shadow: 0 6px 20px rgba(59, 130, 246, 0.3);
 }
 
 .add-lesson-btn .add-icon {
   font-size: 0.85rem;
-}
-
-.no-lessons-message {
-  text-align: center;
-  padding: 3rem 1rem;
-  color: #a0aec0;
-  font-size: 1.1rem;
 }
 
 .loading-message,

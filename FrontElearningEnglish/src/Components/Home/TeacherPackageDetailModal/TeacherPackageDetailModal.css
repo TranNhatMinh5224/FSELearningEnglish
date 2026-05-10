@@ -23,12 +23,23 @@
     background: linear-gradient(135deg, var(--color-secondary-cyan, #41d6e3) 0%, var(--color-secondary-pink, #d946ef) 100%);
     color: white;
     border-bottom: none;
-    padding: 1.5rem;
+    padding: 1.5rem 1.75rem;
+    /* Căn giữa nội dung header */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
 }
 
+/* Nút đóng nằm ở góc phải - giữ nguyên vị trí Bootstrap mặc định */
 .teacher-package-detail-modal .modal-header .btn-close {
     filter: brightness(0) invert(1);
     opacity: 0.9;
+    position: absolute;
+    right: 1.25rem;
+    top: 50%;
+    transform: translateY(-50%);
+    margin: 0;
 }
 
 .teacher-package-detail-modal .modal-header .btn-close:hover {
@@ -37,7 +48,12 @@
 
 .teacher-package-detail-modal .modal-title {
     font-weight: 700;
-    font-size: 1.5rem;
+    font-size: 1.4rem;
+    letter-spacing: 0.01em;
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    text-align: center;
 }
 
 .teacher-package-detail-modal .modal-body {
@@ -53,17 +69,24 @@
 
 .package-header {
     display: flex;
-    justify-content: space-between;
+    flex-direction: column;
+    justify-content: center;
     align-items: center;
+    gap: 0.75rem;
     padding-bottom: 1rem;
     border-bottom: 2px solid var(--color-border-light, #e5e7eb);
+    text-align: center;
 }
 
 .package-name {
     font-size: 1.75rem;
     font-weight: 800;
-    color: var(--color-text-primary, #1f2937);
     margin: 0;
+    /* Gradient text đồng bộ theme cyan → pink */
+    background: linear-gradient(135deg, var(--color-secondary-cyan, #41d6e3) 0%, var(--color-secondary-pink, #d946ef) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
 }
 
 .package-level {
@@ -236,8 +259,7 @@
     }
 
     .package-header {
-        flex-direction: column;
-        align-items: flex-start;
+        align-items: center;
         gap: 0.75rem;
     }
 }

@@ -15,7 +15,7 @@ import ConfirmModal from "../../../Components/Common/ConfirmModal/ConfirmModal";
 import CourseDescription from "../../../Components/Courses/CourseDescription/CourseDescription";
 import AdminLessonCard from "../../../Components/Admin/CourseManagement/AdminLessonCard/AdminLessonCard";
 import { FaPlus, FaEdit, FaUsers } from "react-icons/fa";
-import { PiGraduationCapDuotone } from "react-icons/pi";
+import { PiGraduationCapDuotone, PiBookOpenDuotone } from "react-icons/pi";
 import ImageWithIconFallback from "../../../Components/Common/ImageWithIconFallback/ImageWithIconFallback";
 
 export default function AdminCourseDetail() {
@@ -108,7 +108,7 @@ export default function AdminCourseDetail() {
   };
 
   const handleCreateLessonSuccess = () => {
-    setSuccessMessage("Thêm bài học thành công!");
+    setSuccessMessage("Thêm chương học thành công!");
     setShowSuccessModal(true);
     fetchLessons();
     fetchCourseDetail();
@@ -140,14 +140,14 @@ export default function AdminCourseDetail() {
 
       if (response.status === 204 || response.data?.success) {
         setShowDeleteModal(false);
-        setSuccessMessage("Đã xóa bài học thành công!");
+        setSuccessMessage("Đã xóa chương học thành công!");
         setShowSuccessModal(true);
         fetchLessons();
         fetchCourseDetail();
       }
     } catch (err) {
       console.error("Error deleting lesson:", err);
-      setNotification({ isOpen: true, type: "error", message: "Không thể xóa bài học. Vui lòng thử lại." });
+      setNotification({ isOpen: true, type: "error", message: "Không thể xóa chương học. Vui lòng thử lại." });
     } finally {
       setDeletingLesson(false);
       setLessonToDelete(null);
@@ -226,7 +226,7 @@ export default function AdminCourseDetail() {
                   </div>
 
                   <div className="course-detail-item">
-                    <label>Bài học:</label>
+                    <label>Chương học:</label>
                     <span className="course-stat-value">{totalLessons}</span>
                   </div>
 
@@ -259,7 +259,7 @@ export default function AdminCourseDetail() {
           <Col md={8} className="lessons-column">
             <div className="lessons-section">
               <div className="lessons-header">
-                <h3>Danh sách bài học</h3>
+                <h3>Danh sách chương học</h3>
               </div>
 
               {lessons.length > 0 ? (
@@ -277,7 +277,11 @@ export default function AdminCourseDetail() {
                 </div>
               ) : (
                 <div className="no-lessons-message">
-                  <p>Chưa có bài học nào</p>
+                  <div className="empty-icon-wrapper">
+                    <PiBookOpenDuotone />
+                  </div>
+                  <h4>Chưa có chương học nào</h4>
+                  <p>Hệ thống chưa ghi nhận chương học nào cho khóa học này. Hãy khởi tạo nội dung ngay.</p>
                 </div>
               )}
 
@@ -289,7 +293,7 @@ export default function AdminCourseDetail() {
                 }}
               >
                 <FaPlus className="add-icon" />
-                Thêm Lesson
+                Thêm chương học
               </button>
             </div>
           </Col>
@@ -345,8 +349,8 @@ export default function AdminCourseDetail() {
           setLessonToDelete(null);
         }}
         onConfirm={confirmDeleteLesson}
-        title="Xác nhận xóa bài học"
-        message="Bạn có chắc chắn muốn xóa bài học này không?"
+        title="Xác nhận xóa chương học"
+        message="Bạn có chắc chắn muốn xóa chương học này không?"
         itemName={lessonToDelete ? (lessonToDelete.title || lessonToDelete.Title) : ""}
         type="delete"
         confirmText="Xác nhận xóa"

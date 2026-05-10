@@ -301,7 +301,7 @@ export default function TeacherCourseDetail() {
                     <div className="course-detail-item">
                       <div className="detail-label-group">
                         <PiBookOpenDuotone className="detail-icon" />
-                        <label>Bài học:</label>
+                        <label>Chương học:</label>
                       </div>
                       <span className="course-stat-value">{totalLessons}</span>
                     </div>
@@ -338,7 +338,7 @@ export default function TeacherCourseDetail() {
             <Col md={8} className="lessons-column">
               <div className="lessons-section">
                 <div className="lessons-header">
-                  <h3>Danh sách bài học</h3>
+                  <h3>Danh sách chương học</h3>
                 </div>
 
                 {lessons.length > 0 ? (
@@ -356,7 +356,11 @@ export default function TeacherCourseDetail() {
                   </div>
                 ) : (
                   <div className="no-lessons-message">
-                    <p>Chưa có bài học nào</p>
+                    <div className="empty-icon-wrapper">
+                      <PiBookOpenDuotone />
+                    </div>
+                    <h4>Chưa có chương học nào</h4>
+                    <p>Bắt đầu xây dựng lộ trình học tập bằng cách thêm chương học đầu tiên của bạn.</p>
                   </div>
                 )}
 
@@ -368,7 +372,7 @@ export default function TeacherCourseDetail() {
                   }}
                 >
                   <FaPlus className="add-icon" />
-                  Thêm bài học
+                  Thêm chương học
                 </button>
               </div>
             </Col>
@@ -422,8 +426,8 @@ export default function TeacherCourseDetail() {
       <SuccessModal
         isOpen={showLessonSuccessModal}
         onClose={() => setShowLessonSuccessModal(false)}
-        title="Thêm bài học thành công"
-        message="Bài học của bạn đã được thêm thành công!"
+        title="Thêm chương học thành công"
+        message="Chương học của bạn đã được thêm thành công!"
         autoClose={true}
         autoCloseDelay={1500}
       />
@@ -447,8 +451,8 @@ export default function TeacherCourseDetail() {
           setLessonToDelete(null);
         }}
         onConfirm={confirmDeleteLesson}
-        title="Xác nhận xóa bài học"
-        message="Bạn có chắc chắn muốn xóa bài học này không?"
+        title="Xác nhận xóa chương học"
+        message="Bạn có chắc chắn muốn xóa chương học này không?"
         itemName={lessonToDelete ? (lessonToDelete.title || lessonToDelete.Title) : ""}
         type="delete"
         confirmText="Xác nhận xóa"
@@ -459,8 +463,8 @@ export default function TeacherCourseDetail() {
       <SuccessModal
         isOpen={showDeleteSuccessModal}
         onClose={() => setShowDeleteSuccessModal(false)}
-        title="Xóa bài học thành công"
-        message="Bài học đã được xóa thành công!"
+        title="Xóa chương học thành công"
+        message="Chương học đã được xóa thành công!"
         autoClose={true}
         autoCloseDelay={1500}
       />
