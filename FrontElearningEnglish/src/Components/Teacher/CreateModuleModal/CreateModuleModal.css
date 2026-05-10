@@ -81,7 +81,7 @@
   content: "";
   width: 4px;
   height: 16px;
-  background: #74CEDE;
+  background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
   border-radius: 2px;
 }
 
@@ -103,8 +103,8 @@
 
 .create-module-modal .form-control:focus,
 .create-module-modal .form-select:focus {
-  border-color: #74CEDE;
-  box-shadow: 0 0 0 4px rgba(116, 206, 222, 0.1);
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
   outline: none;
 }
 

@@ -1,6 +1,7 @@
 import React from "react";
 import { Modal, Button, Badge, Row, Col } from "react-bootstrap";
 import { MdEmail, MdPhone, MdPerson, MdVerifiedUser, MdAdminPanelSettings } from "react-icons/md";
+import { PiUserFocusDuotone } from "react-icons/pi";
 import PremiumCloseButton from "../../Common/PremiumCloseButton/PremiumCloseButton";
 import "./AdminDetailModal.css";
 
@@ -26,8 +27,11 @@ export default function AdminDetailModal({ show, onClose, admin }) {
 
   return (
     <Modal show={show} onHide={onClose} size="lg" centered className="modal-modern">
-      <Modal.Header closeButton={false}>
-        <Modal.Title className="fw-bold modal-title-centered">Chi tiết Admin</Modal.Title>
+      <Modal.Header closeButton={false} className="px-4 py-3">
+        <Modal.Title className="fw-bold modal-title-centered text-white d-flex align-items-center gap-3">
+          <PiUserFocusDuotone size={32} />
+          <span>Chi tiết Admin</span>
+        </Modal.Title>
         <PremiumCloseButton onClick={onClose} />
       </Modal.Header>
       <Modal.Body className="admin-modal-body p-4">
@@ -127,7 +131,7 @@ export default function AdminDetailModal({ show, onClose, admin }) {
         </div>
       </Modal.Body>
       <Modal.Footer className="admin-modal-footer">
-        <button className="btn btn-secondary px-4" onClick={onClose}>
+        <button className="btn btn-secondary px-4 rounded-pill" onClick={onClose}>
           Đóng
         </button>
       </Modal.Footer>

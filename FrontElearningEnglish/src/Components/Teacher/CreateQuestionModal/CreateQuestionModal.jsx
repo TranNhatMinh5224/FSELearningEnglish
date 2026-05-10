@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { Modal, Tab, Tabs } from "react-bootstrap";
 import { FaLayerGroup, FaQuestionCircle } from "react-icons/fa";
+import { PiInfoDuotone, PiQuestionDuotone } from "react-icons/pi";
 
 import { quizService } from "../../../Services/quizService";
 import { questionService } from "../../../Services/questionService";
@@ -196,14 +197,25 @@ export default function CreateQuestionModal({
 
   return (
     <>
-      <Modal show={show} onHide={handleClose} centered className="modal-modern" dialogClassName="create-question-modal-xl">
+      <Modal show={show} onHide={handleClose} centered className={`create-question-modal modal-modern ${isAdmin ? "admin-modal" : "teacher-modal"}`} dialogClassName="create-question-modal-xl">
         <Modal.Header closeButton={false}>
-          <Modal.Title className="fw-bold">{questionToUpdate ? "Cập nhật câu hỏi" : "Thêm câu hỏi mới"}</Modal.Title>
+          <Modal.Title className="fw-bold modal-title-custom">
+            <PiQuestionDuotone className="me-2 title-icon" />
+            {questionToUpdate ? "Cập nhật câu hỏi" : "Thêm câu hỏi mới"}
+          </Modal.Title>
           <PremiumCloseButton onClick={handleClose} />
         </Modal.Header>
         <Modal.Body className="p-0">
+          {sectionInfo && (
+            <div className="section-info-banner">
+              <div className="banner-content">
+                <PiInfoDuotone className="banner-icon" />
+                <span>Thêm câu hỏi lẻ vào Section: <strong>{sectionInfo.title}</strong></span>
+              </div>
+            </div>
+          )}
           <Tabs activeKey={activeTab} onSelect={(k) => setActiveTab(k)} className="px-3 pt-2 border-bottom-0 custom-tabs">
-            <Tab eventKey="question" title={<span><FaQuestionCircle className="me-2" />Câu hỏi</span>}>
+            <Tab eventKey="question" title={<span><FaQuestionCircle className="me-2 tab-icon-question" />Câu hỏi</span>}>
               <QuestionTab 
                 {...qForm}
                 qLoading={qLoading}
@@ -249,7 +261,7 @@ export default function CreateQuestionModal({
               />
             </Tab>
             {sectionId && !groupId && !questionToUpdate && (
-              <Tab eventKey="group" title={<span><FaLayerGroup className="me-2" />Tạo nhóm câu hỏi</span>}>
+              <Tab eventKey="group" title={<span><FaLayerGroup className="me-2 tab-icon-group" />Tạo nhóm câu hỏi</span>}>
                 <GroupTab 
                   {...groupForm}
                   handleClose={handleClose}

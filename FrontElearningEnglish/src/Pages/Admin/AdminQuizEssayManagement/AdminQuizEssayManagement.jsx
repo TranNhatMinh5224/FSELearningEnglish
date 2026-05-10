@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { Container, Row, Col } from "react-bootstrap";
 import { FaEdit, FaTrash, FaList, FaPlus } from "react-icons/fa";
+import { PiExamDuotone, PiFilesDuotone } from "react-icons/pi";
 import { useAuth } from "../../../Context/AuthContext";
 import Breadcrumb from "../../../Components/Common/Breadcrumb/Breadcrumb";
 import { assessmentService } from "../../../Services/assessmentService";
@@ -240,7 +241,7 @@ export default function AdminQuizEssayManagement() {
             <>
               <div className="mb-4 question-header-section mt-0">
                 <div className="text-center mb-4">
-                  <h1 className="mb-2 fw-bold premium-gradient-text">Quản lý nội dung bài kiểm tra</h1>
+                  <h1 className="mb-2 fw-bold premium-gradient-text">Xây dựng bài tập</h1>
                   {assessment && (
                     <div className="assessment-context-info">
                       <h4 className="text-primary mb-2">{assessment.title || assessment.Title}</h4>
@@ -277,13 +278,13 @@ export default function AdminQuizEssayManagement() {
                   className="btn create-quiz-button"
                   onClick={() => setShowCreateQuizModal(true)}
                 >
-                  <FaPlus /> Tạo Quiz mới
+                  <FaPlus /> Xây dựng Quiz
                 </button>
                 <button
                   className="btn create-essay-button"
                   onClick={() => setShowCreateEssayModal(true)}
                 >
-                  <FaPlus /> Tạo Essay mới
+                  <FaPlus /> Xây dựng Essay
                 </button>
               </div>
 
@@ -344,7 +345,13 @@ export default function AdminQuizEssayManagement() {
                           );
                         })
                       ) : (
-                        <div className="text-center text-muted py-5">Chưa có Quiz nào</div>
+                        <div className="no-items-message-small">
+                          <div className="empty-icon-wrapper-small">
+                            <PiExamDuotone />
+                          </div>
+                          <p className="mb-0 fw-bold">Chưa có Quiz nào</p>
+                          <p className="small text-muted mb-0">Tạo quiz trắc nghiệm để kiểm tra kiến thức.</p>
+                        </div>
                       )}
                     </div>
                   </div>
@@ -377,7 +384,9 @@ export default function AdminQuizEssayManagement() {
                                 <div className="card-meta-container">
                                   <div className="card-meta-row status-row">
                                     <strong>Trạng thái:</strong>
-                                    <span className="status-pill status-active">Hoạt động</span>
+                                    <span className={`status-pill status-${(essay.status || essay.Status || assessment?.status || assessment?.Status || "Open").toLowerCase()}`}>
+                                      {essay.status || essay.Status || assessment?.status || assessment?.Status || "Open"}
+                                    </span>
                                   </div>
                                 </div>
                               </div>
@@ -401,7 +410,13 @@ export default function AdminQuizEssayManagement() {
                           );
                         })
                       ) : (
-                        <div className="text-center text-muted py-5">Chưa có Essay nào</div>
+                        <div className="no-items-message-small">
+                          <div className="empty-icon-wrapper-small">
+                            <PiFilesDuotone />
+                          </div>
+                          <p className="mb-0 fw-bold">Chưa có Essay nào</p>
+                          <p className="small text-muted mb-0">Tạo bài tự luận để học viên luyện viết.</p>
+                        </div>
                       )}
                     </div>
                   </div>

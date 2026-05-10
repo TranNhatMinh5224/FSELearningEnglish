@@ -6,6 +6,9 @@
     font-size: 16px;
     line-height: 1.8;
     color: var(--color-text-primary, #1f2937);
+    overflow-wrap: break-word;
+    word-wrap: break-word;
+    word-break: break-word;
 }
 
 .course-description-empty {

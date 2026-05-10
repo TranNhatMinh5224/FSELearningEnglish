@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { Container, Button, Card, Row, Col } from "react-bootstrap";
 import { FaPlus, FaEdit, FaTrash, FaVolumeUp } from "react-icons/fa";
+import { PiCardsDuotone } from "react-icons/pi";
 import { useAuth } from "../../../Context/AuthContext";
 import Breadcrumb from "../../../Components/Common/Breadcrumb/Breadcrumb";
 import { adminService } from "../../../Services/adminService";
@@ -155,12 +156,25 @@ export default function AdminModuleFlashCardDetail() {
         </div>
 
         {loading ? (
-           <div className="text-center py-5"><div className="spinner-border text-primary"></div></div>
+          <div className="text-center py-5">
+            <div className="spinner-border text-primary" role="status">
+              <span className="visually-hidden">Đang tải...</span>
+            </div>
+          </div>
         ) : flashcards.length === 0 ? (
-           <div className="text-center py-5 bg-light rounded text-muted">
-               <p>Chưa có từ vựng nào trong bộ này.</p>
-               <Button variant="primary" onClick={() => { setFlashcardToUpdate(null); setShowCreateModal(true); }}>Tạo từ vựng đầu tiên</Button>
-           </div>
+          <div className="no-flashcards-message">
+            <div className="empty-icon-wrapper">
+              <PiCardsDuotone />
+            </div>
+            <h4>Chưa có Flashcard nào</h4>
+            <p>Bộ từ vựng này hiện đang trống. Hãy thêm các thẻ từ vựng mới để hoàn thiện nội dung giảng dạy.</p>
+            <Button 
+              className="btn-primary-custom px-4" 
+              onClick={() => { setFlashcardToUpdate(null); setShowCreateModal(true); }}
+            >
+              Tạo từ vựng đầu tiên
+            </Button>
+          </div>
         ) : (
            <Row xs={1} md={2} lg={3} className="g-4">
                {flashcards.map((card, idx) => (

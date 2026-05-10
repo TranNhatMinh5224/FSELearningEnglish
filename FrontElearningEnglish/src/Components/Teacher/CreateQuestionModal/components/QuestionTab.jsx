@@ -114,7 +114,7 @@ const QuestionTab = ({
           </div>
         ) : (
           sectionInfo && <div className="alert alert-light py-2 small border shadow-sm">
-            <FaQuestionCircle className="me-2 text-primary" />
+            <FaQuestionCircle className="me-2 icon-accent" />
             Thêm câu hỏi lẻ vào Section: <strong>{sectionInfo.title}</strong>
           </div>
         )}
@@ -171,7 +171,7 @@ const QuestionTab = ({
         <Button variant="link" className="text-muted text-decoration-none fw-bold" onClick={handleClose} disabled={qLoading || bulkQuestionsProps.bulkLoading}>Hủy bỏ</Button>
         {!questionToUpdate && (
           <Button
-            variant="outline-success"
+            className="btn-secondary-custom"
             onClick={() => handleQuestionSubmit(true)}
             disabled={qLoading || qUploadingMedia || bulkQuestionsProps.bulkLoading}
           >

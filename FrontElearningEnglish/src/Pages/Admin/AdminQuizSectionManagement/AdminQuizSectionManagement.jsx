@@ -145,113 +145,113 @@ export default function AdminQuizSectionManagement() {
   return (
     <>
       <div className="admin-quiz-section-management-container">
-      <div className="admin-breadcrumb-wrapper">
-        <Container fluid>
-          <div className="breadcrumb-section pt-0">
-            <Breadcrumb
-              items={[
-                { label: "Quản lý khóa học", path: ROUTE_PATHS.ADMIN.COURSES },
-                { label: course?.title || course?.Title || "Khóa học", path: `/admin/courses/${courseId}` },
-                { label: lesson?.title || lesson?.Title || "Bài học", path: `/admin/courses/${courseId}/lesson/${lessonId}` },
-                { label: module?.name || module?.Name || "Module", path: `/admin/courses/${courseId}/lesson/${lessonId}?moduleId=${moduleId}` },
-                { label: assessment?.title || assessment?.Title || "Bài tập", path: `/admin/courses/${courseId}/lesson/${lessonId}/module/${moduleId}/assessment/${assessmentId}` },
-                { label: "Quản lý Section", isCurrent: true }
-              ]}
-              showHomeIcon={false}
-            />
-          </div>
-        </Container>
-      </div>
-
-      <Container fluid className="lesson-detail-content px-4">
-        {loading ? (
-          <div className="text-center py-5">
-            <div className="spinner-border text-primary" role="status">
-              <span className="visually-hidden">Đang tải...</span>
+        <div className="admin-breadcrumb-wrapper">
+          <Container fluid>
+            <div className="breadcrumb-section pt-0">
+              <Breadcrumb
+                items={[
+                  { label: "Quản lý khóa học", path: ROUTE_PATHS.ADMIN.COURSES },
+                  { label: course?.title || course?.Title || "Khóa học", path: `/admin/courses/${courseId}` },
+                  { label: lesson?.title || lesson?.Title || "Bài học", path: `/admin/courses/${courseId}/lesson/${lessonId}` },
+                  { label: module?.name || module?.Name || "Module", path: `/admin/courses/${courseId}/lesson/${lessonId}?moduleId=${moduleId}` },
+                  { label: assessment?.title || assessment?.Title || "Bài tập", path: `/admin/courses/${courseId}/lesson/${lessonId}/module/${moduleId}/assessment/${assessmentId}` },
+                  { label: "Quản lý Section", isCurrent: true }
+                ]}
+                showHomeIcon={false}
+              />
             </div>
-          </div>
-        ) : error ? (
-          <div className="alert alert-danger text-center">{error}</div>
-        ) : (
-          <>
-        {/* Header */}
-        <div className="mb-4 question-header-section mt-0">
-          <div className="d-flex align-items-center justify-content-between flex-wrap gap-3">
-            <div className="title-wrapper">
-              <h2 className="mb-0 fw-bold premium-gradient-text">Quản lý Quiz: {quizTitle}</h2>
-            </div>
-            <div>
-              <button
-                className="btn premium-btn shadow-sm px-4 py-2 text-white"
-                onClick={() => setShowCreateSectionModal(true)}
-              >
-                <FaPlus className="me-2" /> Tạo Section mới
-              </button>
-            </div>
-          </div>
+          </Container>
         </div>
 
-        {/* Sections List */}
-        {sections.length === 0 ? (
-          <div className="text-center text-muted py-5">
-            <p>Chưa có Section nào. Hãy tạo Section đầu tiên!</p>
-          </div>
-        ) : (
-          <div className="sections-list">
-            {sections.map((section) => {
-              const sectionId = section.quizSectionId || section.QuizSectionId;
-              const sectionTitle = section.title || section.Title || "Untitled Section";
-              const sectionDescription = section.description || section.Description;
-
-              return (
-                <div key={sectionId} className="section-card mb-4">
-                  <div className="section-header">
-                    <div className="section-info">
-                      <h3 
-                          className="section-title text-primary cursor-pointer" 
-                          onClick={() => handleManageQuestionsSection(sectionId)}
-                          style={{cursor: 'pointer'}}
-                      >
-                          {sectionTitle}
-                      </h3>
-                      {sectionDescription && (
-                        <p className="section-description text-muted">{sectionDescription}</p>
-                      )}
-                    </div>
-                    <div className="section-actions">
-                      <button
-                        className="btn btn-primary text-white me-2"
-                        onClick={() => handleManageQuestionsSection(sectionId)}
-                        title="Quản lý nội dung (Câu hỏi & Nhóm)"
-                      >
-                        <FaList className="me-1" /> Quản lý nội dung
-                      </button>
-                      <button
-                        className="btn btn-edit-section"
-                        onClick={() => handleEditSection(section)}
-                        title="Sửa Section"
-                      >
-                        <FaEdit />
-                      </button>
-                      <button
-                        className="btn btn-delete-section"
-                        onClick={() => handleDeleteSectionClick(section)}
-                        title="Xóa Section"
-                      >
-                        <FaTrash />
-                      </button>
-                    </div>
+        <Container fluid className="lesson-detail-content px-4">
+          {loading ? (
+            <div className="text-center py-5">
+              <div className="spinner-border text-primary" role="status">
+                <span className="visually-hidden">Đang tải...</span>
+              </div>
+            </div>
+          ) : error ? (
+            <div className="alert alert-danger text-center">{error}</div>
+          ) : (
+            <>
+              {/* Header */}
+              <div className="mb-4 question-header-section mt-0">
+                <div className="d-flex align-items-center justify-content-between flex-wrap gap-3">
+                  <div className="title-wrapper">
+                    <h2 className="mb-0 fw-bold premium-gradient-text">Quản lý Quiz: {quizTitle}</h2>
+                  </div>
+                  <div>
+                    <button
+                      className="btn premium-btn shadow-sm px-4 py-2 text-white"
+                      onClick={() => setShowCreateSectionModal(true)}
+                    >
+                      <FaPlus className="me-2" /> Tạo Section mới
+                    </button>
                   </div>
                 </div>
-                );
-              })}
-            </div>
-          )}
+              </div>
 
-      </>
-    )}
-  </Container>
-</div>
+              {/* Sections List */}
+              {sections.length === 0 ? (
+                <div className="text-center text-muted py-5">
+                  <p>Chưa có Section nào. Hãy tạo Section đầu tiên!</p>
+                </div>
+              ) : (
+                <div className="sections-list">
+                  {sections.map((section) => {
+                    const sectionId = section.quizSectionId || section.QuizSectionId;
+                    const sectionTitle = section.title || section.Title || "Untitled Section";
+                    const sectionDescription = section.description || section.Description;
+
+                    return (
+                      <div key={sectionId} className="section-card mb-4">
+                        <div className="section-header">
+                          <div className="section-info">
+                            <h3
+                              className="section-title text-primary cursor-pointer"
+                              onClick={() => handleManageQuestionsSection(sectionId)}
+                              style={{ cursor: 'pointer' }}
+                            >
+                              {sectionTitle}
+                            </h3>
+                            {sectionDescription && (
+                              <p className="section-description text-muted">{sectionDescription}</p>
+                            )}
+                          </div>
+                          <div className="section-actions">
+                            <button
+                              className="btn btn-primary text-white me-2"
+                              onClick={() => handleManageQuestionsSection(sectionId)}
+                              title="Quản lý nội dung (Câu hỏi & Nhóm)"
+                            >
+                              <FaList className="me-1" /> Quản lý nội dung
+                            </button>
+                            <button
+                              className="btn btn-edit-section"
+                              onClick={() => handleEditSection(section)}
+                              title="Sửa Section"
+                            >
+                              <FaEdit />
+                            </button>
+                            <button
+                              className="btn btn-delete-section"
+                              onClick={() => handleDeleteSectionClick(section)}
+                              title="Xóa Section"
+                            >
+                              <FaTrash />
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+
+            </>
+          )}
+        </Container>
+      </div>
 
       {/* Create Section Modal */}
       {quizId && (

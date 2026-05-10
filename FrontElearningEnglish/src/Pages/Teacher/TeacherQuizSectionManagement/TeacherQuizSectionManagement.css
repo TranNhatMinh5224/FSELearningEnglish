@@ -49,8 +49,8 @@
 }
 
 .teacher-quiz-section-management-container .meta-badge {
-  background: #eff6ff;
-  color: #2563eb;
+  background: #f0f9ff;
+  color: #3b82f6;
   padding: 0.5rem 1rem;
   border-radius: 10px;
   font-weight: 600;
@@ -61,7 +61,7 @@
 }
 
 .teacher-quiz-section-management-container .add-section-btn {
-  background: #74CEDE;
+  background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
   color: white;
   border: none;
   border-radius: 12px;
@@ -71,13 +71,13 @@
   align-items: center;
   gap: 0.75rem;
   transition: all 0.3s ease;
-  box-shadow: 0 4px 12px rgba(116, 206, 222, 0.3);
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
 }
 
 .teacher-quiz-section-management-container .add-section-btn:hover {
-  background: #5BB8C8;
+  background: linear-gradient(135deg, #2563eb 0%, #7c3aed 100%);
   transform: translateY(-2px);
-  box-shadow: 0 8px 20px rgba(116, 206, 222, 0.45);
+  box-shadow: 0 8px 20px rgba(59, 130, 246, 0.45);
 }
 
 /* Sections List */

@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { Container, Button, Badge } from "react-bootstrap";
 import { FaPlus } from "react-icons/fa";
+import { PiBookOpenDuotone } from "react-icons/pi";
 import { useAuth } from "../../../Context/AuthContext";
 import Breadcrumb from "../../../Components/Common/Breadcrumb/Breadcrumb";
 import { adminService } from "../../../Services/adminService";
@@ -190,9 +191,19 @@ export default function AdminModuleLectureDetail() {
         {loading ? (
           <div className="text-center py-5"><div className="spinner-border text-primary"></div></div>
         ) : lectures.length === 0 ? (
-          <div className="text-center py-5 bg-light rounded text-muted">
-            <p>Chưa có bài giảng nào trong module này.</p>
-            <Button variant="primary" onClick={() => { setLectureToUpdate(null); setShowCreateModal(true); }}>Tạo bài giảng đầu tiên</Button>
+          <div className="no-modules-message">
+            <div className="empty-icon-wrapper">
+              <PiBookOpenDuotone />
+            </div>
+            <h4>Chưa có bài giảng nào</h4>
+            <p>Module này hiện đang trống. Hãy bắt đầu xây dựng nội dung bài giảng để hoàn thiện chương trình học.</p>
+            <Button 
+              variant="primary" 
+              className="btn-primary-custom px-4"
+              onClick={() => { setLectureToUpdate(null); setShowCreateModal(true); }}
+            >
+              Tạo bài giảng đầu tiên
+            </Button>
           </div>
         ) : (
           <LectureTreeView

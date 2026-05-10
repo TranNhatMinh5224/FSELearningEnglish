@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { Modal, Button, Row, Col } from "react-bootstrap";
 import { FaInfoCircle, FaClock, FaCalendarAlt, FaCog, FaListOl } from "react-icons/fa";
+import { PiLightningDuotone } from "react-icons/pi";
 import DateTimePicker from "../DateTimePicker/DateTimePicker";
 import ConfirmModal from "../../Common/ConfirmModal/ConfirmModal";
 import FormInput from "../../Common/FormControls/FormInput";
@@ -49,11 +50,14 @@ export default function CreateQuizModal({ show, onClose, onSuccess, assessmentId
         onHide={handleClose}
         centered
         size="lg"
-        className="create-quiz-modal modal-modern"
+        className={`create-quiz-modal modal-modern ${isAdmin ? "admin-modal" : "teacher-modal"}`}
         dialogClassName="create-quiz-modal-dialog"
       >
         <Modal.Header closeButton={false}>
-          <Modal.Title className="fw-bold">{quizToUpdate ? "Cập nhật Quiz" : "Tạo Quiz mới"}</Modal.Title>
+          <Modal.Title className="fw-bold modal-title-centered">
+            <PiLightningDuotone className="me-2" style={{ fontSize: "2.2rem", verticalAlign: "middle" }} />
+            {quizToUpdate ? "Cập nhật Bài Quiz" : "Thiết lập Bài Quiz"}
+          </Modal.Title>
           <PremiumCloseButton onClick={handleClose} />
         </Modal.Header>
         <Modal.Body className="p-4">

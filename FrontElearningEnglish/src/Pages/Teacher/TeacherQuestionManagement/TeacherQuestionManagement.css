@@ -37,7 +37,7 @@
 }
 
 .premium-gradient-text {
-    background: linear-gradient(135deg, #4A00E0 0%, #8E2DE2 50%, #BC69C0 100%);
+    background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
@@ -46,18 +46,18 @@
 
 .section-pill {
     display: inline-block;
-    background: rgba(142, 45, 226, 0.1);
-    color: #8E2DE2;
+    background: rgba(59, 130, 246, 0.1);
+    color: #3b82f6;
     padding: 0.5rem 1rem;
     border-radius: 12px;
     font-size: 0.85rem;
     font-weight: 600;
-    border: 1px solid rgba(142, 45, 226, 0.1);
+    border: 1px solid rgba(59, 130, 246, 0.1);
 }
 
 /* --- Action Buttons --- */
 .premium-btn {
-    background: linear-gradient(135deg, #4A00E0 0%, #8E2DE2 100%);
+    background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
     border: none;
     border-radius: 12px;
     padding: 0.75rem 1.5rem;
@@ -68,7 +68,7 @@
 
 .premium-btn:hover {
     transform: translateY(-2px);
-    box-shadow: 0 8px 20px rgba(74, 0, 224, 0.3);
+    box-shadow: 0 8px 20px rgba(59, 130, 246, 0.3);
     filter: brightness(1.1);
 }
 
@@ -135,4 +135,29 @@
     border-left: 3px dashed #e2e8f0 !important;
     margin-left: 2rem !important;
     padding-left: 1.5rem !important;
+}
+
+.header-stats-badge {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    background: #ffffff;
+    color: #475569;
+    padding: 0.5rem 1.25rem;
+    border-radius: 50px;
+    font-size: 0.95rem;
+    font-weight: 700;
+    border: 1px solid #e2e8f0;
+    transition: all 0.3s ease;
+}
+
+.header-stats-badge:hover {
+    border-color: #3b82f6;
+    background: #f0f7ff;
+    color: #3b82f6;
+    transform: translateY(-1px);
+}
+
+.header-stats-badge svg {
+    color: #3b82f6;
 }

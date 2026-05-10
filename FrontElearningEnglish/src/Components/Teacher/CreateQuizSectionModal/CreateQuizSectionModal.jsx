@@ -3,21 +3,22 @@ import { Modal, Button } from "react-bootstrap";
 import { quizService } from "../../../Services/quizService";
 import ConfirmModal from "../../Common/ConfirmModal/ConfirmModal";
 import { useAuth } from "../../../Context/AuthContext";
+import { PiStackDuotone } from "react-icons/pi";
 import PremiumCloseButton from "../../Common/PremiumCloseButton/PremiumCloseButton";
 import "./CreateQuizSectionModal.css";
 
 export default function CreateQuizSectionModal({ show, onClose, onSuccess, quizId, sectionToUpdate = null, isAdmin: propIsAdmin = false }) {
   const { roles } = useAuth();
   const isUpdateMode = !!sectionToUpdate;
-  
+
   // Auto-detect admin role from AuthContext if not explicitly provided
   const isAdmin = propIsAdmin || (roles && roles.some(role => {
     const roleName = typeof role === 'string' ? role : (role?.name || '');
-    return roleName === "SuperAdmin" || 
-           roleName === "ContentAdmin" || 
-           roleName === "FinanceAdmin";
+    return roleName === "SuperAdmin" ||
+      roleName === "ContentAdmin" ||
+      roleName === "FinanceAdmin";
   }));
-  
+
   // Form state
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
@@ -43,14 +44,14 @@ export default function CreateQuizSectionModal({ show, onClose, onSuccess, quizI
     if (show && isUpdateMode && sectionToUpdate) {
       const loadSectionData = async () => {
         if (!sectionToUpdate) return;
-        
+
         setLoadingSection(true);
         try {
           const sectionId = sectionToUpdate.quizSectionId || sectionToUpdate.QuizSectionId;
           const response = isAdmin
             ? await quizService.getAdminQuizSectionById(sectionId)
             : await quizService.getQuizSectionById(sectionId);
-          
+
           if (response.data?.success && response.data?.data) {
             const section = response.data.data;
             const loadedTitle = section.title || section.Title || "";
@@ -101,7 +102,7 @@ export default function CreateQuizSectionModal({ show, onClose, onSuccess, quizI
     if (submitting || loadingSection) {
       return; // Don't close if submitting/loading
     }
-    
+
     // Check if form has data
     if (hasFormData()) {
       setShowConfirmClose(true);
@@ -185,119 +186,122 @@ export default function CreateQuizSectionModal({ show, onClose, onSuccess, quizI
 
   return (
     <>
-    <Modal 
-      show={show} 
-      onHide={handleClose}
-      backdrop={submitting ? "static" : true}
-      keyboard={!submitting}
-      centered 
-      className="create-quiz-section-modal modal-modern" 
-      dialogClassName="create-quiz-section-modal-dialog"
-    >
-      <Modal.Header closeButton={false}>
-        <Modal.Title className="fw-bold">{isUpdateMode ? "Cập nhật Section" : "Tạo Section mới"}</Modal.Title>
-        <PremiumCloseButton onClick={handleClose} />
-      </Modal.Header>
-      <Modal.Body>
-        {loadingSection ? (
-          <div className="text-center py-4">
-            <div className="spinner-border text-primary" role="status">
-              <span className="visually-hidden">Đang tải...</span>
-            </div>
+      <Modal
+        show={show}
+        onHide={handleClose}
+        backdrop={submitting ? "static" : true}
+        keyboard={!submitting}
+        centered
+        className={`create-quiz-section-modal modal-modern ${isAdmin ? "admin-modal" : "teacher-modal"}`}
+        dialogClassName="create-quiz-section-modal-dialog"
+      >
+        <Modal.Header closeButton={false}>
+          <div className="modal-title-custom">
+            <PiStackDuotone className="header-icon me-2" />
+            <span>{isUpdateMode ? "Cập nhật Section" : "Tạo Section mới"}</span>
           </div>
-        ) : (
-          <form onSubmit={(e) => {
-            e.preventDefault();
-            handleSubmit(e);
-          }}>
-            {/* Thông tin cơ bản */}
-            <div className="form-section-card mb-4">
-              <div className="form-section-title">Thông tin cơ bản</div>
-              
-              {/* Tiêu đề */}
-              <div className="mb-4">
-                <div className="d-flex justify-content-between align-items-center mb-1">
-                  <label className="form-label required mb-0">Tiêu đề Section</label>
-                  <span className={`small ${title.length > 200 ? "text-danger fw-bold" : "text-muted"}`}>
-                    {title.length}/200
-                  </span>
-                </div>
-                <input
-                  type="text"
-                  className={`form-control ${touched.title && errors.title ? "is-invalid" : ""}`}
-                  value={title}
-                  onChange={(e) => {
-                    setTitle(e.target.value);
-                    if (touched.title) validateForm();
-                  }}
-                  onBlur={() => handleBlur("title")}
-                  placeholder="Nhập tiêu đề Section"
-                  maxLength={200}
-                />
-                {touched.title && errors.title && <div className="invalid-feedback">{errors.title}</div>}
-              </div>
-
-              {/* Mô tả */}
-              <div className="mb-3">
-                <div className="d-flex justify-content-between align-items-center mb-1">
-                  <label className="form-label mb-0">Mô tả</label>
-                  <span className={`small ${description.length > 1000 ? "text-danger fw-bold" : "text-muted"}`}>
-                    {description.length}/1000
-                  </span>
-                </div>
-                <textarea
-                  className={`form-control ${touched.description && errors.description ? "is-invalid" : ""}`}
-                  value={description}
-                  onChange={(e) => {
-                    setDescription(e.target.value);
-                    if (touched.description) validateForm();
-                  }}
-                  onBlur={() => handleBlur("description")}
-                  placeholder="Nhập mô tả Section (không bắt buộc)"
-                  rows={4}
-                  maxLength={1000}
-                />
-                {touched.description && errors.description && <div className="invalid-feedback">{errors.description}</div>}
+          <PremiumCloseButton onClick={handleClose} />
+        </Modal.Header>
+        <Modal.Body>
+          {loadingSection ? (
+            <div className="text-center py-4">
+              <div className="spinner-border text-primary" role="status">
+                <span className="visually-hidden">Đang tải...</span>
               </div>
             </div>
+          ) : (
+            <form onSubmit={(e) => {
+              e.preventDefault();
+              handleSubmit(e);
+            }}>
+              {/* Thông tin cơ bản */}
+              <div className="form-section-card mb-4">
+                <div className="form-section-title">Thông tin cơ bản</div>
 
-            {/* Submit error */}
-            {errors.submit && (
-              <div className="alert alert-danger mt-3">{errors.submit}</div>
-            )}
-          </form>
-        )}
-      </Modal.Body>
-      <Modal.Footer>
-        <Button 
-          variant="secondary" 
-          onClick={handleClose} 
-          disabled={submitting}
-          type="button"
-        >
-          Huỷ
-        </Button>
-        <Button
-          variant="primary"
-          onClick={handleSubmit}
-          disabled={!isFormValid || submitting || loadingSection}
-          type="button"
-        >
-          {submitting ? (isUpdateMode ? "Đang cập nhật..." : "Đang tạo...") : (isUpdateMode ? "Cập nhật" : "Tạo")}
-        </Button>
-      </Modal.Footer>
-    </Modal>
+                {/* Tiêu đề */}
+                <div className="mb-4">
+                  <div className="d-flex justify-content-between align-items-center mb-1">
+                    <label className="form-label required mb-0">Tiêu đề Section</label>
+                    <span className={`small ${title.length > 200 ? "text-danger fw-bold" : "text-muted"}`}>
+                      {title.length}/200
+                    </span>
+                  </div>
+                  <input
+                    type="text"
+                    className={`form-control ${touched.title && errors.title ? "is-invalid" : ""}`}
+                    value={title}
+                    onChange={(e) => {
+                      setTitle(e.target.value);
+                      if (touched.title) validateForm();
+                    }}
+                    onBlur={() => handleBlur("title")}
+                    placeholder="Nhập tiêu đề Section"
+                    maxLength={200}
+                  />
+                  {touched.title && errors.title && <div className="invalid-feedback">{errors.title}</div>}
+                </div>
 
-    <ConfirmModal
-      isOpen={showConfirmClose}
-      onClose={() => setShowConfirmClose(false)}
-      onConfirm={handleConfirmClose}
-      title="Xác nhận đóng"
-      message="Bạn có dữ liệu chưa lưu. Bạn có chắc chắn muốn đóng không?"
-      confirmText="Đóng"
-      cancelText="Tiếp tục chỉnh sửa"
-      type="warning"
-    />
+                {/* Mô tả */}
+                <div className="mb-3">
+                  <div className="d-flex justify-content-between align-items-center mb-1">
+                    <label className="form-label mb-0">Mô tả</label>
+                    <span className={`small ${description.length > 1000 ? "text-danger fw-bold" : "text-muted"}`}>
+                      {description.length}/1000
+                    </span>
+                  </div>
+                  <textarea
+                    className={`form-control ${touched.description && errors.description ? "is-invalid" : ""}`}
+                    value={description}
+                    onChange={(e) => {
+                      setDescription(e.target.value);
+                      if (touched.description) validateForm();
+                    }}
+                    onBlur={() => handleBlur("description")}
+                    placeholder="Nhập mô tả Section (không bắt buộc)"
+                    rows={4}
+                    maxLength={1000}
+                  />
+                  {touched.description && errors.description && <div className="invalid-feedback">{errors.description}</div>}
+                </div>
+              </div>
+
+              {/* Submit error */}
+              {errors.submit && (
+                <div className="alert alert-danger mt-3">{errors.submit}</div>
+              )}
+            </form>
+          )}
+        </Modal.Body>
+        <Modal.Footer>
+          <Button
+            variant="secondary"
+            onClick={handleClose}
+            disabled={submitting}
+            type="button"
+          >
+            Huỷ
+          </Button>
+          <Button
+            variant="primary"
+            onClick={handleSubmit}
+            disabled={!isFormValid || submitting || loadingSection}
+            type="button"
+          >
+            {submitting ? (isUpdateMode ? "Đang cập nhật..." : "Đang tạo...") : (isUpdateMode ? "Cập nhật" : "Tạo")}
+          </Button>
+        </Modal.Footer>
+      </Modal>
+
+      <ConfirmModal
+        isOpen={showConfirmClose}
+        onClose={() => setShowConfirmClose(false)}
+        onConfirm={handleConfirmClose}
+        title="Xác nhận đóng"
+        message="Bạn có dữ liệu chưa lưu. Bạn có chắc chắn muốn đóng không?"
+        confirmText="Đóng"
+        cancelText="Tiếp tục chỉnh sửa"
+        type="warning"
+      />
     </>
   );
 }

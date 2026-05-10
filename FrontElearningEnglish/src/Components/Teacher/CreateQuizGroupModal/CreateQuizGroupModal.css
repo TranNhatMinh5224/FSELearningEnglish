@@ -31,8 +31,12 @@
 }
 
 /* Header SaaS Modern */
+.create-quiz-group-modal.admin-modal .modal-header,
+.create-quiz-group-modal.teacher-modal .modal-header {
+  background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
+}
+
 .create-quiz-group-modal .modal-header {
-  background: linear-gradient(135deg, #74CEDE 0%, #5BB8C8 100%);
   padding: 1.5rem 2rem;
   border-bottom: none;
   justify-content: center;
@@ -106,11 +110,15 @@
   gap: 0.5rem;
 }
 
+.create-quiz-group-modal.admin-modal .form-section-title::before,
+.create-quiz-group-modal.teacher-modal .form-section-title::before {
+  background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
+}
+
 .create-quiz-group-modal .form-section-title::before {
   content: "";
   width: 4px;
   height: 20px;
-  background: linear-gradient(135deg, #74CEDE 0%, #5BB8C8 100%);
   border-radius: 2px;
 }
 
@@ -135,10 +143,16 @@
   transition: all 0.2s;
 }
 
+.create-quiz-group-modal.admin-modal .form-control:focus,
+.create-quiz-group-modal.admin-modal .form-select:focus,
+.create-quiz-group-modal.teacher-modal .form-control:focus,
+.create-quiz-group-modal.teacher-modal .form-select:focus {
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
+}
+
 .create-quiz-group-modal .form-control:focus,
 .create-quiz-group-modal .form-select:focus {
-  border-color: #74CEDE;
-  box-shadow: 0 0 0 4px rgba(116, 206, 222, 0.1);
   outline: none;
 }
 
@@ -153,9 +167,27 @@
   gap: 12px;
 }
 
+.create-quiz-group-modal.admin-modal .btn-primary-custom,
+.create-quiz-group-modal.admin-modal .modal-footer .btn-primary,
+.create-quiz-group-modal.teacher-modal .btn-primary-custom,
+.create-quiz-group-modal.teacher-modal .modal-footer .btn-primary {
+  background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
+}
+
+.create-quiz-group-modal.admin-modal .btn-primary-custom:hover:not(:disabled),
+.create-quiz-group-modal.admin-modal .modal-footer .btn-primary:hover:not(:disabled) {
+  background: linear-gradient(135deg, #5BB8C8 0%, #4AA8B8 100%);
+  box-shadow: 0 4px 12px rgba(116, 206, 222, 0.3);
+}
+
+.create-quiz-group-modal.teacher-modal .btn-primary-custom:hover:not(:disabled),
+.create-quiz-group-modal.teacher-modal .modal-footer .btn-primary:hover:not(:disabled) {
+  background: linear-gradient(135deg, #2563eb 0%, #7c3aed 100%);
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+}
+
 .create-quiz-group-modal .btn-primary-custom,
 .create-quiz-group-modal .modal-footer .btn-primary {
-  background: linear-gradient(135deg, #74CEDE 0%, #5BB8C8 100%);
   border: none;
   font-weight: 600;
   padding: 0.6rem 2rem;
@@ -166,9 +198,7 @@
 
 .create-quiz-group-modal .btn-primary-custom:hover:not(:disabled),
 .create-quiz-group-modal .modal-footer .btn-primary:hover:not(:disabled) {
-  background: linear-gradient(135deg, #5BB8C8 0%, #4AA8B8 100%);
   transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(116, 206, 222, 0.3);
 }
 
 /* File upload styles */
@@ -187,10 +217,16 @@
   min-height: 60px;
 }
 
-.create-quiz-group-modal .image-upload-area:hover,
-.create-quiz-group-modal .video-upload-area:hover {
+.create-quiz-group-modal.admin-modal .image-upload-area:hover,
+.create-quiz-group-modal.admin-modal .video-upload-area:hover {
   border-color: #74CEDE;
   background-color: #f0fdfa;
+}
+
+.create-quiz-group-modal.teacher-modal .image-upload-area:hover,
+.create-quiz-group-modal.teacher-modal .video-upload-area:hover {
+  border-color: #3b82f6;
+  background-color: #f5f3ff;
 }
 
 .create-quiz-group-modal .image-upload-area.is-invalid,
@@ -198,9 +234,18 @@
   border-color: #ef4444;
 }
 
+.create-quiz-group-modal.admin-modal .image-upload-area svg,
+.create-quiz-group-modal.admin-modal .video-upload-area svg {
+  color: #74CEDE;
+}
+
+.create-quiz-group-modal.teacher-modal .image-upload-area svg,
+.create-quiz-group-modal.teacher-modal .video-upload-area svg {
+  color: #3b82f6;
+}
+
 .create-quiz-group-modal .image-upload-area svg,
 .create-quiz-group-modal .video-upload-area svg {
-  color: #74CEDE;
   flex-shrink: 0;
 }
 

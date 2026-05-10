@@ -527,8 +527,18 @@ export default function TeacherLessonDetail() {
                             );
                           })
                         ) : (
-                          <div className="no-content-message">
-                            Chưa có assessment nào trong bài học này
+                          <div className="no-assessment-message">
+                            <div className="empty-icon-wrapper-small">
+                              <PiExamDuotone />
+                            </div>
+                            <h4>Chưa có bài tập nào</h4>
+                            <p>Bài học này hiện chưa có bài kiểm tra hoặc bài tự luận. Hãy thêm mới để đánh giá năng lực của học viên.</p>
+                            <button
+                              className="module-create-btn assessment-btn mt-2"
+                              onClick={() => setShowCreateAssessmentModal(true)}
+                            >
+                              <FaPlus className="add-icon" /> Tạo bài tập đầu tiên
+                            </button>
                           </div>
                         )}
                       </div>
@@ -544,7 +554,7 @@ export default function TeacherLessonDetail() {
                             }}
                           >
                             <FaPlus className="add-icon" />
-                            Thêm Assessment
+                            Xây dựng bài tập
                           </button>
                         );
                       })()}
@@ -643,14 +653,20 @@ export default function TeacherLessonDetail() {
                         );
                       })
                     ) : (
-                  <div className="no-modules-message">
-                    <div className="empty-icon-wrapper">
-                      <PiTrayDuotone />
-                    </div>
-                    <h4>Chưa có bài học nào</h4>
-                    <p>Chương học này hiện đang trống. Hãy thêm các bài học mới để bắt đầu giảng dạy.</p>
-                  </div>
-                )}
+                      <div className="no-modules-message">
+                        <div className="empty-icon-wrapper">
+                          <PiBookOpenDuotone />
+                        </div>
+                        <h4>Chưa có bài giảng nào</h4>
+                        <p>Module này hiện đang trống. Hãy bắt đầu xây dựng bài giảng đầu tiên để giúp học viên tiếp cận kiến thức.</p>
+                        <button
+                          className="add-module-btn-main mt-2"
+                          onClick={() => setShowCreateModuleModal(true)}
+                        >
+                          <FaPlus className="add-icon" /> Xây dựng bài giảng đầu tiên
+                        </button>
+                      </div>
+                    )}
                   </div>
 
                   <button

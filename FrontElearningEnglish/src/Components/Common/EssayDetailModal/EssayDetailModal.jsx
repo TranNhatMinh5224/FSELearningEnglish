@@ -5,6 +5,7 @@ import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { essayService } from "../../../Services/essayService";
 import PremiumCloseButton from "../PremiumCloseButton/PremiumCloseButton";
+import { PiBookOpenDuotone } from "react-icons/pi";
 import "./EssayDetailModal.css";
 
 export default function EssayDetailModal({ show, onClose, essayId, isAdmin = false }) {
@@ -53,11 +54,14 @@ export default function EssayDetailModal({ show, onClose, essayId, isAdmin = fal
       show={show}
       onHide={onClose}
       centered
-      size="lg"
-      className="essay-detail-modal modal-modern"
+      size="xl"
+      className={`essay-detail-modal modal-modern modal-essay-size ${isAdmin ? "admin-modal" : "teacher-modal"}`}
     >
-      <Modal.Header closeButton={false} className="border-0 pb-0">
-        <Modal.Title className="fw-bold">Chi tiết bài Essay</Modal.Title>
+      <Modal.Header closeButton={false} className="border-0 px-4 py-3">
+        <Modal.Title className="fw-bold modal-title-centered text-white d-flex align-items-center gap-3">
+          <PiBookOpenDuotone size={32} />
+          <span>Chi tiết bài Essay</span>
+        </Modal.Title>
         <PremiumCloseButton onClick={onClose} />
       </Modal.Header>
 
@@ -166,9 +170,13 @@ export default function EssayDetailModal({ show, onClose, essayId, isAdmin = fal
         )}
       </Modal.Body>
 
-      <Modal.Footer className="border-0">
-        <Button variant="secondary" onClick={onClose} className="rounded-pill px-4">
-          Đóng
+      <Modal.Footer className="bg-light border-0 px-4 py-3">
+        <Button 
+          variant="secondary" 
+          onClick={onClose}
+          className="rounded-pill px-5 fw-bold shadow-sm"
+        >
+          Đóng cửa sổ
         </Button>
       </Modal.Footer>
     </Modal>

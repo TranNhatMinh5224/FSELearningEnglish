@@ -34,6 +34,7 @@ export default function AdminLessonDetail() {
   const [modules, setModules] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [assessmentTypes, setAssessmentTypes] = useState({}); // { assessmentId: { hasQuiz: boolean, hasEssay: boolean } }
   const [showUpdateModal, setShowUpdateModal] = useState(false);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [showCreateModuleModal, setShowCreateModuleModal] = useState(false);
@@ -178,7 +179,39 @@ export default function AdminLessonDetail() {
       assessmentService.getAdminAssessmentsByModule(moduleId)
         .then(response => {
           if (response.data?.success && response.data?.data) {
-            setModuleContent(response.data.data || []);
+            const assessments = response.data.data || [];
+            setModuleContent(assessments);
+
+            // Fetch quiz and essay info for each assessment
+            const typePromises = assessments.map(async (assessment) => {
+              const assessmentId = assessment.assessmentId || assessment.AssessmentId;
+              if (!assessmentId) return null;
+
+              try {
+                const [quizRes, essayRes] = await Promise.all([
+                  quizService.getAdminQuizzesByAssessment(assessmentId),
+                  essayService.getAdminEssaysByAssessment(assessmentId)
+                ]);
+
+                const hasQuiz = quizRes.data?.success && quizRes.data?.data && quizRes.data.data.length > 0;
+                const hasEssay = essayRes.data?.success && essayRes.data?.data && essayRes.data.data.length > 0;
+
+                return { assessmentId, hasQuiz, hasEssay };
+              } catch (error) {
+                console.error(`Error fetching types for assessment ${assessmentId}:`, error);
+                return { assessmentId, hasQuiz: false, hasEssay: false };
+              }
+            });
+
+            Promise.all(typePromises).then(types => {
+              const typesMap = {};
+              types.forEach(type => {
+                if (type) {
+                  typesMap[type.assessmentId] = { hasQuiz: type.hasQuiz, hasEssay: type.hasEssay };
+                }
+              });
+              setAssessmentTypes(typesMap);
+            });
           } else {
             setContentError("Không thể tải danh sách assessments");
             setModuleContent([]);
@@ -397,7 +430,7 @@ export default function AdminLessonDetail() {
                             };
 
                             // Content type indicators
-                            const typeInfo = {
+                            const typeInfo = assessmentTypes[assessmentId] || { 
                               hasQuiz: Array.isArray(item.quizzes) && item.quizzes.length > 0,
                               hasEssay: Array.isArray(item.essays) && item.essays.length > 0
                             };
@@ -464,18 +497,43 @@ export default function AdminLessonDetail() {
                              );
                           })
                         ) : (
-                          <div className="no-content-message">
+                          <div className="no-assessment-message">
                             {(() => {
                               const contentTypeValue = selectedModule.contentType || selectedModule.ContentType;
                               const contentTypeNum = typeof contentTypeValue === 'number' ? contentTypeValue : parseInt(contentTypeValue);
+                              
                               if (isLecture(contentTypeNum)) {
-                                return "Chưa có lecture nào trong module này";
+                                return (
+                                  <>
+                                    <div className="empty-icon-wrapper-small">
+                                      <PiBookOpenDuotone />
+                                    </div>
+                                    <h4>Chưa có bài giảng nào</h4>
+                                    <p>Module này hiện đang trống. Hãy bắt đầu xây dựng bài giảng để hoàn thiện nội dung.</p>
+                                  </>
+                                );
                               } else if (isFlashCard(contentTypeNum)) {
-                                return "Chưa có flashcard nào trong module này";
+                                return (
+                                  <>
+                                    <div className="empty-icon-wrapper-small">
+                                      <PiCardsDuotone />
+                                    </div>
+                                    <h4>Chưa có bộ từ vựng</h4>
+                                    <p>Module này chưa có thẻ từ vựng nào. Hãy thêm mới để học viên bắt đầu học tập.</p>
+                                  </>
+                                );
                               } else if (isAssessment(contentTypeNum)) {
-                                return "Chưa có assessment nào trong bài học này";
+                                return (
+                                  <>
+                                    <div className="empty-icon-wrapper-small">
+                                      <PiExamDuotone />
+                                    </div>
+                                    <h4>Chưa có bài kiểm tra</h4>
+                                    <p>Chưa có bài kiểm tra hoặc bài tự luận nào. Hãy khởi tạo nội dung đánh giá.</p>
+                                  </>
+                                );
                               }
-                              return "Chưa có nội dung nào trong bài học này";
+                              return <p>Chưa có nội dung nào trong bài học này</p>;
                             })()}
                           </div>
                         )}
@@ -520,7 +578,7 @@ export default function AdminLessonDetail() {
                               }}
                             >
                               <FaPlus className="add-icon" />
-                              Thêm Assessment
+                              Xây dựng bài tập
                             </button>
                           );
                         }
@@ -532,8 +590,8 @@ export default function AdminLessonDetail() {
               ) : (
                 // Modules List View
                 <div className="modules-section">
-                  <div className="modules-header">
-                    <h3>Danh sách Bài học</h3>
+                  <div className="modules-header d-flex justify-content-between align-items-center mb-4">
+                    <h3 className="mb-0">Danh sách Bài học</h3>
                   </div>
                   <div className="modules-list">
                   {modules.length > 0 ? (
@@ -629,21 +687,29 @@ export default function AdminLessonDetail() {
                   ) : (
                     <div className="no-modules-message">
                       <div className="empty-icon-wrapper">
-                        <PiTrayDuotone />
+                        <PiBookOpenDuotone />
                       </div>
                       <h4>Chưa có bài học nào</h4>
-                      <p>Chương học này chưa có nội dung bài học. Vui lòng khởi tạo các bài học liên quan.</p>
+                      <p>Chương này hiện đang trống. Hãy bắt đầu xây dựng bài học để hoàn thiện nội dung khóa học.</p>
+                      <button
+                        className="btn-add-lesson-card mt-4"
+                        onClick={() => setShowCreateModuleModal(true)}
+                      >
+                        <FaPlus className="me-2" /> Thêm bài học mới
+                      </button>
                     </div>
                   )}
-                  </div>
 
-                  <button
-                    className="add-module-btn-main"
-                    onClick={() => setShowCreateModuleModal(true)}
-                  >
-                    <FaPlus className="add-icon" />
-                    Thêm Bài học
-                  </button>
+                  {/* Nút thêm bài học ở cuối danh sách khi đã có dữ liệu */}
+                  {modules.length > 0 && (
+                    <button 
+                      className="btn-add-lesson-card mt-4"
+                      onClick={() => setShowCreateModuleModal(true)}
+                    >
+                      <FaPlus className="me-2" /> Thêm bài học
+                    </button>
+                  )}
+                  </div>
                 </div>
               )}
             </Col>

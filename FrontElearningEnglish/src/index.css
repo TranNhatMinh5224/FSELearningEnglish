@@ -9,17 +9,20 @@
 
 @media (min-width: 992px) {
   body {
-    zoom: 1; 
+    zoom: 1;
     overflow-x: hidden;
-    overflow-y: scroll; 
+    overflow-y: scroll;
     scrollbar-gutter: stable;
     background-color: #ffffff;
   }
 
   #app-scale-root {
-    zoom: 0.8; /* Chỉ zoom nội dung bên trong App */
-    width: 100%; /* Cần 100% để khớp với Viewport khi đã zoom */
-    min-height: 125vh; /* Bù trừ chiều cao để background luôn che phủ hết */
+    zoom: 0.8;
+    /* Chỉ zoom nội dung bên trong App */
+    width: 100%;
+    /* Cần 100% để khớp với Viewport khi đã zoom */
+    min-height: 125vh;
+    /* Bù trừ chiều cao để background luôn che phủ hết */
     background-color: #ffffff;
     display: block;
     position: relative;
@@ -29,7 +32,9 @@
 
 /* Mobile/Tablet: Tỷ lệ 1:1 mặc định */
 @media (max-width: 991.98px) {
-  body, #app-scale-root {
+
+  body,
+  #app-scale-root {
     zoom: 1;
     width: 100%;
   }

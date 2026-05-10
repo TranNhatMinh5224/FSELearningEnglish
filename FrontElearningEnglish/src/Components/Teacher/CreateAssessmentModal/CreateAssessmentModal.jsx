@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Modal, Button } from "react-bootstrap";
 import { FaInfoCircle, FaClock, FaToggleOn } from "react-icons/fa";
+import { PiExamDuotone } from "react-icons/pi";
 import { assessmentService } from "../../../Services/assessmentService";
 import ConfirmModal from "../../Common/ConfirmModal/ConfirmModal";
 import SmartDateInput from "../../Common/SmartDateInput/SmartDateInput";
@@ -217,11 +218,12 @@ export default function CreateAssessmentModal({
         backdrop={submitting ? "static" : true}
         keyboard={!submitting}
         centered
-        className="create-assessment-modal modal-modern"
+        className={`create-assessment-modal modal-modern ${isAdmin ? "admin-modal" : "teacher-modal"}`}
         dialogClassName="create-assessment-modal-dialog"
       >
         <Modal.Header closeButton={false}>
           <Modal.Title className="fw-bold modal-title-centered">
+            <PiExamDuotone className="me-2" style={{ fontSize: "2.2rem", verticalAlign: "middle" }} />
             {isUpdateMode ? "Cập nhật Bài Kiểm tra" : "Tạo Bài Kiểm tra mới"}
           </Modal.Title>
           <PremiumCloseButton onClick={handleClose} />

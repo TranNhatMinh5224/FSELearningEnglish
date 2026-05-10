@@ -327,7 +327,7 @@ export default function CreateQuizGroupModal({ show, onClose, onSuccess, quizSec
         backdrop={submitting ? "static" : true}
         keyboard={!submitting}
         centered
-        className="create-quiz-group-modal modal-modern"
+        className={`create-quiz-group-modal modal-modern ${isAdmin ? "admin-modal" : "teacher-modal"}`}
         dialogClassName="create-quiz-group-modal-dialog"
         onClick={(e) => {
           if (e.target === e.currentTarget && !submitting) {

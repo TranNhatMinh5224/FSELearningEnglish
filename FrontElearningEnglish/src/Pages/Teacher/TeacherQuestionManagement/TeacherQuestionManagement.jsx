@@ -9,6 +9,7 @@ import CreateQuizGroupModal from "../../../Components/Teacher/CreateQuizGroupMod
 import ConfirmModal from "../../../Components/Common/ConfirmModal/ConfirmModal";
 import SuccessModal from "../../../Components/Common/SuccessModal/SuccessModal";
 import NotificationModal from "../../../Components/Common/NotificationModal/NotificationModal";
+import { PiFilesDuotone, PiPlusBold, PiArrowLeftBold } from "react-icons/pi";
 import { questionService } from "../../../Services/questionService";
 import { quizService } from "../../../Services/quizService";
 import { teacherService } from "../../../Services/teacherService";
@@ -415,8 +416,8 @@ export default function TeacherQuestionManagement() {
                     {contextData.title}
                   </div>
                 )}
-                <div className="header-stats-badge">
-                  <FaRegListAlt />
+                <div className="header-stats-badge shadow-sm">
+                  <PiFilesDuotone size={20} />
                   <span>{questions.length} Câu hỏi</span>
                 </div>
               </div>

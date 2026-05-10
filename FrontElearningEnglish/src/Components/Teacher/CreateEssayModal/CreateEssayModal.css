@@ -31,14 +31,19 @@
 }
 
 /* Header SaaS Modern */
+.create-essay-modal.admin-modal .modal-header,
+.create-essay-modal.teacher-modal .modal-header {
+  background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
+}
+
 .create-essay-modal .modal-header {
-  background: linear-gradient(135deg, #74CEDE 0%, #5BB8C8 100%);
-  padding: 1.5rem 2rem;
+  padding: 2.25rem 2.5rem;
   border-bottom: none;
   justify-content: center;
   border-radius: 20px 20px 0 0;
   position: relative;
   text-align: center;
+  min-height: 100px;
 }
 
 .create-essay-modal .modal-header .btn-close {
@@ -109,7 +114,7 @@
   content: "";
   width: 4px;
   height: 16px;
-  background: #74CEDE;
+  background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
   border-radius: 2px;
 }
 
@@ -136,8 +141,8 @@
 
 .create-essay-modal .form-control:focus,
 .create-essay-modal .form-select:focus {
-  border-color: #74CEDE;
-  box-shadow: 0 0 0 4px rgba(116, 206, 222, 0.1);
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
   outline: none;
 }
 
@@ -152,9 +157,21 @@
   gap: 12px;
 }
 
+/* Button Colors based on Role */
+.create-essay-modal.admin-modal .btn-primary-custom,
+.create-essay-modal.admin-modal .modal-footer .btn-primary,
+.create-essay-modal.teacher-modal .btn-primary-custom,
+.create-essay-modal.teacher-modal .modal-footer .btn-primary {
+  background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
+}
+
+.create-essay-modal.teacher-modal .btn-primary-custom:hover:not(:disabled) {
+  background: linear-gradient(135deg, #2563eb 0%, #7c3aed 100%);
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+}
+
 .create-essay-modal .btn-primary-custom,
 .create-essay-modal .modal-footer .btn-primary {
-  background: linear-gradient(135deg, #74CEDE 0%, #5BB8C8 100%);
   border: none;
   font-weight: 600;
   padding: 0.6rem 2rem;
@@ -163,11 +180,8 @@
   transition: all 0.2s;
 }
 
-.create-essay-modal .btn-primary-custom:hover:not(:disabled),
-.create-essay-modal .modal-footer .btn-primary:hover:not(:disabled) {
-  background: linear-gradient(135deg, #5BB8C8 0%, #4AA8B8 100%);
+.create-essay-modal .btn-primary-custom:hover:not(:disabled) {
   transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(116, 206, 222, 0.3);
 }
 
 /* File upload styles */

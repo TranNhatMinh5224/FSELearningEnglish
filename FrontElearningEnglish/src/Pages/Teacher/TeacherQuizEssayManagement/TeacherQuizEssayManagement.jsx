@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { Container, Row, Col } from "react-bootstrap";
 import { FaEdit, FaTrash, FaArrowLeft, FaPlus, FaList } from "react-icons/fa";
+import { PiExamDuotone, PiFilesDuotone } from "react-icons/pi";
 import TeacherHeader from "../../../Components/Header/TeacherHeader";
 import Breadcrumb from "../../../Components/Common/Breadcrumb/Breadcrumb";
 import { useAuth } from "../../../Context/AuthContext";
@@ -316,7 +317,7 @@ export default function TeacherQuizEssayManagement() {
           <div className="quiz-essay-management-header mt-0">
             <div className="d-flex align-items-center justify-content-between mb-4 flex-wrap gap-3">
               <div className="d-flex flex-column">
-                <h1 className="premium-gradient-text mb-0">Quản lý nội dung bài kiểm tra</h1>
+                <h1 className="premium-gradient-text mb-0">Xây dựng bài tập</h1>
               </div>
 
               <div className="d-flex gap-3 align-items-center">
@@ -355,13 +356,13 @@ export default function TeacherQuizEssayManagement() {
               className="premium-btn-primary d-flex align-items-center gap-2"
               onClick={() => setShowCreateQuizModal(true)}
             >
-              <FaPlus /> Tạo Quiz mới
+              <FaPlus /> <span>Xây dựng Quiz</span>
             </button>
             <button
               className="premium-btn-outline d-flex align-items-center gap-2"
               onClick={() => setShowCreateEssayModal(true)}
             >
-              <FaPlus /> Tạo Essay mới
+              <FaPlus /> <span>Xây dựng Essay</span>
             </button>
           </div>
 
@@ -388,16 +389,24 @@ export default function TeacherQuizEssayManagement() {
                         >
                           <div className="d-flex justify-content-between align-items-start">
                             <div className="flex-grow-1">
-                              <h5 className="mb-2 fw-semibold">{quizTitle}</h5>
-                              <span
-                                className="badge rounded-pill px-3 py-1"
-                                style={{
-                                  color: statusInfo.color,
-                                  backgroundColor: statusInfo.bg,
-                                }}
-                              >
-                                {statusInfo.label}
-                              </span>
+                              <div className="d-flex align-items-center gap-2 mb-2">
+                                <h5 className="mb-0 fw-bold">{quizTitle}</h5>
+                                <span className="badge-quiz">QUIZ</span>
+                              </div>
+                              <div className="d-flex align-items-center gap-2">
+                                <span className="small text-muted fw-medium">Trạng thái:</span>
+                                <span
+                                  className="badge rounded-pill px-3 py-1"
+                                  style={{
+                                    color: statusInfo.color,
+                                    backgroundColor: statusInfo.bg,
+                                    fontSize: "0.7rem",
+                                    fontWeight: "700"
+                                  }}
+                                >
+                                  {statusInfo.label}
+                                </span>
+                              </div>
                             </div>
                             <div className="d-flex gap-2 ms-3" onClick={(e) => e.stopPropagation()}>
                               <button
@@ -420,7 +429,13 @@ export default function TeacherQuizEssayManagement() {
                       );
                     })
                   ) : (
-                    <div className="text-center text-muted py-5">Chưa có Quiz nào</div>
+                    <div className="no-items-message-small">
+                      <div className="empty-icon-wrapper-small">
+                        <PiExamDuotone />
+                      </div>
+                      <p className="mb-0 fw-bold">Chưa có Quiz nào</p>
+                      <p className="small text-muted mb-0">Tạo quiz trắc nghiệm để kiểm tra kiến thức.</p>
+                    </div>
                   )}
                 </div>
               </div>
@@ -435,7 +450,7 @@ export default function TeacherQuizEssayManagement() {
                     essays.map((essay) => {
                       const essayId = essay.essayId || essay.EssayId;
                       const essayTitle = essay.title || essay.Title || "Untitled Essay";
-                      const essayStatus = essay.status !== undefined ? essay.status : essay.Status;
+                      const essayStatus = essay.status || essay.Status || assessment?.status || assessment?.Status || "Open";
                       const statusInfo = getStatusLabel(essayStatus);
 
                       return (
@@ -447,7 +462,24 @@ export default function TeacherQuizEssayManagement() {
                         >
                           <div className="d-flex justify-content-between align-items-start">
                             <div className="flex-grow-1">
-                              <h5 className="mb-2 fw-semibold">{essayTitle}</h5>
+                              <div className="d-flex align-items-center gap-2 mb-2">
+                                <h5 className="mb-0 fw-bold">{essayTitle}</h5>
+                                <span className="badge-essay">ESSAY</span>
+                              </div>
+                              <div className="d-flex align-items-center gap-2">
+                                <span className="small text-muted fw-medium">Trạng thái:</span>
+                                <span
+                                  className={`badge rounded-pill px-3 py-1 status-${essayStatus.toLowerCase()}`}
+                                  style={{
+                                    color: statusInfo.color || "#059669",
+                                    backgroundColor: statusInfo.bg || "#ecfdf5",
+                                    fontSize: "0.7rem",
+                                    fontWeight: "700"
+                                  }}
+                                >
+                                  {statusInfo.label !== "Unknown" ? statusInfo.label : essayStatus}
+                                </span>
+                              </div>
                             </div>
                             <div className="d-flex gap-2 ms-3" onClick={(e) => e.stopPropagation()}>
                               <button
@@ -470,7 +502,13 @@ export default function TeacherQuizEssayManagement() {
                       );
                     })
                   ) : (
-                    <div className="text-center text-muted py-5">Chưa có Essay nào</div>
+                    <div className="no-items-message-small">
+                      <div className="empty-icon-wrapper-small">
+                        <PiFilesDuotone />
+                      </div>
+                      <p className="mb-0 fw-bold">Chưa có Essay nào</p>
+                      <p className="small text-muted mb-0">Tạo bài tự luận để học viên luyện viết.</p>
+                    </div>
                   )}
                 </div>
               </div>

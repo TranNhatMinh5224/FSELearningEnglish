@@ -30,22 +30,29 @@
   border-radius: 10px;
 }
 
-/* Header SaaS Modern - Cleaned up for global premium style */
+/* Header SaaS Modern */
+.create-quiz-modal.admin-modal .modal-header,
+.create-quiz-modal.teacher-modal .modal-header {
+  background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
+}
+
 .create-quiz-modal .modal-header {
-  padding: 1.5rem 2rem;
+  padding: 2.25rem 2.5rem;
   border-bottom: none;
   justify-content: center;
   position: relative;
   text-align: center;
+  min-height: 100px;
 }
 
 .create-quiz-modal .modal-header .modal-title,
 .create-quiz-modal .modal-header .modal-title-custom {
   color: white;
-  font-weight: 700;
-  font-size: 1.4rem;
-  letter-spacing: -0.5px;
+  font-weight: 850;
+  font-size: 1.8rem;
+  letter-spacing: -0.03em;
   margin: 0;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 /* Section Logic */
@@ -73,7 +80,7 @@
   content: "";
   width: 4px;
   height: 16px;
-  background: #74CEDE;
+  background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
   border-radius: 2px;
 }
 
@@ -100,8 +107,8 @@
 
 .create-quiz-modal .form-control:focus,
 .create-quiz-modal .form-select:focus {
-  border-color: #74CEDE;
-  box-shadow: 0 0 0 4px rgba(116, 206, 222, 0.1);
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
   outline: none;
 }
 
@@ -116,9 +123,31 @@
   gap: 12px;
 }
 
+/* Button Colors based on Role */
+.create-quiz-modal.admin-modal .btn-primary-custom,
+.create-quiz-modal.admin-modal .modal-footer .btn-primary,
+.create-quiz-modal.teacher-modal .btn-primary-custom,
+.create-quiz-modal.teacher-modal .modal-footer .btn-primary {
+  background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
+}
+
+.create-quiz-modal.admin-modal .btn-primary-custom:hover:not(:disabled) {
+  background: linear-gradient(135deg, #2563eb 0%, #7c3aed 100%);
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+}
+
+.create-quiz-modal.teacher-modal .btn-primary-custom,
+.create-quiz-modal.teacher-modal .modal-footer .btn-primary {
+  background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
+}
+
+.create-quiz-modal.teacher-modal .btn-primary-custom:hover:not(:disabled) {
+  background: linear-gradient(135deg, #2563eb 0%, #7c3aed 100%);
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+}
+
 .create-quiz-modal .btn-primary-custom,
 .create-quiz-modal .modal-footer .btn-primary {
-  background: linear-gradient(135deg, #74CEDE 0%, #5BB8C8 100%);
   border: none;
   font-weight: 600;
   padding: 0.6rem 2rem;
@@ -127,11 +156,8 @@
   transition: all 0.2s;
 }
 
-.create-quiz-modal .btn-primary-custom:hover:not(:disabled),
-.create-quiz-modal .modal-footer .btn-primary:hover:not(:disabled) {
-  background: linear-gradient(135deg, #5BB8C8 0%, #4AA8B8 100%);
+.create-quiz-modal .btn-primary-custom:hover:not(:disabled) {
   transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(116, 206, 222, 0.3);
 }
 
 .create-quiz-modal .char-count {

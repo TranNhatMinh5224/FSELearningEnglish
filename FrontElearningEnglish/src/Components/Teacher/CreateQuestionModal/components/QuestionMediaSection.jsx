@@ -16,9 +16,9 @@ const QuestionMediaSection = ({
       <Form.Label>Media đính kèm</Form.Label>
       <div className={`border p-2 rounded bg-light text-center ${qErrors.media ? 'border-danger' : ''}`} style={{ minHeight: '150px' }}>
         {!qMediaPreview ? (
-          <div className="py-4 cursor-pointer" onClick={() => qFileInputRef.current?.click()}>
-            <FaPlus size={20} className="text-muted mb-2 d-block mx-auto" />
-            <span className="text-muted small">{qUploadingMedia ? "Đang tải..." : "Chọn Ảnh/Video/Audio"}</span>
+          <div className="py-4 cursor-pointer media-upload-trigger" onClick={() => qFileInputRef.current?.click()}>
+            <FaPlus size={20} className="mb-2 d-block mx-auto upload-icon" />
+            <span className="small label-text">{qUploadingMedia ? "Đang tải..." : "Chọn Ảnh/Video/Audio"}</span>
           </div>
         ) : (
           <div className="position-relative">

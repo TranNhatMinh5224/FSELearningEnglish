@@ -29,10 +29,12 @@
 
 /* Gradient Header - Cyan Theme */
 .modal-modern .modal-header {
-  background: linear-gradient(135deg, var(--color-secondary-cyan, #41d6e3) 0%, #5BB8C8 100%);
-  padding: 1.5rem 2rem;
+  background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
+  padding: 2rem 2.5rem;
+  min-height: 100px;
   border-bottom: none;
   justify-content: center;
+  align-items: center;
   position: relative;
   text-align: center;
 }
@@ -110,7 +112,7 @@
   content: "";
   width: 4px;
   height: 16px;
-  background: linear-gradient(135deg, var(--color-secondary-cyan, #41d6e3) 0%, #5BB8C8 100%);
+  background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
   border-radius: 2px;
 }
 
@@ -142,8 +144,8 @@
 }
 
 .modal-modern .form-control:focus {
-  border-color: var(--color-secondary-cyan, #41d6e3);
-  box-shadow: 0 0 0 3px rgba(65, 214, 227, 0.15);
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
 }
 
 .modal-modern .form-control.is-invalid {
@@ -179,7 +181,7 @@
 
 /* Primary Button - Gradient Cyan */
 .modal-modern .btn-primary-custom {
-  background: linear-gradient(135deg, var(--color-secondary-cyan, #41d6e3) 0%, #5BB8C8 100%);
+  background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
   border: none;
   color: var(--color-text-white, white);
   font-weight: 600;
@@ -190,7 +192,7 @@
 
 .modal-modern .btn-primary-custom:hover:not(:disabled) {
   transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(65, 214, 227, 0.4);
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
 }
 
 .modal-modern .btn-primary-custom:disabled {

@@ -117,55 +117,65 @@
 
 .markdown-editor-container {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 1.5rem;
-  min-height: 350px;
+  grid-template-columns: repeat(2, minmax(0, 1fr)); /* Ép 2 cột luôn bằng nhau 50/50 */
+  gap: 0; /* Giảm gap để tối ưu không gian */
+  min-height: 400px;
   background: #fff;
   border: 1px solid #d2d6da;
   border-radius: 0.5rem;
-  padding: 1rem;
   overflow: hidden;
+  width: 100%;
 }
 
 .markdown-editor-left {
   display: flex;
   flex-direction: column;
+  min-width: 0; /* Quan trọng: Ngăn co giãn lỗi */
+  border-right: 1px solid #f0f0f0;
 }
 
 .markdown-editor-left .textarea-custom {
   flex: 1;
-  min-height: 300px;
-  max-height: 500px;
+  min-height: 350px;
+  max-height: 600px;
   border: none;
-  border-right: 1px solid #f0f0f0;
   border-radius: 0;
-  font-family: 'Fira Code', monospace;
-  font-size: 0.9rem;
-  padding: 0.5rem;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-size: 0.95rem;
+  padding: 1.25rem;
   outline: none;
-  background: transparent;
+  background: #fafafa;
+  resize: none;
+  width: 100%;
+  line-height: 1.6;
+  color: #1e293b;
 }
 
 .markdown-editor-left .textarea-custom:focus {
+  background: #fff;
   box-shadow: none;
-  border-color: transparent;
 }
 
 .markdown-editor-right {
   display: flex;
   flex-direction: column;
-  border-left: 1px solid #f0f0f0;
-  padding-left: 1rem;
+  min-width: 0;
+  background: #fff;
 }
 
 .markdown-editor-right .markdown-preview {
   flex: 1;
-  padding: 0.5rem;
+  padding: 1.25rem;
   overflow-y: auto;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   font-size: 0.95rem;
-  min-height: 300px;
-  max-height: 500px;
+  line-height: 1.6;
+  min-height: 350px;
+  max-height: 600px;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
   background: #fff;
+  color: #334155;
 }
 
 .markdown-preview-empty {

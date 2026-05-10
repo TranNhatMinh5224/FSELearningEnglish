@@ -17,9 +17,13 @@
 }
 
 .quiz-review-modal-v3 .modal-header.quiz-header-custom {
-  background-color: #72D0DE !important;
+  background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%) !important;
   border-bottom: none;
-  border-radius: 24px 24px 0 0;
+  min-height: 100px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 20px 20px 0 0;
   position: relative;
 }
 

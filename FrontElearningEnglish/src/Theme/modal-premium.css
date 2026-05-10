@@ -2,6 +2,7 @@
 
 /* Custom Zoom for Modals: Giúp Modal nhỏ gọn (80%) nhưng nền đen vẫn phủ kín (100%) */
 @media (min-width: 992px) {
+
   /* 1. Nền đen và khung Modal giữ nguyên tỷ lệ 1:1 chuẩn */
   .modal-backdrop {
     zoom: 1;
@@ -23,8 +24,10 @@
   /* 2. CHỈ thu nhỏ nội dung (Dialog) để gọn gàng (80%) */
   .modal-dialog {
     zoom: 0.8 !important;
-    margin: 0 !important; /* Xóa auto-margin để Flexbox căn giữa chuẩn */
-    max-width: 95%; /* Cho phép modal rộng hơn một chút nếu cần */
+    margin: 0 !important;
+    /* Xóa auto-margin để Flexbox căn giữa chuẩn */
+    max-width: 95%;
+    /* Cho phép modal rộng hơn một chút nếu cần */
   }
 
   /* --- THIẾT KẾ MAY ĐO RIÊNG (ZOOM 0.8 ĐỂ ĐỒNG NHẤT CỠ CHỮ TOÀN APP) --- */
@@ -32,18 +35,26 @@
   /* 1. Modal Tạo Package: Rộng ~1000px thực tế */
   .modal-package-size .modal-dialog {
     zoom: 0.8 !important;
-    width: 1250px !important; 
+    width: 1250px !important;
+    max-width: 95vw !important;
+  }
+
+  /* 5. Modal Essay: Rộng rãi hơn */
+  .modal-essay-size .modal-dialog {
+    zoom: 0.8 !important;
+    width: 1300px !important;
     max-width: 95vw !important;
   }
 
   /* 2. Modal Policy: Rộng rãi để chia đôi Editor/Preview */
   .modal-policy-size .modal-dialog {
     zoom: 0.8 !important;
-    width: 1500px !important;
-    max-width: 98vw !important;
+    width: 1200px !important;
+    max-width: 95vw !important;
   }
+
   .modal-policy-size .modal-content {
-    min-height: 90vh; 
+    min-height: auto;
   }
 
   /* Style cho khung Preview Markdown */
@@ -53,14 +64,25 @@
     border-radius: 0.75rem;
     padding: 1.5rem;
     height: 100%;
-    min-height: 480px;
+    min-height: 350px;
     overflow-y: auto;
     font-size: 0.95rem;
     line-height: 1.6;
     color: #334155;
   }
-  .markdown-preview-box h1, .markdown-preview-box h2 { border-bottom: 1px solid #e2e8f0; padding-bottom: 0.5rem; margin-top: 1.5rem; }
-  .markdown-preview-box code { background: #e2e8f0; padding: 0.2rem 0.4rem; border-radius: 0.25rem; }
+
+  .markdown-preview-box h1,
+  .markdown-preview-box h2 {
+    border-bottom: 1px solid #e2e8f0;
+    padding-bottom: 0.5rem;
+    margin-top: 1.5rem;
+  }
+
+  .markdown-preview-box code {
+    background: #e2e8f0;
+    padding: 0.2rem 0.4rem;
+    border-radius: 0.25rem;
+  }
 
   /* 3. Modal Cộng tiền: Rộng ~650px thực tế */
   .modal-balance-size .modal-dialog {
@@ -83,78 +105,88 @@
   .modal-asset-size .modal-content {
     display: flex;
     flex-direction: column;
-    border-radius: 1.8rem !important; /* Bo góc mượt hơn ở zoom 0.8 */
+    max-height: 95vh !important;
+    border-radius: 1.8rem !important;
+    /* Bo góc mượt hơn ở zoom 0.8 */
     box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25) !important;
+  }
+  
+  .modal-content > form {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    overflow: hidden;
   }
 
   .modal-body {
     padding: 2rem 2.5rem !important;
+    flex: 1;
     overflow-y: auto;
   }
 }
 
 /* Modal Content Rounding */
 .modal-content {
-    border: none !important;
-    border-radius: 1.25rem !important;
-    /* Standardized high-end rounding */
-    overflow: hidden;
-    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.15) !important;
+  border: none !important;
+  border-radius: 1.25rem !important;
+  /* Standardized high-end rounding */
+  overflow: hidden;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.15) !important;
 }
 
-/* Modal Header - Premium Mint Color (#72D0DE) */
+/* Modal Header - Blue to Violet Gradient */
 .modal-header {
-    background-color: #72D0DE !important;
-    border-bottom: none !important;
-    padding: 1.5rem 2rem !important;
+  background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%) !important;
+  border-bottom: none !important;
+  padding: 1.5rem 2rem !important;
 }
 
 .modal-header .modal-title {
-    color: white !important;
-    font-weight: 700 !important;
-    font-size: 1.25rem !important;
-    letter-spacing: -0.01em;
+  color: white !important;
+  font-weight: 700 !important;
+  font-size: 1.25rem !important;
+  letter-spacing: -0.01em;
 }
 
 /* Global Premium Close Button (The "X" Mark) */
 .modal-header .btn-close {
-    filter: brightness(0) invert(1) !important;
-    opacity: 0.8 !important;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
-    background-size: 0.9rem !important;
-    margin-top: -0.25rem !important;
-    margin-right: -0.5rem !important;
-    padding: 1rem !important;
+  filter: brightness(0) invert(1) !important;
+  opacity: 0.8 !important;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  background-size: 0.9rem !important;
+  margin-top: -0.25rem !important;
+  margin-right: -0.5rem !important;
+  padding: 1rem !important;
 }
 
 .modal-header .btn-close:hover {
-    opacity: 1 !important;
-    transform: rotate(90deg) scale(1.15);
+  opacity: 1 !important;
+  transform: rotate(90deg) scale(1.15);
 }
 
 .modal-header .btn-close:focus {
-    box-shadow: none !important;
-    outline: none !important;
+  box-shadow: none !important;
+  outline: none !important;
 }
 
 /* Optional: Support for dark theme if needed */
 [data-theme='dark'] .modal-header {
-    background-color: #5bbcc9 !important;
-    /* Slightly darker mint for dark mode */
+  background-color: #5bbcc9 !important;
+  /* Slightly darker mint for dark mode */
 }
 
 /* Footer normalization for premium modals */
 .modal-footer {
-    border-top: 1px solid rgba(0, 0, 0, 0.05) !important;
-    padding: 1.25rem 2rem !important;
-    background-color: #fcfcfc;
+  border-top: 1px solid rgba(0, 0, 0, 0.05) !important;
+  padding: 1.25rem 2rem !important;
+  background-color: #fcfcfc;
 }
 
 /* Standardizing Buttons in Modals (Optional but recommended) */
 .modal-footer .btn {
-    border-radius: 100px !important;
-    /* Pill shape */
-    padding: 0.6rem 2rem !important;
-    font-weight: 600 !important;
-    transition: all 0.2s ease;
+  border-radius: 100px !important;
+  /* Pill shape */
+  padding: 0.6rem 2rem !important;
+  font-weight: 600 !important;
+  transition: all 0.2s ease;
 }

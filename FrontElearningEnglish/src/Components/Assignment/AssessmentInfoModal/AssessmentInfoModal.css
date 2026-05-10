@@ -1,7 +1,7 @@
 /* Assessment Info Modal - Modern Style like CreateCourseModal */
 
 .assessment-info-modal.modal-modern .modal-header {
-    background: linear-gradient(135deg, var(--color-secondary-cyan, #41d6e3) 0%, #5BB8C8 100%);
+    background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
 }
 
 .assessment-info-modal.modal-modern .modal-header .modal-title {
@@ -35,7 +35,7 @@
 }
 
 .assessment-info-modal .form-section-title svg {
-    color: var(--color-secondary-cyan, #41d6e3);
+    color: #3b82f6;
 }
 
 /* Buttons */
@@ -48,15 +48,15 @@
 }
 
 .assessment-info-modal .modal-footer .btn-primary.btn-quiz {
-    background: linear-gradient(135deg, #74CEDE 0%, #5BB8C8 100%);
+    background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
     border: none;
     color: white;
 }
 
 .assessment-info-modal .modal-footer .btn-primary.btn-quiz:hover:not(:disabled) {
-    background: linear-gradient(135deg, #5BB8C8 0%, #4AA8B8 100%);
+    background: linear-gradient(135deg, #2563eb 0%, #7c3aed 100%);
     transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(116, 206, 222, 0.3);
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
 }
 
 .assessment-info-modal .modal-footer .btn-primary.btn-essay {

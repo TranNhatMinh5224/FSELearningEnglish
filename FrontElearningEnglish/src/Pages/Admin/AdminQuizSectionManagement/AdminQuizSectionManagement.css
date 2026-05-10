@@ -5,49 +5,49 @@
 
 /* Premium Header Styles */
 .back-nav-link {
-    background: none;
-    border: none;
-    padding: 0;
-    font-size: 0.95rem;
-    font-weight: 500;
-    display: flex;
-    align-items: center;
-    transition: all 0.2s ease;
-    cursor: pointer;
+  background: none;
+  border: none;
+  padding: 0;
+  font-size: 0.95rem;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  transition: all 0.2s ease;
+  cursor: pointer;
 }
 
 .back-nav-link:hover {
-    color: #BC69C0 !important;
-    transform: translateX(-4px);
+  color: #BC69C0 !important;
+  transform: translateX(-4px);
 }
 
 .premium-gradient-text {
-    background: linear-gradient(135deg, #4A00E0 0%, #8E2DE2 50%, #BC69C0 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-    display: inline-block;
+  background: linear-gradient(135deg, #4A00E0 0%, #8E2DE2 50%, #BC69C0 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  display: inline-block;
 }
 
 .premium-btn {
-    background: #6d28d9 !important;
-    color: white !important;
-    border-radius: 16px !important;
-    padding: 0.8rem 2rem !important;
-    font-weight: 700 !important;
-    font-size: 1.1rem !important;
-    box-shadow: 0 8px 20px rgba(109, 40, 217, 0.2) !important;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
-    border: none !important;
-    display: flex;
-    align-items: center;
-    gap: 12px;
+  background: #6d28d9 !important;
+  color: white !important;
+  border-radius: 16px !important;
+  padding: 0.8rem 2rem !important;
+  font-weight: 700 !important;
+  font-size: 1.1rem !important;
+  box-shadow: 0 8px 20px rgba(109, 40, 217, 0.2) !important;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  border: none !important;
+  display: flex;
+  align-items: center;
+  gap: 12px;
 }
 
 .premium-btn:hover {
-    transform: translateY(-3px) !important;
-    box-shadow: 0 12px 25px rgba(109, 40, 217, 0.3) !important;
-    filter: brightness(1.1);
+  transform: translateY(-3px) !important;
+  box-shadow: 0 12px 25px rgba(109, 40, 217, 0.3) !important;
+  filter: brightness(1.1);
 }
 
 .sections-list {

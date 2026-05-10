@@ -1,6 +1,6 @@
 import React from "react";
 import { Row, Col, Form, Button } from "react-bootstrap";
-import { FaTrash, FaPlus, FaQuestionCircle } from "react-icons/fa";
+import { FaTrash, FaPlus, FaCheckSquare } from "react-icons/fa";
 import { QUESTION_TYPES } from "../../hooks/useQuestionForm";
 
 const MCQFields = ({ qFormData, handleOptionChange, removeOption, addOption }) => {
@@ -8,10 +8,10 @@ const MCQFields = ({ qFormData, handleOptionChange, removeOption, addOption }) =
   const isTrueFalse = qFormData.type === QUESTION_TYPES.TrueFalse;
 
   return (
-    <div className="form-section-card">
-      <div className="form-section-title">
-        <FaQuestionCircle className="me-2" />
-        {isTrueFalse ? "Đúng / Sai" : isMultipleAnswers ? "Trắc nghiệm (Nhiều đáp án đúng)" : "Trắc nghiệm (1 đáp án đúng)"}
+    <div className="form-section-card format-section">
+      <div className="form-section-title mb-3">
+        <FaCheckSquare className="icon-accent" />
+        {isTrueFalse ? "Đúng / Sai" : isMultipleAnswers ? "Lựa chọn đáp án (Nhiều)" : "Lựa chọn đáp án (Duy nhất)"}
       </div>
       <div className="mt-3">
         <div className="options-grid">
@@ -44,7 +44,7 @@ const MCQFields = ({ qFormData, handleOptionChange, removeOption, addOption }) =
             ))}
           </Row>
           {!isTrueFalse && (
-            <Button variant="outline-primary" size="sm" onClick={addOption} className="mt-2">
+            <Button size="sm" onClick={addOption} className="mt-2 btn-add-item">
               <FaPlus className="me-1" /> Thêm đáp án
             </Button>
           )}

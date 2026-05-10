@@ -3,6 +3,7 @@ import { Modal, Form, Button, Alert } from "react-bootstrap";
 import { superAdminService } from "../../../Services/superAdminService";
 import ConfirmModal from "../../Common/ConfirmModal/ConfirmModal";
 import PremiumCloseButton from "../../Common/PremiumCloseButton/PremiumCloseButton";
+import { PiUserPlusDuotone } from "react-icons/pi";
 import "./CreateAdminModal.css";
 
 // Validation patterns (khớp backend)
@@ -193,8 +194,11 @@ export default function CreateAdminModal({ show, onClose, onSuccess }) {
         className="modal-modern create-admin-modal"
         dialogClassName="create-admin-modal-dialog"
       >
-        <Modal.Header closeButton={false}>
-          <Modal.Title className="fw-bold modal-title-centered">Tạo tài khoản quản trị mới</Modal.Title>
+        <Modal.Header closeButton={false} className="px-4 py-3">
+          <Modal.Title className="fw-bold modal-title-centered text-white d-flex align-items-center gap-3">
+            <PiUserPlusDuotone size={32} />
+            <span>Tạo tài khoản quản trị mới</span>
+          </Modal.Title>
           <PremiumCloseButton onClick={onClose} />
         </Modal.Header>
         <Modal.Body>
@@ -311,7 +315,12 @@ export default function CreateAdminModal({ show, onClose, onSuccess }) {
           <Button variant="secondary" onClick={handleClose} disabled={loading}>
             Hủy
           </Button>
-          <Button variant="primary" onClick={handleSubmit} disabled={!isFormValid || loading}>
+          <Button 
+            variant="primary" 
+            onClick={handleSubmit} 
+            disabled={!isFormValid || loading}
+            className="rounded-pill px-4 btn-primary-custom"
+          >
             {loading ? "Đang tạo..." : "Tạo Admin"}
           </Button>
         </Modal.Footer>

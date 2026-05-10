@@ -5,6 +5,7 @@ import { toast } from "react-toastify";
 import PremiumCloseButton from "../../Common/PremiumCloseButton/PremiumCloseButton";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
+import { PiShieldCheckDuotone } from "react-icons/pi";
 
 export default function PolicyFormModal({ show, onClose, onSuccess, policyToEdit }) {
   const [formData, setFormData] = useState({
@@ -67,9 +68,10 @@ export default function PolicyFormModal({ show, onClose, onSuccess, policyToEdit
 
   return (
     <Modal show={show} onHide={onClose} size="lg" centered className="modal-modern modal-policy-size">
-      <Modal.Header closeButton={false} className="modal-header-cyan">
-        <Modal.Title className="fw-bold modal-title-centered text-white">
-          {policyToEdit ? "Cập nhật chính sách" : "Thêm chính sách mới"}
+      <Modal.Header closeButton={false} className="px-4 py-3">
+        <Modal.Title className="fw-bold modal-title-centered text-white d-flex align-items-center gap-3">
+          <PiShieldCheckDuotone size={32} />
+          <span>{policyToEdit ? "Cập nhật chính sách" : "Thêm chính sách mới"}</span>
         </Modal.Title>
         <PremiumCloseButton onClick={onClose} variant="white" />
       </Modal.Header>
@@ -121,7 +123,7 @@ export default function PolicyFormModal({ show, onClose, onSuccess, policyToEdit
                   <Form.Label className="small text-muted mb-1">Trình soạn thảo</Form.Label>
                   <Form.Control
                     as="textarea"
-                    rows={18}
+                    rows={12}
                     name="contentMarkdown"
                     value={formData.contentMarkdown}
                     onChange={handleChange}
@@ -155,7 +157,12 @@ export default function PolicyFormModal({ show, onClose, onSuccess, policyToEdit
           <Button variant="secondary" onClick={onClose} disabled={loading}>
             Hủy
           </Button>
-          <Button variant="primary" type="submit" disabled={loading}>
+          <Button 
+            variant="primary" 
+            type="submit" 
+            disabled={loading}
+            className="rounded-pill px-4 btn-primary-custom"
+          >
             {loading ? "Đang lưu..." : "Lưu chính sách"}
           </Button>
         </Modal.Footer>

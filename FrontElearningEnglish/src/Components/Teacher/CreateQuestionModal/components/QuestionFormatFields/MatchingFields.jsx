@@ -1,66 +1,56 @@
 import React from "react";
-import { Row, Col, InputGroup, Form, Button } from "react-bootstrap";
-import { FaQuestionCircle, FaArrowDown, FaTimes, FaPlus } from "react-icons/fa";
+import { Row, Col, Form, Button } from "react-bootstrap";
+import { FaTrash, FaPlus, FaLink, FaArrowRight } from "react-icons/fa";
 
 const MatchingFields = ({ matchingPairs, handlePairChange, removePair, addPair }) => {
   return (
-    <div className="form-section-card">
-      <div className="form-section-title">
-        <FaQuestionCircle className="me-2" />
-        Nối từ (Matching)
+    <div className="form-section-card format-section">
+      <div className="form-section-title mb-3">
+        <FaLink className="icon-accent" /> Thiết lập cặp nối
       </div>
+      
       <div className="matching-table-container">
         <div className="matching-header-row">
-          <div style={{ flex: 1 }}>Vế A (Trái)</div>
-          <div style={{ width: '40px' }}></div>
-          <div style={{ flex: 1 }}>Vế B (Phải)</div>
-          <div style={{ width: '40px' }}></div>
+          <div className="matching-col-input">Vế trái (Câu hỏi)</div>
+          <div className="matching-col-arrow"></div>
+          <div className="matching-col-input">Vế phải (Đáp án)</div>
+          <div className="matching-col-action"></div>
         </div>
         
         {matchingPairs.map((pair, index) => (
           <div key={`pair-${index}`} className="matching-row">
             <div className="matching-col-input">
-              <Form.Control 
-                type="text" 
-                value={pair.key} 
-                onChange={(e) => handlePairChange(index, "key", e.target.value)} 
-                placeholder="Nhập phần vế trái..." 
-                className="shadow-none" 
+              <Form.Control
+                type="text"
+                value={pair.leftSide || ""}
+                onChange={(e) => handlePairChange(index, "leftSide", e.target.value)}
+                placeholder="Ví dụ: Hello"
               />
             </div>
-            
             <div className="matching-col-arrow">
-              <FaArrowDown style={{ transform: 'rotate(-90deg)' }} />
+              <FaArrowRight className="matching-arrow" />
             </div>
-            
             <div className="matching-col-input">
-              <Form.Control 
-                type="text" 
-                value={pair.value} 
-                onChange={(e) => handlePairChange(index, "value", e.target.value)} 
-                placeholder="Nhập phần vế phải..." 
-                className="shadow-none" 
+              <Form.Control
+                type="text"
+                value={pair.rightSide || ""}
+                onChange={(e) => handlePairChange(index, "rightSide", e.target.value)}
+                placeholder="Ví dụ: Xin chào"
               />
             </div>
-            
             <div className="matching-col-action">
-              <button 
-                type="button"
-                className="remove-pair-btn" 
-                onClick={() => removePair(index)}
-                title="Xóa cặp này"
-              >
-                <FaTimes />
+              <button type="button" className="remove-pair-btn" onClick={() => removePair(index)}>
+                <FaTrash size={14} />
               </button>
             </div>
           </div>
         ))}
-        
-        <div className="add-pair-footer">
-          <Button variant="outline-primary" size="sm" onClick={addPair} className="border-0 fw-bold">
-            <FaPlus className="me-2" /> Thêm cặp nối mới
-          </Button>
-        </div>
+      </div>
+
+      <div className="add-pair-footer d-flex justify-content-center">
+        <Button size="sm" onClick={addPair} className="mt-3 btn-add-item px-4">
+          <FaPlus className="me-2" /> Thêm cặp nối mới
+        </Button>
       </div>
     </div>
   );

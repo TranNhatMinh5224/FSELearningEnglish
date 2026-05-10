@@ -240,11 +240,11 @@ export default function CreateLessonModal({ show, onClose, onSuccess, courseId, 
 
   return (
     <>
-      <Modal 
-        show={show} 
-        onHide={handleCancel} 
-        centered 
-        className="create-lesson-modal modal-modern" 
+      <Modal
+        show={show}
+        onHide={handleCancel}
+        centered
+        className="create-lesson-modal modal-modern"
         dialogClassName="create-lesson-modal-dialog"
       >
         <Modal.Header closeButton={false}>
@@ -261,7 +261,7 @@ export default function CreateLessonModal({ show, onClose, onSuccess, courseId, 
             <div className="form-section">
               <div className="section-title"><FaLayerGroup /> Thông tin chung</div>
               <div className="row g-3">
-                 <div className="col-12">
+                <div className="col-12">
                   <Form.Label className="fw-bold">Tiêu đề chương học <span className="text-danger">*</span></Form.Label>
                   <Form.Control
                     type="text"
