@@ -477,6 +477,9 @@ export default function TeacherLessonDetail() {
                                   <div className="content-item-info">
                                     <div className="item-header">
                                       <h4 className="content-item-title">{title}</h4>
+                                      {description && (
+                                        <p className="content-item-description">{description}</p>
+                                      )}
                                       <div className="item-badges">
                                         {typeInfo.hasQuiz || typeInfo.hasEssay ? (
                                           <>
@@ -612,6 +615,11 @@ export default function TeacherLessonDetail() {
                               />
                               <div className="module-info">
                                 <span className="module-name">{moduleName}</span>
+                                {(module.description || module.Description) && (
+                                  <p className="module-item-description">
+                                    {module.description || module.Description}
+                                  </p>
+                                )}
                                 <span className="module-type">{displayContentType}</span>
                               </div>
                             </div>

@@ -114,6 +114,7 @@ export default function CourseTable({
                       <button 
                         className="table-action-btn action-view" 
                         title="View Details"
+                        aria-label="View Details"
                         onClick={(e) => {
                           e.stopPropagation();
                           onView(course.courseId);
@@ -124,6 +125,7 @@ export default function CourseTable({
                       <button 
                         className="table-action-btn action-edit" 
                         title="Edit"
+                        aria-label="Edit Course"
                         onClick={(e) => {
                           e.stopPropagation();
                           onEdit(course);
@@ -134,6 +136,7 @@ export default function CourseTable({
                       <button 
                         className="table-action-btn action-delete" 
                         title="Delete"
+                        aria-label="Delete Course"
                         onClick={(e) => {
                           e.stopPropagation();
                           onDelete(course.courseId);

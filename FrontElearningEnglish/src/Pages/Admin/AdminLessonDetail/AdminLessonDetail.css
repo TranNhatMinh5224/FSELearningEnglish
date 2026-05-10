@@ -180,11 +180,6 @@
 
 .btn-add-lesson-card svg {
   font-size: 1.25rem;
-  transition: transform 0.3s ease;
-}
-
-.btn-add-lesson-card:hover svg {
-  transform: rotate(90deg);
 }
 
 .modules-list {
@@ -261,18 +256,34 @@
 .module-info {
   display: flex;
   flex-direction: column;
-  gap: 0.25rem;
+  gap: 0.15rem;
 }
 
 .module-name {
   font-weight: 600;
   color: #2d3748;
   font-size: 1.15rem;
+  margin-bottom: 2px;
+}
+
+.module-item-description {
+  font-size: 0.9rem;
+  color: #64748b;
+  margin: 0 0 4px 0;
+  line-height: 1.4;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .module-type {
-  font-size: 0.85rem;
-  color: #718096;
+  font-size: 0.8rem;
+  color: #94a3b8;
+  text-transform: uppercase;
+  font-weight: 600;
+  letter-spacing: 0.02em;
 }
 
 .module-actions {

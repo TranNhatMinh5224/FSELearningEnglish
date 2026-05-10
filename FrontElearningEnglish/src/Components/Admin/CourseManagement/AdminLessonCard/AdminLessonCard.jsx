@@ -13,7 +13,6 @@ export default function AdminLessonCard({
 }) {
     const lessonTitle = lesson.title || lesson.Title || "Bài học";
     const lessonImage = lesson.imageUrl || lesson.ImageUrl || (getDefaultLessonImage ? getDefaultLessonImage() : "");
-    const moduleCount = lesson.totalModules || lesson.TotalModules || 0;
     const lessonId = lesson.lessonId || lesson.LessonId;
 
     return (
@@ -31,6 +30,11 @@ export default function AdminLessonCard({
                 </div>
                 <div className="admin-lesson-info">
                     <h4 className="admin-lesson-title">{lessonTitle}</h4>
+                    {(lesson.description || lesson.Description) && (
+                        <p className="admin-lesson-description">
+                            {lesson.description || lesson.Description}
+                        </p>
+                    )}
                 </div>
             </div>
             <div className="admin-lesson-actions">

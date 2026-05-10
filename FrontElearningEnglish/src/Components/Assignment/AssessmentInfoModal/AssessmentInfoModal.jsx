@@ -25,38 +25,48 @@ export default function AssessmentInfoModal({
     const [checkingProgress, setCheckingProgress] = useState(false);
     const [essayHasSubmission, setEssayHasSubmission] = useState(false);
     const [showCannotStartModal, setShowCannotStartModal] = useState(false);
+    const [differentQuizTitle, setDifferentQuizTitle] = useState("");
 
-    const checkQuizProgress = useCallback(async (rawQuizId) => {
+    const checkGlobalProgress = useCallback(async () => {
         setCheckingProgress(true);
-        const quizId = parseInt(rawQuizId);
-        console.log(" [AssessmentInfoModal] Checking active attempt via API for quizId:", quizId);
+        console.log(" [AssessmentInfoModal] Checking global active attempt via API");
 
         try {
-            // New logic: Call backend API instead of checking localStorage
-            const response = await quizAttemptService.checkActiveAttempt(quizId);
-            console.log(" [AssessmentInfoModal] CheckActive API Response:", response.data);
-
-            // Only treat as in-progress when backend explicitly reports hasActiveAttempt === true
-            if (response.data?.success && response.data?.data?.hasActiveAttempt) {
+            const response = await quizAttemptService.checkAnyActiveAttempt();
+            if (response.data?.success && response.data?.data) {
                 const attemptData = response.data.data;
-                console.log(" [AssessmentInfoModal] Found active attempt:", attemptData);
+                console.log(" [AssessmentInfoModal] Found global active attempt:", attemptData);
+                
                 setInProgressAttempt({
                     attemptId: attemptData.attemptId || attemptData.AttemptId,
-                    quizId: quizId,
-                    startedAt: attemptData.startedAt || attemptData.StartedAt,
-                    timeSpentSeconds: attemptData.timeSpentSeconds || attemptData.TimeSpentSeconds || 0
+                    quizId: attemptData.quizId || attemptData.QuizId,
+                    courseId: attemptData.courseId || attemptData.CourseId,
+                    lessonId: attemptData.lessonId || attemptData.LessonId,
+                    moduleId: attemptData.moduleId || attemptData.ModuleId,
+                    quizTitle: attemptData.quizTitle || attemptData.QuizTitle || "Bài làm dở"
                 });
+
+                const currentQuizId = assessment?.quizId || assessment?.QuizId;
+                const activeQuizId = attemptData.quizId || attemptData.QuizId;
+
+                // Nếu đang làm dở một bài KHÁC với bài hiện tại
+                if (currentQuizId && activeQuizId && parseInt(currentQuizId) !== parseInt(activeQuizId)) {
+                    setDifferentQuizTitle(attemptData.quizTitle || attemptData.QuizTitle || "một bài khác");
+                } else {
+                    setDifferentQuizTitle("");
+                }
             } else {
-                console.log(" [AssessmentInfoModal] No active attempt found");
+                console.log(" [AssessmentInfoModal] No active attempt found globally");
                 setInProgressAttempt(null);
+                setDifferentQuizTitle("");
             }
         } catch (err) {
-            console.error(" [AssessmentInfoModal] Error checking quiz progress:", err);
+            console.error(" [AssessmentInfoModal] Error checking global progress:", err);
             setInProgressAttempt(null);
         } finally {
             setCheckingProgress(false);
         }
-    }, []);
+    }, [assessment]);
 
     const checkEssaySubmission = useCallback(async (essayId) => {
         try {
@@ -87,29 +97,24 @@ export default function AssessmentInfoModal({
             setEssay(null);
             setInProgressAttempt(null);
             setEssayHasSubmission(false);
+            setDifferentQuizTitle("");
 
             try {
-                // Determine if this is a quiz or essay based on assessment data
-                // Check if assessment has quizId or essayId
                 const quizId = assessment.quizId || assessment.QuizId;
                 const essayId = assessment.essayId || assessment.EssayId;
 
                 if (quizId) {
-                    // Load quiz data
                     const quizResponse = await quizService.getById(quizId);
                     if (quizResponse.data?.success && quizResponse.data?.data) {
                         setQuiz(quizResponse.data.data);
-                        // Check for in-progress attempt
-                        await checkQuizProgress(quizId);
+                        await checkGlobalProgress();
                     } else {
                         setError("Không thể tải thông tin quiz");
                     }
                 } else if (essayId) {
-                    // Load essay data
                     const essayResponse = await essayService.getById(essayId);
                     if (essayResponse.data?.success && essayResponse.data?.data) {
                         setEssay(essayResponse.data.data);
-                        // Check for existing submission
                         await checkEssaySubmission(essayId);
                     } else {
                         setError("Không thể tải thông tin essay");
@@ -126,7 +131,7 @@ export default function AssessmentInfoModal({
         };
 
         loadData();
-    }, [isOpen, assessment, checkQuizProgress, checkEssaySubmission]);
+    }, [isOpen, assessment, checkGlobalProgress, checkEssaySubmission]);
 
     const formatDate = (dateString) => {
         if (!dateString) return "Không có";
@@ -143,7 +148,6 @@ export default function AssessmentInfoModal({
     const formatTimeLimit = (timeLimit) => {
         if (!timeLimit) return "Không giới hạn";
         if (typeof timeLimit === 'string') {
-            // Parse TimeSpan string (e.g., "01:00:00" or "00:15:00")
             const parts = timeLimit.split(':');
             const hours = parseInt(parts[0]) || 0;
             const minutes = parseInt(parts[1]) || 0;
@@ -152,7 +156,6 @@ export default function AssessmentInfoModal({
             }
             return `${minutes} phút`;
         }
-        // If it's a number (minutes)
         if (typeof timeLimit === 'number') {
             if (timeLimit >= 60) {
                 const hours = Math.floor(timeLimit / 60);
@@ -169,26 +172,27 @@ export default function AssessmentInfoModal({
             try {
                 setLoading(true);
 
-                // If user requested to start a NEW attempt but there is an active attempt, show card instead
                 if (isNewAttempt && inProgressAttempt && inProgressAttempt.attemptId) {
                     setShowCannotStartModal(true);
                     setLoading(false);
                     return;
                 }
 
-                // Nếu không phải attempt mới và có in-progress attempt, dùng nó
                 if (!isNewAttempt && inProgressAttempt && inProgressAttempt.attemptId) {
                     console.log(" [AssessmentInfoModal] Continuing in-progress attempt:", inProgressAttempt.attemptId);
                     onStartQuiz({
                         ...assessment,
                         attemptId: inProgressAttempt.attemptId,
                         quizId: inProgressAttempt.quizId,
+                        courseId: inProgressAttempt.courseId,
+                        lessonId: inProgressAttempt.lessonId,
+                        moduleId: inProgressAttempt.moduleId,
+                        isGlobalResume: true
                     });
                     onClose();
                     return;
                 }
 
-                // Start new quiz attempt
                 console.log(" [AssessmentInfoModal] Starting new quiz attempt");
                 const response = await quizAttemptService.start(quiz.quizId || quiz.QuizId);
                 if (response.data?.success && response.data?.data) {
@@ -196,7 +200,6 @@ export default function AssessmentInfoModal({
                     const attemptId = attemptData.attemptId || attemptData.AttemptId;
                     const quizId = attemptData.quizId || attemptData.QuizId || quiz.quizId || quiz.QuizId;
 
-                    // Pass attempt data to parent
                     onStartQuiz({
                         ...assessment,
                         attemptId,
@@ -205,15 +208,14 @@ export default function AssessmentInfoModal({
                     });
                     onClose();
                 } else {
-                    // If backend rejects starting a new attempt, prefer showing the cannot-start modal
                     setShowCannotStartModal(true);
                     setLoading(false);
                 }
             } catch (err) {
                 console.error("❌ [AssessmentInfoModal] Error starting quiz:", err);
-                // If backend returns an active-attempt error, show the card; otherwise show generic error
                 const msg = err.response?.data?.message || "Không thể bắt đầu làm quiz";
                 if (msg && /active|already|đang làm|đã có/i.test(msg)) {
+                    await checkGlobalProgress();
                     setShowCannotStartModal(true);
                 } else {
                     setError(msg);
@@ -221,7 +223,6 @@ export default function AssessmentInfoModal({
                 setLoading(false);
             }
         } else if (essay) {
-            // Navigate to essay page with essayId
             const essayId = essay.essayId || essay.EssayId;
             if (essayId) {
                 onStartEssay({
@@ -237,7 +238,6 @@ export default function AssessmentInfoModal({
 
     if (!isOpen || !assessment) return null;
 
-    // Determine type based on actual quiz/essay data, not title
     const isQuiz = !!quiz;
 
     return (
@@ -276,7 +276,6 @@ export default function AssessmentInfoModal({
                         </div>
                     ) : (
                         <>
-                            {/* Tiêu đề */}
                             {(quiz?.title || assessment.title) && (
                                 <div className="form-section-card mb-3">
                                     <div className="form-section-title">
@@ -289,7 +288,6 @@ export default function AssessmentInfoModal({
                                 </div>
                             )}
 
-                            {/* Mô tả */}
                             {(quiz?.description || assessment.description) && (
                                 <div className="form-section-card mb-3">
                                     <div className="form-section-title">
@@ -302,7 +300,6 @@ export default function AssessmentInfoModal({
                                 </div>
                             )}
 
-                            {/* Hướng dẫn */}
                             {quiz?.instructions && (
                                 <div className="form-section-card mb-3">
                                     <div className="form-section-title">
@@ -315,9 +312,7 @@ export default function AssessmentInfoModal({
                                 </div>
                             )}
 
-                            {/* Info Cards Grid */}
                             <Row className="g-3 mb-3">
-                                {/* Thời gian làm bài */}
                                 {(quiz?.duration || assessment.timeLimit) && (
                                     <Col md={6}>
                                         <Card className="h-100 border-0 shadow-sm">
@@ -331,7 +326,6 @@ export default function AssessmentInfoModal({
                                     </Col>
                                 )}
 
-                                {/* Tổng số câu hỏi */}
                                 {quiz?.totalQuestions && (
                                     <Col md={6}>
                                         <Card className="h-100 border-0 shadow-sm">
@@ -343,7 +337,6 @@ export default function AssessmentInfoModal({
                                     </Col>
                                 )}
 
-                                {/* Điểm đạt */}
                                 {(quiz?.passingScore !== undefined || assessment.passingScore) && (
                                     <Col md={6}>
                                         <Card className="h-100 border-0 shadow-sm">
@@ -357,7 +350,6 @@ export default function AssessmentInfoModal({
                                     </Col>
                                 )}
 
-                                {/* Tổng điểm */}
                                 {assessment.totalPoints && (
                                     <Col md={6}>
                                         <Card className="h-100 border-0 shadow-sm">
@@ -369,7 +361,6 @@ export default function AssessmentInfoModal({
                                     </Col>
                                 )}
 
-                                {/* Số lần làm tối đa */}
                                 {quiz?.maxAttempts !== undefined && (
                                     <Col md={6}>
                                         <Card className="h-100 border-0 shadow-sm">
@@ -383,7 +374,6 @@ export default function AssessmentInfoModal({
                                     </Col>
                                 )}
 
-                                {/* Mở từ */}
                                 {(quiz?.availableFrom || assessment.openAt) && (
                                     <Col md={6}>
                                         <Card className="h-100 border-0 shadow-sm">
@@ -397,7 +387,6 @@ export default function AssessmentInfoModal({
                                     </Col>
                                 )}
 
-                                {/* Hạn nộp */}
                                 {assessment.dueAt && (
                                     <Col md={6}>
                                         <Card className="h-100 border-0 shadow-sm">
@@ -410,7 +399,6 @@ export default function AssessmentInfoModal({
                                 )}
                             </Row>
 
-                            {/* Thông tin bổ sung từ quiz */}
                             {quiz && (quiz.shuffleQuestions || quiz.shuffleAnswers || quiz.showAnswersAfterSubmit || quiz.showScoreImmediately) && (
                                 <div className="form-section-card mb-3">
                                     <div className="form-section-title">
@@ -465,14 +453,14 @@ export default function AssessmentInfoModal({
                             onClick={() => handleStart(false)}
                             disabled={loading || checkingProgress}
                         >
-                            {loading || checkingProgress ? "Đang tải..." : "Tiếp tục bài đang làm"}
+                            {loading || checkingProgress ? "Đang tải..." : (differentQuizTitle ? `Tiếp tục: ${differentQuizTitle}` : "Tiếp tục bài đang làm")}
                         </Button>
                     )}
                     <Button
                         variant="primary"
                         className={`w-100 ${isQuiz ? "btn-quiz" : "btn-essay"}`}
                         onClick={() => handleStart(true)}
-                        disabled={loading || checkingProgress || (!quiz && !essay)}
+                        disabled={loading || checkingProgress || (!quiz && !essay) || (differentQuizTitle !== "" && inProgressAttempt)}
                     >
                         {loading || checkingProgress ? "Đang tải..." : (isQuiz ? "Bắt đầu làm bài" : (essayHasSubmission ? "Cập nhật Essay" : "Bắt đầu viết Essay"))}
                     </Button>
@@ -487,7 +475,6 @@ export default function AssessmentInfoModal({
                 </Modal.Footer>
             </Modal>
 
-            {/* Cannot Start Modal */}
             <ConfirmModal
                 isOpen={showCannotStartModal}
                 onClose={() => setShowCannotStartModal(false)}
@@ -495,9 +482,12 @@ export default function AssessmentInfoModal({
                     setShowCannotStartModal(false);
                     handleStart(false);
                 }}
-                title="Không thể bắt đầu bài quiz mới"
-                message="Bạn đang có một bài quiz chưa hoàn thành. Vui lòng tiếp tục bài đang làm hoặc nộp bài trước khi bắt đầu bài mới."
-                confirmText="Tiếp tục bài đang làm"
+                title="Không thể bắt đầu bài mới"
+                message={differentQuizTitle 
+                    ? `Bạn đang có một bài quiz chưa hoàn thành: "${differentQuizTitle}". Bạn phải hoàn thành bài đó trước khi bắt đầu bài mới.`
+                    : "Bạn đang có một bài quiz chưa hoàn thành. Vui lòng tiếp tục bài đang làm hoặc nộp bài trước khi bắt đầu bài mới."
+                }
+                confirmText={differentQuizTitle ? "Tiếp tục bài làm dở" : "Tiếp tục làm bài"}
                 cancelText="Đóng"
                 type="warning"
             />

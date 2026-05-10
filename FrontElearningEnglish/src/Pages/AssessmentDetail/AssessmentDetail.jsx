@@ -22,18 +22,18 @@ export default function AssessmentDetail() {
     const { courseId, lessonId, moduleId, assessmentId } = useParams();
     const navigate = useNavigate();
     const { isInProgress } = useSubmissionStatus();
-    
+
     // Data state
     const [assessment, setAssessment] = useState(null);
     const [quizzes, setQuizzes] = useState([]);
     const [essays, setEssays] = useState([]);
-    
+
     // Info state
     const [course, setCourse] = useState(null);
     const [lesson, setLesson] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
-    
+
     // Modal state
     const [selectedAssessment, setSelectedAssessment] = useState(null);
     const [showInfoModal, setShowInfoModal] = useState(false);
@@ -61,7 +61,7 @@ export default function AssessmentDetail() {
 
                 if (courseRes.data?.success) setCourse(courseRes.data.data);
                 if (lessonRes.data?.success) setLesson(lessonRes.data.data);
-                
+
                 if (assessRes.data?.success) {
                     setAssessment(assessRes.data.data);
                 } else {
@@ -121,12 +121,12 @@ export default function AssessmentDetail() {
         const checkInProgress = async () => {
             if (quizzes.length === 0) return;
             const progressMap = {};
-            
+
             for (const quiz of quizzes) {
                 const quizId = quiz.quizId || quiz.QuizId;
                 const savedKey = `quiz_in_progress_${quizId}`;
                 const saved = localStorage.getItem(savedKey);
-                
+
                 if (saved) {
                     try {
                         const progress = JSON.parse(saved);
@@ -150,7 +150,7 @@ export default function AssessmentDetail() {
             }
             setInProgressQuizzes(progressMap);
         };
-        
+
         checkInProgress();
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [quizzes, assessmentId]); // isInProgress is now memoized, safe to exclude
@@ -176,9 +176,13 @@ export default function AssessmentDetail() {
     };
 
     const handleStartQuiz = async (data) => {
-        // Logic start quiz (giữ nguyên hoặc tối ưu)
-        // Redirect to quiz attempt page
-        navigate(`/course/${courseId}/lesson/${lessonId}/module/${moduleId}/quiz/${data.quizId}/attempt/${data.attemptId || 'new'}`);
+        // Nếu là resume bài làm dở từ khóa học/chương khác
+        if (data.isGlobalResume && data.courseId && data.lessonId && data.moduleId) {
+            navigate(`/course/${data.courseId}/lesson/${data.lessonId}/module/${data.moduleId}/quiz/${data.quizId}/attempt/${data.attemptId}`);
+        } else {
+            // Điều hướng chuẩn trong ngữ cảnh hiện tại
+            navigate(`/course/${courseId}/lesson/${lessonId}/module/${moduleId}/quiz/${data.quizId}/attempt/${data.attemptId || 'new'}`);
+        }
     };
 
     const handleStartEssay = async (data) => {
@@ -208,7 +212,7 @@ export default function AssessmentDetail() {
             <div className="assessment-detail-container">
                 <Container>
                     <div className="breadcrumb-wrapper mb-4">
-                        <Breadcrumb 
+                        <Breadcrumb
                             items={[
                                 { label: "Khóa học của tôi", path: "/my-courses" },
                                 { label: course?.title || "Khóa học", path: `/course/${courseId}` },
@@ -252,8 +256,8 @@ export default function AssessmentDetail() {
                             <h4 className="mb-3 text-info border-bottom pb-2">Trắc nghiệm (Quiz)</h4>
                             {quizzes.length > 0 ? (
                                 quizzes.map(q => (
-                                    <QuizCard 
-                                        key={q.quizId} 
+                                    <QuizCard
+                                        key={q.quizId}
                                         assessment={q} // Quiz info
                                         onClick={() => handleQuizClick(q)}
                                         hasInProgress={!!inProgressQuizzes[assessmentId]}
@@ -269,9 +273,9 @@ export default function AssessmentDetail() {
                             <h4 className="mb-3 text-success border-bottom pb-2">Tự luận (Essay)</h4>
                             {essays.length > 0 ? (
                                 essays.map(e => (
-                                    <EssayCard 
-                                        key={e.essayId} 
-                                        assessment={e} 
+                                    <EssayCard
+                                        key={e.essayId}
+                                        assessment={e}
                                         onClick={() => handleEssayClick(e)}
                                         submission={essaySubmissionsMap[e.essayId || e.EssayId]}
                                         onViewResult={(submission) => {

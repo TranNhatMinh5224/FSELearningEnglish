@@ -5,6 +5,7 @@ import { PiGraduationCapDuotone, PiBookOpenDuotone, PiCurrencyCircleDollarDuoton
 import { Container, Row, Col } from "react-bootstrap";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
+import CourseDetailSkeleton from "../../../Components/Common/Skeleton/CourseDetailSkeleton";
 import "./TeacherCourseDetail.css";
 import TeacherHeader from "../../../Components/Header/TeacherHeader";
 import Breadcrumb from "../../../Components/Common/Breadcrumb/Breadcrumb";
@@ -205,9 +206,7 @@ export default function TeacherCourseDetail() {
     return (
       <>
         <TeacherHeader />
-        <div className="teacher-course-detail-container">
-          <div className="loading-message">Đang tải thông tin khóa học....</div>
-        </div>
+        <CourseDetailSkeleton />
       </>
     );
   }

@@ -3,9 +3,9 @@ import "./ConfirmModal.css";
 import { FaQuestionCircle, FaExclamationTriangle } from "react-icons/fa";
 import PremiumCloseButton from "../PremiumCloseButton/PremiumCloseButton";
 
-export default function ConfirmModal({ 
-    isOpen, 
-    onClose, 
+export default function ConfirmModal({
+    isOpen,
+    onClose,
     onConfirm,
     title = "Xác nhận",
     message,
@@ -36,7 +36,7 @@ export default function ConfirmModal({
                     </div>
                     <PremiumCloseButton onClick={onClose} />
                 </div>
-                
+
                 <div className="confirm-modal-body">
                     <p className="confirm-message">{message}</p>
                     {itemName && <p className="item-name">"{itemName}"</p>}

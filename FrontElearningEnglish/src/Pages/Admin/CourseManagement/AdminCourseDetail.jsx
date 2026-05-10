@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { Container, Row, Col } from "react-bootstrap";
+import CourseDetailSkeleton from "../../../Components/Common/Skeleton/CourseDetailSkeleton";
 import "./AdminCourseDetail.css";
 import Breadcrumb from "../../../Components/Common/Breadcrumb/Breadcrumb";
 import { useAuth } from "../../../Context/AuthContext";
@@ -160,11 +161,7 @@ export default function AdminCourseDetail() {
   }
 
   if (loading) {
-    return (
-      <div className="admin-course-detail-container">
-        <div className="loading-message">Đang tải thông tin khóa học...</div>
-      </div>
-    );
+    return <CourseDetailSkeleton />;
   }
 
   if (error || !course) {

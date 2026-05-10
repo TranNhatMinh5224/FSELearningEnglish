@@ -58,6 +58,8 @@ export default function ImageWithIconFallback({
         <img
             src={finalImageUrl}
             alt={alt}
+            width={props.width}
+            height={props.height}
             className={`image-with-icon-fallback-image ${className}`}
             style={style}
             onError={handleImageError}

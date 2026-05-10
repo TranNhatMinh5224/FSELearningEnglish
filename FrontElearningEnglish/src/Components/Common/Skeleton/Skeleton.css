@@ -1,4 +1,5 @@
-.skeleton-pulse {
+.skeleton-base {
+  background: #f1f5f9;
   background: linear-gradient(
     90deg,
     #f1f5f9 25%,
@@ -7,13 +8,28 @@
   );
   background-size: 200% 100%;
   animation: skeleton-shimmer 1.5s infinite linear;
+  display: inline-block;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Dark mode support if needed */
+[data-theme='dark'] .skeleton-base {
+  background: #1e293b;
+  background: linear-gradient(
+    90deg,
+    #1e293b 25%,
+    #334155 50%,
+    #1e293b 75%
+  );
+  background-size: 200% 100%;
 }
 
 @keyframes skeleton-shimmer {
-  0% {
+  from {
     background-position: 200% 0;
   }
-  100% {
+  to {
     background-position: -200% 0;
   }
 }

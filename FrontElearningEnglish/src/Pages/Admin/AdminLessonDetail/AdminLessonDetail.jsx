@@ -643,6 +643,11 @@ export default function AdminLessonDetail() {
                             />
                             <div className="module-info">
                               <span className="module-name">{moduleName}</span>
+                              {(module.description || module.Description) && (
+                                <p className="module-item-description">
+                                  {module.description || module.Description}
+                                </p>
+                              )}
                               <span className="module-type">{displayContentType}</span>
                             </div>
                           </div>

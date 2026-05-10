@@ -3,10 +3,12 @@
     background-color: var(--color-bg-secondary, #f9fafb);
     min-height: 100vh;
     transition: background-color 0.3s ease;
+    padding-top: 100px; /* Thêm khoảng đệm để tránh bị Header che khuất */
 }
 
 .focus-mode-active {
     background-color: var(--color-bg-primary, white);
+    padding-top: 20px; /* Chỉ để lại một chút lề khi không có Header */
 }
 
 .focus-mode-active .container {
