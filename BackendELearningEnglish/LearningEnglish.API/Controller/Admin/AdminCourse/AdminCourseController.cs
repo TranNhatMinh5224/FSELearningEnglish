@@ -48,6 +48,18 @@ namespace LearningEnglish.API.Controller.Admin
             return result.Success ? Ok(result) : StatusCode(result.StatusCode, result);
         }
 
+        // GET: Admin lấy chi tiết 1 khóa học
+        [HttpGet("{courseId}")]
+        [RequirePermission("Admin.Course.Manage")]
+        public async Task<IActionResult> GetCourseById(int courseId)
+        {
+            var userId = User.GetUserId();
+            _logger.LogInformation("Admin {UserId} lấy chi tiết course {CourseId}", userId, courseId);
+
+            var result = await _adminCourseService.GetCourseByIdAsync(courseId);
+            return result.Success ? Ok(result) : StatusCode(result.StatusCode, result);
+        }
+
         // POST: Admin tạo khóa học mới
         [HttpPost]
         [RequirePermission("Admin.Course.Manage")]

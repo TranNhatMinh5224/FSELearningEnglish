@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { FaPlus, FaEdit, FaUsers, FaExpand } from "react-icons/fa";
-import { PiGraduationCapDuotone, PiBookOpenDuotone } from "react-icons/pi";
+import { PiGraduationCapDuotone, PiBookOpenDuotone, PiCurrencyCircleDollarDuotone } from "react-icons/pi";
 import { Container, Row, Col } from "react-bootstrap";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
@@ -265,7 +265,7 @@ export default function TeacherCourseDetail() {
                   </div>
 
                   <div className="course-details">
-                    <div className="course-detail-item">
+                    <div className="course-detail-item code-item">
                       <label>Mã khóa học:</label>
                       <div className="course-code-display-group">
                         <div className="code-value">{classCode}</div>
@@ -292,26 +292,29 @@ export default function TeacherCourseDetail() {
                     </div>
 
                     <div className="course-detail-item">
-                      <div className="detail-label-group">
-                        <label>Giá:</label>
-                      </div>
-                      <span className="course-stat-value">{price > 0 ? `${price.toLocaleString()} đ` : "Miễn phí"}</span>
+                      <label>
+                        <PiCurrencyCircleDollarDuotone className="detail-icon" />
+                        Giá:
+                      </label>
+                      <span className={`course-stat-value ${price > 0 ? 'paid' : 'free'}`}>
+                        {price > 0 ? `${price.toLocaleString()} đ` : "Miễn phí"}
+                      </span>
                     </div>
 
                     <div className="course-detail-item">
-                      <div className="detail-label-group">
+                      <label>
                         <PiBookOpenDuotone className="detail-icon" />
-                        <label>Chương học:</label>
-                      </div>
-                      <span className="course-stat-value">{totalLessons}</span>
+                        Chương học:
+                      </label>
+                      <span className="stat-number-pill">{totalLessons}</span>
                     </div>
 
                     <div className="course-detail-item">
-                      <div className="detail-label-group">
+                      <label>
                         <FaUsers className="detail-icon" />
-                        <label>Tổng số học sinh:</label>
-                      </div>
-                      <span className="course-stat-value">{totalStudents}</span>
+                        Tổng số học sinh:
+                      </label>
+                      <span className="stat-number-pill">{totalStudents}</span>
                     </div>
                   </div>
 

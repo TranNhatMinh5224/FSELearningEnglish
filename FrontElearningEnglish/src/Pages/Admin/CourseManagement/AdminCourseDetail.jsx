@@ -15,7 +15,7 @@ import ConfirmModal from "../../../Components/Common/ConfirmModal/ConfirmModal";
 import CourseDescription from "../../../Components/Courses/CourseDescription/CourseDescription";
 import AdminLessonCard from "../../../Components/Admin/CourseManagement/AdminLessonCard/AdminLessonCard";
 import { FaPlus, FaEdit, FaUsers } from "react-icons/fa";
-import { PiGraduationCapDuotone, PiBookOpenDuotone } from "react-icons/pi";
+import { PiGraduationCapDuotone, PiBookOpenDuotone, PiTagDuotone, PiStarDuotone, PiCurrencyCircleDollarDuotone } from "react-icons/pi";
 import ImageWithIconFallback from "../../../Components/Common/ImageWithIconFallback/ImageWithIconFallback";
 
 export default function AdminCourseDetail() {
@@ -45,11 +45,12 @@ export default function AdminCourseDetail() {
       setLoading(true);
       setError("");
 
-      // Sử dụng endpoint public để lấy thông tin chi tiết course
-      const response = await adminService.getCourseContent(courseId);
+      // Sử dụng endpoint admin để lấy đầy đủ thông tin (bao gồm type, teacher...)
+      const response = await adminService.getCourseDetail(courseId);
 
       if (response.data?.success && response.data?.data) {
         const courseData = response.data.data;
+        console.log("Course detail data:", courseData);
         setCourse(courseData);
       } else {
         setError("Không thể tải thông tin khóa học");
@@ -180,6 +181,9 @@ export default function AdminCourseDetail() {
   const coursePrice = course.price || course.Price || 0;
   const totalLessons = course.totalLessons || course.TotalLessons || 0;
   const isFeatured = course.isFeatured || course.IsFeatured || false;
+  
+  // Logic detect loại khóa học
+  const courseType = course.type || course.Type || 1; // 1: System, 2: Teacher
 
   return (
     <div className="admin-course-detail-container">
@@ -201,38 +205,68 @@ export default function AdminCourseDetail() {
           {/* Left Column - Course Info */}
           <Col md={4} className="course-info-column">
             <div className="course-info-card">
-              <div className="course-image-wrapper">
-                <ImageWithIconFallback
-                  imageUrl={course.imageUrl || course.ImageUrl}
-                  fallbackImageUrl={getDefaultCourseImage()}
-                  icon={<PiGraduationCapDuotone size={64} />}
-                  alt={courseTitle}
-                  className="course-image"
-                />
-                {isFeatured && <span className="featured-badge">Nổi bật</span>}
-              </div>
-              <div className="course-info-content">
-                <h2 className="course-title">{courseTitle}</h2>
-                <div className="course-info-subsection">
-                  <CourseDescription description={courseDescription} />
+                <div className="course-image-wrapper">
+                  <ImageWithIconFallback
+                    imageUrl={course.imageUrl || course.ImageUrl}
+                    fallbackImageUrl={getDefaultCourseImage()}
+                    icon={<PiGraduationCapDuotone size={64} />}
+                    alt={courseTitle}
+                    className="course-image"
+                  />
                 </div>
+                <div className="course-info-content">
+                  <div className="course-title-wrapper">
+                    <h2 className="course-title">{courseTitle}</h2>
+                  </div>
+                  <div className="course-info-subsection">
+                    <CourseDescription description={courseDescription} />
+                  </div>
 
                 <div className="course-details">
                   <div className="course-detail-item">
-                    <label>Giá:</label>
-                    <span className="course-stat-value">
+                    <label>
+                      <PiTagDuotone className="detail-icon" />
+                      Loại khóa học:
+                    </label>
+                    <span className={`course-stat-value type-badge ${courseType === 1 ? 'system' : 'teacher'}`}>
+                      {courseType === 1 ? 'Hệ thống' : 'Giáo viên'}
+                    </span>
+                  </div>
+
+                  <div className="course-detail-item">
+                    <label>
+                      <PiStarDuotone className="detail-icon" />
+                      Trạng thái:
+                    </label>
+                    <span className={`course-stat-value status-badge ${isFeatured ? 'featured' : 'normal'}`}>
+                      {isFeatured ? 'Nổi bật' : 'Thường'}
+                    </span>
+                  </div>
+
+                  <div className="course-detail-item">
+                    <label>
+                      <PiCurrencyCircleDollarDuotone className="detail-icon" />
+                      Giá:
+                    </label>
+                    <span className={`course-stat-value ${coursePrice > 0 ? 'paid' : 'free'}`}>
                       {coursePrice === 0 ? "Miễn phí" : `${coursePrice.toLocaleString()} đ`}
                     </span>
                   </div>
 
                   <div className="course-detail-item">
-                    <label>Chương học:</label>
-                    <span className="course-stat-value">{totalLessons}</span>
+                    <label>
+                      <PiBookOpenDuotone className="detail-icon" />
+                      Chương học:
+                    </label>
+                    <span className="stat-number-pill">{totalLessons}</span>
                   </div>
 
                   <div className="course-detail-item">
-                    <label>Tổng số học sinh:</label>
-                    <span className="course-stat-value">{studentCount}</span>
+                    <label>
+                      <FaUsers className="detail-icon" />
+                      Tổng số học sinh:
+                    </label>
+                    <span className="stat-number-pill">{studentCount}</span>
                   </div>
                 </div>
 
@@ -355,6 +389,7 @@ export default function AdminCourseDetail() {
         type="delete"
         confirmText="Xác nhận xóa"
         loading={deletingLesson}
-      />    </div>
+      />
+    </div>
   );
 }

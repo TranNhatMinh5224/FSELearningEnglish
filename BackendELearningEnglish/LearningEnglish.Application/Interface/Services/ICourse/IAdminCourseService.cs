@@ -15,6 +15,9 @@ namespace LearningEnglish.Application.Interface
         // Lấy danh sách khóa học (phân trang và filter) - Sort theo Title mặc định
         Task<ServiceResponse<PagedResult<AdminCourseListResponseDto>>> GetAllCoursesPagedAsync(AdminCourseQueryParameters parameters);
 
+        // Lấy chi tiết khóa học cho admin
+        Task<ServiceResponse<CourseResponseDto>> GetCourseByIdAsync(int courseId);
+
         // Tạo khóa học
         Task<ServiceResponse<CourseResponseDto>> AdminCreateCourseAsync(AdminCreateCourseRequestDto requestDto);
 
