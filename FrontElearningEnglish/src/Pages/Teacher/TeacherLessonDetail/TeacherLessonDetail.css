@@ -19,6 +19,22 @@
   }
 }
 
+/* Breadcrumb Compact Overflow Fix */
+.breadcrumb-compact .breadcrumb-item {
+  max-width: 350px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  vertical-align: middle;
+}
+
+.breadcrumb-compact .breadcrumb-item a {
+  display: inline;
+}
+
 /* Lesson Info Card (Left Column) */
 .teacher-lesson-detail-container .lesson-info-card {
   background: white;
@@ -205,6 +221,7 @@
   -webkit-box-orient: vertical;
   overflow: hidden;
   text-overflow: ellipsis;
+  word-break: break-word;
 }
 
 .teacher-lesson-detail-container .module-type {
@@ -273,13 +290,18 @@
   justify-content: space-between;
   align-items: center;
   transition: all 0.2s ease;
+  gap: 1rem;
+  min-width: 0;
 }
 
 .teacher-lesson-detail-container .content-item-title {
-  font-size: 1.2rem;
+  font-size: 1.125rem;
   font-weight: 700;
   color: #1e293b;
-  margin: 0 0 4px 0;
+  margin: 0;
+  word-break: break-word;
+  overflow-wrap: anywhere;
+  min-width: 0;
 }
 
 .teacher-lesson-detail-container .content-item-description {
@@ -302,21 +324,19 @@
 
 .teacher-lesson-detail-container .content-item-info {
   flex: 1;
+  min-width: 0;
 }
 
 .teacher-lesson-detail-container .item-header {
   display: flex;
   align-items: center;
-  gap: 1.5rem;
+  justify-content: space-between;
+  gap: 1rem;
   margin-bottom: 0.75rem;
+  flex-wrap: wrap;
 }
 
-.teacher-lesson-detail-container .content-item-title {
-  font-size: 1.125rem;
-  font-weight: 700;
-  color: #1e293b;
-  margin: 0;
-}
+/* Removed duplicated style */
 
 .teacher-lesson-detail-container .item-badges {
   display: flex;
@@ -386,7 +406,8 @@
 .teacher-lesson-detail-container .content-item .action-buttons-container {
   display: flex;
   gap: 0.75rem;
-  padding-left: 2rem;
+  padding-left: 1rem;
+  flex-shrink: 0;
 }
 
 .teacher-lesson-detail-container .content-item .update-btn {

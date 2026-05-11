@@ -211,18 +211,22 @@ export default function AssessmentDetail() {
             <MainHeader />
             <div className="assessment-detail-container">
                 <Container>
-                    <div className="breadcrumb-wrapper mb-4">
-                        <Breadcrumb
-                            items={[
-                                { label: "Khóa học của tôi", path: "/my-courses" },
-                                { label: course?.title || "Khóa học", path: `/course/${courseId}` },
-                                { label: "Lesson", path: `/course/${courseId}/learn` },
-                                { label: lesson?.title || "Bài học", path: `/course/${courseId}/lesson/${lessonId}` },
-                                { label: "Bài tập", path: `/course/${courseId}/lesson/${lessonId}/module/${moduleId}/assignment` },
-                                { label: assessment?.title || "Kiểm tra", isCurrent: true }
-                            ]}
-                        />
-                    </div>
+                    <Row>
+                        <Col>
+                            <div className="breadcrumb-wrapper">
+                                <Breadcrumb
+                                    items={[
+                                        { label: "Khóa học của tôi", path: "/my-courses" },
+                                        { label: course?.title || "Khóa học", path: `/course/${courseId}` },
+                                        { label: "Lesson", path: `/course/${courseId}/learn` },
+                                        { label: lesson?.title || "Bài học", path: `/course/${courseId}/lesson/${lessonId}` },
+                                        { label: "Bài tập", path: `/course/${courseId}/lesson/${lessonId}/module/${moduleId}/assignment` },
+                                        { label: assessment?.title || "Kiểm tra", isCurrent: true }
+                                    ]}
+                                />
+                            </div>
+                        </Col>
+                    </Row>
                     {/* Header */}
                     <Row className="mb-5 align-items-start">
                         <Col md={8}>

@@ -1,12 +1,12 @@
 .assessment-detail-container {
-    padding: var(--padding-container-lg, clamp(1.5rem, 1rem + 2.5vw, 3rem)) var(--padding-container-xl, clamp(2rem, 1.5rem + 15vw, 250px));
-    padding-top: calc(70px + clamp(1.5rem, 1rem + 2.5vw, 3.125rem));
-    background: var(--color-bg-secondary, #f6f8fb);
-    min-height: calc(120vh - 70px);
+    padding: var(--padding-container-lg, clamp(1.5rem, 1rem + 2.5vw, 3rem)) 0;
+    padding-top: calc(70px + var(--padding-container-lg, clamp(1.5rem, 1rem + 2.5vw, 3rem)));
+    background: var(--color-bg-secondary, #f9fafc);
+    min-height: calc(100vh - 70px);
 }
 
 .breadcrumb-wrapper {
-    padding: 10px 0;
+    margin-bottom: var(--spacing-lg, 1.5rem);
 }
 
 .assessment-timing-info {

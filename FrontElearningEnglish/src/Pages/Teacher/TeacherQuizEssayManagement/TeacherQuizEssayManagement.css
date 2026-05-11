@@ -229,7 +229,9 @@
   font-weight: 800;
   text-transform: uppercase;
   letter-spacing: 0.02em;
-  display: inline-block;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
 }
 
 .teacher-quiz-essay-management-container .badge-quiz {

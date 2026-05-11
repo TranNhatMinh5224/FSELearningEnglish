@@ -12,6 +12,7 @@ import { essayService } from "../../../Services/essayService";
 import { useAssets } from "../../../Context/AssetContext";
 import CreateLessonModal from "../../../Components/Teacher/CreateLessonModal/CreateLessonModal";
 import TeacherHeader from "../../../Components/Header/TeacherHeader";
+import { LessonDetailSkeleton, AssessmentCardSkeleton } from "../../../Components/Common/Skeleton/LectureDetailSkeleton";
 import CreateModuleModal from "../../../Components/Teacher/CreateModuleModal/CreateModuleModal";
 import CreateAssessmentModal from "../../../Components/Teacher/CreateAssessmentModal/CreateAssessmentModal";
 import SuccessModal from "../../../Components/Common/SuccessModal/SuccessModal";
@@ -21,7 +22,7 @@ import ActionButtons from "../../../Components/Common/ActionButtons";
 import { FaPlus, FaEdit } from "react-icons/fa";
 import ImageWithIconFallback from "../../../Components/Common/ImageWithIconFallback/ImageWithIconFallback";
 import { ROUTE_PATHS } from "../../../Routes/Paths";
-import { PiBookOpenDuotone, PiLayoutDuotone, PiCardsDuotone, PiExamDuotone, PiTrayDuotone } from "react-icons/pi";
+import { PiBookOpenDuotone, PiLayoutDuotone, PiCardsDuotone, PiExamDuotone } from "react-icons/pi";
 
 export default function TeacherLessonDetail() {
   const { courseId, lessonId } = useParams();
@@ -54,12 +55,11 @@ export default function TeacherLessonDetail() {
   const [showDeleteModuleSuccessModal, setShowDeleteModuleSuccessModal] = useState(false);
   const [notification, setNotification] = useState({ isOpen: false, type: "info", message: "" });
 
-  // Module content state
   const [selectedModule, setSelectedModule] = useState(null);
   const [moduleContent, setModuleContent] = useState([]);
   const [loadingContent, setLoadingContent] = useState(false);
   const [contentError, setContentError] = useState("");
-  const [assessmentTypes, setAssessmentTypes] = useState({}); // { assessmentId: { hasQuiz: boolean, hasEssay: boolean } }
+  const [assessmentTypes, setAssessmentTypes] = useState({});
 
   const isAdmin = roles && roles.some(role => {
     const roleName = typeof role === 'string' ? role : (role?.name || '');
@@ -69,20 +69,18 @@ export default function TeacherLessonDetail() {
   const isTeacher = (roles && roles.some(role => {
     const roleName = typeof role === 'string' ? role : (role?.name || '');
     return roleName === "Teacher";
-  })) ||
-    user?.teacherSubscription?.isTeacher === true ||
-    isAdmin;
+  })) || user?.teacherSubscription?.isTeacher === true || isAdmin;
 
   const handleUpdateSuccess = () => {
     setShowUpdateModal(false);
     setShowSuccessModal(true);
-    fetchLessonDetail(); // Refresh lesson data
+    fetchLessonDetail();
   };
 
   const handleCreateModuleSuccess = () => {
     setShowCreateModuleModal(false);
     setShowModuleSuccessModal(true);
-    fetchModules(); // Refresh modules list
+    fetchModules();
   };
 
   const fetchCourseDetail = useCallback(async () => {
@@ -91,270 +89,94 @@ export default function TeacherLessonDetail() {
       if (response.data?.success && response.data?.data) {
         setCourse(response.data.data);
       }
-    } catch (err) {
-      console.error("Error fetching course detail:", err);
-    }
+    } catch (err) { console.error(err); }
   }, [courseId]);
 
   const fetchLessonDetail = useCallback(async () => {
     try {
       setLoading(true);
-      setError("");
-
       const response = await teacherService.getLessonById(lessonId);
-
       if (response.data?.success && response.data?.data) {
         setLesson(response.data.data);
-      } else {
-        setError("Không thể tải thông tin chương học");
-      }
-    } catch (err) {
-      console.error("Error fetching lesson detail:", err);
-      setError("Không thể tải thông tin chương học");
-    } finally {
-      setLoading(false);
-    }
+      } else { setError("Không thể tải thông tin chương học"); }
+    } catch (err) { setError("Không thể tải thông tin chương học"); }
+    finally { setLoading(false); }
   }, [lessonId]);
 
   const fetchModules = useCallback(async () => {
     try {
       const response = await teacherService.getModulesByLesson(lessonId);
       if (response.data?.success && response.data?.data) {
-        const modulesData = response.data.data;
-        const modulesList = Array.isArray(modulesData) ? modulesData : [];
-
-        // Fetch imageUrl cho từng module từ API chi tiết
+        const modulesList = response.data.data || [];
         const modulesWithImages = await Promise.all(
-          modulesList.map(async (module) => {
+          modulesList.map(async (m) => {
             try {
-              const moduleId = module.moduleId || module.ModuleId;
-              const detailResponse = await teacherService.getModuleById(moduleId);
-
-              if (detailResponse.data?.success && detailResponse.data?.data) {
-                const detailData = detailResponse.data.data;
-                // Merge imageUrl từ detail vào module
-                return {
-                  ...module,
-                  imageUrl: detailData.imageUrl || detailData.ImageUrl || module.imageUrl || module.ImageUrl,
-                  ImageUrl: detailData.imageUrl || detailData.ImageUrl || module.imageUrl || module.ImageUrl,
-                };
-              }
-              return module;
-            } catch (err) {
-              console.error(`Error fetching module ${module.moduleId || module.ModuleId} detail:`, err);
-              return module;
-            }
+              const res = await teacherService.getModuleById(m.moduleId || m.ModuleId);
+              return { ...m, imageUrl: res.data?.data?.imageUrl || m.imageUrl };
+            } catch { return m; }
           })
         );
-
-        // Sort by contentType then orderIndex
-        const sortedModules = modulesWithImages.sort((a, b) => {
-          const typeA = a.contentType || a.ContentType || 0;
-          const typeB = b.contentType || b.ContentType || 0;
-          if (typeA !== typeB) return typeA - typeB;
-
-          const orderA = a.orderIndex || a.OrderIndex || 0;
-          const orderB = b.orderIndex || b.OrderIndex || 0;
-          return orderA - orderB;
-        });
-
-        setModules(sortedModules);
-      } else {
-        setModules([]);
+        setModules(modulesWithImages.sort((a, b) => (a.orderIndex || 0) - (b.orderIndex || 0)));
       }
-    } catch (err) {
-      console.error("Error fetching modules:", err);
-      setModules([]);
-    }
+    } catch { setModules([]); }
   }, [lessonId]);
 
-  // Handle module click - navigate to dedicated management page
   const handleModuleClick = useCallback((module) => {
-    const contentTypeValue = module.contentType || module.ContentType;
-    const contentTypeNum = typeof contentTypeValue === 'number' ? contentTypeValue : parseInt(contentTypeValue);
+    const typeNum = parseInt(module.contentType || module.ContentType);
     const moduleId = module.moduleId || module.ModuleId;
 
-    if (isLecture(contentTypeNum)) {
+    if (isLecture(typeNum)) {
       navigate(ROUTE_PATHS.TEACHER_CREATE_LECTURE(courseId, lessonId, moduleId));
-    } else if (isFlashCard(contentTypeNum)) {
+    } else if (isFlashCard(typeNum)) {
       navigate(ROUTE_PATHS.TEACHER_CREATE_FLASHCARD(courseId, lessonId, moduleId));
-    } else if (isAssessment(contentTypeNum)) {
+    } else if (isAssessment(typeNum)) {
       setSelectedModule(module);
       setLoadingContent(true);
-      setContentError("");
-
       assessmentService.getTeacherAssessmentsByModule(moduleId)
-        .then(response => {
-          if (response.data?.success && response.data?.data) {
-            const assessments = response.data.data || [];
-            setModuleContent(assessments);
-
-            // Fetch quiz and essay info for each assessment
-            const typePromises = assessments.map(async (assessment) => {
-              const assessmentId = assessment.assessmentId || assessment.AssessmentId;
-              if (!assessmentId) return null;
-
-              try {
-                const [quizRes, essayRes] = await Promise.all([
-                  quizService.getTeacherQuizzesByAssessment(assessmentId),
-                  essayService.getTeacherEssaysByAssessment(assessmentId)
-                ]);
-
-                const hasQuiz = quizRes.data?.success && quizRes.data?.data && quizRes.data.data.length > 0;
-                const hasEssay = essayRes.data?.success && essayRes.data?.data && essayRes.data.data.length > 0;
-
-                return { assessmentId, hasQuiz, hasEssay };
-              } catch (error) {
-                console.error(`Error fetching types for assessment ${assessmentId}:`, error);
-                return { assessmentId, hasQuiz: false, hasEssay: false };
-              }
-            });
-
-            Promise.all(typePromises).then(types => {
-              const typesMap = {};
-              types.forEach(type => {
-                if (type) {
-                  typesMap[type.assessmentId] = { hasQuiz: type.hasQuiz, hasEssay: type.hasEssay };
-                }
-              });
-              setAssessmentTypes(typesMap);
-            });
-          } else {
-            setContentError("Không thể tải danh sách assessments");
-            setModuleContent([]);
-          }
+        .then(res => {
+          const assessments = res.data?.data || [];
+          setModuleContent(assessments);
+          const typePromises = assessments.map(async (a) => {
+            const aid = a.assessmentId || a.AssessmentId;
+            const [q, e] = await Promise.all([
+              quizService.getTeacherQuizzesByAssessment(aid),
+              essayService.getTeacherEssaysByAssessment(aid)
+            ]);
+            return { aid, hasQuiz: q.data?.data?.length > 0, hasEssay: e.data?.data?.length > 0 };
+          });
+          Promise.all(typePromises).then(types => {
+            const map = {};
+            types.forEach(t => map[t.aid] = t);
+            setAssessmentTypes(map);
+          });
         })
-        .catch(error => {
-          console.error("Error fetching content:", error);
-          setContentError("Có lỗi xảy ra khi tải danh sách");
-          setModuleContent([]);
-        })
-        .finally(() => {
-          setLoadingContent(false);
-        });
+        .finally(() => setLoadingContent(false));
     }
   }, [courseId, lessonId, isLecture, isFlashCard, isAssessment, navigate]);
 
   useEffect(() => {
-    if (!isAuthenticated || !isTeacher) {
-      navigate("/home");
-      return;
-    }
-
-    fetchCourseDetail();
-    fetchLessonDetail();
-    fetchModules();
+    if (!isAuthenticated || !isTeacher) { navigate("/home"); return; }
+    fetchCourseDetail(); fetchLessonDetail(); fetchModules();
   }, [isAuthenticated, isTeacher, navigate, fetchCourseDetail, fetchLessonDetail, fetchModules]);
-
-  // Handle auto-selecting module from query param (Only for Assessment since others navigate away)
-  useEffect(() => {
-    const moduleIdParam = searchParams.get("moduleId");
-
-    // Check if we need to sync state with URL
-    const currentSelectedId = selectedModule ? (selectedModule.moduleId || selectedModule.ModuleId).toString() : null;
-
-    if (moduleIdParam) {
-      // If URL has moduleId but state doesn't match, sync it
-      if (currentSelectedId !== moduleIdParam && modules.length > 0) {
-        const targetModule = modules.find(
-          (m) => (m.moduleId || m.ModuleId).toString() === moduleIdParam
-        );
-        if (targetModule) {
-          const type = targetModule.contentType || targetModule.ContentType;
-          if (isAssessment(type)) {
-            handleModuleClick(targetModule);
-          }
-        }
-      }
-    }
-  }, [searchParams, modules, selectedModule, handleModuleClick, isAssessment]);
-
-  const handleDeleteModuleClick = (module) => {
-    setModuleToDelete(module);
-    setShowDeleteModuleModal(true);
-  };
 
   const confirmDeleteModule = async () => {
     if (!moduleToDelete) return;
-
     try {
       setDeletingModule(true);
-      const moduleId = moduleToDelete.moduleId || moduleToDelete.ModuleId;
-      const response = await teacherService.deleteModule(moduleId);
-
-      if (response.status === 204 || response.data?.success) {
-        setShowDeleteModuleModal(false);
-        setShowDeleteModuleSuccessModal(true);
-        setModuleToDelete(null);
-        fetchModules();
-        fetchLessonDetail();
-      }
-    } catch (error) {
-      console.error("Error deleting module:", error);
-      const errorMessage = error.response?.data?.message || error.message || "Có lỗi xảy ra khi xóa module";
-      setNotification({ isOpen: true, type: "error", message: errorMessage });
-    } finally {
-      setDeletingModule(false);
-    }
+      await teacherService.deleteModule(moduleToDelete.moduleId || moduleToDelete.ModuleId);
+      setShowDeleteModuleModal(false);
+      setShowDeleteModuleSuccessModal(true);
+      fetchModules();
+    } catch (err) { setNotification({ isOpen: true, type: "error", message: "Lỗi khi xóa module" }); }
+    finally { setDeletingModule(false); }
   };
 
-  if (!isAuthenticated || !isTeacher) {
-    return null;
-  }
+  const handleDeleteModuleClick = (module) => { setModuleToDelete(module); setShowDeleteModuleModal(true); };
 
-  if (loading) {
-    return (
-      <>
-        <TeacherHeader />
-        <div className="teacher-lesson-detail-container">
-          <Container fluid className="content-wrapper">
-            <div className="mb-3">
-              <Breadcrumb
-                items={[
-                  { label: "Quản lý khóa học", path: ROUTE_PATHS.TEACHER_COURSE_MANAGEMENT },
-                  { label: courseId, path: `/teacher/course/${courseId}` },
-                  { label: "Bài học", isCurrent: true }
-                ]}
-                showHomeIcon={false}
-              />
-            </div>
-            <div className="teacher-main-page-content">
-              <div className="loading-message">Đang tải thông tin chương học...</div>
-            </div>
-          </Container>
-        </div>
-      </>
-    );
-  }
+  if (!isAuthenticated || !isTeacher) return null;
 
-  if (error || !lesson) {
-    return (
-      <>
-        <TeacherHeader />
-        <div className="teacher-lesson-detail-container">
-          <Container fluid className="content-wrapper">
-            <div className="mb-3">
-              <Breadcrumb
-                items={[
-                  { label: "Quản lý khóa học", path: ROUTE_PATHS.TEACHER_COURSE_MANAGEMENT },
-                  { label: courseId, path: `/teacher/course/${courseId}` },
-                  { label: "Bài học", isCurrent: true }
-                ]}
-                showHomeIcon={false}
-              />
-            </div>
-            <div className="teacher-main-page-content">
-              <div className="error-message">{error || "Không tìm thấy chương học"}</div>
-            </div>
-          </Container>
-        </div>
-      </>
-    );
-  }
-
-  const lessonTitle = lesson.title || lesson.Title || "Bài học";
-  const lessonDescription = lesson.description || lesson.Description || "";
-  const lessonImage = lesson.imageUrl || lesson.ImageUrl || getDefaultLessonImage();
+  const lessonTitle = lesson?.title || lesson?.Title || "Bài học";
+  const lessonDescription = lesson?.description || lesson?.Description || "";
 
   return (
     <>
@@ -366,17 +188,10 @@ export default function TeacherLessonDetail() {
               items={[
                 { label: "Quản lý khóa học", path: ROUTE_PATHS.TEACHER_COURSE_MANAGEMENT },
                 { label: course?.title || course?.Title || courseId, path: `/teacher/course/${courseId}` },
-                { 
+                {
                   label: lessonTitle,
                   path: !selectedModule ? undefined : `/teacher/course/${courseId}/lesson/${lessonId}`,
-                  onClick: selectedModule
-                    ? () => {
-                        setSelectedModule(null);
-                        setModuleContent([]);
-                        setLoadingContent(false);
-                        navigate(`/teacher/course/${courseId}/lesson/${lessonId}`, { replace: true });
-                      }
-                    : undefined,
+                  onClick: selectedModule ? () => { setSelectedModule(null); setModuleContent([]); navigate(`/teacher/course/${courseId}/lesson/${lessonId}`, { replace: true }); } : undefined,
                   isCurrent: !selectedModule
                 },
                 ...(selectedModule ? [{ label: selectedModule.name || selectedModule.Name || "Module", isCurrent: true }] : [])
@@ -385,449 +200,168 @@ export default function TeacherLessonDetail() {
               className="breadcrumb-compact"
             />
           </div>
-      <div className="teacher-main-page-content">
-          <Row>
-            {/* Left Column - Lesson Info */}
-            <Col md={4} className="lesson-info-column">
-              <div className="lesson-info-card">
-                <div className="lesson-image-wrapper">
-                  <ImageWithIconFallback
-                    imageUrl={lesson.imageUrl || lesson.ImageUrl}
-                    fallbackImageUrl={getDefaultLessonImage()}
-                    icon={<PiBookOpenDuotone size={64} />}
-                    alt={lessonTitle}
-                    className="lesson-image-main"
-                  />
-                </div>
-                <div className="lesson-info-content">
-                  <h2 className="lesson-title">{lessonTitle}</h2>
-                  <p className="lesson-description">{lessonDescription}</p>
 
-                  <button
-                    className="update-lesson-btn"
-                    onClick={() => setShowUpdateModal(true)}
-                  >
-                    <FaEdit className="btn-icon" />
-                    Cập nhật chương học
-                  </button>
-                </div>
-              </div>
-            </Col>
-
-            {/* Right Column - Modules List or Module Content */}
-            <Col md={8} className="modules-column">
-              {selectedModule ? (
-                // Module Content View (Assessment List only now)
-                <div className="modules-section">
-                  <div className="module-content-header">
-                    <h3 className="module-content-title">
-                      {selectedModule.name || selectedModule.Name || "Bài học"}
-                    </h3>
-                  </div>
-
-                  {loadingContent ? (
-                    <div className="loading-message">
-                      Đang tải danh sách...
+          <div className="teacher-main-page-content">
+            {loading ? (
+              <LessonDetailSkeleton />
+            ) : error || !lesson ? (
+              <div className="error-message text-center py-5">{error || "Không tìm thấy chương học"}</div>
+            ) : (
+              <Row>
+                <Col md={4} className="lesson-info-column">
+                  <div className="lesson-info-card">
+                    <div className="lesson-image-wrapper">
+                      <ImageWithIconFallback imageUrl={lesson.imageUrl || lesson.ImageUrl} fallbackImageUrl={getDefaultLessonImage()} icon={<PiBookOpenDuotone size={64} />} alt={lessonTitle} className="lesson-image-main" />
                     </div>
-                  ) : contentError ? (
-                    <div className="error-message">{contentError}</div>
-                  ) : (
-                    <>
-                      <div className="module-content-list">
-                        {moduleContent.length > 0 ? (
-                          moduleContent.map((item, index) => {
-                            // Extract assessment details
-                            const assessmentId = item.assessmentId || item.AssessmentId;
-                            const title = item.title || item.Title || "Assessment";
-                            const description = item.description || item.Description || "";
-                            const timeLimit = item.timeLimit || item.TimeLimit;
-                            const totalPoints = item.totalPoints || item.TotalPoints || 0;
-                            const passingScore = item.passingScore || item.PassingScore || 0;
-                            const isPublished = item.isPublished ?? item.IsPublished ?? true;
-                            const openAt = item.openAt || item.OpenAt;
-                            const dueAt = item.dueAt || item.DueAt;
-                            const moduleId = selectedModule.moduleId || selectedModule.ModuleId;
+                    <div className="lesson-info-content">
+                      <h2 className="lesson-title">{lessonTitle}</h2>
+                      <p className="lesson-description">{lessonDescription}</p>
+                      <button className="update-lesson-btn" onClick={() => setShowUpdateModal(true)}>
+                        <FaEdit className="btn-icon" /> Cập nhật chương học
+                      </button>
+                    </div>
+                  </div>
+                </Col>
 
-                            // Format date helper
-                            const formatDateTime = (dateStr) => {
-                              if (!dateStr) return null;
-                              const date = new Date(dateStr);
-                              if (isNaN(date.getTime())) return null;
-                              return date.toLocaleString('vi-VN', {
-                                day: '2-digit',
-                                month: '2-digit',
-                                year: 'numeric',
-                                hour: '2-digit',
-                                minute: '2-digit'
-                              });
-                            };
+                <Col md={8} className="modules-column">
+                  {selectedModule ? (
+                    <div className="modules-section">
+                      <div className="module-content-header">
+                        <h3 className="module-content-title">{selectedModule.name || selectedModule.Name || "Bài học"}</h3>
+                      </div>
+                      {loadingContent ? (
+                        <div className="module-content-list">
+                          {[...Array(3)].map((_, i) => <AssessmentCardSkeleton key={i} />)}
+                        </div>
+                      ) : (
+                        <>
+                          <div className="module-content-list">
+                            {moduleContent.map((item, index) => {
+                              const aid = item.assessmentId || item.AssessmentId;
+                              const typeInfo = assessmentTypes[aid] || {};
 
-                            // Content type indicators
-                            const typeInfo = assessmentTypes[assessmentId] || { hasQuiz: false, hasEssay: false };
+                              // Bổ sung các trường thông tin bị thiếu
+                              const description = item.description || item.Description || "";
+                              const isPublished = item.isPublished ?? item.IsPublished ?? true;
+                              const openAt = item.openAt || item.OpenAt;
+                              const dueAt = item.dueAt || item.DueAt;
 
-                            return (
-                              <div
-                                key={assessmentId || index}
-                                className="content-item"
-                                onClick={() => {
-                                  // Navigate to teacher's assessment management
-                                  navigate(ROUTE_PATHS.TEACHER_QUIZ_ESSAY_MANAGEMENT(courseId, lessonId, moduleId, assessmentId));
-                                }}
-                              >
+                              const formatDateTime = (dateStr) => {
+                                if (!dateStr) return null;
+                                const date = new Date(dateStr);
+                                if (isNaN(date.getTime())) return null;
+                                return date.toLocaleString('vi-VN', {
+                                  day: '2-digit', month: '2-digit', year: 'numeric',
+                                  hour: '2-digit', minute: '2-digit'
+                                });
+                              };
+
+                              return (
+                                <div key={aid || index} className="content-item" onClick={() => navigate(ROUTE_PATHS.TEACHER_QUIZ_ESSAY_MANAGEMENT(courseId, lessonId, selectedModule.moduleId || selectedModule.ModuleId, aid))}>
                                   <div className="content-item-info">
                                     <div className="item-header">
-                                      <h4 className="content-item-title">{title}</h4>
-                                      {description && (
-                                        <p className="content-item-description">{description}</p>
-                                      )}
+                                      <h4 className="content-item-title">{item.title || item.Title}</h4>
+                                      {description && <p className="content-item-description" style={{ fontSize: '0.9rem', color: '#6b7280', marginBottom: '0.5rem' }}>{description}</p>}
                                       <div className="item-badges">
-                                        {typeInfo.hasQuiz || typeInfo.hasEssay ? (
-                                          <>
-                                            {typeInfo.hasQuiz && <span className="badge-quiz">QUIZ</span>}
-                                            {typeInfo.hasEssay && <span className="badge-essay">ESSAY</span>}
-                                          </>
-                                        ) : (
-                                          <span className="no-content-badge">Chưa có nội dung</span>
-                                        )}
+                                        {typeInfo.hasQuiz && <span className="badge-quiz">QUIZ</span>}
+                                        {typeInfo.hasEssay && <span className="badge-essay">ESSAY</span>}
+                                        {!typeInfo.hasQuiz && !typeInfo.hasEssay && <span className="no-content-badge">Chưa có nội dung</span>}
                                       </div>
                                     </div>
                                     <div className="item-meta-container">
-                                      <div className="item-meta-row main-meta">
-                                        {timeLimit && (
-                                          <span><strong>Thời gian:</strong> {timeLimit}</span>
-                                        )}
-                                        {openAt && (
-                                          <span><strong>Bắt đầu:</strong> {formatDateTime(openAt)}</span>
-                                        )}
-                                        {dueAt && (
-                                          <span><strong>Kết thúc:</strong> {formatDateTime(dueAt)}</span>
-                                        )}
+                                      <div className="item-meta-row main-meta" style={{ display: 'flex', flexWrap: 'wrap', gap: '15px', fontSize: '0.85rem' }}>
+                                        {item.timeLimit && <span><strong>Thời gian:</strong> {item.timeLimit}</span>}
+                                        {openAt && <span><strong>Bắt đầu:</strong> {formatDateTime(openAt)}</span>}
+                                        {dueAt && <span><strong>Kết thúc:</strong> {formatDateTime(dueAt)}</span>}
                                       </div>
-                                      <div className="item-meta-row status-row">
+                                      <div className="item-meta-row status-row" style={{ marginTop: '5px', fontSize: '0.85rem' }}>
                                         <span>
-                                          <strong>Trạng thái:</strong>
-                                          <span className={`status-tag ${isPublished ? 'published' : 'draft'}`}>
+                                          <strong>Trạng thái: </strong>
+                                          <span className={`status-tag ${isPublished ? 'published' : 'draft'}`} style={{
+                                            padding: '2px 8px',
+                                            borderRadius: '4px',
+                                            fontSize: '0.75rem',
+                                            backgroundColor: isPublished ? '#ecfdf5' : '#f3f4f6',
+                                            color: isPublished ? '#10b981' : '#6b7280',
+                                            border: `1px solid ${isPublished ? '#10b981' : '#d1d5db'}`
+                                          }}>
                                             {isPublished ? 'Đã xuất bản' : 'Chưa xuất bản'}
                                           </span>
                                         </span>
                                       </div>
                                     </div>
                                   </div>
-                                <ActionButtons
-                                  onUpdate={(e) => {
-                                    e.stopPropagation();
-                                    setAssessmentToUpdate(item);
-                                    setShowUpdateAssessmentModal(true);
-                                  }}
-                                  onDelete={(e) => {
-                                    e.stopPropagation();
-                                  }}
-                                  updateText="Cập nhật"
-                                  showUpdateText={true}
-                                  updateTitle="Sửa assessment"
-                                />
-                              </div>
-                            );
-                          })
-                        ) : (
-                          <div className="no-assessment-message">
-                            <div className="empty-icon-wrapper-small">
-                              <PiExamDuotone />
-                            </div>
-                            <h4>Chưa có bài tập nào</h4>
-                            <p>Bài học này hiện chưa có bài kiểm tra hoặc bài tự luận. Hãy thêm mới để đánh giá năng lực của học viên.</p>
-                            <button
-                              className="module-create-btn assessment-btn mt-2"
-                              onClick={() => setShowCreateAssessmentModal(true)}
-                            >
-                              <FaPlus className="add-icon" /> Tạo bài tập đầu tiên
-                            </button>
+                                  <ActionButtons
+                                    onUpdate={(e) => { e.stopPropagation(); setAssessmentToUpdate(item); setShowUpdateAssessmentModal(true); }}
+                                    onDelete={(e) => e.stopPropagation()}
+                                    updateText="Sửa" showUpdateText={true}
+                                  />
+                                </div>
+                              );
+                            })}
                           </div>
-                        )}
-                      </div>
-
-                      {/* Create Button for Assessment */}
-                      {(() => {
-                        const moduleId = selectedModule.moduleId || selectedModule.ModuleId;
-                        return (
-                          <button
-                            className="module-create-btn assessment-btn"
-                            onClick={() => {
-                              setShowCreateAssessmentModal(true);
-                            }}
-                          >
-                            <FaPlus className="add-icon" />
-                            Xây dựng bài tập
+                          <button className="module-create-btn assessment-btn" onClick={() => setShowCreateAssessmentModal(true)}>
+                            <FaPlus className="add-icon" /> Thêm bài tập
                           </button>
-                        );
-                      })()}
-                    </>
-                  )}
-                </div>
-              ) : (
-                // Modules List View
-                <div className="modules-section">
-                  <div className="modules-header">
-                    <h3>Danh sách bài học</h3>
-                  </div>
-                  <div className="modules-list">
-                    {modules.length > 0 ? (
-                      modules.map((module, index) => {
-                        const moduleId = module.moduleId || module.ModuleId;
-                        const moduleName = module.name || module.Name || `Bài học ${index + 1}`;
-
-                        const contentTypeValue = module.contentType || module.ContentType;
-                        const contentTypeName = module.contentTypeName || module.ContentTypeName;
-
-                        const contentTypeMap = {
-                          1: "Lecture",
-                          2: "FlashCard",
-                          3: "Assessment"
-                        };
-
-                        const displayContentType = contentTypeName || contentTypeMap[contentTypeValue] || contentTypeValue || "Unknown";
-                        const contentTypeNum = typeof contentTypeValue === 'number' ? contentTypeValue : parseInt(contentTypeValue);
-
-                        const handleModuleItemClick = () => {
-                          if (!isClickable(contentTypeNum)) return;
-                          handleModuleClick(module);
-                        };
-
-                        return (
-                          <div
-                            key={moduleId || index}
-                            className="module-item"
-                            onClick={handleModuleItemClick}
-                            style={{ cursor: isClickable(contentTypeNum) ? 'pointer' : 'default' }}
-                          >
+                        </>
+                      )}
+                    </div>
+                  ) : (
+                    <div className="modules-section">
+                      <div className="modules-header"><h3>Danh sách bài học</h3></div>
+                      <div className="modules-list">
+                        {modules.map((m, i) => (
+                          <div key={m.moduleId || m.ModuleId || i} className="module-item" onClick={() => isClickable(m.contentType || m.ContentType) && handleModuleClick(m)}>
                             <div className="module-item-content">
-                              <ImageWithIconFallback
-                                imageUrl={module.imageUrl || module.ImageUrl}
-                                icon={(() => {
-                                  if (isLecture(contentTypeNum)) return <PiLayoutDuotone size={24} />;
-                                  if (isFlashCard(contentTypeNum)) return <PiCardsDuotone size={24} />;
-                                  if (isAssessment(contentTypeNum)) return <PiExamDuotone size={24} />;
-                                  return <PiLayoutDuotone size={24} />;
-                                })()}
-                                alt={moduleName}
-                                className="module-image"
-                                iconClassName={`module-icon-wrapper ${isLecture(contentTypeNum) ? 'lecture' : isFlashCard(contentTypeNum) ? 'flashcard' : isAssessment(contentTypeNum) ? 'assessment' : ''}`}
-                              />
+                              <ImageWithIconFallback imageUrl={m.imageUrl || m.ImageUrl} icon={<PiLayoutDuotone size={24} />} alt={m.name || m.Name} className="module-image" />
                               <div className="module-info">
-                                <span className="module-name">{moduleName}</span>
-                                {(module.description || module.Description) && (
-                                  <p className="module-item-description">
-                                    {module.description || module.Description}
-                                  </p>
-                                )}
-                                <span className="module-type">{displayContentType}</span>
+                                <span className="module-name">{m.name || m.Name}</span>
+                                <span className="module-type">{m.contentTypeName || m.ContentTypeName}</span>
                               </div>
                             </div>
                             <div className="module-actions" onClick={(e) => e.stopPropagation()}>
                               <ActionButtons
                                 onUpdate={async (e) => {
                                   e.stopPropagation();
+                                  setLoadingModuleDetail(true);
                                   try {
-                                    setLoadingModuleDetail(true);
-                                    const moduleId = module.moduleId || module.ModuleId;
-                                    const response = await teacherService.getModuleById(moduleId);
-
-                                    if (response.data?.success && response.data?.data) {
-                                      setModuleToUpdate(response.data.data);
-                                      setShowUpdateModuleModal(true);
-                                    } else {
-                                      setModuleToUpdate(module);
-                                      setShowUpdateModuleModal(true);
-                                    }
-                                  } catch (error) {
-                                    console.error("Error fetching module detail:", error);
-                                    setModuleToUpdate(module);
+                                    const res = await teacherService.getModuleById(m.moduleId || m.ModuleId);
+                                    setModuleToUpdate(res.data?.data || m);
                                     setShowUpdateModuleModal(true);
-                                  } finally {
-                                    setLoadingModuleDetail(false);
-                                  }
+                                  } catch { setModuleToUpdate(m); setShowUpdateModuleModal(true); }
+                                  finally { setLoadingModuleDetail(false); }
                                 }}
-                                onDelete={(e) => {
-                                  e.stopPropagation();
-                                  handleDeleteModuleClick(module);
-                                }}
-                                updateTitle="Cập nhật bài học"
-                                deleteTitle="Xóa bài học"
-                                updateText={loadingModuleDetail ? "Đang tải..." : "Cập nhật"}
-                                updateDisabled={loadingModuleDetail}
+                                onDelete={(e) => { e.stopPropagation(); handleDeleteModuleClick(m); }}
                               />
                             </div>
                           </div>
-                        );
-                      })
-                    ) : (
-                      <div className="no-modules-message">
-                        <div className="empty-icon-wrapper">
-                          <PiBookOpenDuotone />
-                        </div>
-                        <h4>Chưa có bài giảng nào</h4>
-                        <p>Module này hiện đang trống. Hãy bắt đầu xây dựng bài giảng đầu tiên để giúp học viên tiếp cận kiến thức.</p>
-                        <button
-                          className="add-module-btn-main mt-2"
-                          onClick={() => setShowCreateModuleModal(true)}
-                        >
-                          <FaPlus className="add-icon" /> Xây dựng bài giảng đầu tiên
-                        </button>
+                        ))}
                       </div>
-                    )}
-                  </div>
-
-                  <button
-                    className="add-module-btn-main"
-                    onClick={() => setShowCreateModuleModal(true)}
-                  >
-                    <FaPlus className="add-icon" />
-                    Thêm bài học
-                  </button>
-
-                </div>
-              )}
-            </Col>
-          </Row>
-        </div>
-      </Container>
-
-      {/* Modals */}
-      <CreateLessonModal
-        show={showUpdateModal}
-        onClose={() => setShowUpdateModal(false)}
-        onSuccess={handleUpdateSuccess}
-        courseId={courseId}
-        lessonData={lesson}
-        isUpdateMode={true}
-      />
-
-      <CreateModuleModal
-        show={showCreateModuleModal}
-        onClose={() => setShowCreateModuleModal(false)}
-        onSuccess={handleCreateModuleSuccess}
-        lessonId={lessonId}
-      />
-
-      <CreateModuleModal
-        show={showUpdateModuleModal}
-        onClose={() => {
-          setShowUpdateModuleModal(false);
-          setModuleToUpdate(null);
-        }}
-        onSuccess={() => {
-          setShowUpdateModuleModal(false);
-          setShowUpdateModuleSuccessModal(true);
-          fetchModules();
-        }}
-        lessonId={lessonId}
-        moduleData={moduleToUpdate}
-        isUpdateMode={true}
-      />
-
-      <CreateAssessmentModal
-        show={showCreateAssessmentModal}
-        onClose={() => setShowCreateAssessmentModal(false)}
-        onSuccess={() => {
-          setShowCreateAssessmentModal(false);
-          setShowCreateAssessmentSuccessModal(true);
-          if (selectedModule) handleModuleClick(selectedModule);
-        }}
-        moduleId={selectedModule?.moduleId || selectedModule?.ModuleId}
-      />
-
-      <CreateAssessmentModal
-        show={showUpdateAssessmentModal}
-        onClose={() => {
-          setShowUpdateAssessmentModal(false);
-          setAssessmentToUpdate(null);
-        }}
-        onSuccess={() => {
-          setShowUpdateAssessmentModal(false);
-          setShowUpdateAssessmentSuccessModal(true);
-          if (selectedModule) handleModuleClick(selectedModule);
-        }}
-        moduleId={selectedModule?.moduleId || selectedModule?.ModuleId}
-        assessmentData={assessmentToUpdate}
-        isUpdateMode={true}
-      />
-
-      <SuccessModal
-        isOpen={showSuccessModal}
-        onClose={() => setShowSuccessModal(false)}
-        title="Thành công"
-        message="Đã cập nhật chương học thành công!"
-        autoClose={true}
-        autoCloseDelay={2000}
-      />
-
-      <SuccessModal
-        isOpen={showModuleSuccessModal}
-        onClose={() => setShowModuleSuccessModal(false)}
-        title="Thành công"
-        message="Đã tạo bài học mới thành công!"
-        autoClose={true}
-        autoCloseDelay={2000}
-      />
-
-      <SuccessModal
-        isOpen={showUpdateModuleSuccessModal}
-        onClose={() => setShowUpdateModuleSuccessModal(false)}
-        title="Thành công"
-        message="Đã cập nhật bài học thành công!"
-        autoClose={true}
-        autoCloseDelay={2000}
-      />
-
-      <SuccessModal
-        isOpen={showCreateAssessmentSuccessModal}
-        onClose={() => setShowCreateAssessmentSuccessModal(false)}
-        title="Thành công"
-        message="Đã tạo assessment mới thành công!"
-        autoClose={true}
-        autoCloseDelay={2000}
-      />
-
-      <SuccessModal
-        isOpen={showUpdateAssessmentSuccessModal}
-        onClose={() => setShowUpdateAssessmentSuccessModal(false)}
-        title="Thành công"
-        message="Đã cập nhật assessment thành công!"
-        autoClose={true}
-        autoCloseDelay={2000}
-      />
-
-      <SuccessModal
-        isOpen={showDeleteModuleSuccessModal}
-        onClose={() => setShowDeleteModuleSuccessModal(false)}
-        title="Thành công"
-        message="Đã xóa bài học thành công!"
-        autoClose={true}
-        autoCloseDelay={2000}
-      />
-
-      <ConfirmModal
-        isOpen={showDeleteModuleModal}
-        onClose={() => {
-          setShowDeleteModuleModal(false);
-          setModuleToDelete(null);
-        }}
-        onConfirm={confirmDeleteModule}
-        title="Xác nhận xóa bài học"
-        message="Bạn có chắc chắn muốn xóa bài học này không? Tất cả nội dung bên trong sẽ bị xóa vĩnh viễn."
-        itemName={moduleToDelete ? (moduleToDelete.name || moduleToDelete.Name) : ""}
-        type="delete"
-        confirmText="Xác nhận xóa"
-        loading={deletingModule}
-      />
-
-      <NotificationModal
-        isOpen={notification.isOpen}
-        onClose={() => setNotification({ ...notification, isOpen: false })}
-        type={notification.type}
-        message={notification.message}
-      />
+                      <button className="add-module-btn-main" onClick={() => setShowCreateModuleModal(true)}><FaPlus className="add-icon" /> Thêm bài giảng</button>
+                    </div>
+                  )}
+                </Col>
+              </Row>
+            )}
+          </div>
+        </Container>
       </div>
+
+      <CreateLessonModal show={showUpdateModal} onClose={() => setShowUpdateModal(false)} onSuccess={handleUpdateSuccess} courseId={courseId} lessonData={lesson} isUpdateMode={true} />
+      <CreateModuleModal show={showCreateModuleModal} onClose={() => setShowCreateModuleModal(false)} onSuccess={handleCreateModuleSuccess} lessonId={lessonId} />
+      <CreateModuleModal show={showUpdateModuleModal} onClose={() => { setShowUpdateModuleModal(false); setModuleToUpdate(null); }} onSuccess={() => { setShowUpdateModuleModal(false); setShowUpdateModuleSuccessModal(true); fetchModules(); }} lessonId={lessonId} moduleData={moduleToUpdate} isUpdateMode={true} />
+      <CreateAssessmentModal show={showCreateAssessmentModal} onClose={() => setShowCreateAssessmentModal(false)} onSuccess={() => { setShowCreateAssessmentModal(false); setShowCreateAssessmentSuccessModal(true); if (selectedModule) handleModuleClick(selectedModule); }} moduleId={selectedModule?.moduleId || selectedModule?.ModuleId} />
+      <CreateAssessmentModal show={showUpdateAssessmentModal} onClose={() => { setShowUpdateAssessmentModal(false); setAssessmentToUpdate(null); }} onSuccess={() => { setShowUpdateAssessmentModal(false); setShowUpdateAssessmentSuccessModal(true); if (selectedModule) handleModuleClick(selectedModule); }} moduleId={selectedModule?.moduleId || selectedModule?.ModuleId} assessmentData={assessmentToUpdate} isUpdateMode={true} />
+
+      <SuccessModal isOpen={showSuccessModal} onClose={() => setShowSuccessModal(false)} title="Thành công" message="Cập nhật thành công!" autoClose={true} autoCloseDelay={2000} />
+      <SuccessModal isOpen={showModuleSuccessModal} onClose={() => setShowModuleSuccessModal(false)} title="Thành công" message="Tạo bài học thành công!" autoClose={true} autoCloseDelay={2000} />
+      <SuccessModal isOpen={showUpdateModuleSuccessModal} onClose={() => setShowUpdateModuleSuccessModal(false)} title="Thành công" message="Cập nhật thành công!" autoClose={true} autoCloseDelay={2000} />
+      <SuccessModal isOpen={showCreateAssessmentSuccessModal} onClose={() => setShowCreateAssessmentSuccessModal(false)} title="Thành công" message="Tạo bài tập thành công!" autoClose={true} autoCloseDelay={2000} />
+      <SuccessModal isOpen={showUpdateAssessmentSuccessModal} onClose={() => setShowUpdateAssessmentSuccessModal(false)} title="Thành công" message="Cập nhật thành công!" autoClose={true} autoCloseDelay={2000} />
+      <SuccessModal isOpen={showDeleteModuleSuccessModal} onClose={() => setShowDeleteModuleSuccessModal(false)} title="Thành công" message="Xóa thành công!" autoClose={true} autoCloseDelay={2000} />
+
+      <ConfirmModal isOpen={showDeleteModuleModal} onClose={() => { setShowDeleteModuleModal(false); setModuleToDelete(null); }} onConfirm={confirmDeleteModule} title="Xác nhận xóa" message="Bạn có chắc chắn muốn xóa bài học này không?" itemName={moduleToDelete ? (moduleToDelete.name || moduleToDelete.Name) : ""} type="delete" confirmText="Xác nhận xóa" loading={deletingModule} />
+      <NotificationModal isOpen={notification.isOpen} onClose={() => setNotification({ ...notification, isOpen: false })} type={notification.type} message={notification.message} />
     </>
   );
 }

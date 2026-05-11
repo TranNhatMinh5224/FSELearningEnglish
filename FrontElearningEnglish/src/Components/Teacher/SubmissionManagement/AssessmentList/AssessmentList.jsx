@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback } from "react";
 import { Card, Spinner, Badge } from "react-bootstrap";
 import { FaClipboardCheck, FaClock, FaCalendarAlt } from "react-icons/fa";
 import { assessmentService } from "../../../../Services/assessmentService";
+import { AssessmentCardSkeleton } from "../../../Common/Skeleton/LectureDetailSkeleton";
 import "./AssessmentList.css";
 
 export default function AssessmentList({ moduleId, onSelect, isAdmin = false }) {
@@ -46,8 +47,8 @@ export default function AssessmentList({ moduleId, onSelect, isAdmin = false }) 
 
   if (loading) {
     return (
-      <div className="text-center py-5">
-        <Spinner animation="border" variant="primary" />
+      <div className="assessment-grid">
+        {[...Array(3)].map((_, i) => <AssessmentCardSkeleton key={i} />)}
       </div>
     );
   }

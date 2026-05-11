@@ -41,6 +41,11 @@
     display: flex;
     flex-direction: column;
     overflow: hidden;
+    transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1); /* Thêm transition mượt */
+}
+
+.lecture-sidebar.resizing {
+    transition: none !important;
 }
 
 [data-theme="dark"] .lecture-sidebar {

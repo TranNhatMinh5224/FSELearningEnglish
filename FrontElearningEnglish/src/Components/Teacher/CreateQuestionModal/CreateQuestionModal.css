@@ -170,6 +170,22 @@
   margin-bottom: 1.5rem;
   border: 1px solid #e2e8f0;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  animation: cqm-fade-in 0.3s ease-out;
+  min-height: 80px;
+}
+
+@keyframes cqm-fade-in {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.tab-content {
+  animation: cqm-tab-fade 0.3s ease-in-out;
+}
+
+@keyframes cqm-tab-fade {
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
 
 .create-question-modal .form-section-title,
