@@ -391,7 +391,7 @@ export default function TeacherQuizEssayManagement() {
                             <div className="flex-grow-1">
                               <div className="d-flex align-items-center gap-2 mb-2">
                                 <h5 className="mb-0 fw-bold">{quizTitle}</h5>
-                                <span className="badge-quiz">QUIZ</span>
+                                <span className="fse-badge fse-badge-quiz">QUIZ</span>
                               </div>
                               <div className="d-flex align-items-center gap-2">
                                 <span className="small text-muted fw-medium">Trạng thái:</span>
@@ -464,7 +464,7 @@ export default function TeacherQuizEssayManagement() {
                             <div className="flex-grow-1">
                               <div className="d-flex align-items-center gap-2 mb-2">
                                 <h5 className="mb-0 fw-bold">{essayTitle}</h5>
-                                <span className="badge-essay">ESSAY</span>
+                                <span className="fse-badge fse-badge-essay">ESSAY</span>
                               </div>
                               <div className="d-flex align-items-center gap-2">
                                 <span className="small text-muted fw-medium">Trạng thái:</span>

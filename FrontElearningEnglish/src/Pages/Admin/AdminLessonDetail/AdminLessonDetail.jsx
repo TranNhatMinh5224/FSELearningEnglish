@@ -293,6 +293,26 @@ export default function AdminLessonDetail() {
   };
 
 
+  const renderModuleBadge = (typeName) => {
+    const type = typeName?.toLowerCase() || "";
+    if (type.includes("lecture")) return (
+      <span className="fse-badge fse-badge-lecture">
+        <PiLayoutDuotone className="badge-icon" /> LECTURE
+      </span>
+    );
+    if (type.includes("flashcard")) return (
+      <span className="fse-badge fse-badge-flashcard">
+        <PiCardsDuotone className="badge-icon" /> FLASHCARD
+      </span>
+    );
+    if (type.includes("assessment")) return (
+      <span className="fse-badge fse-badge-assessment">
+        <PiExamDuotone className="badge-icon" /> ASSESSMENT
+      </span>
+    );
+    return <span className="fse-badge">{typeName}</span>;
+  };
+
   if (!isAuthenticated || !isAdmin) {
     return null;
   }
@@ -382,9 +402,12 @@ export default function AdminLessonDetail() {
                 // Module Content View (Lectures/Flashcards List)
                 <div className="modules-section">
                   <div className="module-content-header">
-                    <h3 className="module-content-title">
-                      {selectedModule.name || selectedModule.Name || "Bài học"}
-                    </h3>
+                    <div>
+                      <h3 className="module-content-title mb-1">
+                        {selectedModule.name || selectedModule.Name || "Bài học"}
+                      </h3>
+                      {renderModuleBadge(selectedModule.contentTypeName || selectedModule.ContentTypeName || "Lecture")}
+                    </div>
                   </div>
 
                   {loadingContent ? (
@@ -450,11 +473,11 @@ export default function AdminLessonDetail() {
                                      <div className="item-badges">
                                        {typeInfo.hasQuiz || typeInfo.hasEssay ? (
                                          <>
-                                           {typeInfo.hasQuiz && <span className="badge-quiz">QUIZ</span>}
-                                           {typeInfo.hasEssay && <span className="badge-essay">ESSAY</span>}
+                                           {typeInfo.hasQuiz && <span className="fse-badge fse-badge-quiz">QUIZ</span>}
+                                           {typeInfo.hasEssay && <span className="fse-badge fse-badge-essay">ESSAY</span>}
                                          </>
                                        ) : (
-                                         <span className="no-content-badge">Chưa có nội dung</span>
+                                         <span className="fse-badge" style={{ background: '#f3f4f6', color: '#9ca3af' }}>Chưa có nội dung</span>
                                        )}
                                      </div>
                                    </div>
@@ -648,7 +671,7 @@ export default function AdminLessonDetail() {
                                   {module.description || module.Description}
                                 </p>
                               )}
-                              <span className="module-type">{displayContentType}</span>
+                              {renderModuleBadge(displayContentType)}
                             </div>
                           </div>
                           <div className="module-actions" onClick={(e) => e.stopPropagation()}>

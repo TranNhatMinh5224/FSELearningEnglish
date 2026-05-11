@@ -314,7 +314,7 @@ export default function AdminQuizEssayManagement() {
                               <div className="card-info">
                                 <div className="card-header-row">
                                   <h5 className="card-title">{quizTitle}</h5>
-                                  <span className="badge-quiz">QUIZ</span>
+                                  <span className="fse-badge fse-badge-quiz">QUIZ</span>
                                 </div>
                                 <div className="card-meta-container">
                                   <div className="card-meta-row status-row">
@@ -379,7 +379,7 @@ export default function AdminQuizEssayManagement() {
                               <div className="card-info">
                                 <div className="card-header-row">
                                   <h5 className="card-title">{essayTitle}</h5>
-                                  <span className="badge-essay">ESSAY</span>
+                                  <span className="fse-badge fse-badge-essay">ESSAY</span>
                                 </div>
                                 <div className="card-meta-container">
                                   <div className="card-meta-row status-row">

@@ -162,3 +162,60 @@ code {
     padding-right: 24px;
   }
 }
+
+/* FSE Global Badge System */
+.fse-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 12px;
+  border-radius: 100px;
+  font-size: 0.7rem;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  width: fit-content;
+  transition: all 0.2s ease;
+}
+
+.fse-badge .badge-icon {
+  font-size: 0.85rem;
+}
+
+/* Badge Variants */
+.fse-badge-lecture {
+  background: #eff6ff;
+  color: #2563eb;
+  border: 1px solid #dbeafe;
+}
+
+.fse-badge-flashcard {
+  background: #fdf4ff;
+  color: #a21caf;
+  border: 1px solid #fae8ff;
+}
+
+.fse-badge-assessment {
+  background: #fff1f2;
+  color: #e11d48;
+  border: 1px solid #ffe4e6;
+}
+
+.fse-badge-quiz {
+  background: #eef2ff;
+  color: #4f46e5;
+  border: 1px solid #e0e7ff;
+}
+
+.fse-badge-essay {
+  background: #ecfdf5;
+  color: #059669;
+  border: 1px solid #d1fae5;
+}
+
+/* Hover effects for interactive badges */
+.fse-badge-interactive:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  filter: brightness(0.98);
+}

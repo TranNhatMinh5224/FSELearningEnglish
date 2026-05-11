@@ -173,6 +173,26 @@ export default function TeacherLessonDetail() {
 
   const handleDeleteModuleClick = (module) => { setModuleToDelete(module); setShowDeleteModuleModal(true); };
 
+  const renderModuleBadge = (typeName) => {
+    const type = typeName?.toLowerCase() || "";
+    if (type.includes("lecture")) return (
+      <span className="fse-badge fse-badge-lecture">
+        <PiBookOpenDuotone className="badge-icon" /> LECTURE
+      </span>
+    );
+    if (type.includes("flashcard")) return (
+      <span className="fse-badge fse-badge-flashcard">
+        <PiCardsDuotone className="badge-icon" /> FLASHCARD
+      </span>
+    );
+    if (type.includes("assessment")) return (
+      <span className="fse-badge fse-badge-assessment">
+        <PiExamDuotone className="badge-icon" /> ASSESSMENT
+      </span>
+    );
+    return <span className="fse-badge">{typeName}</span>;
+  };
+
   if (!isAuthenticated || !isTeacher) return null;
 
   const lessonTitle = lesson?.title || lesson?.Title || "Bài học";
@@ -228,6 +248,7 @@ export default function TeacherLessonDetail() {
                     <div className="modules-section">
                       <div className="module-content-header">
                         <h3 className="module-content-title">{selectedModule.name || selectedModule.Name || "Bài học"}</h3>
+                        {renderModuleBadge(selectedModule.contentTypeName || selectedModule.ContentTypeName)}
                       </div>
                       {loadingContent ? (
                         <div className="module-content-list">
@@ -263,9 +284,9 @@ export default function TeacherLessonDetail() {
                                       <h4 className="content-item-title">{item.title || item.Title}</h4>
                                       {description && <p className="content-item-description" style={{ fontSize: '0.9rem', color: '#6b7280', marginBottom: '0.5rem' }}>{description}</p>}
                                       <div className="item-badges">
-                                        {typeInfo.hasQuiz && <span className="badge-quiz">QUIZ</span>}
-                                        {typeInfo.hasEssay && <span className="badge-essay">ESSAY</span>}
-                                        {!typeInfo.hasQuiz && !typeInfo.hasEssay && <span className="no-content-badge">Chưa có nội dung</span>}
+                                        {typeInfo.hasQuiz && <span className="fse-badge fse-badge-quiz">QUIZ</span>}
+                                        {typeInfo.hasEssay && <span className="fse-badge fse-badge-essay">ESSAY</span>}
+                                        {!typeInfo.hasQuiz && !typeInfo.hasEssay && <span className="fse-badge" style={{ background: '#f3f4f6', color: '#9ca3af' }}>Chưa có nội dung</span>}
                                       </div>
                                     </div>
                                     <div className="item-meta-container">
@@ -316,7 +337,10 @@ export default function TeacherLessonDetail() {
                               <ImageWithIconFallback imageUrl={m.imageUrl || m.ImageUrl} icon={<PiLayoutDuotone size={24} />} alt={m.name || m.Name} className="module-image" />
                               <div className="module-info">
                                 <span className="module-name">{m.name || m.Name}</span>
-                                <span className="module-type">{m.contentTypeName || m.ContentTypeName}</span>
+                                <p className="module-item-description">
+                                  {m.description || m.Description || "Không có mô tả"}
+                                </p>
+                                {renderModuleBadge(m.contentTypeName || m.ContentTypeName)}
                               </div>
                             </div>
                             <div className="module-actions" onClick={(e) => e.stopPropagation()}>

@@ -1,59 +1,59 @@
 .module-card {
     background: var(--color-bg-primary, white);
     border-radius: 16px;
-    padding: 20px;
+    padding: 24px; /* Tăng padding để card thoáng hơn */
     display: flex;
     align-items: center;
-    gap: 20px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-    transition: all 0.3s ease;
+    gap: 24px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     cursor: pointer;
     border: 2px solid transparent;
     position: relative;
     overflow: visible;
-    min-height: 100px;
+    min-height: 130px; /* Tăng độ cao tối thiểu của card */
 }
 
 .module-card:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 10px 25px rgba(65, 214, 227, 0.15);
+    transform: translateY(-6px);
+    box-shadow: 0 12px 30px rgba(65, 214, 227, 0.12);
+    border-color: rgba(65, 214, 227, 0.2);
 }
 
 .module-card.completed {
     border-color: rgba(16, 185, 129, 0.3);
-    background: linear-gradient(135deg, rgba(16, 185, 129, 0.05) 0%, rgba(16, 185, 129, 0.02) 100%);
+    background: linear-gradient(145deg, #ffffff 0%, #f0fdf4 100%);
 }
 
 .module-card-icon-container {
     flex-shrink: 0;
-    width: 60px;
-    height: 60px;
+    width: 68px; /* Tăng kích thước icon container */
+    height: 68px;
     position: relative;
     z-index: 1;
-    border-radius: 16px;
+    border-radius: 18px;
     overflow: hidden;
     background: transparent !important;
 }
 
 .module-card-img {
-    width: 60px;
-    height: 60px;
+    width: 68px;
+    height: 68px;
     flex-shrink: 0;
     object-fit: cover;
-    border-radius: 16px;
+    border-radius: 18px;
     min-height: unset !important;
     background: transparent !important;
     border: none !important;
 }
 
 .module-card-icon-inner {
-    width: 64px; /* Matching Admin size */
-    height: 64px;
-    border-radius: 16px;
+    width: 68px;
+    height: 68px;
+    border-radius: 18px;
     display: flex;
     align-items: center;
     justify-content: center;
-    /* Slightly larger for Duotone details */
     position: relative;
     z-index: 1;
     flex-shrink: 0;
@@ -62,9 +62,9 @@
 
 /* Icon size standardization */
 .module-card-icon-inner svg {
-    font-size: 28px !important;
-    width: 28px;
-    height: 28px;
+    font-size: 30px !important;
+    width: 30px;
+    height: 30px;
 }
 
 .module-card:hover .module-card-icon-inner {
@@ -101,20 +101,32 @@
 .module-content {
     flex: 1;
     min-width: 0;
+    padding-right: 15px;
 }
 
 .module-title {
-    font-size: 18px;
-    font-weight: 600;
-    color: var(--color-text-primary, #1f2937);
-    margin: 0 0 6px 0;
+    font-size: 20px; /* Tăng kích thước tiêu đề */
+    font-weight: 700; /* Đậm hơn để nổi bật */
+    color: #111827;
+    margin: 0 0 8px 0;
+    letter-spacing: -0.01em;
+}
+
+.module-badges-wrapper {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
 }
 
 .module-description {
     font-size: 14px;
-    color: var(--color-text-secondary, #6b7280);
+    color: #4b5563;
     margin: 0;
-    line-height: 1.5;
+    line-height: 1.6;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
 }
 
 .module-actions {

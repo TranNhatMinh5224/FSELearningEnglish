@@ -224,12 +224,8 @@
   word-break: break-word;
 }
 
-.teacher-lesson-detail-container .module-type {
+.teacher-lesson-detail-container .badge-icon {
   font-size: 0.8rem;
-  color: #94a3b8;
-  text-transform: uppercase;
-  font-weight: 600;
-  letter-spacing: 0.02em;
 }
 
 .teacher-lesson-detail-container .module-actions {

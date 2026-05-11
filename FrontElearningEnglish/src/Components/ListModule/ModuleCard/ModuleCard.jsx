@@ -25,7 +25,7 @@ export default function ModuleCard({ module, onClick, onPronunciationClick }) {
     const finalContentType = contentType;
     const finalContentTypeName = contentTypeName || "Lecture";
     const finalIsCompleted = isCompleted;
-    const finalDescription = description || "";
+    const finalDescription = module.description || module.Description || module.summary || module.Summary || "";
     const finalIsPronunciationCompleted = isPronunciationCompleted || false;
 
     // Check if this is a flashcard module
@@ -97,7 +97,26 @@ export default function ModuleCard({ module, onClick, onPronunciationClick }) {
                 />
             </div>
             <div className="module-content">
-                <h3 className="module-title">{finalName}</h3>
+                <h3 className="module-title mb-2">{finalName}</h3>
+                
+                <div className="module-badges-wrapper mb-3">
+                    {finalContentType === 1 && (
+                        <span className="fse-badge fse-badge-lecture">
+                            <PiLayoutDuotone className="badge-icon" /> LECTURE
+                        </span>
+                    )}
+                    {finalContentType === 2 && (
+                        <span className="fse-badge fse-badge-flashcard">
+                            <PiCardsDuotone className="badge-icon" /> FLASHCARD
+                        </span>
+                    )}
+                    {finalContentType === 3 && (
+                        <span className="fse-badge fse-badge-assessment">
+                            <PiExamDuotone className="badge-icon" /> ASSESSMENT
+                        </span>
+                    )}
+                </div>
+
                 {finalDescription && (
                     <p className="module-description">{finalDescription}</p>
                 )}
