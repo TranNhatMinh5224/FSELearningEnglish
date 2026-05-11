@@ -1,9 +1,10 @@
 .assessment-detail-container {
     padding: var(--padding-container-lg, clamp(1.5rem, 1rem + 2.5vw, 3rem)) 0;
     padding-top: calc(70px + var(--padding-container-lg, clamp(1.5rem, 1rem + 2.5vw, 3rem)));
-    background: var(--color-bg-secondary, #f9fafc);
-    min-height: calc(100vh - 70px);
+    background: var(--color-bg-secondary);
 }
+
+
 
 .breadcrumb-wrapper {
     margin-bottom: var(--spacing-lg, 1.5rem);

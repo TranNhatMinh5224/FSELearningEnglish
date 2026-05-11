@@ -25,9 +25,14 @@ export default function InputField({
     return (
         <div className="input-field-wrapper">
             <div className={containerClasses}>
+                {rest.icon && (
+                    <div className="input-field-icon">
+                        {rest.icon}
+                    </div>
+                )}
                 <input
                     type={showPasswordToggle ? (showPassword ? "text" : "password") : type}
-                    className="input-field"
+                    className={`input-field ${rest.icon ? "has-icon" : ""}`}
                     placeholder={placeholder}
                     value={value}
                     onChange={onChange}

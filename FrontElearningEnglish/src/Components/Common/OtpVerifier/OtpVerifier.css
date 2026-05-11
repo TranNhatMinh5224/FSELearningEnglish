@@ -11,27 +11,48 @@
 
 .otp-box {
   width: 100%;
-  max-width: 420px;
+  max-width: 440px;
   background: #fff;
-  padding: 48px 40px;
-  border-radius: 20px;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+  padding: 48px;
+  border-radius: 24px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
   text-align: center;
 }
 
-.otp-box h2 {
-  font-size: 28px;
-  font-weight: 700;
-  color: #1f2937;
-  margin-bottom: 12px;
+.otp-header-section {
+  margin-bottom: 35px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
-.otp-desc {
-  font-size: 14px;
+.otp-title {
+  font-size: 28px;
+  font-weight: 900;
+  background: linear-gradient(90deg, #6fd5e0 0%, #d447b6 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin-bottom: 10px;
+  letter-spacing: -0.5px;
+  text-transform: uppercase;
+}
+
+.otp-subtitle {
+  font-size: 15px;
   color: #6b7280;
-  margin-bottom: 32px;
+  margin-bottom: 12px;
   line-height: 1.5;
   text-align: center;
+}
+
+.otp-header-section::after {
+  content: "";
+  width: 50px;
+  height: 4px;
+  background: linear-gradient(90deg, #6fd5e0 0%, #d447b6 100%);
+  border-radius: 10px;
+  display: block;
 }
 
 .otp-input-group {
@@ -90,21 +111,24 @@
 
 /* Bootstrap Button primary override - specificity to avoid important */
 .otp-container .otp-btn.btn-primary {
-  background: linear-gradient(to right, #41d6e3 0%, #06b6d4 100%);
+  background: linear-gradient(90deg, #6fd5e0 0%, #d447b6 100%);
   border: none;
   border-radius: 12px;
-  font-weight: 600;
-  box-shadow: 0 4px 12px rgba(65, 214, 227, 0.3);
+  font-weight: 700;
+  box-shadow: 0 10px 20px rgba(111, 213, 224, 0.2);
   transition: all 0.3s ease;
   color: white;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
 .otp-container .otp-btn.btn-primary:hover:not(:disabled) {
   transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(65, 214, 227, 0.4);
-  opacity: 0.95;
+  box-shadow: 0 15px 25px rgba(212, 71, 182, 0.3);
+  opacity: 1;
+  filter: brightness(1.05);
   color: white;
-  background: linear-gradient(to right, #41d6e3 0%, #06b6d4 100%);
+  background: linear-gradient(90deg, #6fd5e0 0%, #d447b6 100%);
 }
 
 .otp-btn.btn-primary:active:not(:disabled) {

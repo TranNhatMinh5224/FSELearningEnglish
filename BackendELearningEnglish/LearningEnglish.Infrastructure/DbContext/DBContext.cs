@@ -1270,6 +1270,36 @@ namespace LearningEnglish.Infrastructure.Data
                 e.HasIndex(wt => wt.CreatedAt);
                 e.HasIndex(wt => wt.Type);
             });
+
+            // ===== AssetFrontend =====
+            modelBuilder.Entity<AssetFrontend>(e =>
+            {
+                e.ToTable("AssetsFrontend");
+                e.HasKey(a => a.Id);
+
+                e.Property(a => a.NameImage)
+                 .IsRequired()
+                 .HasMaxLength(255);
+
+                e.Property(a => a.KeyImage)
+                 .IsRequired()
+                 .HasMaxLength(500);
+
+                e.Property(a => a.ImageType)
+                 .HasMaxLength(100);
+
+                e.Property(a => a.AssetType)
+                 .IsRequired();
+
+                e.Property(a => a.CreatedAt)
+                 .IsRequired();
+
+                e.Property(a => a.UpdatedAt)
+                 .IsRequired();
+
+                // Index để tìm nhanh theo loại asset (Logo, Banner, v.v.)
+                e.HasIndex(a => a.AssetType);
+            });
         
          // ===== SEED   DATA =====
 

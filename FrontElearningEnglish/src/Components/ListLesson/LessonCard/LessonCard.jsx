@@ -56,13 +56,25 @@ export default function LessonCard({ lesson, orderNumber, onClick, staggerIndex 
                     imageKey={finalLessonId}
                 />
                 {finalIsCompleted && (
-                    <div className="lesson-completed-badge">
-                        <FaCheckCircle size={10} />
+                    <div className="lesson-completed-badge-premium">
+                        <FaCheckCircle size={18} />
                     </div>
                 )}
             </div>
             <div className="lesson-info">
-                <h3 className="lesson-title">{finalTitle}</h3>
+                <div className="d-flex align-items-center justify-content-between gap-2">
+                    <div className="d-flex align-items-center gap-2">
+                        <h3 className="lesson-title">{finalTitle}</h3>
+                        {finalIsCompleted && (
+                            <span className="lesson-mastered-tag">Mastered</span>
+                        )}
+                    </div>
+                    {lesson.moduleCount > 0 && (
+                        <span className="lesson-count-badge">
+                            {lesson.completedCount || 0}/{lesson.moduleCount} bài học
+                        </span>
+                    )}
+                </div>
                 {finalDescription && <p className="lesson-description">{finalDescription}</p>}
             </div>
         </div>

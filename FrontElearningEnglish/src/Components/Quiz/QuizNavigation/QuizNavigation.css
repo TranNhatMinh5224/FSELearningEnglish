@@ -1,5 +1,3 @@
-
-
 /* Bootstrap utilities: d-flex, justify-content-between, align-items-center */
 .navigation-header {
     margin-bottom: 16px;
@@ -23,10 +21,12 @@
     display: flex;
     align-items: center;
     gap: 10px;
-    background: #f0fdf4; /* Light green background from Image 3 */
+    background: #f0fdf4;
+    /* Light green background from Image 3 */
     border: 1px solid #dcfce7;
     padding: 6px 14px;
-    border-radius: 50px; /* Capsule shape */
+    border-radius: 50px;
+    /* Capsule shape */
     transition: all 0.3s ease;
 }
 
@@ -36,7 +36,8 @@
 }
 
 .check-icon-circle {
-    background: #22c55e; /* Vibrant green circle from Image 3 */
+    background: #22c55e;
+    /* Vibrant green circle from Image 3 */
     color: white;
     width: 24px;
     height: 24px;
@@ -49,14 +50,16 @@
 }
 
 .stat-count-text {
-    color: #166534; /* Dark green text from Image 3 */
+    color: #166534;
+    /* Dark green text from Image 3 */
     font-weight: 800;
     font-size: 1.05rem;
     letter-spacing: 0.5px;
 }
 
 .navigation-sections-container {
-    max-height: 55vh; /* Use viewport height for better responsiveness */
+    max-height: 55vh;
+    /* Use viewport height for better responsiveness */
     overflow-y: auto;
     padding-right: 4px;
     margin-right: -4px;
@@ -168,4 +171,3 @@
 }
 
 /* Bootstrap utilities được sử dụng trong JSX - responsive tự động */
-

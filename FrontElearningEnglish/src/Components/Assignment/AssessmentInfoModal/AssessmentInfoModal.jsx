@@ -33,8 +33,10 @@ export default function AssessmentInfoModal({
 
         try {
             const response = await quizAttemptService.checkAnyActiveAttempt();
-            if (response.data?.success && response.data?.data) {
-                const attemptData = response.data.data;
+            const attemptData = response.data?.data;
+            const hasActive = attemptData?.hasActiveAttempt || attemptData?.HasActiveAttempt;
+
+            if (response.data?.success && hasActive) {
                 console.log(" [AssessmentInfoModal] Found global active attempt:", attemptData);
                 
                 setInProgressAttempt({

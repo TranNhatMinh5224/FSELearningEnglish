@@ -93,6 +93,7 @@ code {
   body .profile-container,
   body .essay-detail-container,
   body .flashcard-detail-container,
+  body .assessment-detail-container,
   body .my-courses-container {
     max-width: none;
     width: 100%;
@@ -107,6 +108,37 @@ code {
     width: 80%;
     max-width: 1440px;
     margin: 0 auto;
+  }
+
+  /* Global Min-Height Fix for all Page Containers to cover bottom whitespace */
+  body .home-container,
+  body .course-detail-container,
+  body .list-module-container,
+  body .list-lesson-container,
+  body .quiz-detail-container,
+  body .profile-container,
+  body .essay-detail-container,
+  body .flashcard-detail-container,
+  body .assessment-detail-container,
+  body .my-courses-container {
+    min-height: 125vh;
+    background-color: var(--color-bg-secondary, #f9fafc);
+  }
+}
+
+/* Mobile/Tablet adjustment for min-height */
+@media (max-width: 991.98px) {
+  .home-container,
+  .course-detail-container,
+  .list-module-container,
+  .list-lesson-container,
+  .quiz-detail-container,
+  .profile-container,
+  .essay-detail-container,
+  .flashcard-detail-container,
+  .assessment-detail-container,
+  .my-courses-container {
+    min-height: 100vh;
   }
 }
 

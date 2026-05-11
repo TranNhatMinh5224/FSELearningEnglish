@@ -1,5 +1,3 @@
-
-
 /* Bootstrap utilities: d-flex, justify-content-between, align-items-center, flex-wrap */
 .question-header {
     margin-bottom: var(--spacing-md, clamp(0.75rem, 0.6rem + 0.75vw, 1rem));
@@ -168,9 +166,11 @@
     .section-title-v4 {
         font-size: 1.25rem;
     }
+
     .question-headline-v4 {
         font-size: 1.15rem;
     }
+
     .points-badge-v4-compact {
         padding: 0.25rem 0.65rem;
         margin-left: 1rem;
@@ -237,4 +237,3 @@
     margin-bottom: 0 !important;
     padding-bottom: 0 !important;
 }
-

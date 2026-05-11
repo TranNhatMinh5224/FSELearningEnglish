@@ -1,5 +1,4 @@
-import React from "react";
-import { FaMicrophone } from "react-icons/fa";
+import { FaMicrophone, FaCheckCircle } from "react-icons/fa";
 import {
     PiLayoutDuotone,
     PiCardsDuotone,
@@ -95,9 +94,19 @@ export default function ModuleCard({ module, onClick, onPronunciationClick }) {
                     iconClassName={`module-card-icon-inner ${iconConfig.className}`}
                     imageKey={module?.moduleId || module?.ModuleId}
                 />
+                {finalIsCompleted && (
+                    <div className="module-completed-badge">
+                        <FaCheckCircle size={16} />
+                    </div>
+                )}
             </div>
             <div className="module-content">
-                <h3 className="module-title mb-2">{finalName}</h3>
+                <div className="d-flex align-items-center gap-2 mb-2">
+                    <h3 className="module-title mb-0">{finalName}</h3>
+                    {finalIsCompleted && (
+                        <span className="module-status-tag">Hoàn thành</span>
+                    )}
+                </div>
                 
                 <div className="module-badges-wrapper mb-3">
                     {finalContentType === 1 && (

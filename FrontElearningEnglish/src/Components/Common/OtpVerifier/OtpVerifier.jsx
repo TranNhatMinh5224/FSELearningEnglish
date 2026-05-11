@@ -209,12 +209,16 @@ export default function OtpVerifier({
         <Row className="justify-content-center">
           <Col xs={12} sm={10} md={8} lg={6} xl={5}>
             <div className="otp-box">
-              <h2>{title}</h2>
-              {description ? (
-                <p className="otp-desc">{description}</p>
-              ) : (
-                <p className="otp-desc">Mã xác minh đã được gửi đến email <strong>{email}</strong></p>
-              )}
+              <div className="otp-header-section">
+                <h2 className="otp-title">{title}</h2>
+                {description ? (
+                  <p className="otp-subtitle">{description}</p>
+                ) : (
+                  <p className="otp-subtitle">
+                    Mã xác minh đã được gửi đến email <strong>{email}</strong>
+                  </p>
+                )}
+              </div>
 
               <div className="otp-input-group">
                 {otp.map((digit, index) => (

@@ -1,8 +1,7 @@
 .list-lesson-container {
     padding: var(--padding-container-lg, clamp(1.5rem, 1rem + 2.5vw, 3rem)) 0;
     padding-top: calc(70px + clamp(2rem, 1.5rem + 2.5vw, 3.125rem));
-    background: var(--color-bg-secondary, #f6f8fb);
-    min-height: calc(100vh - 70px);
+    background: var(--color-bg-secondary);
 }
 
 .list-lesson-breadcrumb {
@@ -49,18 +48,22 @@
 
 .progress-section {
     transition: all 0.3s ease;
-    z-index: 100;
+    z-index: 1001; /* Tăng lên để cao hơn các thành phần khác */
+    position: relative;
+    margin-bottom: 20px;
 }
 
 .progress-section.sticky-active {
     position: fixed;
-    top: 70px;
+    top: 70px; /* Khớp với chiều cao Header */
     left: 0;
     right: 0;
-    background: rgba(255, 255, 255, 0.9);
-    backdrop-filter: blur(10px);
-    padding: 15px clamp(1rem, 5vw, 15.625rem);
-    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(15px);
+    -webkit-backdrop-filter: blur(15px);
+    padding: 12px clamp(1rem, 5vw, 15.625rem);
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+    z-index: 1002;
     margin-bottom: 0;
 }
 
@@ -137,8 +140,4 @@
     }
 }
 
-@media (min-width: 992px) {
-  .list-lesson-container {
-    min-height: calc(125vh - 70px);
-  }
-}
+

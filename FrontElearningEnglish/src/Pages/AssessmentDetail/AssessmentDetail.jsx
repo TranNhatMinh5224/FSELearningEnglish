@@ -135,7 +135,7 @@ export default function AssessmentDetail() {
                             try {
                                 const res = await quizAttemptService.resume(progress.attemptId);
                                 if (res.data?.success && isInProgress(res.data.data.status)) {
-                                    progressMap[assessmentId] = progress;
+                                    progressMap[quizId] = progress;
                                 } else {
                                     localStorage.removeItem(savedKey);
                                 }
@@ -264,7 +264,7 @@ export default function AssessmentDetail() {
                                         key={q.quizId}
                                         assessment={q} // Quiz info
                                         onClick={() => handleQuizClick(q)}
-                                        hasInProgress={!!inProgressQuizzes[assessmentId]}
+                                        hasInProgress={!!inProgressQuizzes[q.quizId || q.QuizId]}
                                     />
                                 ))
                             ) : (
