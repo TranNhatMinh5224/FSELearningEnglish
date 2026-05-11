@@ -114,6 +114,7 @@ export default function DatePicker({ value, onChange, disabled = false, hasError
                     disabled={disabled}
                     placeholder="Ngày"
                     error={hasError}
+                    name="dobDay"
                 />
             </Col>
             <Col xs={4}>
@@ -124,6 +125,7 @@ export default function DatePicker({ value, onChange, disabled = false, hasError
                     disabled={disabled}
                     placeholder="Tháng"
                     error={hasError}
+                    name="dobMonth"
                 />
             </Col>
             <Col xs={4}>
@@ -134,6 +136,7 @@ export default function DatePicker({ value, onChange, disabled = false, hasError
                     disabled={disabled}
                     placeholder="Năm"
                     error={hasError}
+                    name="dobYear"
                 />
             </Col>
         </Row>

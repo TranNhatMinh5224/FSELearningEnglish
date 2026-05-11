@@ -27,6 +27,7 @@ export default function AdminCourseList() {
   // Success Modal State
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [successMessage, setSuccessMessage] = useState("");
+  const [createdCourseId, setCreatedCourseId] = useState(null);
 
   // Confirm delete modal state
   const [showConfirmDelete, setShowConfirmDelete] = useState(false);
@@ -114,7 +115,20 @@ export default function AdminCourseList() {
     const message = editingCourse ? "Cập nhật khóa học thành công!" : "Tạo khóa học thành công!";
     setSuccessMessage(message);
     setShowSuccessModal(true);
+    if (!editingCourse) {
+      const newCourseId = courseData?.courseId || courseData?.CourseId || courseData?.id || courseData?.Id || null;
+      setCreatedCourseId(newCourseId);
+    } else {
+      setCreatedCourseId(null);
+    }
     fetchCourses();
+  };
+
+  const handleSuccessAction = () => {
+    if (createdCourseId) {
+      setShowSuccessModal(false);
+      navigate(`/admin/courses/${createdCourseId}`);
+    }
   };
 
   const handleViewCourse = (courseId) => {
@@ -177,8 +191,10 @@ export default function AdminCourseList() {
         onClose={() => setShowSuccessModal(false)}
         title="Thành công"
         message={successMessage}
-        autoClose={true}
+        autoClose={!createdCourseId}
         autoCloseDelay={1500}
+        actionText={createdCourseId ? "Vào khóa học" : undefined}
+        onAction={createdCourseId ? handleSuccessAction : undefined}
       />
 
       {/* CONFIRM DELETE MODAL */}

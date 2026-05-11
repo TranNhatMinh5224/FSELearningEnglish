@@ -162,18 +162,20 @@ export default function PaymentHistory() {
                         ]}
                     />
                     
-                    <div className="payment-history-header mt-4">
-                        <div className="d-flex align-items-center justify-content-between flex-wrap gap-3">
-                            <div>
-                                <h1 className="payment-history-title">Lịch sử thanh toán</h1>
+                    <div className="payment-history-header-section mt-4">
+                        <div className="d-flex align-items-center justify-content-between flex-wrap gap-4">
+                            <div className="title-area">
+                                <h1 className="payment-history-title">Lịch Sử Thanh Toán</h1>
                                 <p className="payment-history-subtitle">
-                                    <FaHistory className="me-2" />
-                                    Xem lại tất cả các giao dịch nạp tiền và mua khóa học của bạn
+                                    Quản lý và theo dõi toàn bộ hành trình giao dịch của bạn
                                 </p>
                             </div>
-                            <div className="stats-highlight">
-                                <div className="stat-card">
-                                    <span className="stat-label">Tổng số giao dịch</span>
+                            <div className="stats-highlight-card">
+                                <div className="stat-icon-box">
+                                    <FaWallet />
+                                </div>
+                                <div className="stat-content">
+                                    <span className="stat-label">Tổng giao dịch</span>
                                     <span className="stat-value">{totalCount}</span>
                                 </div>
                             </div>

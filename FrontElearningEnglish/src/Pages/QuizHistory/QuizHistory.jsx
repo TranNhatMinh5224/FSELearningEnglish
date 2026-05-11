@@ -124,17 +124,20 @@ export default function QuizHistory() {
                         ]}
                     />
                     
-                    <div className="quiz-history-header mt-4">
-                        <div className="d-flex align-items-center justify-content-between flex-wrap gap-3">
-                            <div>
-                                <h1 className="quiz-history-title">Lịch sử làm bài</h1>
+                    <div className="quiz-history-header-section mt-4">
+                        <div className="d-flex align-items-center justify-content-between flex-wrap gap-4">
+                            <div className="title-area">
+                                <h1 className="quiz-history-title">Lịch Sử Làm Bài</h1>
                                 <p className="quiz-history-subtitle">
-                                    Theo dõi tiến trình và kết quả rèn luyện của bạn
+                                    Theo dõi hành trình chinh phục kiến thức và điểm số của bạn
                                 </p>
                             </div>
-                            <div className="stats-highlight">
-                                <div className="stat-card">
-                                    <span className="stat-label">Tổng bài đã làm</span>
+                            <div className="stats-highlight-card">
+                                <div className="stat-icon-box">
+                                    <FaTrophy />
+                                </div>
+                                <div className="stat-content">
+                                    <span className="stat-label">Tổng bài tập</span>
                                     <span className="stat-value">{attempts.length}</span>
                                 </div>
                             </div>

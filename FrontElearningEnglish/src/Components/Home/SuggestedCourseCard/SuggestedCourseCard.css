@@ -1,7 +1,7 @@
 .suggested-course-card {
     background: var(--color-bg-primary, white);
     border-radius: 16px;
-    box-shadow: 
+    box-shadow:
         0 4px 6px rgba(0, 0, 0, 0.08),
         0 2px 4px rgba(0, 0, 0, 0.06);
     overflow: hidden;
@@ -10,25 +10,30 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    min-height: 360px; /* Độ cao chuẩn */
+    min-height: 360px;
+    /* Độ cao chuẩn */
     width: 100%;
-    max-width: 240px; /* Hạ xuống để giống trang chủ */
+    max-width: 240px;
+    /* Hạ xuống để giống trang chủ */
     box-sizing: border-box;
     position: relative;
     transform-style: preserve-3d;
     perspective: 1000px;
     border: 1px solid transparent;
-    will-change: transform, box-shadow; /* Tăng tốc GPU */
+    will-change: transform, box-shadow;
+    /* Tăng tốc GPU */
 }
 
 /* Mobile optimization: Simplify effects to reduce main-thread work */
 @media (max-width: 767.98px) {
     .suggested-course-card {
-        min-height: 340px; /* Hơi nhỏ hơn trên mobile */
+        min-height: 340px;
+        /* Hơi nhỏ hơn trên mobile */
     }
-    
+
     .suggested-course-card:hover {
-        transform: translateY(-4px) scale(1.01); /* Bỏ rotateX/Y trên mobile */
+        transform: translateY(-4px) scale(1.01);
+        /* Bỏ rotateX/Y trên mobile */
         box-shadow: 0 10px 20px rgba(65, 214, 227, 0.2);
     }
 }
@@ -51,7 +56,7 @@
     align-items: center;
     gap: 4px;
     z-index: 10;
-    box-shadow: 
+    box-shadow:
         0 2px 8px rgba(16, 185, 129, 0.3),
         0 0 0 2px rgba(255, 255, 255, 0.8);
     animation: fadeInScale 0.3s ease-out;
@@ -79,6 +84,7 @@
         opacity: 0;
         transform: scale(0.8);
     }
+
     to {
         opacity: 1;
         transform: scale(1);
@@ -87,7 +93,7 @@
 
 .suggested-course-card:hover .enrolled-badge {
     transform: scale(1.05);
-    box-shadow: 
+    box-shadow:
         0 4px 12px rgba(16, 185, 129, 0.4),
         0 0 0 2px rgba(255, 255, 255, 0.9);
     transition: transform 0.2s ease, box-shadow 0.2s ease;
@@ -110,7 +116,7 @@
 
 .suggested-course-card:hover {
     transform: translateY(-8px) rotateX(2deg) rotateY(-2deg) scale(1.02);
-    box-shadow: 
+    box-shadow:
         0 20px 40px rgba(65, 214, 227, 0.25),
         0 10px 20px rgba(217, 70, 239, 0.15),
         0 4px 8px rgba(0, 0, 0, 0.1),
@@ -233,7 +239,8 @@
 .suggested-course-card .course-price {
     font-size: 15px;
     font-weight: 600;
-    color: #007c89; /* Cyan đậm hơn để đạt chuẩn Accessibility */
+    color: #007c89;
+    /* Cyan đậm hơn để đạt chuẩn Accessibility */
     text-align: center;
     margin: 0 auto 12px auto;
     padding: 0;

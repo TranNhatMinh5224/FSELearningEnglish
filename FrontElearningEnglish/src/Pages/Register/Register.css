@@ -44,14 +44,6 @@
   margin-bottom: 15px;
 }
 
-.auth-header-section::after {
-  content: "";
-  width: 60px;
-  height: 4px;
-  background: linear-gradient(90deg, #6fd5e0 0%, #d447b6 100%);
-  border-radius: 10px;
-  display: block;
-}
 
 /* ===========================
    ERROR MESSAGE - Override Bootstrap Alert

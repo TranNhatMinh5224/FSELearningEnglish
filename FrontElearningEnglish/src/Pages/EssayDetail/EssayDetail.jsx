@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useLocation } from "react-router-dom";
 import { useParams, useNavigate } from "react-router-dom";
-import { Container, Row, Col, Button, Form, Card } from "react-bootstrap";
+import { Container, Row, Col, Button, Form, Card, Badge } from "react-bootstrap";
 import MainHeader from "../../Components/Header/MainHeader";
 import Breadcrumb from "../../Components/Common/Breadcrumb/Breadcrumb";
 import NotificationModal from "../../Components/Common/NotificationModal/NotificationModal";
@@ -14,7 +14,9 @@ import { moduleService } from "../../Services/moduleService";
 import { courseService } from "../../Services/courseService";
 import { lessonService } from "../../Services/lessonService";
 import { assessmentService } from "../../Services/assessmentService";
-import { FaFileUpload, FaTimes, FaEdit, FaCheckCircle, FaTimesCircle, FaStar } from "react-icons/fa";
+import { FaFileUpload, FaTimes, FaEdit, FaCheckCircle, FaTimesCircle, FaStar, FaVolumeUp, FaImage, FaClock, FaFileAlt } from "react-icons/fa";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 import "./EssayDetail.css";
 
 export default function EssayDetail() {
@@ -191,7 +193,7 @@ export default function EssayDetail() {
         }
     }, [moduleId, essayId, courseId, lessonId, location]);
 
-    const handleFileSelect = (e) => {
+    const handleFileSelect = async (e) => {
         const file = e.target.files[0];
         if (file) {
             // Validate file size (max 10MB for documents)
@@ -225,6 +227,9 @@ export default function EssayDetail() {
             setSelectedFile(file);
             setAttachmentTempKey(null); // Reset temp key when new file is selected
             setAttachmentType(file.type || 'application/octet-stream'); // Default type if not detected
+            
+            // Auto upload after selection
+            handleUploadFile(file);
         }
     };
 
@@ -259,13 +264,14 @@ export default function EssayDetail() {
         }
     }, [audioBlobUrl]);
 
-    const handleUploadFile = async () => {
-        if (!selectedFile) return;
+    const handleUploadFile = async (fileToUpload) => {
+        const file = fileToUpload || selectedFile;
+        if (!file) return;
 
         try {
             setUploadingFile(true);
             const uploadResponse = await fileService.uploadTempFile(
-                selectedFile,
+                file,
                 "essay-attachments",
                 "temp"
             );
@@ -699,29 +705,69 @@ export default function EssayDetail() {
                                         <h1 className="h3 mb-3 fw-bold">{essayTitle}</h1>
                                     </div>
                                     {essay?.description && (
-                                        <p className="text-muted mb-3">{essay.description || essay.Description}</p>
-                                    )}
-                                    {essay?.audioUrl && (
-                                        <div className="mb-3">
-                                            <audio 
-                                                ref={audioRef}
-                                                controls 
-                                                controlsList="nodownload"
-                                                className="w-100"
-                                                style={{ maxWidth: '500px' }}
-                                                src={audioBlobUrl || essay.audioUrl || essay.AudioUrl}
-                                            >
-                                                Trình duyệt của bạn không hỗ trợ phát audio.
-                                            </audio>
+                                        <div className="essay-description-section mb-4">
+                                            <h5 className="section-title mb-3 d-flex align-items-center gap-2">
+                                                <span className="section-dot"></span>
+                                                Yêu cầu & Mô tả bài viết
+                                            </h5>
+                                            <div className="essay-description-box p-4 rounded-4 border bg-white shadow-sm">
+                                                <div className="markdown-content">
+                                                    <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                                                        {essay.description || essay.Description}
+                                                    </ReactMarkdown>
+                                                </div>
+                                            </div>
                                         </div>
                                     )}
-                                    {essay?.imageUrl && (
-                                        <div className="mb-3">
-                                            <img 
-                                                src={essay.imageUrl} 
-                                                alt={essayTitle || "Essay image"} 
-                                                className="img-fluid rounded"
-                                            />
+
+                                    {(essay?.audioUrl || essay?.imageUrl) && (
+                                        <div className="essay-media-section mb-4">
+                                            <h5 className="section-title mb-3 d-flex align-items-center gap-2">
+                                                <span className="section-dot"></span>
+                                                Tài liệu đính kèm
+                                            </h5>
+                                            <Row className="g-4">
+                                                {essay?.imageUrl && (
+                                                    <Col md={essay?.audioUrl ? 6 : 12}>
+                                                        <div className="media-card p-2 rounded-4 border bg-white h-100 shadow-sm">
+                                                            <div className="media-label mb-2 px-2 d-flex align-items-center gap-2 small fw-bold text-muted">
+                                                                <FaImage className="text-primary" /> Hình ảnh minh họa
+                                                            </div>
+                                                            <div className="image-container rounded-3 overflow-hidden">
+                                                                <img 
+                                                                    src={essay.imageUrl} 
+                                                                    alt={essayTitle || "Essay image"} 
+                                                                    className="img-fluid w-100 object-fit-cover"
+                                                                    style={{ maxHeight: '350px' }}
+                                                                />
+                                                            </div>
+                                                        </div>
+                                                    </Col>
+                                                )}
+                                                {essay?.audioUrl && (
+                                                    <Col md={essay?.imageUrl ? 6 : 12}>
+                                                        <div className="media-card p-3 rounded-4 border bg-white h-100 shadow-sm d-flex flex-column justify-content-center">
+                                                            <div className="media-label mb-3 d-flex align-items-center gap-2 small fw-bold text-muted">
+                                                                <FaVolumeUp className="text-primary" /> Âm thanh đính kèm
+                                                            </div>
+                                                            <div className="audio-player-container text-center py-2">
+                                                                <audio 
+                                                                    ref={audioRef}
+                                                                    controls 
+                                                                    controlsList="nodownload"
+                                                                    className="w-100 mb-2"
+                                                                    src={audioBlobUrl || essay.audioUrl || essay.AudioUrl}
+                                                                >
+                                                                    Trình duyệt của bạn không hỗ trợ phát audio.
+                                                                </audio>
+                                                                <div className="small text-muted mt-1">
+                                                                    Nhấn nút play để nghe hướng dẫn
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </Col>
+                                                )}
+                                            </Row>
                                         </div>
                                     )}
                                 </Card.Body>
@@ -840,39 +886,53 @@ export default function EssayDetail() {
                                                     )}
 
                                                     {selectedFile ? (
-                                                        <div className="p-3 border rounded">
+                                                        <div className="upload-preview-box p-3 rounded-4 border bg-white shadow-sm">
                                                             <div className="d-flex align-items-center justify-content-between mb-2">
-                                                                <div>
-                                                                    <FaFileUpload className="me-2 text-primary" />
-                                                                    <strong>{selectedFile?.name || "Unknown file"}</strong>
-                                                                    <small className="text-muted ms-2">({formatFileSize(selectedFile?.size || 0)})</small>
+                                                                <div className="d-flex align-items-center gap-3">
+                                                                    <div className="file-icon-wrapper-small bg-primary bg-opacity-10 text-primary">
+                                                                        <FaFileAlt size={20} />
+                                                                    </div>
+                                                                    <div>
+                                                                        <div className="fw-bold text-dark small text-truncate" style={{maxWidth: '200px'}}>
+                                                                            {selectedFile?.name}
+                                                                        </div>
+                                                                        <div className="text-muted extra-small">
+                                                                            {formatFileSize(selectedFile?.size || 0)}
+                                                                        </div>
+                                                                    </div>
                                                                 </div>
-                                                                <div>
-                                                                    {!attachmentTempKey && (
-                                                                        <Button
-                                                                            variant="primary"
-                                                                            size="sm"
-                                                                            onClick={handleUploadFile}
-                                                                            disabled={uploadingFile}
-                                                                            className="me-2"
-                                                                        >
-                                                                            {uploadingFile ? "Đang upload..." : "Upload file"}
-                                                                        </Button>
+                                                                <div className="d-flex align-items-center gap-2">
+                                                                    {uploadingFile && (
+                                                                        <div className="d-flex align-items-center gap-2 text-primary small fw-medium">
+                                                                            <div className="spinner-border spinner-border-sm" role="status"></div>
+                                                                            <span>Đang tải lên...</span>
+                                                                        </div>
                                                                     )}
-                                                                    {attachmentTempKey && (
-                                                                        <span className="badge bg-success me-2">
-                                                                            <FaCheckCircle className="me-1" /> Đã upload
-                                                                        </span>
+                                                                    {attachmentTempKey && !uploadingFile && (
+                                                                        <Badge bg="success" className="rounded-pill px-3 py-2 d-flex align-items-center gap-1">
+                                                                            <FaCheckCircle /> Sẵn sàng
+                                                                        </Badge>
                                                                     )}
                                                                     <Button
-                                                                        variant="outline-danger"
+                                                                        variant="light"
                                                                         size="sm"
                                                                         onClick={handleRemoveFile}
+                                                                        className="rounded-circle shadow-sm border p-1"
+                                                                        title="Xóa file"
                                                                     >
-                                                                        <FaTimes /> Xóa
+                                                                        <FaTimes size={12} className="text-danger" />
                                                                     </Button>
                                                                 </div>
                                                             </div>
+                                                            {uploadingFile && (
+                                                                <div className="progress mt-2" style={{ height: '6px' }}>
+                                                                    <div 
+                                                                        className="progress-bar progress-bar-striped progress-bar-animated bg-primary" 
+                                                                        role="progressbar" 
+                                                                        style={{ width: '100%' }}
+                                                                    ></div>
+                                                                </div>
+                                                            )}
                                                         </div>
                                                     ) : (
                                                         <div className="border border-dashed rounded p-4 text-center">
@@ -884,6 +944,29 @@ export default function EssayDetail() {
                                                                 onChange={handleFileSelect}
                                                                 accept=".pdf,.doc,.docx,.txt,.docm,.dotx,.dotm"
                                                             />
+                                                            <style>{`
+                                                                .file-icon-wrapper-small {
+                                                                    width: 40px;
+                                                                    height: 40px;
+                                                                    border-radius: 10px;
+                                                                    display: flex;
+                                                                    align-items: center;
+                                                                    justify-content: center;
+                                                                }
+
+                                                                .upload-preview-box {
+                                                                    background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+                                                                    transition: all 0.3s ease;
+                                                                }
+
+                                                                .extra-small {
+                                                                    font-size: 11px;
+                                                                }
+
+                                                                .cursor-pointer {
+                                                                    cursor: pointer;
+                                                                }
+                                                            `}</style>
                                                             <label htmlFor="file-input" className="cursor-pointer">
                                                                 <FaFileUpload size={32} className="text-primary mb-2" />
                                                                 <div>Chọn file để upload</div>
@@ -900,10 +983,10 @@ export default function EssayDetail() {
                                                         variant="primary"
                                                         size="lg"
                                                         onClick={() => setShowSubmitModal(true)}
-                                                        disabled={submitting || isUpdating}
+                                                        disabled={submitting || isUpdating || uploadingFile}
                                                         className="flex-fill"
                                                     >
-                                                        {isUpdating ? "Đang cập nhật..." : submitting ? "Đang nộp bài..." : currentSubmission ? "Cập nhật bài" : "Nộp bài"}
+                                                        {uploadingFile ? "Đang xử lý file..." : isUpdating ? "Đang cập nhật..." : submitting ? "Đang nộp bài..." : currentSubmission ? "Cập nhật bài" : "Nộp bài"}
                                                     </Button>
                                                     {currentSubmission && (
                                                         <Button
@@ -926,48 +1009,68 @@ export default function EssayDetail() {
                                             {/* Thông tin Essay Cards */}
                                             <Row className="g-3 mt-4">
                                                 <Col md={6}>
-                                                    <Card className="h-100">
-                                                        <Card.Body>
-                                                            <div className="text-muted small mb-1">Thời gian làm bài</div>
-                                                            <div className="fw-bold">
-                                                                {formatTimeLimit(assessment?.timeLimit || assessment?.TimeLimit)}
+                                                    <Card className="h-100 border-0 bg-light-purple rounded-4">
+                                                        <Card.Body className="d-flex align-items-center p-3">
+                                                            <div className="info-icon-wrapper me-3">
+                                                                <FaClock />
+                                                            </div>
+                                                            <div>
+                                                                <div className="text-muted small mb-1">Thời gian làm bài</div>
+                                                                <div className="fw-bold">
+                                                                    {formatTimeLimit(assessment?.timeLimit || assessment?.TimeLimit)}
+                                                                </div>
                                                             </div>
                                                         </Card.Body>
                                                     </Card>
                                                 </Col>
 
                                                 <Col md={6}>
-                                                    <Card className="h-100">
-                                                        <Card.Body>
-                                                            <div className="text-muted small mb-1">Tổng điểm</div>
-                                                            <div className="fw-bold">
-                                                                {essay?.totalPoints || essay?.TotalPoints || 0} điểm
+                                                    <Card className="h-100 border-0 bg-light-blue rounded-4">
+                                                        <Card.Body className="d-flex align-items-center p-3">
+                                                            <div className="info-icon-wrapper me-3">
+                                                                <FaStar />
+                                                            </div>
+                                                            <div>
+                                                                <div className="text-muted small mb-1">Tổng điểm</div>
+                                                                <div className="fw-bold">
+                                                                    {essay?.totalPoints || essay?.TotalPoints || 0} điểm
+                                                                </div>
                                                             </div>
                                                         </Card.Body>
                                                     </Card>
                                                 </Col>
 
                                                 <Col md={6}>
-                                                    <Card className="h-100">
-                                                        <Card.Body>
-                                                            <div className="text-muted small mb-1">Mở từ</div>
-                                                            <div className="fw-bold">
-                                                                {assessment?.openAt || assessment?.OpenAt
-                                                                    ? formatDate(assessment?.openAt || assessment?.OpenAt)
-                                                                    : "Không có"}
+                                                    <Card className="h-100 border-0 bg-light-green rounded-4">
+                                                        <Card.Body className="d-flex align-items-center p-3">
+                                                            <div className="info-icon-wrapper me-3">
+                                                                <FaFileAlt />
+                                                            </div>
+                                                            <div>
+                                                                <div className="text-muted small mb-1">Mở từ</div>
+                                                                <div className="fw-bold">
+                                                                    {assessment?.openAt || assessment?.OpenAt
+                                                                        ? formatDate(assessment?.openAt || assessment?.OpenAt)
+                                                                        : "Không có"}
+                                                                </div>
                                                             </div>
                                                         </Card.Body>
                                                     </Card>
                                                 </Col>
 
                                                 <Col md={6}>
-                                                    <Card className="h-100">
-                                                        <Card.Body>
-                                                            <div className="text-muted small mb-1">Hạn nộp</div>
-                                                            <div className="fw-bold">
-                                                                {assessment?.dueAt || assessment?.DueAt
-                                                                    ? formatDate(assessment?.dueAt || assessment?.DueAt)
-                                                                    : "Không có hạn nộp"}
+                                                    <Card className="h-100 border-0 bg-light-orange rounded-4">
+                                                        <Card.Body className="d-flex align-items-center p-3">
+                                                            <div className="info-icon-wrapper me-3">
+                                                                <FaClock />
+                                                            </div>
+                                                            <div>
+                                                                <div className="text-muted small mb-1">Hạn nộp</div>
+                                                                <div className="fw-bold">
+                                                                    {assessment?.dueAt || assessment?.DueAt
+                                                                        ? formatDate(assessment?.dueAt || assessment?.DueAt)
+                                                                        : "Không có hạn nộp"}
+                                                                </div>
                                                             </div>
                                                         </Card.Body>
                                                     </Card>

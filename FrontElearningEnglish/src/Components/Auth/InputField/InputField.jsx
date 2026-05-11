@@ -16,6 +16,7 @@ export default function InputField({
     maxLength,
     ...rest
 }) {
+    const inputId = rest.id || name;
     const containerClasses = [
         "input-field-container",
         error ? "error" : "",
@@ -37,6 +38,7 @@ export default function InputField({
                     value={value}
                     onChange={onChange}
                     disabled={disabled}
+                    id={inputId}
                     name={name}
                     maxLength={maxLength !== undefined ? maxLength : (showPasswordToggle ? 20 : undefined)}
                     {...rest}

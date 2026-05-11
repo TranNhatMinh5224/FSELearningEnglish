@@ -12,8 +12,15 @@ const axiosClient = axios.create({
 // ==== REQUEST ====
 axiosClient.interceptors.request.use(
   (config) => {
+    const requestUrl = config.url || "";
+    const isPublicEndpoint = requestUrl.includes("/public/");
     const token = tokenStorage.getAccessToken();
-    if (token) {
+    if (isPublicEndpoint) {
+      delete config.headers.Authorization;
+      delete config.headers["X-Access-Token"];
+    }
+
+    if (token && !isPublicEndpoint) {
       config.headers.Authorization = `Bearer ${token}`;
 
       config.headers["X-Access-Token"] = token;

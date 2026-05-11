@@ -16,7 +16,7 @@ export default function SuggestedCoursesSection({ courses = [] }) {
 
     return (
         <div className="suggested-courses-section">
-            <h2 className="fs-3">FSE Learning English - Tiếng Anh Số 1 Việt Nam </h2>
+            <h2 className="fs-3">Catalunya English - Tiếng Anh Số 1 Việt Nam</h2>
             {loading ? (
                 <div className="row g-3 g-md-4">
                     {[1, 2, 3, 4].map((i) => (
