@@ -90,9 +90,13 @@ namespace LearningEnglish.Application.Service.EssayService
                     {
                         try
                         {
-                            committedAudioKey = await _essayMediaService.CommitAudioAsync(dto.AudioTempKey);
-                            essay.AudioKey = committedAudioKey;
-                            essay.AudioType = dto.AudioType;
+                            var result = await _essayMediaService.CommitAudioAsync(dto.AudioTempKey);
+                            if (result.Success)
+                            {
+                                committedAudioKey = result.Data.AudioKey;
+                                essay.AudioKey = committedAudioKey;
+                                essay.AudioType = result.Data.ContentType;
+                            }
                         }
                         catch (Exception audioEx)
                         {
@@ -109,9 +113,13 @@ namespace LearningEnglish.Application.Service.EssayService
                     {
                         try
                         {
-                            committedImageKey = await _essayMediaService.CommitImageAsync(dto.ImageTempKey);
-                            essay.ImageKey = committedImageKey;
-                            essay.ImageType = dto.ImageType;
+                            var result = await _essayMediaService.CommitImageAsync(dto.ImageTempKey);
+                            if (result.Success)
+                            {
+                                committedImageKey = result.Data.ImageKey;
+                                essay.ImageKey = committedImageKey;
+                                essay.ImageType = result.Data.ContentType;
+                            }
                         }
                         catch (Exception imageEx)
                         {
@@ -436,9 +444,13 @@ namespace LearningEnglish.Application.Service.EssayService
                     {
                         try
                         {
-                            newAudioKey = await _essayMediaService.CommitAudioAsync(dto.AudioTempKey);
-                            existingEssay.AudioKey = newAudioKey;
-                            existingEssay.AudioType = dto.AudioType;
+                            var result = await _essayMediaService.CommitAudioAsync(dto.AudioTempKey);
+                            if (result.Success)
+                            {
+                                newAudioKey = result.Data.AudioKey;
+                                existingEssay.AudioKey = newAudioKey;
+                                existingEssay.AudioType = result.Data.ContentType;
+                            }
                         }
                         catch (Exception audioEx)
                         {
@@ -455,9 +467,13 @@ namespace LearningEnglish.Application.Service.EssayService
                     {
                         try
                         {
-                            newImageKey = await _essayMediaService.CommitImageAsync(dto.ImageTempKey);
-                            existingEssay.ImageKey = newImageKey;
-                            existingEssay.ImageType = dto.ImageType;
+                            var result = await _essayMediaService.CommitImageAsync(dto.ImageTempKey);
+                            if (result.Success)
+                            {
+                                newImageKey = result.Data.ImageKey;
+                                existingEssay.ImageKey = newImageKey;
+                                existingEssay.ImageType = result.Data.ContentType;
+                            }
                         }
                         catch (Exception imageEx)
                         {

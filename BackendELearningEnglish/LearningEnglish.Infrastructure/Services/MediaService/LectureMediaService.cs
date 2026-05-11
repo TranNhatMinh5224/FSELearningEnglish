@@ -1,3 +1,4 @@
+using LearningEnglish.Application.Common;
 using LearningEnglish.Application.Interface;
 using LearningEnglish.Application.Interface.Infrastructure.MediaService;
 using LearningEnglish.Infrastructure.Common.Constants;
@@ -19,34 +20,56 @@ public class LectureMediaService : ILectureMediaService
         _logger = logger;
     }
 
-    public async Task<string> CommitMediaAsync(string tempKey, CancellationToken cancellationToken = default)
+    public async Task<ServiceResponse<(string MediaKey, string ContentType)>> CommitMediaAsync(string tempKey, CancellationToken cancellationToken = default)
     {
-        if (string.IsNullOrWhiteSpace(tempKey))
-        {
-            throw new ArgumentException("Temp key cannot be null or empty", nameof(tempKey));
-        }
+        var response = new ServiceResponse<(string MediaKey, string ContentType)>();
 
-        var result = await _minioFileStorage.CommitFileAsync(
-            tempKey,
-            StorageConstants.LectureMediaBucket,
-            StorageConstants.LectureMediaFolder);
-
-        if (!result.Success || string.IsNullOrWhiteSpace(result.Data))
+        try
         {
-            _logger.LogError(
-                "Failed to commit lecture media. TempKey: {TempKey}, Message: {Message}",
+            if (string.IsNullOrWhiteSpace(tempKey))
+            {
+                response.Success = false;
+                response.Message = "Temp key cannot be null or empty";
+                response.StatusCode = 400;
+                return response;
+            }
+
+            var result = await _minioFileStorage.CommitFileAsync(
                 tempKey,
-                result.Message);
+                StorageConstants.LectureMediaBucket,
+                StorageConstants.LectureMediaFolder);
 
-            throw new InvalidOperationException($"Failed to commit lecture media: {result.Message}");
+            if (!result.Success || result.Data == null)
+            {
+                _logger.LogError(
+                    "Failed to commit lecture media. TempKey: {TempKey}, Message: {Message}",
+                    tempKey,
+                    result.Message);
+
+                response.Success = false;
+                response.Message = $"Failed to commit lecture media: {result.Message}";
+                response.StatusCode = result.StatusCode;
+                return response;
+            }
+
+            _logger.LogInformation(
+                "Lecture media committed successfully. TempKey: {TempKey}, MediaKey: {MediaKey}",
+                tempKey,
+                result.Data.RealKey);
+
+            response.Data = (result.Data.RealKey, result.Data.ContentType);
+            response.Success = true;
+            response.StatusCode = 200;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Unexpected error in CommitMediaAsync for TempKey: {TempKey}", tempKey);
+            response.Success = false;
+            response.Message = "Đã xảy ra lỗi hệ thống khi lưu trữ media bài giảng.";
+            response.StatusCode = 500;
         }
 
-        _logger.LogInformation(
-            "Lecture media committed successfully. TempKey: {TempKey}, MediaKey: {MediaKey}",
-            tempKey,
-            result.Data);
-
-        return result.Data;
+        return response;
     }
 
     public async Task DeleteMediaAsync(string mediaKey, CancellationToken cancellationToken = default)

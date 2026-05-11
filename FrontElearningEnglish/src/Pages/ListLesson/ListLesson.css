@@ -70,6 +70,12 @@
     background: transparent;
     box-shadow: none;
     border: none;
+    overflow: visible;
+}
+
+.progress-section.sticky-active .progress-track-wrapper {
+    margin-bottom: 0;
+    padding: 4px 0;
 }
 
 .progress-section.sticky-active .progress-header {

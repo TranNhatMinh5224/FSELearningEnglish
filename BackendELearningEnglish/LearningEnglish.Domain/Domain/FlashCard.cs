@@ -14,8 +14,8 @@ public class FlashCard
     public string? ImageKey { get; set; }                         // MinIO object key for image
     public string? AudioKey { get; set; }                         // MinIO object key for audio
 
-    public string? ImageType { get; set; } = "image";
-    public string? AudioType { get; set; } = "audio";
+    public string? ImageType { get; set; } = "image/webp";
+    public string? AudioType { get; set; } = "audio/mpeg";
 
     // Thông tin bổ sung
     public string? PartOfSpeech { get; set; }               // Từ loại: Noun, Verb, Adjective...

@@ -158,7 +158,16 @@ namespace LearningEnglish.Application.Service
                 {
                     try
                     {
-                        attachmentKey = await _attachmentService.CommitAttachmentAsync(dto.AttachmentTempKey);
+                        var commitResult = await _attachmentService.CommitAttachmentAsync(dto.AttachmentTempKey);
+                        if (commitResult.Success)
+                        {
+                            attachmentKey = commitResult.Data.Key;
+                            // Cập nhật AttachmentType từ metadata nếu cần
+                            if (string.IsNullOrWhiteSpace(dto.AttachmentType))
+                            {
+                                dto.AttachmentType = commitResult.Data.ContentType;
+                            }
+                        }
                     }
                     catch (Exception attachEx)
                     {
@@ -342,9 +351,12 @@ namespace LearningEnglish.Application.Service
                 {
                     try
                     {
-                        var attachmentKey = await _attachmentService.CommitAttachmentAsync(dto.AttachmentTempKey);
-                        submission.AttachmentKey = attachmentKey;
-                        submission.AttachmentType = dto.AttachmentType;
+                        var commitResult = await _attachmentService.CommitAttachmentAsync(dto.AttachmentTempKey);
+                        if (commitResult.Success)
+                        {
+                            submission.AttachmentKey = commitResult.Data.Key;
+                            submission.AttachmentType = dto.AttachmentType ?? commitResult.Data.ContentType;
+                        }
                     }
                     catch (Exception attachEx)
                     {

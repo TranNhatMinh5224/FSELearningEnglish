@@ -170,7 +170,7 @@ namespace LearningEnglish.Application.Service
                 {
                     var commitResult = await _avatarService.CommitAvatarAsync(dto.AvatarTempKey);
 
-                    if (!commitResult.Success || string.IsNullOrWhiteSpace(commitResult.Data))
+                    if (!commitResult.Success)
                     {
                         response.Success = false;
                         response.StatusCode = 400;
@@ -179,7 +179,7 @@ namespace LearningEnglish.Application.Service
                         return response;
                     }
 
-                    committedAvatarKey = commitResult.Data;
+                    committedAvatarKey = commitResult.Data.AvatarKey;
 
                     // Xóa avatar cũ nếu tồn tại
                     if (!string.IsNullOrWhiteSpace(user.AvatarKey))

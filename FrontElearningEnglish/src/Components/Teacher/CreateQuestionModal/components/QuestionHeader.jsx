@@ -62,8 +62,8 @@ const QuestionHeader = ({
                 onBlur={() => handleQBlur("points")}
                 placeholder="Nhập điểm số"
               />
-              {qTouched.points && qErrors.points && <Form.Control.Feedback type="invalid">{qErrors.points}</Form.Control.Feedback>}
               {internalGroupId && groupInfo && <InputGroup.Text className="bg-light text-muted small">/ {groupInfo.sumScore} (Nhóm)</InputGroup.Text>}
+              {qTouched.points && qErrors.points && <Form.Control.Feedback type="invalid">{qErrors.points}</Form.Control.Feedback>}
             </InputGroup>
           </Form.Group>
         </Col>

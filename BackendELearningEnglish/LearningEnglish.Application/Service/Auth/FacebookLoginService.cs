@@ -255,10 +255,10 @@ namespace LearningEnglish.Application.Service.Auth
                 // Sử dụng AvatarService để upload - không cần biết bucket/folder
                 var uploadResult = await _avatarService.UploadTempAvatarAsync(formFile);
 
-                if (uploadResult.Success && !string.IsNullOrWhiteSpace(uploadResult.Data))
+                if (uploadResult.Success)
                 {
                     _logger.LogInformation("Upload avatar thành công cho user: {Email}", userEmail);
-                    return uploadResult.Data;
+                    return uploadResult.Data.AvatarKey;
                 }
                 else
                 {

@@ -170,13 +170,14 @@ const QuestionTab = ({
       <div className="d-flex justify-content-end gap-2 mt-4 pt-3 border-top">
         <Button variant="link" className="text-muted text-decoration-none fw-bold" onClick={handleClose} disabled={qLoading || bulkQuestionsProps.bulkLoading}>Hủy bỏ</Button>
         {!questionToUpdate && (
-          <Button
-            className="btn-secondary-custom"
+          <button
+            type="button"
+            className="btn btn-secondary-custom"
             onClick={() => handleQuestionSubmit(true)}
             disabled={qLoading || qUploadingMedia || bulkQuestionsProps.bulkLoading}
           >
-            {qLoading ? "Đang lưu..." : "Lưu và Thêm câu hỏi khác"}
-          </Button>
+            {qLoading ? "Đang lưu..." : "Lưu và Thêm tiếp"}
+          </button>
         )}
         <Button
           className="btn-primary-custom"

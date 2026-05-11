@@ -1,3 +1,4 @@
+using LearningEnglish.Application.Common;
 using LearningEnglish.Application.Interface;
 using LearningEnglish.Application.Interface.Infrastructure.MediaService;
 using LearningEnglish.Infrastructure.Common.Constants;
@@ -11,218 +12,43 @@ public class QuizGroupMediaService : IQuizGroupMediaService
     private readonly IMinioFileStorage _minioFileStorage;
     private readonly ILogger<QuizGroupMediaService> _logger;
 
-    public QuizGroupMediaService(
-        IMinioFileStorage minioFileStorage,
-        ILogger<QuizGroupMediaService> logger)
+    public QuizGroupMediaService(IMinioFileStorage minioFileStorage, ILogger<QuizGroupMediaService> logger)
     {
         _minioFileStorage = minioFileStorage;
         _logger = logger;
     }
 
-    public async Task<string> CommitImageAsync(string tempKey, CancellationToken cancellationToken = default)
+    public async Task<ServiceResponse<(string ImageKey, string ContentType)>> CommitImageAsync(string tempKey, CancellationToken cancellationToken = default)
     {
-        if (string.IsNullOrWhiteSpace(tempKey))
-        {
-            throw new ArgumentException("Temp key cannot be null or empty", nameof(tempKey));
-        }
-
-        var result = await _minioFileStorage.CommitFileAsync(
-            tempKey,
-            StorageConstants.QuizGroupBucket,
-            StorageConstants.QuizGroupFolder);
-
-        if (!result.Success || string.IsNullOrWhiteSpace(result.Data))
-        {
-            _logger.LogError(
-                "Failed to commit quiz group image. TempKey: {TempKey}, Message: {Message}",
-                tempKey,
-                result.Message);
-
-            throw new InvalidOperationException($"Failed to commit quiz group image: {result.Message}");
-        }
-
-        _logger.LogInformation(
-            "Quiz group image committed successfully. TempKey: {TempKey}, ImageKey: {ImageKey}",
-            tempKey,
-            result.Data);
-
-        return result.Data;
+        var response = new ServiceResponse<(string ImageKey, string ContentType)>();
+        var result = await _minioFileStorage.CommitFileAsync(tempKey, StorageConstants.QuizGroupBucket, StorageConstants.QuizGroupFolder);
+        if (!result.Success || result.Data == null) { response.Success = false; response.Message = result.Message; return response; }
+        response.Data = (result.Data.RealKey, result.Data.ContentType);
+        return response;
     }
 
-    public async Task<string> CommitVideoAsync(string tempKey, CancellationToken cancellationToken = default)
+    public async Task<ServiceResponse<(string VideoKey, string ContentType)>> CommitVideoAsync(string tempKey, CancellationToken cancellationToken = default)
     {
-        if (string.IsNullOrWhiteSpace(tempKey))
-        {
-            throw new ArgumentException("Temp key cannot be null or empty", nameof(tempKey));
-        }
-
-        var result = await _minioFileStorage.CommitFileAsync(
-            tempKey,
-            StorageConstants.QuizGroupBucket,
-            StorageConstants.QuizGroupFolder);
-
-        if (!result.Success || string.IsNullOrWhiteSpace(result.Data))
-        {
-            _logger.LogError(
-                "Failed to commit quiz group video. TempKey: {TempKey}, Message: {Message}",
-                tempKey,
-                result.Message);
-
-            throw new InvalidOperationException($"Failed to commit quiz group video: {result.Message}");
-        }
-
-        _logger.LogInformation(
-            "Quiz group video committed successfully. TempKey: {TempKey}, VideoKey: {VideoKey}",
-            tempKey,
-            result.Data);
-
-        return result.Data;
+        var response = new ServiceResponse<(string VideoKey, string ContentType)>();
+        var result = await _minioFileStorage.CommitFileAsync(tempKey, StorageConstants.QuizGroupBucket, StorageConstants.QuizGroupFolder);
+        if (!result.Success || result.Data == null) { response.Success = false; response.Message = result.Message; return response; }
+        response.Data = (result.Data.RealKey, result.Data.ContentType);
+        return response;
     }
 
-    public async Task<string> CommitAudioAsync(string tempKey, CancellationToken cancellationToken = default)
+    public async Task<ServiceResponse<(string AudioKey, string ContentType)>> CommitAudioAsync(string tempKey, CancellationToken cancellationToken = default)
     {
-        if (string.IsNullOrWhiteSpace(tempKey))
-        {
-            throw new ArgumentException("Temp key cannot be null or empty", nameof(tempKey));
-        }
-
-        var result = await _minioFileStorage.CommitFileAsync(
-            tempKey,
-            StorageConstants.QuizGroupBucket,
-            StorageConstants.QuizGroupFolder);
-
-        if (!result.Success || string.IsNullOrWhiteSpace(result.Data))
-        {
-            _logger.LogError(
-                "Failed to commit quiz group audio. TempKey: {TempKey}, Message: {Message}",
-                tempKey,
-                result.Message);
-
-            throw new InvalidOperationException($"Failed to commit quiz group audio: {result.Message}");
-        }
-
-        _logger.LogInformation(
-            "Quiz group audio committed successfully. TempKey: {TempKey}, AudioKey: {AudioKey}",
-            tempKey,
-            result.Data);
-
-        return result.Data;
+        var response = new ServiceResponse<(string AudioKey, string ContentType)>();
+        var result = await _minioFileStorage.CommitFileAsync(tempKey, StorageConstants.QuizGroupBucket, StorageConstants.QuizGroupFolder);
+        if (!result.Success || result.Data == null) { response.Success = false; response.Message = result.Message; return response; }
+        response.Data = (result.Data.RealKey, result.Data.ContentType);
+        return response;
     }
 
-    public async Task DeleteImageAsync(string imageKey, CancellationToken cancellationToken = default)
-    {
-        if (string.IsNullOrWhiteSpace(imageKey))
-        {
-            return;
-        }
-
-        try
-        {
-            var result = await _minioFileStorage.DeleteFileAsync(
-                imageKey,
-                StorageConstants.QuizGroupBucket);
-
-            if (result.Success)
-            {
-                _logger.LogInformation("Quiz group image deleted successfully. ImageKey: {ImageKey}", imageKey);
-            }
-            else
-            {
-                _logger.LogWarning("Failed to delete quiz group image. ImageKey: {ImageKey}, Message: {Message}",
-                    imageKey, result.Message);
-            }
-        }
-        catch (Exception ex)
-        {
-            _logger.LogWarning(ex, "Error deleting quiz group image. ImageKey: {ImageKey}", imageKey);
-        }
-    }
-
-    public async Task DeleteVideoAsync(string videoKey, CancellationToken cancellationToken = default)
-    {
-        if (string.IsNullOrWhiteSpace(videoKey))
-        {
-            return;
-        }
-
-        try
-        {
-            var result = await _minioFileStorage.DeleteFileAsync(
-                videoKey,
-                StorageConstants.QuizGroupBucket);
-
-            if (result.Success)
-            {
-                _logger.LogInformation("Quiz group video deleted successfully. VideoKey: {VideoKey}", videoKey);
-            }
-            else
-            {
-                _logger.LogWarning("Failed to delete quiz group video. VideoKey: {VideoKey}, Message: {Message}",
-                    videoKey, result.Message);
-            }
-        }
-        catch (Exception ex)
-        {
-            _logger.LogWarning(ex, "Error deleting quiz group video. VideoKey: {VideoKey}", videoKey);
-        }
-    }
-
-    public async Task DeleteAudioAsync(string audioKey, CancellationToken cancellationToken = default)
-    {
-        if (string.IsNullOrWhiteSpace(audioKey))
-        {
-            return;
-        }
-
-        try
-        {
-            var result = await _minioFileStorage.DeleteFileAsync(
-                audioKey,
-                StorageConstants.QuizGroupBucket);
-
-            if (result.Success)
-            {
-                _logger.LogInformation("Quiz group audio deleted successfully. AudioKey: {AudioKey}", audioKey);
-            }
-            else
-            {
-                _logger.LogWarning("Failed to delete quiz group audio. AudioKey: {AudioKey}, Message: {Message}",
-                    audioKey, result.Message);
-            }
-        }
-        catch (Exception ex)
-        {
-            _logger.LogWarning(ex, "Error deleting quiz group audio. AudioKey: {AudioKey}", audioKey);
-        }
-    }
-
-    public string BuildImageUrl(string? imageKey)
-    {
-        if (string.IsNullOrWhiteSpace(imageKey))
-        {
-            return string.Empty;
-        }
-
-        return BuildPublicUrl.BuildURL(StorageConstants.QuizGroupBucket, imageKey);
-    }
-
-    public string BuildVideoUrl(string? videoKey)
-    {
-        if (string.IsNullOrWhiteSpace(videoKey))
-        {
-            return string.Empty;
-        }
-
-        return BuildPublicUrl.BuildURL(StorageConstants.QuizGroupBucket, videoKey);
-    }
-
-    public string BuildAudioUrl(string? audioKey)
-    {
-        if (string.IsNullOrWhiteSpace(audioKey))
-        {
-            return string.Empty;
-        }
-
-        return BuildPublicUrl.BuildURL(StorageConstants.QuizGroupBucket, audioKey);
-    }
+    public async Task DeleteImageAsync(string imageKey, CancellationToken cancellationToken = default) => await _minioFileStorage.DeleteFileAsync(imageKey, StorageConstants.QuizGroupBucket);
+    public async Task DeleteVideoAsync(string videoKey, CancellationToken cancellationToken = default) => await _minioFileStorage.DeleteFileAsync(videoKey, StorageConstants.QuizGroupBucket);
+    public async Task DeleteAudioAsync(string audioKey, CancellationToken cancellationToken = default) => await _minioFileStorage.DeleteFileAsync(audioKey, StorageConstants.QuizGroupBucket);
+    public string BuildImageUrl(string? imageKey) => string.IsNullOrWhiteSpace(imageKey) ? string.Empty : BuildPublicUrl.BuildURL(StorageConstants.QuizGroupBucket, imageKey);
+    public string BuildVideoUrl(string? videoKey) => string.IsNullOrWhiteSpace(videoKey) ? string.Empty : BuildPublicUrl.BuildURL(StorageConstants.QuizGroupBucket, videoKey);
+    public string BuildAudioUrl(string? audioKey) => string.IsNullOrWhiteSpace(audioKey) ? string.Empty : BuildPublicUrl.BuildURL(StorageConstants.QuizGroupBucket, audioKey);
 }

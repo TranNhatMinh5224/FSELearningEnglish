@@ -53,8 +53,8 @@ export const useQuestionForm = (show, questionToUpdate) => {
       ];
     } else if (type === QUESTION_TYPES.Matching) {
       defaultPairs = [
-        { key: "", value: "" },
-        { key: "", value: "" }
+        { leftSide: "", rightSide: "" },
+        { leftSide: "", rightSide: "" }
       ];
     }
 
@@ -104,7 +104,7 @@ export const useQuestionForm = (show, questionToUpdate) => {
         points: questionToUpdate.points !== undefined ? questionToUpdate.points : (questionToUpdate.Points || 0),
         type: normalizedType || QUESTION_TYPES.MultipleChoice,
         options: initialOptions,
-        matchingPairs: initialPairs.length > 0 ? initialPairs : [{ key: "", value: "" }],
+        matchingPairs: initialPairs.length > 0 ? initialPairs : [{ leftSide: "", rightSide: "" }],
       });
 
       const url = questionToUpdate.mediaUrl || questionToUpdate.MediaUrl || questionToUpdate.mediaPreview;
@@ -164,8 +164,8 @@ export const useQuestionForm = (show, questionToUpdate) => {
       if (!hasCorrect) errors.options = "Vui lòng chọn đáp án Đúng hoặc Sai";
     }
 
-    if (qFormData.type === QUESTION_TYPES.Matching) {
-      const allFilled = qFormData.matchingPairs.every(p => (p.key || "").trim() && (p.value || "").trim());
+    if (Number(qFormData.type) === QUESTION_TYPES.Matching) {
+      const allFilled = qFormData.matchingPairs.every(p => (p.leftSide || "").trim() && (p.rightSide || "").trim());
       if (!allFilled) errors.matchingPairs = "Vui lòng nhập đầy đủ nội dung các cặp nối";
     }
 
@@ -216,7 +216,7 @@ export const useQuestionForm = (show, questionToUpdate) => {
     newPairs[index][field] = value;
     setQFormData({ ...qFormData, matchingPairs: newPairs });
   };
-  const addPair = () => setQFormData({ ...qFormData, matchingPairs: [...qFormData.matchingPairs, { key: "", value: "" }] });
+  const addPair = () => setQFormData({ ...qFormData, matchingPairs: [...qFormData.matchingPairs, { leftSide: "", rightSide: "" }] });
   const removePair = (index) => setQFormData({ ...qFormData, matchingPairs: qFormData.matchingPairs.filter((_, i) => i !== index) });
 
   const handleQMediaChange = async (e) => {
@@ -276,10 +276,10 @@ export const useQuestionForm = (show, questionToUpdate) => {
         const strT = String(t || "").toLowerCase();
         const strTarget = String(target).toLowerCase();
         const typeNames = {
-            "3": ["matching", "3", "nối"],
-            "2": ["ordering", "2", "sắp xếp"],
+            "5": ["matching", "5", "nối"],
+            "6": ["ordering", "6", "sắp xếp"],
             "4": ["fillblank", "4", "điền"],
-            "5": ["truefalse", "5", "đúng sai"]
+            "3": ["truefalse", "3", "đúng sai"]
         };
         return strT === strTarget || (typeNames[strTarget] && typeNames[strTarget].includes(strT));
     };
@@ -290,44 +290,38 @@ export const useQuestionForm = (show, questionToUpdate) => {
       const rightTexts = [];
 
       qFormData.matchingPairs.forEach(pair => {
-        if (pair.key && pair.value) {
-          correctMatchesMap[pair.key] = pair.value;
-          leftTexts.push(pair.key);
-          rightTexts.push(pair.value);
+        if (pair.leftSide && pair.rightSide) {
+          correctMatchesMap[pair.leftSide] = pair.rightSide;
+          leftTexts.push(pair.leftSide);
+          rightTexts.push(pair.rightSide);
         }
       });
       payload.CorrectAnswersJson = JSON.stringify(correctMatchesMap);
-      payload.correctAnswersJson = payload.CorrectAnswersJson;
       payload.MetadataJson = JSON.stringify({ left: leftTexts, right: rightTexts });
-      payload.metadataJson = payload.MetadataJson;
       payload.Options = [
         ...leftTexts.map(t => ({ Text: t, IsCorrect: true, text: t, isCorrect: true })),
         ...rightTexts.map(t => ({ Text: t, IsCorrect: false, text: t, isCorrect: false }))
       ];
-      payload.Options = payload.Options || [];
-
-      // Diagnostics removed for production
-      payload.options = payload.Options;
     } else if (checkType(qFormData.type, QUESTION_TYPES.FillBlank)) {
       // Support all markers: [...], {...}, (...) and ___
       const matches = [...qFormData.stemText.matchAll(/\[(.*?)\]|\{(.*?)\}|\((.*?)\)/g)];
       const extractedAnswers = matches.map(m => {
           return (m[1] || m[2] || m[3] || "").trim();
       }).filter(Boolean);
-      payload.correctAnswersJson = JSON.stringify(extractedAnswers);
-      payload.options = extractedAnswers.map(ans => ({ text: ans, isCorrect: true }));
+      payload.CorrectAnswersJson = JSON.stringify(extractedAnswers);
+      payload.Options = extractedAnswers.map(ans => ({ Text: ans, IsCorrect: true }));
     } else if (qFormData.type === QUESTION_TYPES.Ordering) {
-      payload.options = qFormData.options.map((opt, index) => ({
-        text: (opt.text || opt.Text || "").trim(),
-        displayOrder: index,
-        isCorrect: true
+      const orderingOptions = qFormData.options.map((opt, index) => ({
+        Text: (opt.text || opt.Text || "").trim(),
+        IsCorrect: true
       }));
-      payload.correctAnswersJson = JSON.stringify(payload.options.map(o => o.text));
+      payload.Options = orderingOptions;
+      payload.CorrectAnswersJson = JSON.stringify(orderingOptions.map(o => o.Text));
     } else {
-      payload.options = qFormData.options.map(opt => ({
-        text: (opt.text || opt.Text || "").trim(),
-        isCorrect: !!opt.isCorrect,
-        feedback: opt.feedback || null
+      payload.Options = qFormData.options.map(opt => ({
+        Text: (opt.text || opt.Text || "").trim(),
+        IsCorrect: !!opt.isCorrect,
+        Feedback: opt.feedback || null
       }));
     }
 

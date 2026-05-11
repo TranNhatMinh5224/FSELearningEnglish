@@ -11,6 +11,7 @@ using System.Threading.RateLimiting;
 
 var builder = WebApplication.CreateBuilder(args);
 
+BuildPublicUrl.Configure(builder.Configuration);
 
 var frontendUrl = builder.Configuration["Frontend:BaseUrl"];
 var conn = builder.Configuration.GetConnectionString("DefaultConnection");
@@ -75,7 +76,7 @@ builder.Services.AddRateLimiter(options =>
 });
 
 
-BuildPublicUrl.Configure(builder.Configuration); // 
+// Configuration moved to startup
 
 // Build app
 var app = builder.Build();

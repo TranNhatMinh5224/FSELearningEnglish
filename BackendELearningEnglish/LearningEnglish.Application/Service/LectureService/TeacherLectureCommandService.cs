@@ -112,8 +112,13 @@ namespace LearningEnglish.Application.Service.LectureService
                 {
                     try
                     {
-                        committedMediaKey = await _lectureMediaService.CommitMediaAsync(createLectureDto.MediaTempKey);
-                        lecture.MediaKey = committedMediaKey;
+                        var result = await _lectureMediaService.CommitMediaAsync(createLectureDto.MediaTempKey);
+                        if (result.Success)
+                        {
+                            committedMediaKey = result.Data.MediaKey;
+                            lecture.MediaKey = committedMediaKey;
+                            lecture.MediaType = result.Data.ContentType;
+                        }
                     }
                     catch (Exception mediaEx)
                     {
@@ -229,9 +234,14 @@ namespace LearningEnglish.Application.Service.LectureService
                     {
                         try
                         {
-                            committedMediaKey = await _lectureMediaService.CommitMediaAsync(lectureNode.MediaTempKey);
-                            committedMediaKeys.Add(committedMediaKey);
-                            tempIdToMediaKey[lectureNode.TempId] = committedMediaKey;
+                            var result = await _lectureMediaService.CommitMediaAsync(lectureNode.MediaTempKey);
+                            if (result.Success)
+                            {
+                                committedMediaKey = result.Data.MediaKey;
+                                lectureNode.MediaType = result.Data.ContentType; // Để entity bên dưới dùng
+                                committedMediaKeys.Add(committedMediaKey);
+                                tempIdToMediaKey[lectureNode.TempId] = committedMediaKey;
+                            }
                         }
                         catch (Exception mediaEx)
                         {
@@ -401,7 +411,12 @@ namespace LearningEnglish.Application.Service.LectureService
                 {
                     try
                     {
-                        committedMediaKey = await _lectureMediaService.CommitMediaAsync(updateLectureDto.MediaTempKey);
+                        var result = await _lectureMediaService.CommitMediaAsync(updateLectureDto.MediaTempKey);
+                        if (result.Success)
+                        {
+                            committedMediaKey = result.Data.MediaKey;
+                            lectureToUpdate.MediaType = result.Data.ContentType;
+                        }
                     }
                     catch (Exception mediaEx)
                     {

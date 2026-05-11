@@ -48,8 +48,13 @@ namespace LearningEnglish.Application.Service
                 {
                     try
                     {
-                        committedImgKey = await _quizGroupMediaService.CommitImageAsync(createDto.ImgTempKey);
-                        quizGroup.ImgKey = committedImgKey;
+                        var result = await _quizGroupMediaService.CommitImageAsync(createDto.ImgTempKey);
+                        if (result.Success)
+                        {
+                            committedImgKey = result.Data.ImageKey;
+                            quizGroup.ImgKey = committedImgKey;
+                            quizGroup.ImgType = result.Data.ContentType;
+                        }
                     }
                     catch (Exception ex)
                     {
@@ -64,8 +69,13 @@ namespace LearningEnglish.Application.Service
                 {
                     try
                     {
-                        committedVideoKey = await _quizGroupMediaService.CommitVideoAsync(createDto.VideoTempKey);
-                        quizGroup.VideoKey = committedVideoKey;
+                        var result = await _quizGroupMediaService.CommitVideoAsync(createDto.VideoTempKey);
+                        if (result.Success)
+                        {
+                            committedVideoKey = result.Data.VideoKey;
+                            quizGroup.VideoKey = committedVideoKey;
+                            quizGroup.VideoType = result.Data.ContentType;
+                        }
                     }
                     catch (Exception)
                     {
@@ -83,8 +93,13 @@ namespace LearningEnglish.Application.Service
                 {
                     try
                     {
-                        committedAudioKey = await _quizGroupMediaService.CommitAudioAsync(createDto.AudioTempKey);
-                        quizGroup.AudioKey = committedAudioKey;
+                        var result = await _quizGroupMediaService.CommitAudioAsync(createDto.AudioTempKey);
+                        if (result.Success)
+                        {
+                            committedAudioKey = result.Data.AudioKey;
+                            quizGroup.AudioKey = committedAudioKey;
+                            quizGroup.AudioType = result.Data.ContentType;
+                        }
                     }
                     catch (Exception)
                     {
@@ -236,8 +251,13 @@ namespace LearningEnglish.Application.Service
                 {
                     try
                     {
-                        newImgKey = await _quizGroupMediaService.CommitImageAsync(updateDto.ImgTempKey);
-                        existingQuizGroup.ImgKey = newImgKey;
+                        var result = await _quizGroupMediaService.CommitImageAsync(updateDto.ImgTempKey);
+                        if (result.Success)
+                        {
+                            newImgKey = result.Data.ImageKey;
+                            existingQuizGroup.ImgKey = newImgKey;
+                            existingQuizGroup.ImgType = result.Data.ContentType;
+                        }
                     }
                     catch (Exception ex)
                     {
@@ -252,8 +272,13 @@ namespace LearningEnglish.Application.Service
                 {
                     try
                     {
-                        newVideoKey = await _quizGroupMediaService.CommitVideoAsync(updateDto.VideoTempKey);
-                        existingQuizGroup.VideoKey = newVideoKey;
+                        var result = await _quizGroupMediaService.CommitVideoAsync(updateDto.VideoTempKey);
+                        if (result.Success)
+                        {
+                            newVideoKey = result.Data.VideoKey;
+                            existingQuizGroup.VideoKey = newVideoKey;
+                            existingQuizGroup.VideoType = result.Data.ContentType;
+                        }
                     }
                     catch (Exception)
                     {
@@ -275,8 +300,13 @@ namespace LearningEnglish.Application.Service
                 {
                     try
                     {
-                        newAudioKey = await _quizGroupMediaService.CommitAudioAsync(updateDto.AudioTempKey);
-                        existingQuizGroup.AudioKey = newAudioKey;
+                        var result = await _quizGroupMediaService.CommitAudioAsync(updateDto.AudioTempKey);
+                        if (result.Success)
+                        {
+                            newAudioKey = result.Data.AudioKey;
+                            existingQuizGroup.AudioKey = newAudioKey;
+                            existingQuizGroup.AudioType = result.Data.ContentType;
+                        }
                     }
                     catch (Exception)
                     {

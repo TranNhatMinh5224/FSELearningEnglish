@@ -292,7 +292,7 @@ export default function CreateQuestionModal({
         message={`Bạn có chắc chắn muốn tạo ${bulkQuestions.pendingQuestions.length} câu hỏi này không?`}
         confirmText="Tạo ngay"
         cancelText="Hủy"
-        type="primary"
+        type="amber"
         loading={bulkQuestions.bulkLoading}
       />
 

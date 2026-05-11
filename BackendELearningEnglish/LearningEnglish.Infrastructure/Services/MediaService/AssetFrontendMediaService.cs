@@ -1,3 +1,4 @@
+using LearningEnglish.Application.Common;
 using LearningEnglish.Application.Interface;
 using LearningEnglish.Application.Interface.Infrastructure.MediaService;
 using LearningEnglish.Infrastructure.Common.Constants;
@@ -19,34 +20,56 @@ public class AssetFrontendMediaService : IAssetFrontendMediaService
         _logger = logger;
     }
 
-    public async Task<string> CommitImageAsync(string tempKey, CancellationToken cancellationToken = default)
+    public async Task<ServiceResponse<(string KeyImage, string ContentType)>> CommitImageAsync(string tempKey, CancellationToken cancellationToken = default)
     {
-        if (string.IsNullOrWhiteSpace(tempKey))
-        {
-            throw new ArgumentException("Temp key cannot be null or empty", nameof(tempKey));
-        }
+        var response = new ServiceResponse<(string KeyImage, string ContentType)>();
 
-        var result = await _minioFileStorage.CommitFileAsync(
-            tempKey,
-            StorageConstants.AssetImageBucket,
-            StorageConstants.AssetImageFolder);
-
-        if (!result.Success || string.IsNullOrWhiteSpace(result.Data))
+        try
         {
-            _logger.LogError(
-                "Failed to commit asset frontend image. TempKey: {TempKey}, Message: {Message}",
+            if (string.IsNullOrWhiteSpace(tempKey))
+            {
+                response.Success = false;
+                response.Message = "Temp key cannot be null or empty";
+                response.StatusCode = 400;
+                return response;
+            }
+
+            var result = await _minioFileStorage.CommitFileAsync(
                 tempKey,
-                result.Message);
+                StorageConstants.AssetImageBucket,
+                StorageConstants.AssetImageFolder);
 
-            throw new InvalidOperationException($"Failed to commit asset frontend image: {result.Message}");
+            if (!result.Success || result.Data == null)
+            {
+                _logger.LogError(
+                    "Failed to commit asset frontend image. TempKey: {TempKey}, Message: {Message}",
+                    tempKey,
+                    result.Message);
+
+                response.Success = false;
+                response.Message = $"Failed to commit asset frontend image: {result.Message}";
+                response.StatusCode = result.StatusCode;
+                return response;
+            }
+
+            _logger.LogInformation(
+                "Asset frontend image committed successfully. TempKey: {TempKey}, ImageKey: {ImageKey}",
+                tempKey,
+                result.Data.RealKey);
+
+            response.Data = (result.Data.RealKey, result.Data.ContentType);
+            response.Success = true;
+            response.StatusCode = 200;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Unexpected error in CommitImageAsync for TempKey: {TempKey}", tempKey);
+            response.Success = false;
+            response.Message = "Đã xảy ra lỗi hệ thống khi lưu trữ ảnh asset frontend.";
+            response.StatusCode = 500;
         }
 
-        _logger.LogInformation(
-            "Asset frontend image committed successfully. TempKey: {TempKey}, ImageKey: {ImageKey}",
-            tempKey,
-            result.Data);
-
-        return result.Data;
+        return response;
     }
 
     public async Task DeleteImageAsync(string imageKey, CancellationToken cancellationToken = default)

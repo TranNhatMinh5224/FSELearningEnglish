@@ -230,8 +230,13 @@ namespace LearningEnglish.Application.Service
                 {
                     try
                     {
-                        committedQuestionMediaKey = await _questionMediaService.CommitMediaAsync(questionCreateDto.MediaTempKey);
-                        question.MediaKey = committedQuestionMediaKey;
+                        var result = await _questionMediaService.CommitMediaAsync(questionCreateDto.MediaTempKey);
+                        if (result.Success)
+                        {
+                            committedQuestionMediaKey = result.Data.MediaKey;
+                            question.MediaKey = committedQuestionMediaKey;
+                            question.MediaType = result.Data.ContentType;
+                        }
                     }
                     catch (Exception ex)
                     {
@@ -251,9 +256,14 @@ namespace LearningEnglish.Application.Service
                     {
                         try
                         {
-                            var optionMediaKey = await _questionMediaService.CommitMediaAsync(mediaTempKey);
-                            committedOptionMediaKeys.Add((i, optionMediaKey));
-                            question.Options[i].MediaKey = optionMediaKey;
+                            var result = await _questionMediaService.CommitMediaAsync(mediaTempKey);
+                            if (result.Success)
+                            {
+                                var optionMediaKey = result.Data.MediaKey;
+                                committedOptionMediaKeys.Add((i, optionMediaKey));
+                                question.Options[i].MediaKey = optionMediaKey;
+                                question.Options[i].MediaType = result.Data.ContentType;
+                            }
                         }
                         catch (Exception ex)
                         {
@@ -402,8 +412,13 @@ namespace LearningEnglish.Application.Service
                 {
                     try
                     {
-                        newQuestionMediaKey = await _questionMediaService.CommitMediaAsync(questionUpdateDto.MediaTempKey);
-                        existingQuestion.MediaKey = newQuestionMediaKey;
+                        var result = await _questionMediaService.CommitMediaAsync(questionUpdateDto.MediaTempKey);
+                        if (result.Success)
+                        {
+                            newQuestionMediaKey = result.Data.MediaKey;
+                            existingQuestion.MediaKey = newQuestionMediaKey;
+                            existingQuestion.MediaType = result.Data.ContentType;
+                        }
                     }
                     catch (Exception ex)
                     {
@@ -433,9 +448,14 @@ namespace LearningEnglish.Application.Service
 
                         try
                         {
-                            var optionMediaKey = await _questionMediaService.CommitMediaAsync(tempKey);
-                            newOptionMediaKeys.Add((i, optionMediaKey));
-                            existingQuestion.Options[i].MediaKey = optionMediaKey;
+                            var result = await _questionMediaService.CommitMediaAsync(tempKey);
+                            if (result.Success)
+                            {
+                                var optionMediaKey = result.Data.MediaKey;
+                                newOptionMediaKeys.Add((i, optionMediaKey));
+                                existingQuestion.Options[i].MediaKey = optionMediaKey;
+                                existingQuestion.Options[i].MediaType = result.Data.ContentType;
+                            }
                         }
                         catch (Exception ex)
                         {
@@ -667,8 +687,8 @@ namespace LearningEnglish.Application.Service
                         var questionDto = questionBulkCreateDto.Questions[i];
                         var question = _mapper.Map<Question>(questionDto);
                         
-                        // Manual field bypass
-                        question.MetadataJson = questionDto.MetadataJson ?? "{}";
+                        // Fix JSON fields for Matching/FillBlank in Bulk
+                        question.MetadataJson = !string.IsNullOrEmpty(questionDto.MetadataJson) ? questionDto.MetadataJson : "{}";
                         question.CorrectAnswersJson = questionDto.CorrectAnswersJson;
                         
                         question.CreatedAt = DateTime.UtcNow;
@@ -677,9 +697,14 @@ namespace LearningEnglish.Application.Service
                         // Commit Question Media if exists
                         if (!string.IsNullOrWhiteSpace(questionDto.MediaTempKey))
                         {
-                            var mediaKey = await _questionMediaService.CommitMediaAsync(questionDto.MediaTempKey);
-                            question.MediaKey = mediaKey;
-                            allCommittedMediaKeys.Add(mediaKey);
+                            var result = await _questionMediaService.CommitMediaAsync(questionDto.MediaTempKey);
+                            if (result.Success)
+                            {
+                                var mediaKey = result.Data.MediaKey;
+                                question.MediaKey = mediaKey;
+                                question.MediaType = result.Data.ContentType;
+                                allCommittedMediaKeys.Add(mediaKey);
+                            }
                         }
 
                         // Commit AnswerOption Media if exists
@@ -688,12 +713,17 @@ namespace LearningEnglish.Application.Service
                             var optionDto = questionDto.Options[j];
                             if (!string.IsNullOrWhiteSpace(optionDto.MediaTempKey))
                             {
-                                var optionMediaKey = await _questionMediaService.CommitMediaAsync(optionDto.MediaTempKey);
-                                allCommittedMediaKeys.Add(optionMediaKey);
-                                
-                                if (question.Options.Count > j)
+                                var result = await _questionMediaService.CommitMediaAsync(optionDto.MediaTempKey);
+                                if (result.Success)
                                 {
-                                    question.Options[j].MediaKey = optionMediaKey;
+                                    var optionMediaKey = result.Data.MediaKey;
+                                    allCommittedMediaKeys.Add(optionMediaKey);
+                                    
+                                    if (question.Options.Count > j)
+                                    {
+                                        question.Options[j].MediaKey = optionMediaKey;
+                                        question.Options[j].MediaType = result.Data.ContentType;
+                                    }
                                 }
                             }
                         }
@@ -838,23 +868,38 @@ namespace LearningEnglish.Application.Service
                         // Commit Group Media (Images/Video/Audio) using QuizGroupMediaService
                         if (!string.IsNullOrWhiteSpace(groupDto.ImgTempKey))
                         {
-                            var imgKey = await _quizGroupMediaService.CommitImageAsync(groupDto.ImgTempKey);
-                            quizGroup.ImgKey = imgKey;
-                            allCommittedMediaKeys.Add(imgKey);
+                            var result = await _quizGroupMediaService.CommitImageAsync(groupDto.ImgTempKey);
+                            if (result.Success)
+                            {
+                                var imgKey = result.Data.ImageKey;
+                                quizGroup.ImgKey = imgKey;
+                                quizGroup.ImgType = result.Data.ContentType;
+                                allCommittedMediaKeys.Add(imgKey);
+                            }
                         }
 
                         if (!string.IsNullOrWhiteSpace(groupDto.VideoTempKey))
                         {
-                            var videoKey = await _quizGroupMediaService.CommitVideoAsync(groupDto.VideoTempKey);
-                            quizGroup.VideoKey = videoKey;
-                            allCommittedMediaKeys.Add(videoKey);
+                            var result = await _quizGroupMediaService.CommitVideoAsync(groupDto.VideoTempKey);
+                            if (result.Success)
+                            {
+                                var videoKey = result.Data.VideoKey;
+                                quizGroup.VideoKey = videoKey;
+                                quizGroup.VideoType = result.Data.ContentType;
+                                allCommittedMediaKeys.Add(videoKey);
+                            }
                         }
 
                         if (!string.IsNullOrWhiteSpace(groupDto.AudioTempKey))
                         {
-                            var audioKey = await _quizGroupMediaService.CommitAudioAsync(groupDto.AudioTempKey);
-                            quizGroup.AudioKey = audioKey;
-                            allCommittedMediaKeys.Add(audioKey);
+                            var result = await _quizGroupMediaService.CommitAudioAsync(groupDto.AudioTempKey);
+                            if (result.Success)
+                            {
+                                var audioKey = result.Data.AudioKey;
+                                quizGroup.AudioKey = audioKey;
+                                quizGroup.AudioType = result.Data.ContentType;
+                                allCommittedMediaKeys.Add(audioKey);
+                            }
                         }
 
                         await _quizGroupRepository.AddQuizGroupAsync(quizGroup);
@@ -871,8 +916,8 @@ namespace LearningEnglish.Application.Service
                         question.QuizSectionId = quizSection.QuizSectionId;
                         question.QuizGroupId = quizGroup.QuizGroupId;
                         
-                        // Manual field bypass
-                        question.MetadataJson = questionDto.MetadataJson ?? "{}";
+                        // Fix JSON fields for Matching/FillBlank in Bulk Section
+                        question.MetadataJson = !string.IsNullOrEmpty(questionDto.MetadataJson) ? questionDto.MetadataJson : "{}";
                         question.CorrectAnswersJson = questionDto.CorrectAnswersJson;
                         
                         question.CreatedAt = DateTime.UtcNow;
@@ -881,9 +926,14 @@ namespace LearningEnglish.Application.Service
                         // Commit Question Media
                         if (!string.IsNullOrWhiteSpace(questionDto.MediaTempKey))
                         {
-                            var mediaKey = await _questionMediaService.CommitMediaAsync(questionDto.MediaTempKey);
-                            question.MediaKey = mediaKey;
-                            allCommittedMediaKeys.Add(mediaKey);
+                            var result = await _questionMediaService.CommitMediaAsync(questionDto.MediaTempKey);
+                            if (result.Success)
+                            {
+                                var mediaKey = result.Data.MediaKey;
+                                question.MediaKey = mediaKey;
+                                question.MediaType = result.Data.ContentType;
+                                allCommittedMediaKeys.Add(mediaKey);
+                            }
                         }
 
                         await _questionRepository.AddQuestionAsync(question);
@@ -901,9 +951,14 @@ namespace LearningEnglish.Application.Service
 
                                 if (!string.IsNullOrWhiteSpace(optionDto.MediaTempKey))
                                 {
-                                    var optionMediaKey = await _questionMediaService.CommitMediaAsync(optionDto.MediaTempKey);
-                                    answerOption.MediaKey = optionMediaKey;
-                                    allCommittedMediaKeys.Add(optionMediaKey);
+                                    var result = await _questionMediaService.CommitMediaAsync(optionDto.MediaTempKey);
+                                    if (result.Success)
+                                    {
+                                        var optionMediaKey = result.Data.MediaKey;
+                                        answerOption.MediaKey = optionMediaKey;
+                                        answerOption.MediaType = result.Data.ContentType;
+                                        allCommittedMediaKeys.Add(optionMediaKey);
+                                    }
                                 }
 
                                 await _questionRepository.AddAnswerOptionAsync(answerOption);
@@ -924,8 +979,8 @@ namespace LearningEnglish.Application.Service
                         question.QuizSectionId = quizSection.QuizSectionId;
                         question.QuizGroupId = null; // Standalone không thuộc group
                         
-                        // Manual field bypass
-                        question.MetadataJson = questionDto.MetadataJson ?? "{}";
+                        // Fix JSON fields for Matching/FillBlank in Standalone Bulk
+                        question.MetadataJson = !string.IsNullOrEmpty(questionDto.MetadataJson) ? questionDto.MetadataJson : "{}";
                         question.CorrectAnswersJson = questionDto.CorrectAnswersJson;
                         
                         question.CreatedAt = DateTime.UtcNow;
@@ -934,9 +989,14 @@ namespace LearningEnglish.Application.Service
                         // Commit Question Media
                         if (!string.IsNullOrWhiteSpace(questionDto.MediaTempKey))
                         {
-                            var mediaKey = await _questionMediaService.CommitMediaAsync(questionDto.MediaTempKey);
-                            question.MediaKey = mediaKey;
-                            allCommittedMediaKeys.Add(mediaKey);
+                            var result = await _questionMediaService.CommitMediaAsync(questionDto.MediaTempKey);
+                            if (result.Success)
+                            {
+                                var mediaKey = result.Data.MediaKey;
+                                question.MediaKey = mediaKey;
+                                question.MediaType = result.Data.ContentType;
+                                allCommittedMediaKeys.Add(mediaKey);
+                            }
                         }
 
                         await _questionRepository.AddQuestionAsync(question);
@@ -954,9 +1014,14 @@ namespace LearningEnglish.Application.Service
 
                                 if (!string.IsNullOrWhiteSpace(optionDto.MediaTempKey))
                                 {
-                                    var optionMediaKey = await _questionMediaService.CommitMediaAsync(optionDto.MediaTempKey);
-                                    answerOption.MediaKey = optionMediaKey;
-                                    allCommittedMediaKeys.Add(optionMediaKey);
+                                    var result = await _questionMediaService.CommitMediaAsync(optionDto.MediaTempKey);
+                                    if (result.Success)
+                                    {
+                                        var optionMediaKey = result.Data.MediaKey;
+                                        answerOption.MediaKey = optionMediaKey;
+                                        answerOption.MediaType = result.Data.ContentType;
+                                        allCommittedMediaKeys.Add(optionMediaKey);
+                                    }
                                 }
 
                                 await _questionRepository.AddAnswerOptionAsync(answerOption);

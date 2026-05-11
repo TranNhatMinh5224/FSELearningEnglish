@@ -89,7 +89,12 @@ namespace LearningEnglish.Application.Service.FlashCardService
                 {
                     try
                     {
-                        flashCard.ImageKey = await _flashCardMediaService.CommitImageAsync(createFlashCardDto.ImageTempKey);
+                        var result = await _flashCardMediaService.CommitImageAsync(createFlashCardDto.ImageTempKey);
+                        if (result.Success)
+                        {
+                            flashCard.ImageKey = result.Data.ImageKey;
+                            flashCard.ImageType = result.Data.ContentType;
+                        }
                     }
                     catch (Exception imageEx)
                     {
@@ -105,7 +110,12 @@ namespace LearningEnglish.Application.Service.FlashCardService
                 {
                     try
                     {
-                        flashCard.AudioKey = await _flashCardMediaService.CommitAudioAsync(createFlashCardDto.AudioTempKey);
+                        var result = await _flashCardMediaService.CommitAudioAsync(createFlashCardDto.AudioTempKey);
+                        if (result.Success)
+                        {
+                            flashCard.AudioKey = result.Data.AudioKey;
+                            flashCard.AudioType = result.Data.ContentType;
+                        }
                     }
                     catch (Exception audioEx)
                     {
@@ -197,8 +207,13 @@ namespace LearningEnglish.Application.Service.FlashCardService
                     {
                         try
                         {
-                            flashCard.ImageKey = await _flashCardMediaService.CommitImageAsync(flashCardDto.ImageTempKey);
-                            committedImageKeys.Add(flashCard.ImageKey);
+                            var result = await _flashCardMediaService.CommitImageAsync(flashCardDto.ImageTempKey);
+                            if (result.Success)
+                            {
+                                flashCard.ImageKey = result.Data.ImageKey;
+                                flashCard.ImageType = result.Data.ContentType;
+                                committedImageKeys.Add(flashCard.ImageKey);
+                            }
                         }
                         catch (Exception imageEx)
                         {
@@ -225,8 +240,13 @@ namespace LearningEnglish.Application.Service.FlashCardService
                     {
                         try
                         {
-                            flashCard.AudioKey = await _flashCardMediaService.CommitAudioAsync(flashCardDto.AudioTempKey);
-                            committedAudioKeys.Add(flashCard.AudioKey);
+                            var result = await _flashCardMediaService.CommitAudioAsync(flashCardDto.AudioTempKey);
+                            if (result.Success)
+                            {
+                                flashCard.AudioKey = result.Data.AudioKey;
+                                flashCard.AudioType = result.Data.ContentType;
+                                committedAudioKeys.Add(flashCard.AudioKey);
+                            }
                         }
                         catch (Exception audioEx)
                         {
@@ -330,7 +350,12 @@ namespace LearningEnglish.Application.Service.FlashCardService
                 {
                     try
                     {
-                        committedImageKey = await _flashCardMediaService.CommitImageAsync(updateFlashCardDto.ImageTempKey);
+                        var result = await _flashCardMediaService.CommitImageAsync(updateFlashCardDto.ImageTempKey);
+                        if (result.Success)
+                        {
+                            committedImageKey = result.Data.ImageKey;
+                            flashCardToUpdate.ImageType = result.Data.ContentType;
+                        }
                     }
                     catch (Exception imageEx)
                     {
@@ -348,7 +373,12 @@ namespace LearningEnglish.Application.Service.FlashCardService
                 {
                     try
                     {
-                        committedAudioKey = await _flashCardMediaService.CommitAudioAsync(updateFlashCardDto.AudioTempKey);
+                        var result = await _flashCardMediaService.CommitAudioAsync(updateFlashCardDto.AudioTempKey);
+                        if (result.Success)
+                        {
+                            committedAudioKey = result.Data.AudioKey;
+                            flashCardToUpdate.AudioType = result.Data.ContentType;
+                        }
                     }
                     catch (Exception audioEx)
                     {

@@ -262,9 +262,13 @@
 }
 
 .is-compact .progress-track {
-    height: 8px;
+    height: 10px;
+    background: rgba(203, 213, 225, 0.9);
+    box-shadow: inset 0 1px 4px rgba(0, 0, 0, 0.1);
 }
 
 .is-compact .progress-fill {
-    box-shadow: 0 2px 6px rgba(188, 105, 192, 0.2);
+    box-shadow: 0 2px 8px rgba(58, 123, 213, 0.5);
+    background: linear-gradient(90deg, #00cbdf 0%, #3a7bd5 50%, #00cbdf 100%);
+    background-size: 200% 100%;
 }

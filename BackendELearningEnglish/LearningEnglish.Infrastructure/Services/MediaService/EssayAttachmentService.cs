@@ -20,29 +20,51 @@ public class EssayAttachmentService : IEssayAttachmentService
         _logger = logger;
     }
 
-    public async Task<string> CommitAttachmentAsync(string tempKey, CancellationToken cancellationToken = default)
+    public async Task<ServiceResponse<(string Key, string ContentType)>> CommitAttachmentAsync(string tempKey, CancellationToken cancellationToken = default)
     {
-        if (string.IsNullOrWhiteSpace(tempKey))
+        var response = new ServiceResponse<(string Key, string ContentType)>();
+
+        try
         {
-            throw new ArgumentException("Temp key cannot be null or empty", nameof(tempKey));
+            if (string.IsNullOrWhiteSpace(tempKey))
+            {
+                response.Success = false;
+                response.Message = "Temp key cannot be null or empty";
+                response.StatusCode = 400;
+                return response;
+            }
+
+            var result = await _minioFileStorage.CommitFileAsync(
+                tempKey,
+                StorageConstants.EssayAttachmentBucket,
+                StorageConstants.EssayAttachmentFolder);
+
+            if (!result.Success || result.Data == null)
+            {
+                _logger.LogError("Failed to commit essay attachment. TempKey: {TempKey}, Message: {Message}",
+                    tempKey, result.Message);
+                response.Success = false;
+                response.Message = $"Failed to commit essay attachment: {result.Message}";
+                response.StatusCode = result.StatusCode;
+                return response;
+            }
+
+            _logger.LogInformation("Essay attachment committed successfully. TempKey: {TempKey}, AttachmentKey: {AttachmentKey}",
+                tempKey, result.Data.RealKey);
+
+            response.Data = (result.Data.RealKey, result.Data.ContentType);
+            response.Success = true;
+            response.StatusCode = 200;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Unexpected error in CommitAttachmentAsync for TempKey: {TempKey}", tempKey);
+            response.Success = false;
+            response.Message = "Đã xảy ra lỗi hệ thống khi lưu trữ file đính kèm bài luận.";
+            response.StatusCode = 500;
         }
 
-        var result = await _minioFileStorage.CommitFileAsync(
-            tempKey,
-            StorageConstants.EssayAttachmentBucket,
-            StorageConstants.EssayAttachmentFolder);
-
-        if (!result.Success || string.IsNullOrWhiteSpace(result.Data))
-        {
-            _logger.LogError("Failed to commit essay attachment. TempKey: {TempKey}, Message: {Message}", 
-                tempKey, result.Message);
-            throw new InvalidOperationException($"Failed to commit essay attachment: {result.Message}");
-        }
-
-        _logger.LogInformation("Essay attachment committed successfully. TempKey: {TempKey}, AttachmentKey: {AttachmentKey}", 
-            tempKey, result.Data);
-
-        return result.Data;
+        return response;
     }
 
     public async Task DeleteAttachmentAsync(string attachmentKey, CancellationToken cancellationToken = default)

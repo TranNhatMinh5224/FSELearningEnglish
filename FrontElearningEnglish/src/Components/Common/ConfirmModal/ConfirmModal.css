@@ -169,3 +169,14 @@
     opacity: 0.9;
     transform: translateY(-1px);
 }
+
+.confirm-btn-amber {
+    background: #F59E0B !important;
+    color: white !important;
+    box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3);
+}
+
+.confirm-btn-amber:hover:not(:disabled) {
+    background: #D97706 !important;
+    box-shadow: 0 6px 15px rgba(245, 158, 11, 0.4);
+}

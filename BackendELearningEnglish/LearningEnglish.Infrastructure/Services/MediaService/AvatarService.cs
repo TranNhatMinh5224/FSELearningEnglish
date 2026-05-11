@@ -13,121 +13,32 @@ public class AvatarService : IAvatarService
     private readonly IMinioFileStorage _minioFileStorage;
     private readonly ILogger<AvatarService> _logger;
 
-    public AvatarService(
-        IMinioFileStorage minioFileStorage,
-        ILogger<AvatarService> logger)
+    public AvatarService(IMinioFileStorage minioFileStorage, ILogger<AvatarService> logger)
     {
         _minioFileStorage = minioFileStorage;
         _logger = logger;
     }
 
-    public string BuildAvatarUrl(string? avatarKey)
+    public async Task<ServiceResponse<(string AvatarKey, string ContentType)>> UploadTempAvatarAsync(IFormFile file, CancellationToken cancellationToken = default)
     {
-        if (string.IsNullOrWhiteSpace(avatarKey))
-        {
-            return string.Empty;
-        }
-
-        // Handle both cases: with folder prefix and without
-        var key = avatarKey.StartsWith($"{StorageConstants.AvatarFolder}/")
-            ? avatarKey
-            : $"{StorageConstants.AvatarFolder}/{avatarKey}";
-
-        return BuildPublicUrl.BuildURL(StorageConstants.AvatarBucket, key);
+        var response = new ServiceResponse<(string AvatarKey, string ContentType)>();
+        var result = await _minioFileStorage.UpLoadFileTempAsync(file, StorageConstants.AvatarBucket, "temp");
+        if (!result.Success || result.Data == null) { response.Success = false; response.Message = result.Message; return response; }
+        
+        // Vì là upload temp, ContentType lấy từ IFormFile hoặc metadata temp
+        response.Data = (result.Data.TempKey, file.ContentType);
+        return response;
     }
 
-    public async Task<ServiceResponse<string>> UploadTempAvatarAsync(IFormFile file)
+    public async Task<ServiceResponse<(string AvatarKey, string ContentType)>> CommitAvatarAsync(string tempKey, CancellationToken cancellationToken = default)
     {
-        if (file == null || file.Length == 0)
-        {
-            return new ServiceResponse<string>
-            {
-                Success = false,
-                Message = "File is empty or null"
-            };
-        }
-
-        var result = await _minioFileStorage.UpLoadFileTempAsync(
-            file,
-            StorageConstants.AvatarBucket,
-            StorageConstants.AvatarFolder);
-
-        if (!result.Success || result.Data == null)
-        {
-            _logger.LogError("Failed to upload temp avatar. Message: {Message}", result.Message);
-            return new ServiceResponse<string>
-            {
-                Success = false,
-                Message = $"Failed to upload avatar: {result.Message}"
-            };
-        }
-
-        _logger.LogInformation("Avatar uploaded to temp. TempKey: {TempKey}", result.Data.TempKey);
-        return new ServiceResponse<string>
-        {
-            Success = true,
-            Data = result.Data.TempKey
-        };
+        var response = new ServiceResponse<(string AvatarKey, string ContentType)>();
+        var result = await _minioFileStorage.CommitFileAsync(tempKey, StorageConstants.AvatarBucket, StorageConstants.AvatarFolder);
+        if (!result.Success || result.Data == null) { response.Success = false; response.Message = result.Message; return response; }
+        response.Data = (result.Data.RealKey, result.Data.ContentType);
+        return response;
     }
 
-    public async Task<ServiceResponse<string>> CommitAvatarAsync(string tempKey)
-    {
-        if (string.IsNullOrWhiteSpace(tempKey))
-        {
-            return new ServiceResponse<string>
-            {
-                Success = false,
-                Message = "Temp key cannot be empty"
-            };
-        }
-
-        var result = await _minioFileStorage.CommitFileAsync(
-            tempKey,
-            StorageConstants.AvatarBucket,
-            StorageConstants.AvatarFolder);
-
-        if (!result.Success || string.IsNullOrWhiteSpace(result.Data))
-        {
-            _logger.LogError(
-                "Failed to commit avatar. TempKey: {TempKey}, Message: {Message}",
-                tempKey,
-                result.Message);
-
-            return new ServiceResponse<string>
-            {
-                Success = false,
-                Message = $"Failed to commit avatar: {result.Message}"
-            };
-        }
-
-        _logger.LogInformation(
-            "Avatar committed successfully. TempKey: {TempKey}, AvatarKey: {AvatarKey}",
-            tempKey,
-            result.Data);
-
-        return new ServiceResponse<string>
-        {
-            Success = true,
-            Data = result.Data
-        };
-    }
-
-    public async Task DeleteAvatarAsync(string avatarKey)
-    {
-        if (string.IsNullOrWhiteSpace(avatarKey))
-        {
-            return;
-        }
-
-        try
-        {
-            await _minioFileStorage.DeleteFileAsync(avatarKey, StorageConstants.AvatarBucket);
-            _logger.LogInformation("Avatar deleted successfully. AvatarKey: {AvatarKey}", avatarKey);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogWarning(ex, "Failed to delete avatar. AvatarKey: {AvatarKey}", avatarKey);
-        }
-    }
+    public async Task DeleteAvatarAsync(string avatarKey, CancellationToken cancellationToken = default) => await _minioFileStorage.DeleteFileAsync(avatarKey, StorageConstants.AvatarBucket);
+    public string BuildAvatarUrl(string? avatarKey) => string.IsNullOrWhiteSpace(avatarKey) ? string.Empty : BuildPublicUrl.BuildURL(StorageConstants.AvatarBucket, avatarKey);
 }
-

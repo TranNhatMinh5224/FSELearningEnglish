@@ -38,9 +38,15 @@
 .custom-breadcrumb.breadcrumb-compact .breadcrumb-item,
 .custom-breadcrumb.breadcrumb-compact .breadcrumb-current,
 .custom-breadcrumb.breadcrumb-compact .breadcrumb-link {
-    max-width: 200px;
+    max-width: 350px; /* Tăng từ 200px lên 350px */
     overflow: hidden;
     text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.breadcrumb-item:hover {
+    max-width: 500px; /* Mở rộng nhẹ khi hover để xem nhiều hơn */
+    transition: max-width 0.3s ease;
 }
 
 @media (max-width: 768px) {
