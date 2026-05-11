@@ -99,6 +99,8 @@
     font-size: 15px;
     color: var(--color-text-primary, #1f2937);
     line-height: 1.5;
+    word-break: break-word;
+    overflow-wrap: anywhere;
 }
 
 /* Ensure the content inside matching items aligns to the left edge */
