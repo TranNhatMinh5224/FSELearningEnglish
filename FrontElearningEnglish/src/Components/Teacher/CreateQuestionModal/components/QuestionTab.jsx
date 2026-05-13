@@ -1,6 +1,6 @@
 import React from "react";
 import { Form, Button, Badge, Row, Col } from "react-bootstrap";
-import { FaLayerGroup, FaTimes, FaQuestionCircle, FaSave, FaPlusCircle, FaCheckCircle, FaStar } from "react-icons/fa";
+import { FaLayerGroup, FaTimes, FaQuestionCircle, FaSave, FaPlusCircle, FaCheckCircle, FaStar, FaClock } from "react-icons/fa";
 import QuestionHeader from "./QuestionHeader";
 import QuestionContent from "./QuestionContent";
 import MCQFields from "./QuestionFormatFields/MCQFields";
@@ -22,11 +22,14 @@ const QuestionTab = ({
   setGroupInfo,
   questionToUpdate,
 
-  // Handlers
+  // Handlers from useQuestionForm
   handleQTypeChange, handleQBlur, handlePointsChange,
   handleOptionChange, addOption, removeOption, moveOption,
   handlePairChange, addPair, removePair,
   handleQuestionSubmit, handleClose,
+  validateQuestionForm, buildQuestionPayload, resetQuestionForm,
+  qMediaTempKey, qMediaType,
+  setQMediaTempKey, setQMediaType, setQMediaPreview,
 
   // Media Props
   mediaProps,
@@ -37,6 +40,35 @@ const QuestionTab = ({
 }) => {
   const { mappings } = useEnums();
   const QUESTION_TYPES = mappings.QuestionType || {};
+
+  const {
+    pendingQuestions,
+    createdQuestions,
+    bulkLoading,
+    addToPendingList,
+    editPendingQuestion,
+    removeFromPendingList,
+    handleBulkCreate,
+    removeFromCreatedList
+  } = bulkQuestionsProps;
+
+  const handleEditPendingQuestion = (id) => {
+    const originalData = editPendingQuestion(id);
+    if (originalData) {
+      setQFormData(originalData.qFormData);
+      setQMediaTempKey(originalData.qMediaTempKey);
+      setQMediaType(originalData.qMediaType);
+      
+      // Restore media preview
+      if (originalData.qMediaPreview) {
+         setQMediaPreview(originalData.qMediaPreview);
+      } else if (originalData.qFormData.mediaUrl || originalData.qFormData.mediaPreview) {
+         setQMediaPreview(originalData.qFormData.mediaUrl || originalData.qFormData.mediaPreview);
+      }
+      
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  };
 
   const renderFormatFields = () => {
     if (!qFormData.type) {
@@ -176,8 +208,22 @@ const QuestionTab = ({
               </div>
             </div>
 
-            {/* Success Lists */}
+            {/* Pending List - Moved here for better UX */}
             <div className="mt-5">
+              <PendingQuestionsList
+                pendingQuestions={pendingQuestions}
+                removeFromPendingList={removeFromPendingList}
+                onEdit={handleEditPendingQuestion}
+                handleBulkCreate={handleBulkCreate}
+                bulkLoading={bulkLoading}
+                qLoading={qLoading}
+                qUploadingMedia={qUploadingMedia}
+                QUESTION_TYPES={QUESTION_TYPES}
+              />
+            </div>
+
+            {/* Success Lists */}
+            <div className="mt-4">
               <CreatedQuestionsTable
                 {...bulkQuestionsProps}
                 QUESTION_TYPES={QUESTION_TYPES}
@@ -188,20 +234,20 @@ const QuestionTab = ({
           <Col lg={3} className="question-sidebar-content">
             <div className="sticky-top" style={{ top: '0' }}>
               <div className="form-section-card shadow-lg border-0 overflow-hidden action-card-raised">
-                <div className="p-3 text-center">
+                <div className="p-4 text-center">
                   <div className="action-icon-circle bg-primary text-white mx-auto mb-3 shadow">
                     <FaSave />
                   </div>
                   <h5 className="fw-bold mb-2">{questionToUpdate ? "Cập nhật câu hỏi" : "Lưu câu hỏi"}</h5>
                   <p className="text-muted small mb-4">
-                    Kiểm tra kỹ nội dung và đáp án trước khi lưu. Bạn có thể tạo hàng loạt bằng cách thêm vào danh sách chờ.
+                    Kiểm tra kỹ nội dung trước khi lưu. Bạn có thể soạn nhanh bằng cách thêm vào danh sách chờ bên trái.
                   </p>
 
                   <div className="d-grid gap-3">
                     <Button
                       className="btn-primary-custom fw-bold rounded-pill shadow-primary hover-lift"
                       onClick={() => handleQuestionSubmit(false)}
-                      disabled={qLoading || qUploadingMedia || bulkQuestionsProps.bulkLoading}
+                      disabled={qLoading || qUploadingMedia || bulkLoading}
                     >
                       {qLoading ? (
                         <><span className="spinner-border spinner-border-sm me-2"></span> Đang lưu...</>
@@ -214,16 +260,27 @@ const QuestionTab = ({
                       <Button
                         variant="outline-primary"
                         className="fw-bold rounded-pill border-2 hover-lift"
-                        onClick={() => handleQuestionSubmit(true)}
-                        disabled={qLoading || qUploadingMedia || bulkQuestionsProps.bulkLoading}
+                        onClick={() => {
+                          if (validateQuestionForm()) {
+                            addToPendingList(
+                              qFormData,
+                              qMediaTempKey,
+                              qMediaType,
+                              mediaProps.qMediaPreview,
+                              () => buildQuestionPayload(null, internalGroupId)
+                            );
+                            resetQuestionForm(qFormData.type);
+                          }
+                        }}
+                        disabled={qLoading || qUploadingMedia || bulkLoading}
                       >
-                        <FaPlusCircle className="me-2" /> Lưu & Thêm tiếp
+                        <FaPlusCircle className="me-2" /> Thêm vào danh sách chờ
                       </Button>
                     )}
 
                     <Button
                       variant="outline-secondary"
-                      className="rounded-pill border-0 text-muted"
+                      className="rounded-pill border-0 text-muted btn-sm"
                       onClick={handleClose}
                       disabled={qLoading}
                     >
@@ -232,54 +289,50 @@ const QuestionTab = ({
                   </div>
                 </div>
 
-                <div className="bg-light p-4 border-top">
-                  <div className="d-flex align-items-center gap-2 mb-3">
+                {/* Session Statistics - Minimalist Style */}
+                <div className="bg-light bg-opacity-50 p-4 border-top">
+                  <div className="d-flex align-items-center gap-2 mb-4">
                     <div className="badge-dot bg-primary"></div>
-                    <span className="small fw-bold text-muted text-uppercase tracking-wider">Thống kê phiên làm việc</span>
+                    <span className="small fw-bold text-muted text-uppercase tracking-wider">Thông tin phiên làm việc</span>
                   </div>
 
-                  <div className="session-stats-container">
-                    <div className="stat-item d-flex justify-content-between align-items-center mb-3 p-2 rounded-3 hover-bg-white transition-all">
+                  <div className="session-stats">
+                    <div className="d-flex justify-content-between align-items-center mb-3">
                       <div className="d-flex align-items-center gap-2">
-                        <div className="stat-icon-mini bg-primary-subtle text-primary">
-                          <FaStar size={12} />
-                        </div>
-                        <span className="small text-secondary">Điểm câu hiện tại</span>
+                        <FaQuestionCircle className="text-primary opacity-75" size={14} />
+                        <span className="small text-secondary">Tổng câu trong phân mục</span>
                       </div>
-                      <span className="fw-bold text-primary">{qFormData.points || 0}đ</span>
+                      <span className="fw-bold text-dark small">{sectionInfo?.totalQuestions || 0}</span>
                     </div>
 
-                    <div className={`stat-item d-flex justify-content-between align-items-center mb-3 p-2 rounded-3 transition-all ${bulkQuestionsProps.pendingQuestions.length > 0 ? 'bg-warning-subtle' : 'hover-bg-white'}`}>
+                    <div className="d-flex justify-content-between align-items-center mb-3">
                       <div className="d-flex align-items-center gap-2">
-                        <div className="stat-icon-mini bg-warning-subtle text-warning">
-                          <FaQuestionCircle size={12} />
-                        </div>
-                        <span className="small text-secondary">Đang chờ xử lý</span>
+                        <FaClock className="text-warning opacity-75" size={14} />
+                        <span className="small text-secondary">Đang trong hàng đợi</span>
                       </div>
-                      <span className="fw-bold text-warning">{bulkQuestionsProps.pendingQuestions.length} câu</span>
+                      <span className="fw-bold text-warning small">{pendingQuestions.length} câu</span>
                     </div>
 
-                    <div className="stat-item d-flex justify-content-between align-items-center p-2 rounded-3 hover-bg-white transition-all">
+                    <div className="d-flex justify-content-between align-items-center">
                       <div className="d-flex align-items-center gap-2">
-                        <div className="stat-icon-mini bg-success-subtle text-success">
-                          <FaCheckCircle size={12} />
-                        </div>
+                        <FaCheckCircle className="text-success opacity-75" size={14} />
                         <span className="small text-secondary">Đã tạo thành công</span>
                       </div>
-                      <span className="fw-bold text-success">{bulkQuestionsProps.createdQuestions.length} câu</span>
+                      <span className="fw-bold text-success small">{createdQuestions.length} câu</span>
                     </div>
+
+                    {pendingQuestions.length > 0 && (
+                      <div className="mt-4 pt-3 border-top border-dashed">
+                        <div className="d-flex justify-content-between align-items-center">
+                          <span className="small text-muted fw-bold text-uppercase" style={{ fontSize: '10px' }}>Tổng điểm hàng đợi</span>
+                          <span className="fw-bold text-danger fs-5">
+                            {pendingQuestions.reduce((sum, q) => sum + (Number(q.preview.points) || 0), 0)}đ
+                          </span>
+                        </div>
+                      </div>
+                    )}
                   </div>
                 </div>
-              </div>
-
-              {/* Pending List in Sidebar style */}
-              <div className="mt-4">
-                <PendingQuestionsList
-                  {...bulkQuestionsProps}
-                  qLoading={qLoading}
-                  qUploadingMedia={qUploadingMedia}
-                  QUESTION_TYPES={QUESTION_TYPES}
-                />
               </div>
             </div>
           </Col>

@@ -319,6 +319,14 @@ export default function FileUpload({
         } else if (existingUrl && preview && initialFileType) {
             // Force type update if prop provided even if preview already exists
             setPreviewType(initialFileType);
+        } else if (!existingUrl && preview) {
+            // CRITICAL: Clear preview when existingUrl is explicitly set to null (form reset)
+            setPreview(null);
+            setPreviewType(null);
+            setError(null);
+            if (fileInputRef.current) {
+                fileInputRef.current.value = "";
+            }
         }
     }, [existingUrl, preview, initialFileType]);
 

@@ -167,6 +167,7 @@ export default function CreateQuestionModal({
                 internalGroupId={internalGroupId}
                 setInternalGroupId={setInternalGroupId}
                 handleClose={onClose}
+                bulkQuestionsProps={bulkQuestionsProps}
               />
             </Tab>
           )}

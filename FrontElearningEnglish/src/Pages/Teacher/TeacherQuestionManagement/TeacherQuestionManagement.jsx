@@ -101,7 +101,21 @@ export default function TeacherQuestionManagement() {
         // Fetch questions for group
         try {
           questionsRes = await questionService.getQuestionsByGroup(groupId);
-        } catch (e) { console.error("Questions by group fetch failed"); }
+          if (questionsRes.data?.success) {
+            const data = questionsRes.data.data;
+            setQuestions(Array.isArray(data) ? data : (data?.questions || []));
+          }
+        } catch (e) { console.warn("Teacher questions by group fetch failed"); }
+
+        if ((!questionsRes || !questionsRes.data?.success || (Array.isArray(questionsRes.data.data) ? questionsRes.data.data.length === 0 : true)) && isAdmin) {
+          try {
+            const adminQRes = await questionService.getAdminQuestionsByGroup(groupId);
+            if (adminQRes.data?.success) {
+              const data = adminQRes.data.data;
+              setQuestions(Array.isArray(data) ? data : (data?.questions || []));
+            }
+          } catch (e) { console.error("Admin questions by group fallback failed"); }
+        }
 
       } else if (sectionId) {
         let sData = null;
@@ -126,11 +140,26 @@ export default function TeacherQuestionManagement() {
           let qList = [];
           let gList = [];
 
+          // 1. Fetch Questions with Admin Fallback
           try {
             const qRes = await questionService.getQuestionsBySection(sectionId);
-            if (qRes.data?.success) qList = Array.isArray(qRes.data.data) ? qRes.data.data : (qRes.data.data?.questions || []);
-          } catch (e) { console.warn("Questions fetch failed"); }
+            if (qRes.data?.success) {
+              const data = qRes.data.data;
+              qList = Array.isArray(data) ? data : (data?.questions || []);
+            }
+          } catch (e) { console.warn("Teacher questions fetch failed"); }
 
+          if (qList.length === 0 && isAdmin) {
+            try {
+              const adminQRes = await questionService.getAdminQuestionsBySection(sectionId);
+              if (adminQRes.data?.success) {
+                const data = adminQRes.data.data;
+                qList = Array.isArray(data) ? data : (data?.questions || []);
+              }
+            } catch (e) { console.error("Admin questions fallback failed"); }
+          }
+
+          // 2. Fetch Groups with Admin Fallback
           try {
             const gRes = await quizService.getQuizGroupsBySection(sectionId);
             if (gRes.data?.success) {

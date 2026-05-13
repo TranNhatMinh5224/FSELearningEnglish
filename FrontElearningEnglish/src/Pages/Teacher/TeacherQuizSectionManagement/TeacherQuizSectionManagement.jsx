@@ -391,18 +391,25 @@ export default function TeacherQuizSectionManagement() {
                     const sectionDescription = section.description || section.Description;
 
                     return (
-                      <div key={sectionId} className="section-item-card">
+                      <div 
+                        key={sectionId} 
+                        className="section-item-card"
+                        onClick={() => handleManageQuestionsSection(sectionId)}
+                      >
                         <div className="section-item-content">
-                          <div className="section-item-info" onClick={() => handleManageQuestionsSection(sectionId)}>
+                          <div className="section-item-info">
                             <h3 className="section-item-title">{sectionTitle}</h3>
                             {sectionDescription && (
                               <p className="section-item-description">{sectionDescription}</p>
                             )}
                           </div>
-                          <div className="section-item-actions">
+                          <div className="section-item-actions" onClick={(e) => e.stopPropagation()}>
                             <button
                               className="btn-manage-content"
-                              onClick={() => handleManageQuestionsSection(sectionId)}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleManageQuestionsSection(sectionId);
+                              }}
                               title="Quản lý nội dung"
                             >
                               <FaList className="me-2" /> Quản lý nội dung
@@ -410,14 +417,20 @@ export default function TeacherQuizSectionManagement() {
                             <div className="action-icons">
                               <button
                                 className="icon-btn edit"
-                                onClick={() => handleEditSection(section)}
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleEditSection(section);
+                                }}
                                 title="Sửa"
                               >
                                 <FaEdit />
                               </button>
                               <button
                                 className="icon-btn delete"
-                                onClick={() => handleDeleteSectionClick(section)}
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleDeleteSectionClick(section);
+                                }}
                                 title="Xóa"
                               >
                                 <FaTrash />

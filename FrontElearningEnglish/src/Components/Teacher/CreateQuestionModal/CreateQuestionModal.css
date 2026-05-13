@@ -34,14 +34,25 @@ body .modal.show .create-question-modal-xl .modal-content {
 /* --- Header Premium Styling --- */
 .create-question-modal .modal-header {
   padding: 1.5rem 2.5rem !important;
-  min-height: 90px !important;
+  min-height: 100px !important;
   border-bottom: none !important;
-  background: #7765F5 !important;
-  /* Your requested brand color */
+  background: linear-gradient(135deg, #7765f5 0%, #6352e8 100%) !important;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
   justify-content: space-between;
   align-items: center;
   position: relative;
   overflow: hidden;
+}
+
+.create-question-modal .modal-header::before {
+  content: "";
+  position: absolute;
+  top: -50%;
+  left: -10%;
+  width: 120%;
+  height: 200%;
+  background: radial-gradient(circle at 20% 30%, rgba(255, 255, 255, 0.1) 0%, transparent 50%);
+  pointer-events: none;
 }
 
 .create-question-modal .modal-title {
@@ -312,8 +323,51 @@ body .modal.show.create-question-modal-xl .modal-body {
 }
 
 .action-card-raised {
-  border-radius: 16px !important;
-  border: 1px solid rgba(0, 0, 0, 0.05) !important;
+  border-radius: 20px !important;
+  border: none !important;
+  background: white;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08) !important;
+  transition: all 0.3s ease;
+}
+
+.action-icon-circle {
+  width: 64px;
+  height: 64px;
+  background: linear-gradient(135deg, #7765f5 0%, #5a49d8 100%) !important;
+  border-radius: 20px; /* Modern squircle look */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  color: white;
+  margin-bottom: 1.5rem;
+  box-shadow: 0 8px 16px rgba(119, 101, 245, 0.3) !important;
+  transition: all 0.3s ease;
+}
+
+.action-icon-circle:hover {
+  transform: rotate(10deg) scale(1.1);
+  box-shadow: 0 12px 24px rgba(119, 101, 245, 0.4) !important;
+}
+
+.action-card-raised:hover {
+  transform: translateY(-5px);
+}
+
+.btn-primary-custom {
+  background: linear-gradient(135deg, #7765f5 0%, #5a49d8 100%) !important;
+  border: none !important;
+  padding: 12px 24px !important;
+  transition: all 0.3s ease !important;
+}
+
+.btn-primary-custom:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 15px rgba(119, 101, 245, 0.3) !important;
+}
+
+.btn-primary-custom:active {
+  transform: translateY(0);
 }
 
 /* --- Question Types Specific --- */
@@ -334,4 +388,61 @@ body .modal.show.create-question-modal-xl .modal-body {
 .modal-body::-webkit-scrollbar-thumb {
   background: #cbd5e1;
   border-radius: 10px;
+}
+
+/* --- Group & Bulk Enhancements --- */
+.status-dot-active {
+  width: 8px;
+  height: 8px;
+  background-color: #7765f5;
+  border-radius: 50%;
+  display: inline-block;
+  position: relative;
+  box-shadow: 0 0 0 0 rgba(119, 101, 245, 0.7);
+  animation: pulse-dot 2s infinite;
+}
+
+@keyframes pulse-dot {
+  0% {
+    transform: scale(0.95);
+    box-shadow: 0 0 0 0 rgba(119, 101, 245, 0.7);
+  }
+  70% {
+    transform: scale(1);
+    box-shadow: 0 0 0 6px rgba(119, 101, 245, 0);
+  }
+  100% {
+    transform: scale(0.95);
+    box-shadow: 0 0 0 0 rgba(119, 101, 245, 0);
+  }
+}
+
+.media-upload-wrapper {
+  transition: all 0.3s ease;
+  border-style: dashed !important;
+  border-color: #dee2e6 !important;
+  background-color: #f8fafc;
+}
+
+.media-upload-wrapper:hover {
+  border-color: #7765f5 !important;
+  background-color: rgba(119, 101, 245, 0.02) !important;
+  transform: translateY(-2px);
+}
+
+.active-group-banner {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.active-group-banner:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(0,0,0,0.08) !important;
+}
+
+.group-tab-container .form-section-card {
+    border-radius: 16px !important;
+}
+
+.group-tab-container .form-control:focus {
+    background-color: white !important;
 }

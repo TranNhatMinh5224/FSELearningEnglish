@@ -15,7 +15,24 @@ const QuestionHeader = ({
   internalGroupId,
   groupInfo
 }) => {
-  return (
+    const getQuestionTypeName = (type) => {
+        const name = type.DisplayName || type.displayName || type.Name || type.name || "";
+        
+        const nameMap = {
+            "MultipleChoice": "Trắc nghiệm (1 đáp án)",
+            "MultipleAnswers": "Trắc nghiệm (Nhiều đáp án)",
+            "TrueFalse": "Đúng / Sai",
+            "FillBlank": "Điền từ (Fill in blanks)",
+            "Matching": "Nối từ (Matching)",
+            "Ordering": "Sắp xếp (Ordering)",
+            "ShortAnswer": "Trả lời ngắn",
+            "Essay": "Tự luận"
+        };
+
+        return nameMap[name] || name;
+    };
+
+    return (
     <div className="form-section-card shadow-sm border-0 mb-4 overflow-hidden">
       <div className="form-section-header bg-light p-3 d-flex align-items-center gap-2 border-bottom">
         <FaQuestionCircle className="text-primary fs-5" /> 
@@ -39,7 +56,7 @@ const QuestionHeader = ({
                         {backendQuestionTypes && backendQuestionTypes.length > 0 ? (
                             backendQuestionTypes.map((type) => (
                                 <option key={type.Value || type.value} value={String(type.Value || type.value)}>
-                                    {type.DisplayName || type.displayName || type.Name || type.name}
+                                    {getQuestionTypeName(type)}
                                 </option>
                             ))
                         ) : (

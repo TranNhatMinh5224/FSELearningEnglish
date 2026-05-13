@@ -7,7 +7,7 @@ const useBulkQuestions = (isAdmin, onSuccess) => {
   const [createdQuestions, setCreatedQuestions] = useState([]);
   const [bulkLoading, setBulkLoading] = useState(false);
 
-  const addToPendingList = useCallback((qFormData, qMediaTempKey, qMediaType, buildPayload) => {
+  const addToPendingList = useCallback((qFormData, qMediaTempKey, qMediaType, qMediaPreview, buildPayload) => {
     const pointsValue = typeof qFormData.points === 'string'
       ? (qFormData.points.trim() === '' ? 10 : parseFloat(qFormData.points))
       : qFormData.points;
@@ -17,6 +17,13 @@ const useBulkQuestions = (isAdmin, onSuccess) => {
     const questionPreview = {
       id: Date.now(),
       payload: payload,
+      // Store original data for editing
+      originalData: {
+        qFormData: JSON.parse(JSON.stringify(qFormData)), // Deep copy
+        qMediaTempKey,
+        qMediaType,
+        qMediaPreview
+      },
       preview: {
         stemText: qFormData.stemText.trim(),
         type: qFormData.type,
@@ -29,6 +36,17 @@ const useBulkQuestions = (isAdmin, onSuccess) => {
 
     setPendingQuestions(prev => [...prev, questionPreview]);
   }, []);
+
+  const editPendingQuestion = useCallback((id) => {
+    const questionToEdit = pendingQuestions.find(q => q.id === id);
+    if (!questionToEdit) return null;
+
+    // Remove from pending list
+    setPendingQuestions(prev => prev.filter(q => q.id !== id));
+    
+    // Return the original data to be put back into the form
+    return questionToEdit.originalData;
+  }, [pendingQuestions]);
 
   const removeFromPendingList = useCallback((id) => {
     setPendingQuestions(prev => prev.filter(q => q.id !== id));
@@ -91,6 +109,7 @@ const useBulkQuestions = (isAdmin, onSuccess) => {
     createdQuestions, setCreatedQuestions,
     bulkLoading,
     addToPendingList,
+    editPendingQuestion,
     removeFromPendingList,
     handleBulkCreate,
     removeFromCreatedList
