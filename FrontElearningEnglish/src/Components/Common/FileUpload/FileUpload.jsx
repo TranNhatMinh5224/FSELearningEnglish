@@ -36,6 +36,7 @@ export default function FileUpload({
     enablePaste = true,
     previewClassName = "",
     showPreview = true,
+    initialFileType = null, // "image", "audio", "video", "document"
 }) {
     const fileInputRef = useRef(null);
     const [preview, setPreview] = useState(existingUrl || null);
@@ -43,6 +44,8 @@ export default function FileUpload({
     const [uploadProgress, setUploadProgress] = useState(0);
     const [error, setError] = useState(null);
     const [isDragging, setIsDragging] = useState(false);
+    const [previewType, setPreviewType] = useState(null);
+    const [isHovered, setIsHovered] = useState(false);
 
     // Determine file type icon
     const getFileTypeIcon = () => {
@@ -144,19 +147,28 @@ export default function FileUpload({
         try {
             // Create preview
             let previewUrl = null;
+            let detectedType = null;
+
             if (showPreview && file.type.startsWith("image/")) {
                 previewUrl = URL.createObjectURL(file);
+                detectedType = "image";
                 setPreview(previewUrl);
+                setPreviewType(detectedType);
             } else if (showPreview && file.type.startsWith("audio/")) {
                 previewUrl = URL.createObjectURL(file);
+                detectedType = "audio";
                 setPreview(previewUrl);
+                setPreviewType(detectedType);
             } else if (showPreview && file.type.startsWith("video/")) {
                 previewUrl = URL.createObjectURL(file);
+                detectedType = "video";
                 setPreview(previewUrl);
+                setPreviewType(detectedType);
             } else if (showPreview) {
-                // For documents, we don't have a blob preview, so we use a custom protocol to store the filename
                 previewUrl = `document:${file.name}`;
+                detectedType = "document";
                 setPreview(previewUrl);
+                setPreviewType(detectedType);
             }
 
             // Extract duration for video/audio files
@@ -250,13 +262,14 @@ export default function FileUpload({
         if (!enablePaste) return;
 
         const handlePaste = async (e) => {
-            if (uploading) return;
+            if (uploading || !isHovered) return;
             const items = e.clipboardData?.items;
             if (!items) return;
 
             for (let i = 0; i < items.length; i++) {
                 const item = items[i];
                 if (accept.includes("image") && item.type.startsWith("image/")) {
+                    // Prevent default only if we are actually handling it
                     e.preventDefault();
                     const file = item.getAsFile();
                     if (file) {
@@ -269,7 +282,7 @@ export default function FileUpload({
 
         document.addEventListener("paste", handlePaste);
         return () => document.removeEventListener("paste", handlePaste);
-    }, [enablePaste, uploading, accept, processFile]);
+    }, [enablePaste, uploading, accept, processFile, isHovered]);
 
     // Handle remove
     const handleRemove = () => {
@@ -277,6 +290,7 @@ export default function FileUpload({
             URL.revokeObjectURL(preview);
         }
         setPreview(null);
+        setPreviewType(null);
         setError(null);
         if (fileInputRef.current) {
             fileInputRef.current.value = "";
@@ -290,8 +304,23 @@ export default function FileUpload({
     useEffect(() => {
         if (existingUrl && !preview) {
             setPreview(existingUrl);
+            
+            if (initialFileType) {
+                setPreviewType(initialFileType);
+            } else {
+                // Infer type from URL
+                const lowerUrl = existingUrl.toLowerCase();
+                if (lowerUrl.match(/\.(mp4|webm|mov|m4v)$/) || lowerUrl.includes("/video/")) setPreviewType("video");
+                else if (lowerUrl.match(/\.(mp3|wav|ogg|m4a)$/) || lowerUrl.includes("/audio/")) setPreviewType("audio");
+                else if (lowerUrl.match(/\.(jpg|jpeg|png|gif|webp|svg|bmp)$/) || lowerUrl.includes("/image/")) setPreviewType("image");
+                else if (existingUrl.startsWith("document:")) setPreviewType("document");
+                else setPreviewType("image"); // Default fallback
+            }
+        } else if (existingUrl && preview && initialFileType) {
+            // Force type update if prop provided even if preview already exists
+            setPreviewType(initialFileType);
         }
-    }, [existingUrl, preview]);
+    }, [existingUrl, preview, initialFileType]);
 
     // Cleanup preview URL on unmount
     useEffect(() => {
@@ -305,19 +334,17 @@ export default function FileUpload({
     return (
         <div className="file-upload-container">
             {preview && showPreview ? (
-                <div className={`file-preview-wrapper ${previewClassName}`}>
+                <div 
+                    className={`file-preview-wrapper ${previewClassName}`}
+                    onMouseEnter={() => setIsHovered(true)}
+                    onMouseLeave={() => setIsHovered(false)}
+                >
                     {preview.startsWith("blob:") || preview.startsWith("http") || preview.startsWith("document:") ? (
                         <>
-                            {accept.includes("image") && !preview.startsWith("document:") && (
-                                <img src={preview} alt="Preview" className="file-preview-image" />
-                            )}
-                            {accept.includes("audio") && !preview.startsWith("document:") && (
-                                <audio src={preview} controls className="file-preview-audio" />
-                            )}
-                            {accept.includes("video") && !preview.startsWith("document:") && (
-                                <video src={preview} controls className="file-preview-video" />
-                            )}
-                            {(!accept.includes("image") && !accept.includes("audio") && !accept.includes("video")) || preview.startsWith("document:") ? (
+                            {previewType === "image" && <img src={preview} alt="Preview" className="file-preview-image" />}
+                            {previewType === "audio" && <audio src={preview} controls className="file-preview-audio" />}
+                            {previewType === "video" && <video src={preview} controls className="file-preview-video" />}
+                            {previewType === "document" && (
                                 <div className="file-preview-document success-state">
                                     <div className="document-icon"><FaFileAlt /></div>
                                     <div className="document-info">
@@ -327,7 +354,7 @@ export default function FileUpload({
                                         <span className="document-hint text-muted small">File tài liệu đã được đính kèm</span>
                                     </div>
                                 </div>
-                            ) : null}
+                            )}
                         </>
                     ) : (
                         <div className="file-preview-placeholder">
@@ -352,6 +379,8 @@ export default function FileUpload({
                     onDragOver={handleDragOver}
                     onDragLeave={handleDragLeave}
                     onDrop={handleDrop}
+                    onMouseEnter={() => setIsHovered(true)}
+                    onMouseLeave={() => setIsHovered(false)}
                 >
                     <input
                         type="file"

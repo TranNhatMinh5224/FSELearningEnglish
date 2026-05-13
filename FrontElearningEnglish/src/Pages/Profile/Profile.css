@@ -85,27 +85,15 @@
     display: inline-block;
 }
 
-.avatar-inner {
-    position: relative;
-    display: inline-block;
+.avatar-image-main {
     cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1) !important;
 }
 
-/* Allow avatar menu to work properly */
-.avatar-menu-wrapper .avatar-inner {
-    cursor: pointer;
-    pointer-events: auto;
-}
-
-.avatar-image,
-.avatar-placeholder {
-    width: 140px;
-    height: 140px;
-    border-radius: 50%;
-    object-fit: cover;
-    box-shadow: 0 8px 20px var(--shadow-sm, rgba(15, 23, 42, 0.08));
-    display: block;
-    transition: box-shadow 0.3s ease;
+.avatar-image-main:hover {
+    transform: scale(1.05);
+    box-shadow: 0 20px 45px rgba(75, 123, 246, 0.2) !important;
 }
 
 [data-theme="dark"] .avatar-image,

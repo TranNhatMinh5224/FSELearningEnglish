@@ -97,13 +97,14 @@ namespace LearningEnglish.Application.DTOs
         public string? AudioUrl { get; set; }
         public string? AudioType { get; set; }  // audio/mpeg
         public int? VideoDuration { get; set; }  // Độ dài video (seconds)
-        public float? SumScore { get; set; }  // Tổng điểm của group
+        public decimal? SumScore { get; set; }  // Tổng điểm của group
         public List<QuestionDto>? Questions { get; set; }  // Questions trong group
 
         // === QUESTION PROPERTIES (null nếu ItemType = "Group") ===
         public int? QuestionId { get; set; }
         public string? QuestionText { get; set; }
         public string? MediaUrl { get; set; }
+        public string? MediaType { get; set; }
         public QuestionType? Type { get; set; }
         public decimal? Points { get; set; }
         public bool? IsAnswered { get; set; }
@@ -121,6 +122,16 @@ namespace LearningEnglish.Application.DTOs
         public string QuestionText { get; set; } = string.Empty;
         public string? MediaUrl { get; set; }
         public string? MediaType { get; set; }  // Loại media (image/png, audio/mpeg)
+        
+        // Cụ thể hóa để UI dễ bóc tách
+        public string? ImgUrl { get; set; }
+        public string? ImgType { get; set; }
+        public string? VideoUrl { get; set; }
+        public string? VideoType { get; set; }
+        public string? AudioUrl { get; set; }
+        public string? AudioType { get; set; }
+        public string? DebugMediaKey { get; set; } // DEBUG
+
         public QuestionType Type { get; set; }
         public decimal Points { get; set; }
         public int DisplayOrder { get; set; }  // Thứ tự hiển thị
@@ -155,7 +166,7 @@ namespace LearningEnglish.Application.DTOs
         int? TotalScore { get; set; }
         int? TotalCorrectAnswers { get; set; }
         int? TotalQuestions { get; set; }
-        decimal Percentage { get; set; }
+        public decimal Percentage { get; set; }
     }
     public class QuizAttemptDetailDto : QuizAttemptDto
     {
@@ -201,6 +212,15 @@ namespace LearningEnglish.Application.DTOs
         public string? Description { get; set; }
         public string? MediaUrl { get; set; }
         public string? MediaType { get; set; }
+        
+        // Cụ thể hóa để UI dễ bóc tách
+        public string? ImgUrl { get; set; }
+        public string? ImgType { get; set; }
+        public string? VideoUrl { get; set; }
+        public string? VideoType { get; set; }
+        public string? AudioUrl { get; set; }
+        public string? AudioType { get; set; }
+        
         public List<QuestionReviewDto> Questions { get; set; } = new();
     }
 
@@ -210,6 +230,13 @@ namespace LearningEnglish.Application.DTOs
         public int QuestionId { get; set; }
         public string QuestionText { get; set; } = string.Empty;
         public string? MediaUrl { get; set; }
+        public string? MediaType { get; set; }
+        public string? ImgUrl { get; set; }
+        public string? ImgType { get; set; }
+        public string? VideoUrl { get; set; }
+        public string? VideoType { get; set; }
+        public string? AudioUrl { get; set; }
+        public string? AudioType { get; set; }
         public QuestionType Type { get; set; }
         public decimal Points { get; set; }
         public decimal Score { get; set; }
@@ -235,6 +262,13 @@ namespace LearningEnglish.Application.DTOs
         public int OptionId { get; set; }
         public string OptionText { get; set; } = string.Empty;
         public string? MediaUrl { get; set; }
+        public string? MediaType { get; set; }
+        
+        // Cụ thể hóa
+        public string? ImgUrl { get; set; }
+        public string? VideoUrl { get; set; }
+        public string? AudioUrl { get; set; }
+        
         public bool IsCorrect { get; set; }
         public bool IsSelected { get; set; }  // Học sinh có chọn option này không
     }

@@ -55,6 +55,38 @@ export default function QuestionCard({ question, answer, onChange, questionNumbe
         displayQuestionNumber = `${start} - ${end}`;
     }
 
+    // Helper to render media (Image, Video, Audio)
+    const renderMedia = (q) => {
+        // Handle various URL properties from API
+        const mUrl = q.mediaUrl || q.MediaUrl || q.imgUrl || q.ImgUrl || q.videoUrl || q.VideoUrl || q.audioUrl || q.AudioUrl;
+        if (!mUrl) return null;
+
+        const mType = (q.mediaType || q.MediaType || "").toLowerCase();
+        const isVideo = mType.includes('video') || (q.videoUrl || q.VideoUrl) || mUrl.match(/\.(mp4|webm|mov)(\?.*)?$/i);
+        const isAudio = mType.includes('audio') || (q.audioUrl || q.AudioUrl) || mUrl.match(/\.(mp3|wav|ogg)(\?.*)?$/i);
+
+        return (
+            <div className="question-media-wrapper mb-4">
+                {isVideo ? (
+                    <div className="premium-video-container">
+                        <video src={mUrl} controls className="premium-video-element" />
+                    </div>
+                ) : isAudio ? (
+                    <div className="premium-audio-container">
+                        <audio src={mUrl} controls className="premium-audio-element" />
+                    </div>
+                ) : (
+                    <div className="premium-image-container" onClick={() => window.open(mUrl, '_blank')}>
+                        <img src={mUrl} alt="Question media" className="premium-image-element" />
+                        <div className="image-overlay-hint">
+                            <span>Click để phóng to</span>
+                        </div>
+                    </div>
+                )}
+            </div>
+        );
+    };
+
     return (
         <Card className="question-card">
             <Card.Body>
@@ -91,30 +123,29 @@ export default function QuestionCard({ question, answer, onChange, questionNumbe
                             </div>
                         )}
                         
-                        <div className="group-media-grid d-flex flex-wrap gap-3 mt-3">
+                        <div className="group-media-grid d-flex flex-column gap-4 mt-3">
                             {groupInfo.groupImgUrl && (
-                                <div className="group-media-item group-image-container flex-grow-1">
-                                    <img src={groupInfo.groupImgUrl} alt="Group context" className="img-fluid rounded-3 shadow-md" style={{ maxWidth: '100%', height: 'auto', objectFit: 'cover' }} />
+                                <div className="question-media-wrapper">
+                                    <div className="premium-image-container" onClick={() => window.open(groupInfo.groupImgUrl, '_blank')}>
+                                        <img src={groupInfo.groupImgUrl} alt="Group context" className="premium-image-element" />
+                                        <div className="image-overlay-hint">
+                                            <span>Click để phóng to</span>
+                                        </div>
+                                    </div>
                                 </div>
                             )}
                             
                             {groupInfo.groupVideoUrl && (
-                                <div className="group-media-item group-video-container w-100 mt-2">
-                                    <video src={groupInfo.groupVideoUrl} controls className="w-100 rounded-3 shadow-md" style={{ maxHeight: '450px' }} />
+                                <div className="question-media-wrapper">
+                                    <div className="premium-video-container">
+                                        <video src={groupInfo.groupVideoUrl} controls className="premium-video-element" />
+                                    </div>
                                 </div>
                             )}
 
                             {groupInfo.groupAudioUrl && (
-                                <div className="group-media-item group-audio-container w-100 mt-2 p-3 bg-white rounded-3 shadow-sm border">
-                                    <div className="d-flex align-items-center gap-3">
-                                        <div className="audio-icon-wrapper rounded-circle bg-primary-subtle p-2">
-                                            <i className="bi bi-volume-up-fill text-primary"></i>
-                                        </div>
-                                        <div className="flex-grow-1">
-                                            <p className="small text-muted mb-1 fw-medium">Nghe đoạn hội thoại/bài nghe:</p>
-                                            <audio src={groupInfo.groupAudioUrl} controls className="w-100" style={{ height: '36px' }} />
-                                        </div>
-                                    </div>
+                                <div className="premium-audio-container shadow-sm">
+                                    <audio src={groupInfo.groupAudioUrl} controls className="premium-audio-element" />
                                 </div>
                             )}
                         </div>
@@ -131,7 +162,7 @@ export default function QuestionCard({ question, answer, onChange, questionNumbe
                             const subQAns = allAnswers ? allAnswers[subQId] : null;
 
                             return (
-                                <div key={subQId || idx} className="sub-question-item mb-5 pb-4 border-bottom last-child-no-border">
+                                <div key={subQId || idx} className="sub-question-item mb-5 pb-4 border-bottom last-child-no-border animate-fade-in">
                                     <div className="question-main-header-v4 mb-4">
                                         <div className="d-flex justify-content-between align-items-start">
                                             <h5 className="question-headline-v4 mb-0">
@@ -147,16 +178,7 @@ export default function QuestionCard({ question, answer, onChange, questionNumbe
                                         </div>
                                     </div>
                                     <div className="question-content">
-                                        {(subQ.mediaUrl || subQ.MediaUrl) && (
-                                            <div className="question-media mb-3">
-                                                {(() => {
-                                                    const mUrl = subQ.mediaUrl || subQ.MediaUrl;
-                                                    if (mUrl.match(/\.(mp4|webm)$/i)) return <video src={mUrl} controls className="media-element" />;
-                                                    if (mUrl.match(/\.(mp3|wav)$/i)) return <audio src={mUrl} controls className="media-element" />;
-                                                    return <img src={mUrl} alt="Sub question media" className="media-element" />;
-                                                })()}
-                                            </div>
-                                        )}
+                                        {renderMedia(subQ)}
                                         <div className="question-answer-section">
                                             {renderSingleQuestion(subQ, subQAns, (val) => onChange(subQId, val))}
                                         </div>
@@ -184,16 +206,7 @@ export default function QuestionCard({ question, answer, onChange, questionNumbe
                                 </div>
                             </div>
                             <div className="question-content">
-                                {(question.mediaUrl || question.MediaUrl) && (
-                                    <div className="question-media mb-3">
-                                        {(() => {
-                                            const mUrl = question.mediaUrl || question.MediaUrl;
-                                            if (mUrl.match(/\.(mp4|webm)$/i)) return <video src={mUrl} controls className="media-element" />;
-                                            if (mUrl.match(/\.(mp3|wav)$/i)) return <audio src={mUrl} controls className="media-element" />;
-                                            return <img src={mUrl} alt="Question media" className="media-element" />;
-                                        })()}
-                                    </div>
-                                )}
+                                {renderMedia(question)}
                                 <div className="question-answer-section">
                                     {renderSingleQuestion(question, answer, (val) => {
                                         const qId = question.questionId || question.QuestionId;

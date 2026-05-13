@@ -1,8 +1,8 @@
 import { useState, useCallback } from "react";
 import { questionService } from "../../../../Services/questionService";
-import { QUESTION_TYPES } from "./useQuestionForm";
 
-export const useBulkQuestions = (isAdmin, onSuccess) => {
+
+const useBulkQuestions = (isAdmin, onSuccess) => {
   const [pendingQuestions, setPendingQuestions] = useState([]);
   const [createdQuestions, setCreatedQuestions] = useState([]);
   const [bulkLoading, setBulkLoading] = useState(false);
@@ -40,10 +40,19 @@ export const useBulkQuestions = (isAdmin, onSuccess) => {
     setBulkLoading(true);
     try {
       const bulkPayload = {
+        questions: pendingQuestions.map(q => ({
+          ...q.payload,
+          quizSectionId: sectionId ? parseInt(sectionId) : null,
+          QuizSectionId: sectionId ? parseInt(sectionId) : null,
+          quizGroupId: internalGroupId ? parseInt(internalGroupId) : null,
+          QuizGroupId: internalGroupId ? parseInt(internalGroupId) : null
+        })),
         Questions: pendingQuestions.map(q => ({
           ...q.payload,
-          QuizSectionId: sectionId || null,
-          QuizGroupId: internalGroupId || null
+          quizSectionId: sectionId ? parseInt(sectionId) : null,
+          QuizSectionId: sectionId ? parseInt(sectionId) : null,
+          quizGroupId: internalGroupId ? parseInt(internalGroupId) : null,
+          QuizGroupId: internalGroupId ? parseInt(internalGroupId) : null
         }))
       };
 
@@ -87,3 +96,5 @@ export const useBulkQuestions = (isAdmin, onSuccess) => {
     removeFromCreatedList
   };
 };
+
+export default useBulkQuestions;

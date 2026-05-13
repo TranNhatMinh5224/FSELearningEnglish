@@ -3,6 +3,7 @@ using LearningEnglish.Application.Common;
 using LearningEnglish.Application.Common.Pagination;
 using LearningEnglish.Application.DTOs;
 using LearningEnglish.Application.Interface;
+using LearningEnglish.Application.Interface.Infrastructure.MediaService;
 using LearningEnglish.Application.Interface.Services.Module;
 using LearningEnglish.Domain.Entities;
 using LearningEnglish.Domain.Enums;
@@ -22,6 +23,8 @@ namespace LearningEnglish.Application.Service
         private readonly INotificationRepository _notificationRepository;
         private readonly IMapper _mapper;
         private readonly ILogger<QuizAttemptTeacherService> _logger;
+        private readonly IQuestionMediaService _questionMediaService;
+        private readonly IQuizGroupMediaService _quizGroupMediaService;
 
         public QuizAttemptTeacherService(
             IQuizAttemptRepository quizAttemptRepository,
@@ -32,7 +35,9 @@ namespace LearningEnglish.Application.Service
             IModuleProgressService moduleProgressService,
             INotificationRepository notificationRepository,
             IMapper mapper,
-            ILogger<QuizAttemptTeacherService> logger)
+            ILogger<QuizAttemptTeacherService> logger,
+            IQuestionMediaService questionMediaService,
+            IQuizGroupMediaService quizGroupMediaService)
         {
             _quizAttemptRepository = quizAttemptRepository;
             _quizRepository = quizRepository;
@@ -43,6 +48,8 @@ namespace LearningEnglish.Application.Service
             _notificationRepository = notificationRepository;
             _mapper = mapper;
             _logger = logger;
+            _questionMediaService = questionMediaService;
+            _quizGroupMediaService = quizGroupMediaService;
         }
 
         // Helper method: Check if teacher owns or is enrolled in the course containing the quiz
@@ -466,8 +473,8 @@ namespace LearningEnglish.Application.Service
                     TotalPossibleScore = quiz.TotalPossibleScore,
                     Percentage = 0, // Sẽ tính bên dưới
                     IsPassed = quiz.PassingScore.HasValue ? attempt.TotalScore >= quiz.PassingScore.Value : false,
-                    Questions = QuizReviewBuilder.BuildQuestionReviewList(quiz, attempt),
-                    Sections = QuizReviewBuilder.BuildStructuredQuestionReview(quiz, attempt)
+                    Questions = QuizReviewBuilder.BuildQuestionReviewList(quiz, attempt, _questionMediaService),
+                    Sections = QuizReviewBuilder.BuildStructuredQuestionReview(quiz, attempt, _questionMediaService, _quizGroupMediaService)
                 };
 
                 // Tính toán lại Percentage dựa trên MaxScore
@@ -598,7 +605,7 @@ namespace LearningEnglish.Application.Service
                 // 9. Get correct answers if teacher allows
                 if (quiz.ShowAnswersAfterSubmit == true)
                 {
-                    result.Questions = QuizReviewBuilder.BuildQuestionReviewList(quiz, attempt);
+                    result.Questions = QuizReviewBuilder.BuildQuestionReviewList(quiz, attempt, _questionMediaService);
                 }
 
                 // 10. Create notification for student

@@ -476,6 +476,10 @@ namespace LearningEnglish.Application.Mappings
                 .ForMember(dest => dest.MediaUrl, opt => opt.MapFrom(src => src.MediaKey))
                 .ForMember(dest => dest.Options, opt => opt.MapFrom(src => src.Options));
 
+            CreateMap<Question, QuestionDto>()
+                .ForMember(dest => dest.MediaUrl, opt => opt.MapFrom(src => src.MediaKey))
+                .ForMember(dest => dest.Options, opt => opt.MapFrom(src => src.Options));
+
             CreateMap<QuestionCreateDto, Question>()
                 .ForMember(dest => dest.QuestionId, opt => opt.Ignore())
                 .ForMember(dest => dest.CreatedAt, opt => opt.MapFrom(src => DateTime.UtcNow))

@@ -7,6 +7,7 @@ import MainHeader from "../../Components/Header/MainHeader";
 import { useAuth } from "../../Context/AuthContext";
 import { authService } from "../../Services/authService";
 import AvatarMenu from "../../Components/Header/AvatarMenu/AvatarMenu";
+import UserAvatar from "../../Components/Common/UserAvatar/UserAvatar";
 
 export default function Profile() {
     const navigate = useNavigate();
@@ -93,15 +94,14 @@ export default function Profile() {
                                     onAvatarUpdate={handleAvatarUpdate}
                                     showAvatarOptions={true}
                                 >
-                                    <div className="avatar-inner">
-                                        {user.avatarUrl ? (
-                                            <img src={user.avatarUrl} alt="Avatar" className="avatar-image" />
-                                        ) : (
-                                            <div className="avatar-placeholder d-flex align-items-center justify-content-center">
-                                                <FaUserCircle className="avatar-default-icon-large" />
-                                            </div>
-                                        )}
-                                    </div>
+                                    <UserAvatar 
+                                        imageUrl={user.avatarUrl}
+                                        displayName={user.fullName}
+                                        size={180}
+                                        className="avatar-image-main"
+                                        borderWidth={6}
+                                        borderColor="#fff"
+                                    />
                                 </AvatarMenu>
                             </div>
                         </div>

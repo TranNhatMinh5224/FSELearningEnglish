@@ -219,9 +219,9 @@ export default function AdminQuestionManagement() {
           }
 
           return (
-            <ul className="list-unstyled options-preview mb-0 small text-muted mt-2">
+            <ul className="list-unstyled options-preview mb-0">
                 {q.options?.map((opt, idx) => (
-                    <li key={idx} className={`mb-1 ${opt.isCorrect ? "text-success fw-bold" : ""}`}>
+                    <li key={idx} className={opt.isCorrect ? "text-success" : ""}>
                         {opt.isCorrect && "✓ "} {opt.text}
                     </li>
                 ))}
@@ -234,16 +234,42 @@ export default function AdminQuestionManagement() {
             <Card.Body className="p-3">
                 <div className="d-flex justify-content-between">
                 <div className="d-flex gap-3 w-100">
-                    <div className="question-index text-center pt-1">
-                        <span className="badge rounded-pill bg-secondary">#{index + 1}</span>
-                    </div>
                     <div className="flex-grow-1">
-                        <div className="d-flex align-items-center gap-2 mb-2">
-                            <Badge bg="info">{getQuestionTypeLabel(q.type)}</Badge>
-                            <span className="text-muted small">Points: {q.points}</span>
+                        <div className="question-main-header d-flex justify-content-between align-items-start gap-3">
+                          <div className="d-flex align-items-center gap-3">
+                            <div className="question-number-badge">#{index + 1}</div>
+                            <div>
+                              <Badge bg="info" className="mb-1">{getQuestionTypeLabel(q.type)}</Badge>
+                              <h6 className="question-stem mb-0 text-break">{q.stemText}</h6>
+                            </div>
+                          </div>
+                          <div className="points-badge-v4-compact">
+                            <span className="points-value">{(q.points || 0).toFixed(1)}</span>
+                            <span className="points-label">pts</span>
+                          </div>
                         </div>
-                        <h6 className="question-stem mb-1 fw-bold text-break">{q.stemText}</h6>
-                        {renderQuestionBody()}
+                        
+                        {(q.mediaUrl || q.MediaUrl) && (
+                          <div className="question-media-preview">
+                            { (q.mediaType?.startsWith('video') || q.MediaType?.startsWith('video') || ( (q.mediaUrl || q.MediaUrl).match(/\.(mp4|webm|mov|m4v)$/i))) ? (
+                              <div className="premium-video-container">
+                                <video src={q.mediaUrl || q.MediaUrl} controls className="premium-video-element" />
+                              </div>
+                            ) : (q.mediaType?.startsWith('audio') || q.MediaType?.startsWith('audio') || ( (q.mediaUrl || q.MediaUrl).match(/\.(mp3|wav|ogg|m4a)$/i))) ? (
+                              <div className="premium-audio-container">
+                                <audio src={q.mediaUrl || q.MediaUrl} controls className="premium-audio-element" />
+                              </div>
+                            ) : (
+                              <div className="premium-image-container" onClick={() => window.open(q.mediaUrl || q.MediaUrl, '_blank')}>
+                                <img src={q.mediaUrl || q.MediaUrl} alt="Question" className="premium-image-element" />
+                              </div>
+                            )}
+                          </div>
+                        )}
+
+                        <div className="question-content-body">
+                          {renderQuestionBody()}
+                        </div>
                     </div>
                 </div>
 
@@ -284,15 +310,17 @@ export default function AdminQuestionManagement() {
         </Container>
       </div>
 
-      <Container fluid className="lesson-detail-content px-4 py-4">
-        <div className="d-flex justify-content-between align-items-center mb-4">
+      <Container fluid className="lesson-detail-content px-4 py-5">
+        <div className="admin-header-main d-flex justify-content-between align-items-center mb-5">
           <div>
             <h2 className="mb-0 text-primary fw-bold">{contextData.title}</h2>
-            {contextData.subtitle && <p className="text-muted mb-0">{contextData.subtitle}</p>}
+            {contextData.subtitle && <p className="text-muted mb-0 mt-2">{contextData.subtitle}</p>}
           </div>
 
-          <div className="d-flex gap-2 align-items-center">
-            <Button variant="primary" onClick={() => handleAddQuestion(null)}><FaPlus className="me-1"/> Thêm câu hỏi</Button>
+          <div className="d-flex gap-3 align-items-center">
+            <Button className="premium-btn" onClick={() => handleAddQuestion(null)}>
+              <FaPlus className="me-2"/> Thêm câu hỏi
+            </Button>
           </div>
         </div>
 
@@ -314,14 +342,53 @@ export default function AdminQuestionManagement() {
                     const groupQuestions = questionsByGroup[group.quizGroupId] || [];
                     return (
                         <div key={group.quizGroupId} className="mb-5 group-container">
-                            <div className="group-header-bar bg-light border rounded p-3 mb-3 d-flex justify-content-between align-items-center shadow-sm" style={{borderLeft: '5px solid #0d6efd'}}>
-                                <div>
-                                    <div className="d-flex align-items-center gap-2">
-                                        <FaLayerGroup className="text-primary"/>
-                                        <h5 className="mb-0 fw-bold text-primary">{group.name}</h5>
-                                        <Badge bg="secondary">Total: {group.sumScore} pts</Badge>
+                            <div className="group-header-bar d-flex justify-content-between align-items-center">
+                                <div className="flex-grow-1">
+                                    <div className="d-flex align-items-center gap-2 mb-3">
+                                        <FaLayerGroup className="text-primary" size={24} />
+                                        <Badge bg="secondary" className="px-3 py-2 rounded-pill">Total: {group.sumScore} pts</Badge>
                                     </div>
-                                    <div className="text-muted small mt-1">{group.title}</div>
+                                    
+                                    <div className="group-content-layout d-flex flex-column gap-4">
+                                      <div className="group-info-text">
+                                        <h4 className="text-primary fw-bold mb-2">
+                                          {group.name}
+                                        </h4>
+                                        {group.title && (
+                                          <h5 className="text-dark fw-semibold mb-2">
+                                            {group.title}
+                                          </h5>
+                                        )}
+                                        {group.description && (
+                                          <div className="text-muted lh-lg" style={{ whiteSpace: 'pre-wrap', fontSize: '1rem' }}>
+                                            {group.description}
+                                          </div>
+                                        )}
+                                      </div>
+
+                                      {/* Group Media Preview */}
+                                      {(group.imgUrl || group.videoUrl || group.audioUrl) && (
+                                        <div className="group-media-grid d-flex flex-column gap-4">
+                                          {group.imgUrl && (
+                                            <div className="premium-image-container" onClick={() => window.open(group.imgUrl, '_blank')}>
+                                              <img src={group.imgUrl} alt="Group context" className="premium-image-element" />
+                                            </div>
+                                          )}
+                                          
+                                          {group.videoUrl && (
+                                            <div className="premium-video-container">
+                                              <video src={group.videoUrl} controls className="premium-video-element" />
+                                            </div>
+                                          )}
+
+                                          {group.audioUrl && (
+                                            <div className="premium-audio-container">
+                                              <audio src={group.audioUrl} controls className="premium-audio-element" />
+                                            </div>
+                                          )}
+                                        </div>
+                                      )}
+                                    </div>
                                 </div>
                                 <div className="d-flex gap-2">
                                     <Button variant="outline-primary" size="sm" onClick={() => handleAddQuestion(group)}>

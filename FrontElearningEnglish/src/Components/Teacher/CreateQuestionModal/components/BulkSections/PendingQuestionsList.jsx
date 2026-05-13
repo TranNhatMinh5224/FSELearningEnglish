@@ -2,14 +2,14 @@ import React from "react";
 import { Badge, Button } from "react-bootstrap";
 import { FaTrash } from "react-icons/fa";
 
-const PendingQuestionsList = ({ 
-  pendingQuestions, 
-  removeFromPendingList, 
-  handleBulkCreate, 
-  bulkLoading, 
-  qLoading, 
+const PendingQuestionsList = ({
+  pendingQuestions,
+  removeFromPendingList,
+  handleBulkCreate,
+  bulkLoading,
+  qLoading,
   qUploadingMedia,
-  QUESTION_TYPES 
+  QUESTION_TYPES
 }) => {
   if (pendingQuestions.length === 0) return null;
 

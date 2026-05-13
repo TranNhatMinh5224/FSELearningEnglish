@@ -6,9 +6,7 @@ using Microsoft.Extensions.Logging;
 
 namespace LearningEnglish.Infrastructure.Services.MediaService;
 
-/// <summary>
-/// Service for handling pronunciation audio files
-/// </summary>
+
 public class PronunciationMediaService : IPronunciationMediaService
 {
     

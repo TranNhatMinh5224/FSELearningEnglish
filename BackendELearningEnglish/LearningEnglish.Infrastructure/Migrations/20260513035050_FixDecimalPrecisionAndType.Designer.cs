@@ -3,6 +3,7 @@ using System;
 using LearningEnglish.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using Pgvector;
@@ -12,9 +13,11 @@ using Pgvector;
 namespace LearningEnglish.Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260513035050_FixDecimalPrecisionAndType")]
+    partial class FixDecimalPrecisionAndType
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -205,7 +208,7 @@ namespace LearningEnglish.Infrastructure.Migrations
 
                     b.Property<decimal?>("Price")
                         .HasPrecision(18, 2)
-                        .HasColumnType("numeric");
+                        .HasColumnType("numeric(18,2)");
 
                     b.Property<int>("Status")
                         .HasColumnType("integer");
@@ -410,7 +413,7 @@ namespace LearningEnglish.Infrastructure.Migrations
 
                     b.Property<decimal>("TotalPoints")
                         .HasPrecision(18, 2)
-                        .HasColumnType("numeric");
+                        .HasColumnType("numeric(18,2)");
 
                     b.HasKey("EssayId");
 
@@ -462,7 +465,7 @@ namespace LearningEnglish.Infrastructure.Migrations
 
                     b.Property<decimal?>("TeacherScore")
                         .HasPrecision(18, 2)
-                        .HasColumnType("numeric");
+                        .HasColumnType("numeric(18,2)");
 
                     b.Property<string>("TextContent")
                         .HasColumnType("text");
@@ -2016,7 +2019,7 @@ namespace LearningEnglish.Infrastructure.Migrations
 
                     b.Property<decimal>("Price")
                         .HasPrecision(18, 2)
-                        .HasColumnType("numeric");
+                        .HasColumnType("numeric(18,2)");
 
                     b.HasKey("TeacherPackageId");
 
@@ -2215,7 +2218,7 @@ namespace LearningEnglish.Infrastructure.Migrations
                             IsMale = true,
                             LastName = "System",
                             NormalizedEmail = "MINHXOANDEV@GMAIL.COM",
-                            PasswordHash = "$2a$11$RLTZtmLzUwyyRsaxFSl2K.C5oKk4yIUXEVPkHrQYHtm1INFsTCWC6",
+                            PasswordHash = "$2a$11$i6uVj6x8YuRA41L3WwZ1XOSTvl5Q6CumAUdBjZukJQ3IN/XFwTZfm",
                             PhoneNumber = "0257554479",
                             Status = 1,
                             UpdatedAt = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc)

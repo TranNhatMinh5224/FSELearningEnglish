@@ -2,6 +2,7 @@ using LearningEnglish.Domain.Entities;
 using LearningEnglish.Application.Common;
 using LearningEnglish.Application.Common.Helpers;
 using LearningEnglish.Application.DTOs;
+using LearningEnglish.Application.Interface.Infrastructure.MediaService;
 using LearningEnglish.Application.Interface;
 using LearningEnglish.Application.Interface.Services;
 using LearningEnglish.Application.Interface.Services.Module;
@@ -29,6 +30,7 @@ namespace LearningEnglish.Application.Service
         private readonly INotificationRepository _notificationRepository;
         private readonly ILogger<QuizAttemptService> _logger;
         private readonly IQuizAttemptMapper _quizAttemptMapper;
+        private readonly IQuestionMediaService _questionMediaService;
 
 
         public QuizAttemptService(
@@ -45,7 +47,8 @@ namespace LearningEnglish.Application.Service
             IStreakService streakService,
             INotificationRepository notificationRepository,
             ILogger<QuizAttemptService> logger,
-            IQuizAttemptMapper quizAttemptMapper)
+            IQuizAttemptMapper quizAttemptMapper,
+            IQuestionMediaService questionMediaService)
         {
             _quizRepository = quizRepository;
             _quizAttemptRepository = quizAttemptRepository;
@@ -61,9 +64,7 @@ namespace LearningEnglish.Application.Service
             _notificationRepository = notificationRepository;
             _logger = logger;
             _quizAttemptMapper = quizAttemptMapper;
-
-            
-
+            _questionMediaService = questionMediaService;
         }
 
         public async Task<ServiceResponse<QuizAttemptWithQuestionsDto>> StartQuizAttemptAsync(int quizId, int userId)
@@ -449,7 +450,7 @@ namespace LearningEnglish.Application.Service
                 if (quiz.ShowAnswersAfterSubmit == true)
                 {
                     // Build chi tiết câu hỏi như Teacher review
-                    result.Questions = QuizReviewBuilder.BuildQuestionReviewList(quiz, attempt);
+                    result.Questions = QuizReviewBuilder.BuildQuestionReviewList(quiz, attempt, _questionMediaService);
                 }
 
                 // Tạo notification nộp quiz thành công
@@ -555,7 +556,7 @@ namespace LearningEnglish.Application.Service
 
                 if (quiz.ShowAnswersAfterSubmit == true)
                 {
-                    result.Questions = QuizReviewBuilder.BuildQuestionReviewList(quiz, attempt);
+                    result.Questions = QuizReviewBuilder.BuildQuestionReviewList(quiz, attempt, _questionMediaService);
                 }
 
                 response.Success = true;

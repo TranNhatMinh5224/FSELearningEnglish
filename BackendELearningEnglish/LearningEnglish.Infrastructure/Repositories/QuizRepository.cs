@@ -44,7 +44,9 @@ namespace LearningEnglish.Infrastructure.Repositories
 
         public async Task<Quiz?> GetQuizByIdAsync(int quizId)
         {
-            return await _context.Quizzes.FindAsync(quizId);
+            return await _context.Quizzes
+                .Include(q => q.QuizSections.OrderBy(s => s.CreatedAt))
+                .FirstOrDefaultAsync(q => q.QuizId == quizId);
         }
         // Lấy danh sách Quiz theo Assessment ID
 
@@ -78,11 +80,11 @@ namespace LearningEnglish.Infrastructure.Repositories
                 .AsSplitQuery()
                 .Where(q => q.QuizId == quizId)
                 .Include(q => q.Assessment)
-                .Include(q => q.QuizSections)
+                .Include(q => q.QuizSections.OrderBy(s => s.CreatedAt))
                     .ThenInclude(s => s.QuizGroups)
                         .ThenInclude(g => g.Questions)
                             .ThenInclude(qn => qn.Options)
-                .Include(q => q.QuizSections)
+                .Include(q => q.QuizSections.OrderBy(s => s.CreatedAt))
                     .ThenInclude(s => s.Questions) // Load standalone questions
                         .ThenInclude(qn => qn.Options)
                 .FirstOrDefaultAsync();

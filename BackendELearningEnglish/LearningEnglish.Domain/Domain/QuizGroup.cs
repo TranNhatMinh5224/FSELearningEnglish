@@ -17,7 +17,7 @@ namespace LearningEnglish.Domain.Entities
         public string? AudioType { get; set; }
         public int? VideoDuration { get; set; }
 
-        public float SumScore { get; set; }
+        public decimal SumScore { get; set; }
 
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
         public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;

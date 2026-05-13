@@ -198,6 +198,34 @@
   gap: 1.5rem;
 }
 
+.admin-profile {
+  display: flex;
+  align-items: center;
+}
+
+.admin-avatar-img,
+.admin-avatar-fallback {
+  width: 32px;
+  height: 32px;
+  margin-left: 10px;
+  border-radius: 50%;
+  flex: 0 0 32px;
+}
+
+.admin-avatar-img {
+  object-fit: cover;
+  vertical-align: middle;
+}
+
+.admin-avatar-fallback {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: #e0f2fe;
+  color: #0369a1;
+  font-size: 1.25rem;
+}
+
 .header-btn {
   background: none;
   border: none;

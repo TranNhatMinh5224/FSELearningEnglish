@@ -91,6 +91,7 @@ export default function QuizDetail() {
                                 groupDescription: item.Description || item.description,
                                 groupImgUrl: item.ImgUrl || item.imgUrl,
                                 groupVideoUrl: item.VideoUrl || item.videoUrl,
+                                groupAudioUrl: item.AudioUrl || item.audioUrl,
                                 groupSumScore: item.SumScore || item.sumScore
                             }
                         });
@@ -128,6 +129,7 @@ export default function QuizDetail() {
                             groupDescription: g.Description || g.description,
                             groupImgUrl: g.ImgUrl || g.imgUrl,
                             groupVideoUrl: g.VideoUrl || g.videoUrl,
+                            groupAudioUrl: g.AudioUrl || g.audioUrl,
                             groupSumScore: g.SumScore || g.sumScore
                         }
                     });
@@ -348,7 +350,8 @@ export default function QuizDetail() {
                                 groupTitle: item.Title || item.title,
                                 groupDescription: item.Description || item.description,
                                 groupImgUrl: item.ImgUrl || item.imgUrl,
-                                groupVideoUrl: item.VideoUrl || item.videoUrl
+                                groupVideoUrl: item.VideoUrl || item.videoUrl,
+                                groupAudioUrl: item.AudioUrl || item.audioUrl
                             };
                             gq.forEach(q => allQuestions.push({ ...q, _groupInfo: gInfo }));
                         }
@@ -368,7 +371,8 @@ export default function QuizDetail() {
                                 groupTitle: g.Title || g.title,
                                 groupDescription: g.Description || g.description,
                                 groupImgUrl: g.ImgUrl || g.imgUrl,
-                                groupVideoUrl: g.VideoUrl || g.videoUrl
+                                groupVideoUrl: g.VideoUrl || g.videoUrl,
+                                groupAudioUrl: g.AudioUrl || g.audioUrl
                             };
                             gq.forEach(q => allQuestions.push({ ...q, _groupInfo: gInfo }));
                         });

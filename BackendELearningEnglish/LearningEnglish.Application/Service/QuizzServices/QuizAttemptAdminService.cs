@@ -3,6 +3,7 @@ using LearningEnglish.Application.Common;
 using LearningEnglish.Application.Common.Pagination;
 using LearningEnglish.Application.DTOs;
 using LearningEnglish.Application.Interface;
+using LearningEnglish.Application.Interface.Infrastructure.MediaService;
 using LearningEnglish.Application.Interface.Services.Module;
 using LearningEnglish.Domain.Entities;
 using LearningEnglish.Domain.Enums;
@@ -21,6 +22,8 @@ namespace LearningEnglish.Application.Service
         private readonly INotificationRepository _notificationRepository;
         private readonly IMapper _mapper;
         private readonly ILogger<QuizAttemptAdminService> _logger;
+        private readonly IQuestionMediaService _questionMediaService;
+        private readonly IQuizGroupMediaService _quizGroupMediaService;
 
         public QuizAttemptAdminService(
             IQuizAttemptService quizAttemptService,
@@ -30,7 +33,9 @@ namespace LearningEnglish.Application.Service
             IModuleProgressService moduleProgressService,
             INotificationRepository notificationRepository,
             IMapper mapper,
-            ILogger<QuizAttemptAdminService> logger)
+            ILogger<QuizAttemptAdminService> logger,
+            IQuestionMediaService questionMediaService,
+            IQuizGroupMediaService quizGroupMediaService)
         {
             _quizAttemptService = quizAttemptService;
             _quizAttemptRepository = quizAttemptRepository;
@@ -40,6 +45,8 @@ namespace LearningEnglish.Application.Service
             _notificationRepository = notificationRepository;
             _mapper = mapper;
             _logger = logger;
+            _questionMediaService = questionMediaService;
+            _quizGroupMediaService = quizGroupMediaService;
         }
 
         public async Task<ServiceResponse<List<QuizAttemptDto>>> GetQuizAttemptsAsync(int quizId)
@@ -149,8 +156,8 @@ namespace LearningEnglish.Application.Service
                     TotalPossibleScore = quiz.TotalPossibleScore,
                     Percentage = 0, // Sẽ tính bên dưới
                     IsPassed = quiz.PassingScore.HasValue ? attempt.TotalScore >= quiz.PassingScore.Value : false,
-                    Questions = QuizReviewBuilder.BuildQuestionReviewList(quiz, attempt),
-                    Sections = QuizReviewBuilder.BuildStructuredQuestionReview(quiz, attempt)
+                    Questions = QuizReviewBuilder.BuildQuestionReviewList(quiz, attempt, _questionMediaService),
+                    Sections = QuizReviewBuilder.BuildStructuredQuestionReview(quiz, attempt, _questionMediaService, _quizGroupMediaService)
                 };
 
                 // Tính toán Percentage dựa trên MaxScore
@@ -256,7 +263,7 @@ namespace LearningEnglish.Application.Service
                 // 8. Lấy đáp án đúng nếu teacher cho phép
                 if (quiz.ShowAnswersAfterSubmit == true)
                 {
-                    result.Questions = QuizReviewBuilder.BuildQuestionReviewList(quiz, attempt);
+                    result.Questions = QuizReviewBuilder.BuildQuestionReviewList(quiz, attempt, _questionMediaService);
                 }
 
                 // 9. Tạo notification cho học sinh

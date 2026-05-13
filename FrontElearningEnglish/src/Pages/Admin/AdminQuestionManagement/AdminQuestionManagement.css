@@ -1,52 +1,259 @@
-.admin-question-management-container {
+/* --- Admin Premium UI Upgrade --- */
+:root {
+  --admin-primary: linear-gradient(135deg, #0d6efd 0%, #0a58ca 100%);
+  --primary-gradient: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+  --admin-soft-bg: #f8fafc;
+  --admin-card-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+}
+
+.admin-lesson-detail-container {
   min-height: 100vh;
-  background: #ffffff !important;
-  padding: 20px 0;
+  background: var(--admin-soft-bg);
+  padding: 0;
 }
 
+/* --- Breadcrumb Wrapper --- */
+.admin-breadcrumb-wrapper {
+  background: white;
+  border-bottom: 1px solid #eef2f6;
+  padding: 1rem 0;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.02);
+}
+
+/* --- Header Section --- */
+.admin-header-main {
+  background: white;
+  border-radius: 24px;
+  padding: 2.5rem;
+  box-shadow: var(--admin-card-shadow);
+  margin-bottom: 3rem;
+  border: 1px solid #f1f5f9;
+}
+
+.admin-header-main h2 {
+  font-weight: 800;
+  color: #1e293b;
+  letter-spacing: -0.5px;
+}
+
+/* --- Enhanced Question Cards (Quiz Style) --- */
 .question-card {
-  transition: all 0.2s ease;
+  background: white;
+  border-radius: 20px;
+  border: 1px solid #f1f5f9 !important;
+  margin-bottom: 3rem;
+  transition: all 0.3s ease;
+  overflow: hidden;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
 }
 
-.question-card:hover {
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1) !important;
+.question-card .card-body {
+  padding: 1.75rem !important;
 }
 
-.question-index .badge {
-  font-size: 0.85rem;
-  padding: 6px 10px;
+.question-main-header {
+  border-bottom: 2px solid #f8fafc;
+  padding-bottom: 1.25rem;
+  margin-bottom: 1.5rem;
+}
+
+.question-number-badge {
+  background: linear-gradient(135deg, #0d6efd 0%, #0a58ca 100%);
+  color: white;
+  padding: 0.4rem 1rem;
+  border-radius: 10px;
+  font-weight: 800;
+  font-size: 1rem;
+  box-shadow: 0 4px 12px rgba(13, 110, 253, 0.2);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .question-stem {
-  font-size: 1rem;
-  color: #1f2937;
+  color: #0f172a;
+  font-size: 1.15rem;
+  line-height: 1.5;
+  font-weight: 700;
+  margin-top: 0.25rem;
+}
+
+/* Points Badge (v4 Style) */
+.points-badge-v4-compact {
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+    background: #f1f5f9;
+    padding: 0.3rem 0.75rem;
+    border-radius: 8px;
+    border: 1px solid #e2e8f0;
+    color: #475569;
+    flex-shrink: 0;
+}
+
+.points-value {
+    font-weight: 800;
+    font-size: 0.95rem;
+    color: #0d6efd;
+}
+
+.points-label {
+    font-size: 0.65rem;
+    text-transform: uppercase;
+    font-weight: 700;
+    opacity: 0.7;
+}
+
+/* --- Answer Options Vertical (Result Style) --- */
+.options-preview {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-top: 1.5rem;
 }
 
 .options-preview li {
-  padding: 4px 0;
+  background: white;
+  padding: 0.85rem 1.25rem;
+  border-radius: 12px;
+  border: 1px solid #f1f5f9;
+  transition: all 0.2s ease;
+  font-weight: 600;
+  color: #475569;
+  display: flex;
+  align-items: center;
+  position: relative;
+  padding-left: 3.5rem;
+  font-size: 1rem;
 }
 
-.group-header-bar {
+.options-preview li::before {
+  content: "";
+  position: absolute;
+  left: 1.25rem;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  border: 2px solid #e2e8f0;
+  background: white;
   transition: all 0.2s ease;
 }
 
-.group-header-bar:hover {
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08) !important;
+.options-preview li.text-success {
+  background: #f0fdf4;
+  border-color: #22c55e;
+  color: #166534 !important;
+  box-shadow: 0 4px 12px rgba(34, 197, 94, 0.08);
 }
 
+.options-preview li.text-success::before {
+  background: #22c55e;
+  border-color: #22c55e;
+  box-shadow: inset 0 0 0 4px white;
+}
+
+/* --- Group Styling --- */
+.group-container {
+  background: white;
+  padding: 3rem;
+  border-radius: 32px;
+  border: 1px solid #f1f5f9;
+  margin-bottom: 5rem;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.02);
+}
+
+.group-header-bar {
+  background: linear-gradient(to right, #f8fafc, white) !important;
+  border-radius: 20px !important;
+  padding: 1.5rem 2rem !important;
+  border-left: 8px solid #0d6efd !important;
+  margin-bottom: 2.5rem !important;
+  border: 1px solid #f1f5f9 !important;
+}
+
+/* --- Premium Media Containers --- */
+.question-media-preview {
+  margin: 2.5rem 0;
+  max-width: 900px;
+}
+
+.premium-image-container {
+    position: relative;
+    border-radius: 20px;
+    overflow: hidden;
+    background: #f8fafc;
+    border: 1px solid rgba(0, 0, 0, 0.05);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+    display: inline-block;
+    cursor: zoom-in;
+}
+
+.premium-image-element {
+    max-width: 100%;
+    height: auto;
+    max-height: 350px;
+    display: block;
+    transition: transform 0.5s ease;
+}
+
+.premium-image-container:hover .premium-image-element {
+    transform: scale(1.03);
+}
+
+.premium-video-container {
+    background: #000;
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+}
+
+.premium-video-element {
+    width: 100%;
+    max-height: 450px;
+    display: block;
+}
+
+.premium-audio-container {
+    padding: 2.5rem;
+    background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+    border: 1px solid #e2e8f0;
+    border-radius: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.03);
+}
+
+.premium-audio-container::before {
+    content: '🎧 Audio đính kèm';
+    font-size: 1rem;
+    font-weight: 700;
+    color: #0d6efd;
+}
+
+.premium-audio-element {
+    width: 100%;
+    height: 45px;
+}
+
+/* --- Action Buttons --- */
 .action-buttons button {
-  width: 32px;
-  height: 32px;
-  padding: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 6px;
+  border-radius: 14px;
+  width: 48px !important;
+  height: 48px !important;
+  background: white !important;
+  border: 1px solid #eef2f6 !important;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
 }
 
+.action-buttons button:hover {
+  transform: scale(1.1);
+  box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+}
 
 @media (min-width: 992px) {
-  .admin-question-management-container {
-    min-height: 125vh;
+  .admin-lesson-detail-container {
+    min-height: 100vh;
   }
 }

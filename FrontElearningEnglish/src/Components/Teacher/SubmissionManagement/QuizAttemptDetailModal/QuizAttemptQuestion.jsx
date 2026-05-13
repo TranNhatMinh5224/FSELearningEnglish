@@ -10,7 +10,7 @@ export default function QuizAttemptQuestion({ question, index, getQuestionTypeLa
   const userAnswerText = question.userAnswerText || question.UserAnswerText || "Chưa trả lời";
   const correctAnswerText = question.correctAnswerText || question.CorrectAnswerText || "";
   const options = question.options || question.Options || [];
-  const mediaUrl = question.mediaUrl || question.MediaUrl;
+  const mediaUrl = question.mediaUrl || question.MediaUrl || question.imgUrl || question.ImgUrl || question.videoUrl || question.VideoUrl || question.audioUrl || question.AudioUrl;
   const metadataJson = question.metadataJson || question.MetadataJson;
 
   // Helper to identify question types by name or enum value
@@ -332,14 +332,34 @@ export default function QuizAttemptQuestion({ question, index, getQuestionTypeLa
 
       <div className="q-content-v3">
         {mediaUrl && (
-          <div className="q-media-v3">
-            {mediaUrl.match(/\.(mp4|webm|ogg)$/i) ? (
-              <video src={mediaUrl} controls width="100%" />
-            ) : mediaUrl.match(/\.(mp3|wav|ogg)$/i) ? (
-              <audio src={mediaUrl} controls />
-            ) : (
-              <img src={mediaUrl} alt="Question Media" className="img-fluid rounded-4 shadow-sm" />
-            )}
+          <div className="q-media-v3 mb-4">
+            {(() => {
+              const isVideo = mediaUrl.match(/\.(mp4|webm|mov)$/i) || (question.videoUrl || question.VideoUrl);
+              const isAudio = mediaUrl.match(/\.(mp3|wav|ogg)$/i) || (question.audioUrl || question.AudioUrl);
+
+              if (isVideo) {
+                return (
+                  <div className="premium-video-container">
+                    <video src={mediaUrl} controls className="premium-video-element" />
+                  </div>
+                );
+              }
+              if (isAudio) {
+                return (
+                  <div className="premium-audio-container">
+                    <audio src={mediaUrl} controls className="premium-audio-element" />
+                  </div>
+                );
+              }
+              return (
+                <div className="premium-image-container" onClick={() => window.open(mediaUrl, '_blank')}>
+                  <img src={mediaUrl} alt="Question Media" className="premium-image-element" />
+                  <div className="image-overlay-hint">
+                    <span>Click để phóng to</span>
+                  </div>
+                </div>
+              );
+            })()}
           </div>
         )}
         
