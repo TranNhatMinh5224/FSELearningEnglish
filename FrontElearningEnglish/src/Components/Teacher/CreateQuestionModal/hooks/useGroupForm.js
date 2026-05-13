@@ -17,8 +17,7 @@ export const useGroupForm = (sectionId, isAdmin, onSuccess, setInternalGroupId, 
 
   const validateGroupForm = useCallback(() => {
     const errors = {};
-    if (!gFormData.name.trim()) errors.name = "Tên nhóm là bắt buộc";
-    if (!gFormData.title.trim()) errors.title = "Tiêu đề nhóm là bắt buộc";
+    if (!gFormData.title || !gFormData.title.trim()) errors.title = "Tiêu đề nhóm là bắt buộc";
     
     setGErrors(errors);
     return Object.keys(errors).length === 0;
@@ -53,7 +52,7 @@ export const useGroupForm = (sectionId, isAdmin, onSuccess, setInternalGroupId, 
 
   const handleGroupSubmit = async () => {
     if (!validateGroupForm()) {
-      setGTouched({ name: true, title: true });
+      setGTouched({ title: true });
       return;
     }
     setGLoading(true);
@@ -62,7 +61,7 @@ export const useGroupForm = (sectionId, isAdmin, onSuccess, setInternalGroupId, 
     try {
       const payload = {
         quizSectionId: parseInt(sectionId),
-        name: gFormData.name.trim(),
+        name: (gFormData.name || gFormData.title).trim(),
         title: gFormData.title.trim(),
         description: gFormData.description,
         sumScore: parseFloat(gFormData.sumScore) || 0,

@@ -8,23 +8,23 @@ import MatchingFields from "./QuestionFormatFields/MatchingFields";
 import OrderingFields from "./QuestionFormatFields/OrderingFields";
 import FillBlankInfo from "./QuestionFormatFields/FillBlankInfo";
 import PendingQuestionsList from "./BulkSections/PendingQuestionsList";
-import CreatedQuestionsTable from "./BulkSections/CreatedQuestionsTable";
+
 import { useEnums } from "../../../../Context/EnumContext";
 
-const QuestionTab = ({
+export default function QuestionTab({
   // Context/State
   qFormData, setQFormData,
   qErrors = {}, qTouched = {},
   qLoading, qUploadingMedia,
   internalGroupId, setInternalGroupId,
-  groupInfo, sectionInfo,
+  groupInfo, sectionId, sectionInfo,
   createdGroupName, setCreatedGroupName,
   setGroupInfo,
   questionToUpdate,
 
   // Handlers from useQuestionForm
   handleQTypeChange, handleQBlur, handlePointsChange,
-  handleOptionChange, addOption, removeOption, moveOption,
+  handleOptionChange, addOption, removeOption, moveOption, reorderOptions,
   handlePairChange, addPair, removePair,
   handleQuestionSubmit, handleClose,
   validateQuestionForm, buildQuestionPayload, resetQuestionForm,
@@ -37,7 +37,7 @@ const QuestionTab = ({
   // Bulk Logic
   bulkQuestionsProps,
   backendQuestionTypes
-}) => {
+}) {
   const { mappings } = useEnums();
   const QUESTION_TYPES = mappings.QuestionType || {};
 
@@ -114,6 +114,7 @@ const QuestionTab = ({
             options={qFormData.options}
             handleOptionChange={handleOptionChange}
             moveOption={moveOption}
+            reorderOptions={reorderOptions}
             removeOption={removeOption}
             addOption={addOption}
           />
@@ -130,25 +131,25 @@ const QuestionTab = ({
       {/* Dynamic Header Status */}
       <div className="mb-4">
         {internalGroupId ? (
-          <div className="alert alert-info py-3 px-4 rounded-4 border-0 shadow-sm d-flex justify-content-between align-items-center group-active-banner">
+          <div className="alert alert-primary py-3 px-4 rounded-4 border-0 shadow-sm d-flex justify-content-between align-items-center group-active-banner" style={{ background: 'rgba(119, 101, 245, 0.08)', border: '1px solid rgba(119, 101, 245, 0.15) !important' }}>
             <div className="d-flex align-items-center">
-              <div className="icon-circle bg-info text-white me-3">
+              <div className="icon-circle bg-primary text-white me-3 shadow-sm">
                 <FaLayerGroup />
               </div>
               <div>
-                <div className="small text-info-emphasis fw-bold text-uppercase">Đang thêm vào nhóm</div>
-                <strong className="text-dark">{groupInfo?.title || groupInfo?.name || createdGroupName || `Group #${internalGroupId}`}</strong>
+                <div className="small text-primary fw-bold text-uppercase" style={{ letterSpacing: '0.5px', fontSize: '10px' }}>Đang thêm vào nhóm</div>
+                <strong className="text-dark fs-5">{groupInfo?.title || groupInfo?.name || createdGroupName || `Group #${internalGroupId}`}</strong>
               </div>
             </div>
             <div className="d-flex align-items-center gap-3">
               {groupInfo?.sumScore !== undefined && (
-                <div className="px-3 py-1 bg-white rounded-pill text-info fw-bold border">
+                <div className="px-3 py-1 bg-white rounded-pill text-primary fw-bold border shadow-xs small">
                   {groupInfo.sumScore} Điểm
                 </div>
               )}
               <Button
                 variant="link"
-                className="text-danger text-decoration-none hover-scale"
+                className="text-danger text-decoration-none hover-scale p-0 fw-bold small"
                 onClick={() => { setInternalGroupId(null); setCreatedGroupName(""); setGroupInfo(null); }}
               >
                 <FaTimes className="me-1" /> Thoát nhóm
@@ -157,13 +158,13 @@ const QuestionTab = ({
           </div>
         ) : (
           sectionInfo && (
-            <div className="alert alert-light py-3 px-4 rounded-4 border shadow-sm d-flex align-items-center">
-              <div className="icon-circle bg-light text-primary border me-3">
+            <div className="alert alert-light py-3 px-4 rounded-4 border-0 shadow-sm d-flex align-items-center" style={{ background: 'white', border: '1px solid rgba(0,0,0,0.05) !important' }}>
+              <div className="icon-circle bg-primary text-white me-3 shadow-sm">
                 <FaQuestionCircle />
               </div>
               <div>
-                <div className="small text-muted fw-bold text-uppercase">Phân mục hiện tại</div>
-                <strong className="text-dark">{sectionInfo.title}</strong>
+                <div className="small text-muted fw-bold text-uppercase" style={{ letterSpacing: '0.5px', fontSize: '10px' }}>Phân mục hiện tại</div>
+                <strong className="text-dark fs-5">{sectionInfo.title}</strong>
               </div>
             </div>
           )
@@ -214,7 +215,12 @@ const QuestionTab = ({
                 pendingQuestions={pendingQuestions}
                 removeFromPendingList={removeFromPendingList}
                 onEdit={handleEditPendingQuestion}
-                handleBulkCreate={handleBulkCreate}
+                handleBulkCreate={async () => {
+                  const result = await handleBulkCreate(sectionInfo?.id || sectionId, internalGroupId);
+                  if (result.success) {
+                    handleClose(); // Close modal on success
+                  }
+                }}
                 bulkLoading={bulkLoading}
                 qLoading={qLoading}
                 qUploadingMedia={qUploadingMedia}
@@ -222,13 +228,6 @@ const QuestionTab = ({
               />
             </div>
 
-            {/* Success Lists */}
-            <div className="mt-4">
-              <CreatedQuestionsTable
-                {...bulkQuestionsProps}
-                QUESTION_TYPES={QUESTION_TYPES}
-              />
-            </div>
           </Col>
 
           <Col lg={3} className="question-sidebar-content">
@@ -340,6 +339,5 @@ const QuestionTab = ({
       </Form>
     </div>
   );
-};
+}
 
-export default QuestionTab;

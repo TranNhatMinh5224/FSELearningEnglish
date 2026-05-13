@@ -17,6 +17,20 @@ body .modal.show .modal-dialog.create-question-modal {
   padding: 0 !important;
 }
 
+/* Standardized Circular Icon Wrapper */
+.icon-circle {
+  width: 42px;
+  height: 42px;
+  min-width: 42px;
+  border-radius: 50% !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  font-size: 1.2rem;
+  flex-shrink: 0;
+  transition: all 0.3s ease;
+}
+
 body .modal.show.create-question-modal .modal-content,
 body .modal.show.create-question-modal-xl .modal-content,
 body .modal.show .create-question-modal-xl .modal-content {

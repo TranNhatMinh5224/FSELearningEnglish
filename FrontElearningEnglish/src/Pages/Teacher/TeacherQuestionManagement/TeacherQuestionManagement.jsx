@@ -286,7 +286,7 @@ export default function TeacherQuestionManagement() {
 
   // --- Common Handlers ---
   const handleAddQuestion = (targetGroup = null) => {
-    setTargetGroupId(targetGroup ? targetGroup.quizGroupId : null); // If null, it's standalone (or new group creation context)
+    setTargetGroupId(targetGroup ? targetGroup.quizGroupId : null);
     setQuestionToUpdate(null);
     setShowCreateModal(true);
   };
@@ -543,7 +543,7 @@ export default function TeacherQuestionManagement() {
                                   <video src={group.videoUrl} controls className="premium-video-element" />
                                 </div>
                               )}
-
+ 
                               {group.audioUrl && (
                                 <div className="premium-audio-container">
                                   <audio src={group.audioUrl} controls className="premium-audio-element" />

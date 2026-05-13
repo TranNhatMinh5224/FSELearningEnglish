@@ -150,7 +150,8 @@ export default function CreateQuestionModal({
               internalGroupId={internalGroupId}
               setInternalGroupId={setInternalGroupId}
               groupInfo={groupInfo}
-              sectionInfo={sectionId ? { title: "Section" } : null}
+              sectionId={sectionId}
+              sectionInfo={sectionId ? { title: "Section", id: sectionId } : null}
               questionToUpdate={questionToUpdate}
               handleQuestionSubmit={handleSubmit}
               handleClose={onClose}
@@ -164,6 +165,7 @@ export default function CreateQuestionModal({
               <GroupTab
                 {...groupForm}
                 groupInfo={groupInfo}
+                sectionId={sectionId}
                 internalGroupId={internalGroupId}
                 setInternalGroupId={setInternalGroupId}
                 handleClose={onClose}

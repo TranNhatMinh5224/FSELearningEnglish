@@ -61,8 +61,8 @@ const GroupTab = ({
                     <Form.Control
                         type="text"
                         size="lg"
-                        className="border-0 bg-light bg-opacity-50 focus-white fw-bold"
-                        style={{ fontSize: '1.25rem' }}
+                        className="bg-white border-secondary-subtle focus-white fw-bold"
+                        style={{ fontSize: '1.25rem', borderRadius: '12px' }}
                         value={gFormData.title || ""}
                         onChange={(e) => setGFormData({ ...gFormData, title: e.target.value })}
                         onBlur={() => handleGBlur("title")}
@@ -73,17 +73,14 @@ const GroupTab = ({
                 </Form.Group>
 
                 <Form.Group className="mb-0">
-                    <div className="d-flex justify-content-between align-items-center mb-2">
+                    <div className="mb-2">
                         <Form.Label className="fw-bold text-muted small text-uppercase mb-0">Nội dung văn bản / Ngữ cảnh chung</Form.Label>
-                        <Badge bg="primary" className="bg-opacity-10 text-primary border border-primary border-opacity-10 fw-medium">
-                           <FaEdit className="me-1" /> Markdown
-                        </Badge>
                     </div>
                     <Form.Control
                         as="textarea"
                         rows={12}
-                        className="border-0 bg-light bg-opacity-50 focus-white font-monospace p-3"
-                        style={{ lineHeight: '1.6' }}
+                        className="bg-white border-secondary-subtle focus-white font-monospace p-3"
+                        style={{ lineHeight: '1.6', borderRadius: '12px' }}
                         value={gFormData.content || ""}
                         onChange={(e) => setGFormData({ ...gFormData, content: e.target.value })}
                         placeholder="Nhập nội dung văn bản đọc, lời thoại nghe hoặc hướng dẫn chung cho nhóm câu hỏi..."

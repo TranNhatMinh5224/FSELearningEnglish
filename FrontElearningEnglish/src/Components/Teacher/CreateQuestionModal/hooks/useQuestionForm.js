@@ -26,39 +26,38 @@ export const useQuestionForm = (show, questionToUpdate) => {
 
   const resetQuestionForm = useCallback((type) => {
     // Fallback IDs if enums are not loaded yet
-    const MC_TYPE = QUESTION_TYPES.MultipleChoice || 1;
-    const MA_TYPE = QUESTION_TYPES.MultipleAnswers || 2;
-    const TF_TYPE = QUESTION_TYPES.TrueFalse || 3;
-    const OR_TYPE = QUESTION_TYPES.Ordering || 6;
-    const MT_TYPE = QUESTION_TYPES.Matching || 5;
-
+    const selectedType = Number(type);
+    const MC_TYPE = Number(QUESTION_TYPES.MultipleChoice || 1);
+    const MA_TYPE = Number(QUESTION_TYPES.MultipleAnswers || 2);
+    const TF_TYPE = Number(QUESTION_TYPES.TrueFalse || 3);
+    const MT_TYPE = Number(QUESTION_TYPES.Matching || 5);
+    const OR_TYPE = Number(QUESTION_TYPES.Ordering || 6);
+    
     let defaultOptions = [];
     let defaultPairs = [];
 
-    const selectedType = Number(type);
-
     if (selectedType === MC_TYPE || selectedType === MA_TYPE) {
       defaultOptions = [
-        { text: "", isCorrect: false },
-        { text: "", isCorrect: false },
-        { text: "", isCorrect: false },
-        { text: "", isCorrect: false }
+        { tempId: `opt-${Date.now()}-1`, text: "", isCorrect: false },
+        { tempId: `opt-${Date.now()}-2`, text: "", isCorrect: false },
+        { tempId: `opt-${Date.now()}-3`, text: "", isCorrect: false },
+        { tempId: `opt-${Date.now()}-4`, text: "", isCorrect: false }
       ];
     } else if (selectedType === TF_TYPE) {
       defaultOptions = [
-        { text: "True", isCorrect: true },
-        { text: "False", isCorrect: false }
+        { tempId: 'tf-true', text: "True", isCorrect: true },
+        { tempId: 'tf-false', text: "False", isCorrect: false }
       ];
     } else if (selectedType === OR_TYPE) {
       defaultOptions = [
-        { text: "", isCorrect: true },
-        { text: "", isCorrect: true },
-        { text: "", isCorrect: true }
+        { tempId: `ord-${Date.now()}-1`, text: "", isCorrect: true },
+        { tempId: `ord-${Date.now()}-2`, text: "", isCorrect: true },
+        { tempId: `ord-${Date.now()}-3`, text: "", isCorrect: true }
       ];
     } else if (selectedType === MT_TYPE) {
       defaultPairs = [
-        { leftSide: "", rightSide: "" },
-        { leftSide: "", rightSide: "" }
+        { tempId: `mt-${Date.now()}-1`, leftSide: "", rightSide: "" },
+        { tempId: `mt-${Date.now()}-2`, leftSide: "", rightSide: "" }
       ];
     }
 
@@ -82,6 +81,7 @@ export const useQuestionForm = (show, questionToUpdate) => {
     if (show && questionToUpdate) {
       let initialOptions = (questionToUpdate.options || questionToUpdate.Options || []).map(opt => ({
         ...opt,
+        tempId: opt.id || opt.Id || Math.random().toString(36).substr(2, 9),
         text: opt.text || opt.Text || "",
         isCorrect: opt.isCorrect !== undefined ? opt.isCorrect : (opt.IsCorrect || false),
         mediaUrl: opt.mediaUrl || opt.MediaUrl || null,
@@ -213,8 +213,26 @@ export const useQuestionForm = (show, questionToUpdate) => {
     setQFormData({ ...qFormData, options: newOptions });
   };
 
-  const addOption = () => setQFormData({ ...qFormData, options: [...qFormData.options, { text: "", isCorrect: qFormData.type === QUESTION_TYPES.Ordering }] });
+  const addOption = () => {
+    const isOrdering = Number(qFormData.type) === Number(QUESTION_TYPES.Ordering || 6);
+    const newOption = { 
+      tempId: `opt-${Date.now()}-${Math.random().toString(36).substr(2, 5)}`, 
+      text: "", 
+      isCorrect: isOrdering 
+    };
+    setQFormData(prev => ({ ...prev, options: [...prev.options, newOption] }));
+  };
   const removeOption = (index) => setQFormData({ ...qFormData, options: qFormData.options.filter((_, i) => i !== index) });
+
+  const reorderOptions = (oldIndex, newIndex) => {
+    if (oldIndex === newIndex) return;
+    setQFormData(prev => {
+      const newOptions = [...prev.options];
+      const [movedItem] = newOptions.splice(oldIndex, 1);
+      newOptions.splice(newIndex, 0, movedItem);
+      return { ...prev, options: newOptions };
+    });
+  };
 
   const moveOption = (index, direction) => {
     if ((direction === 'up' && index === 0) || (direction === 'down' && index === qFormData.options.length - 1)) return;
@@ -380,6 +398,7 @@ export const useQuestionForm = (show, questionToUpdate) => {
     handleRemoveMedia,
     handlePointsChange,
     validateQuestionForm,
-    buildQuestionPayload
+    buildQuestionPayload,
+    reorderOptions
   };
 };

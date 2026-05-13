@@ -11,6 +11,11 @@ using System.Threading.RateLimiting;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// Cấu hình Logging: Loại bỏ EventLog để tránh lỗi System.Diagnostics.StackTrace trong môi trường Windows
+builder.Logging.ClearProviders();
+builder.Logging.AddConsole();
+builder.Logging.AddDebug();
+
 BuildPublicUrl.Configure(builder.Configuration);
 
 var frontendUrl = builder.Configuration["Frontend:BaseUrl"];
