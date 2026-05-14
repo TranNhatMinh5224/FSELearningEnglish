@@ -242,7 +242,7 @@ export default function OtpVerifier({
               <div className="d-flex flex-column align-items-center mb-3">
                 <span className="otp-timer">Mã có hiệu lực trong: {formatTime(remainingExpiry)}</span>
                 {remainingResend > 0 && (
-                    <span className="otp-resend-wait">Có thể gửi lại sau: {remainingResend}s</span>
+                  <span className="otp-resend-wait">Có thể gửi lại sau: {remainingResend}s</span>
                 )}
               </div>
 

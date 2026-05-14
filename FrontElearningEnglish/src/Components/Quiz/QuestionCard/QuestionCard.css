@@ -164,16 +164,30 @@
 
 @media (max-width: 768px) {
     .section-title-v4 {
-        font-size: 1.25rem;
-    }
-
-    .question-headline-v4 {
         font-size: 1.15rem;
     }
 
+    .question-headline-v4 {
+        font-size: 1.05rem;
+        line-height: 1.4;
+    }
+
     .points-badge-v4-compact {
-        padding: 0.25rem 0.65rem;
-        margin-left: 1rem;
+        padding: 0.2rem 0.5rem;
+        margin-left: 0.5rem;
+        border-radius: 8px;
+    }
+
+    .points-value {
+        font-size: 0.85rem;
+    }
+
+    .points-label {
+        font-size: 0.6rem;
+    }
+
+    .question-card {
+        padding: 12px !important;
     }
 }
 

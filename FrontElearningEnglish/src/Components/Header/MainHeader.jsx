@@ -49,13 +49,21 @@ export default function MainHeader() {
           <span className="main-header__brand">Catalunya English</span>
         </Navbar.Brand>
 
-        {/* Toggle for mobile */}
-        <Navbar.Toggle aria-controls="main-navbar" className="border-0" />
+        {/* Toggle for mobile - Moved to the right */}
+        <div className="d-flex align-items-center gap-2">
+          {/* Mobile-only visible items (Streak & Wallet) */}
+          <div className="d-flex d-lg-none align-items-center gap-2">
+            <StreakDropdown />
+            <WalletDropdown />
+          </div>
+          <Navbar.Toggle aria-controls="main-navbar" className="border-0 p-0" />
+        </div>
 
         <Navbar.Collapse id="main-navbar">
           {/* CENTER: navigation */}
-          <Nav className="main-header__nav mx-auto d-flex justify-content-center">
+          <Nav className="main-header__nav mx-auto">
             <Nav.Item
+              style={{ "--i": 1 }}
               onClick={() => navigate("/home")}
               className={`nav-item d-flex align-items-center ${isActive("/home") ? "active" : ""}`}
             >
@@ -64,36 +72,48 @@ export default function MainHeader() {
             </Nav.Item>
 
             <Nav.Item
+              style={{ "--i": 2 }}
               onClick={() => handleNavigation(ROUTE_PATHS.MY_COURSES, true)}
               className={`nav-item d-flex align-items-center ${isActive("/my-courses") ? "active" : ""}`}
             >
               <FaGraduationCap className="nav-icon" />
-              <span className="nav-text">Khóa học của tôi</span>
+              <span className="nav-text">Học tập</span>
             </Nav.Item>
 
             <Nav.Item
+              style={{ "--i": 3 }}
               onClick={() => handleNavigation(ROUTE_PATHS.VOCABULARY_REVIEW, true)}
               className={`nav-item d-flex align-items-center ${isActive("/vocabulary-review") ? "active" : ""}`}
             >
               <FaBookOpen className="nav-icon" />
-              <span className="nav-text">Ôn tập từ vựng</span>
+              <span className="nav-text">Ôn tập</span>
             </Nav.Item>
 
             <Nav.Item
+              style={{ "--i": 4 }}
               onClick={() => handleNavigation(ROUTE_PATHS.VOCABULARY_NOTEBOOK, true)}
               className={`nav-item d-flex align-items-center ${isActive("/vocabulary-notebook") ? "active" : ""}`}
             >
               <FaBook className="nav-icon" />
-              <span className="nav-text">Sổ tay từ vựng</span>
+              <span className="nav-text">Sổ tay</span>
             </Nav.Item>
           </Nav>
 
-          {/* RIGHT: streak + notification + profile */}
-          <div className="main-header__right d-flex align-items-center gap-3 ms-4">
-            <StreakDropdown />
-            <WalletDropdown />
-            <NotificationDropdown />
-            <ProfileDropdown />
+          {/* RIGHT: actions */}
+          <div className="main-header__right d-flex align-items-center gap-3">
+            {/* Desktop-only Streak & Wallet */}
+            <div className="d-none d-lg-flex align-items-center gap-3">
+              <StreakDropdown />
+              <WalletDropdown />
+            </div>
+            
+            {/* Always in right group (Notifications & Profile) */}
+            <div style={{ "--i": 5 }} className="mobile-stagger-item">
+              <NotificationDropdown />
+            </div>
+            <div style={{ "--i": 6 }} className="mobile-stagger-item">
+              <ProfileDropdown />
+            </div>
           </div>
         </Navbar.Collapse>
       </Container>

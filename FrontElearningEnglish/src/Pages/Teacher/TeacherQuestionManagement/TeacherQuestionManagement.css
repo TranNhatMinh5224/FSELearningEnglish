@@ -9,19 +9,14 @@
 
 .teacher-question-management-container {
   min-height: 100vh;
-  background: #f8fafc;
-  padding: 3rem 0 6rem 0;
-  padding-top: calc(70px + 3rem);
+  background: #ffffff;
+  padding: 2.5rem 0 5rem 0;
+  padding-top: calc(70px + 2rem);
 }
 
 /* --- Breadcrumb Styling --- */
 .breadcrumb-compact {
-  background: white;
-  padding: 0.75rem 1.5rem;
-  border-radius: 50px;
-  box-shadow: var(--soft-shadow);
-  display: inline-flex;
-  margin-bottom: 2rem;
+  margin-bottom: 0;
 }
 
 /* --- Header Section --- */

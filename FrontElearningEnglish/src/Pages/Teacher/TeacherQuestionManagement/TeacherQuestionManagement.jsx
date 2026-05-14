@@ -67,7 +67,7 @@ export default function TeacherQuestionManagement() {
       let subtitle = "";
 
       if (groupId) {
-        const groupRes = isAdmin 
+        const groupRes = isAdmin
           ? await quizService.getAdminQuizGroupById(groupId)
           : await quizService.getQuizGroupById(groupId);
 
@@ -92,7 +92,7 @@ export default function TeacherQuestionManagement() {
 
         const gRes = await quizService.getQuizGroupsBySection(sectionId);
         if (gRes.data?.success) gList = gRes.data.data || [];
-        
+
         setGroups(gList);
       }
 
@@ -105,7 +105,7 @@ export default function TeacherQuestionManagement() {
       const lessonRes = await teacherService.getLessonById(lessonId);
       if (lessonRes.data?.success) setLesson(lessonRes.data.data);
 
-      const assessmentRes = isAdmin 
+      const assessmentRes = isAdmin
         ? await assessmentService.getAdminAssessmentById(assessmentId)
         : await assessmentService.getTeacherAssessmentById(assessmentId);
       if (assessmentRes.data?.success) setAssessment(assessmentRes.data.data);
@@ -228,7 +228,7 @@ export default function TeacherQuestionManagement() {
                 <div className="ms-auto fw-bold text-danger">{(q.points || q.Points || 0).toFixed(1)} pts</div>
               </div>
               <h6 className="fw-bold mb-2">{q.questionText || q.QuestionText || q.stemText || q.StemText}</h6>
-              
+
               {mediaUrl && (
                 <div className="media-preview mb-3 rounded overflow-hidden border bg-light text-center" style={{ maxHeight: '250px' }}>
                   {mediaUrl.match(/\.(mp4|webm|mov)$/i) ? (
@@ -266,16 +266,20 @@ export default function TeacherQuestionManagement() {
     <>
       <TeacherHeader />
       <div className="teacher-question-management-container">
-        <Container fluid className="p-4 content-wrapper">
-          <Breadcrumb
-            items={[
-              { label: "Courses", path: ROUTE_PATHS.TEACHER_COURSE_MANAGEMENT },
-              { label: course?.title || "Course", path: `/teacher/course/${courseId}` },
-              { label: lesson?.title || "Lesson", path: `/teacher/course/${courseId}/lesson/${lessonId}` },
-              { label: assessment?.title || "Assessment", path: ROUTE_PATHS.TEACHER_QUIZ_ESSAY_MANAGEMENT(courseId, lessonId, moduleId, assessmentId) },
-              { label: "Questions", isCurrent: true }
-            ]}
-          />
+        <Container fluid className="p-0 content-wrapper">
+          <div className="mb-4">
+            <Breadcrumb
+              items={[
+                { label: "Quản lý khóa học", path: ROUTE_PATHS.TEACHER_COURSE_MANAGEMENT },
+                { label: course?.title || "Khóa học", path: `/teacher/course/${courseId}` },
+                { label: lesson?.title || "Chương học", path: `/teacher/course/${courseId}/lesson/${lessonId}` },
+                { label: assessment?.title || "Bài kiểm tra", path: ROUTE_PATHS.TEACHER_QUIZ_ESSAY_MANAGEMENT(courseId, lessonId, moduleId, assessmentId) },
+                { label: "Câu hỏi", isCurrent: true }
+              ]}
+              showHomeIcon={true}
+              className="breadcrumb-compact"
+            />
+          </div>
 
           <div className="d-flex justify-content-between align-items-center my-4">
             <div>
@@ -323,7 +327,7 @@ export default function TeacherQuestionManagement() {
                           <span className="points-badge-premium">Total: {group.sumScore || group.SumScore} pts</span>
                         </div>
                         {(group.description || group.Description) && <p className="text-muted mb-3">{group.description || group.Description}</p>}
-                        
+
                         {(imgUrl || videoUrl || audioUrl) && (
                           <div className="group-media-preview d-flex gap-3 flex-wrap mt-3">
                             {imgUrl && <img src={imgUrl} alt="Group" className="img-thumbnail" style={{ maxWidth: '200px' }} />}

@@ -584,18 +584,69 @@
   .options-grid-v3 {
     grid-template-columns: 1fr;
   }
-}
 
-/* Responsive */
-@media (max-width: 1200px) {
-  .review-sidebar-v3 {
-    width: 280px;
+  .card-exam-v3 {
+    padding: 1.25rem;
+    border-radius: 16px;
   }
-}
 
-@media (max-width: 992px) {
-  .review-sidebar-v3 {
-    display: none;
+  .q-header-v3 {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .q-header-right-v3 {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .q-text-v3 {
+    font-size: 1rem;
+  }
+
+  /* Matching Review Mobile */
+  .match-pair-v3 {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+    padding: 12px;
+  }
+
+  .match-left-v3 {
+    min-width: auto;
+    font-size: 0.95rem;
+  }
+
+  .match-arrow-v3 {
+    transform: rotate(90deg);
+    align-self: center;
+    margin: -4px 0;
+  }
+
+  .match-right-v3 {
+    width: 100%;
+  }
+
+  /* Result Summary Mobile */
+  .result-item-v3 {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+  }
+
+  .result-label-v3 {
+    min-width: auto;
+  }
+
+  /* Ordering Review Mobile */
+  .order-item-v3 {
+    gap: 12px;
+    padding: 10px;
+  }
+
+  .order-text-v3 {
+    font-size: 0.9rem;
   }
 }
 

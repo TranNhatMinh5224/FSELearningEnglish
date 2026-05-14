@@ -170,4 +170,32 @@
     border-color: var(--color-border-light, #e5e7eb);
 }
 
+@media (max-width: 768px) {
+    .navigation-header {
+        margin-bottom: 12px;
+        padding-bottom: 8px;
+    }
+
+    .stat-badge-progress {
+        padding: 4px 10px;
+    }
+
+    .navigation-sections-container {
+        max-height: 40vh; /* Reduced height on mobile */
+    }
+
+    .navigation-item {
+        min-height: 32px;
+        font-size: 0.75rem;
+        border-radius: 8px;
+    }
+
+    .navigation-legend {
+        flex-direction: row;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 12px;
+    }
+}
+
 /* Bootstrap utilities được sử dụng trong JSX - responsive tự động */

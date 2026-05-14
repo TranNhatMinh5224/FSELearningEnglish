@@ -141,6 +141,20 @@
     color: var(--color-status-error, #ef4444);
 }
 
+/* Sticky Timer for Mobile */
+.mobile-timer-container {
+    position: sticky;
+    top: 80px; /* Right below the header */
+    z-index: 1000;
+    background-color: var(--color-bg-secondary, #f9fafb);
+    padding: 10px 0;
+    margin-bottom: 10px;
+}
+
+[data-theme="dark"] .mobile-timer-container {
+    background-color: #0f172a;
+}
+
 @media (max-width: 992px) {
     .quiz-sidebar {
         position: static;
@@ -149,15 +163,22 @@
 }
 
 @media (max-width: 768px) {
+    .quiz-detail-page {
+        padding-top: 80px;
+    }
+    
     .quiz-content {
-        padding: 20px;
+        padding: 16px;
+        border-radius: 12px;
     }
 
     .quiz-title {
-        font-size: 24px;
+        font-size: 20px;
     }
-
-    /* Bootstrap responsive tự xử lý - chỉ thêm styling */
+    
+    .mobile-timer-container {
+        top: 70px; /* Adjust for mobile header height */
+    }
 }
 
 

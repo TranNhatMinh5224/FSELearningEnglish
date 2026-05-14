@@ -275,17 +275,61 @@
 
 @media (max-width: 768px) {
     .module-card {
-        flex-direction: column;
-        align-items: flex-start;
+        padding: 12px;
+        gap: 12px;
+        min-height: auto;
+        align-items: center;
+        flex-direction: row; 
+        position: relative;
+    }
+
+    .module-card-icon-container, 
+    .module-card-img, 
+    .module-card-icon-inner {
+        width: 44px;
+        height: 44px;
+        border-radius: 12px;
+    }
+
+    .module-card-icon-inner svg {
+        font-size: 20px !important;
+        width: 20px;
+        height: 20px;
+    }
+
+    .module-title {
+        font-size: 14px;
+        font-weight: 700;
+        margin-bottom: 2px;
+        max-width: 160px;
+    }
+
+    .module-status-tag {
+        position: absolute;
+        top: -6px;
+        right: 12px;
+        font-size: 9px;
+        padding: 1px 6px;
+    }
+
+    .module-badges-wrapper {
+        margin-bottom: 4px !important;
+        gap: 4px;
+    }
+
+    .module-description {
+        font-size: 11px;
+        -webkit-line-clamp: 1;
+        opacity: 0.7;
     }
 
     .module-actions {
-        width: 100%;
-        justify-content: space-between;
+        margin-left: auto;
     }
 
-    .module-action-btn {
-        flex: 1;
-        justify-content: center;
+    .pronunciation-btn {
+        padding: 4px 8px;
+        font-size: 10px;
+        border-radius: 8px;
     }
 }

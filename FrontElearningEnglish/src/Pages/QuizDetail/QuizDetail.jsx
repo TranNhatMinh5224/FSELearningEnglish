@@ -760,7 +760,7 @@ export default function QuizDetail() {
         };
     }, [quizAttempt, quiz, calculateEndTime, calculateAndUpdateRemainingTime, startTimer]);
 
-    const handleAnswerChange = (questionId, answer) => {
+    const handleAnswerChange = React.useCallback((questionId, answer) => {
         // Cập nhật local state ngay lập tức để UI responsive
         setAnswers(prev => ({
             ...prev,
@@ -797,18 +797,15 @@ export default function QuizDetail() {
                     // Không cần update state vì đã update ở trên
                 } else {
                     console.error("❌ [AutoSave] Error saving answer:", response.data?.message);
-                    // Không hiển thị notification để tránh làm phiền user
-                    // Chỉ log để debug
                 }
             } catch (err) {
                 console.error("❌ [AutoSave] Error saving answer:", err);
-                // Không hiển thị notification để tránh làm phiền user
             } finally {
                 savingAnswersRef.current.delete(questionId);
                 delete saveAnswerTimeoutRef.current[questionId];
             }
         }, 500); // Debounce 500ms
-    };
+    }, [quizAttempt, attemptId]);
 
     const handleNext = async () => {
         // Clear debounce timer for current paged item questions
@@ -998,6 +995,25 @@ export default function QuizDetail() {
                 <Container className="py-4">
                     <Row>
                         <Col lg={9}>
+                            {/* Mobile Sticky Timer Container */}
+                            <div className="mobile-timer-container d-lg-none">
+                                <QuizTimer
+                                    timeLimit={timeLimit}
+                                    remainingTime={remainingTime}
+                                    onTimeUp={() => {
+                                        if (!autoSubmitCalledRef.current && !submitting) {
+                                            autoSubmitCalledRef.current = true;
+                                            setNotification({
+                                                isOpen: true,
+                                                type: "warning",
+                                                message: "Hết thời gian làm bài!"
+                                            });
+                                            handleSubmitQuiz();
+                                        }
+                                    }}
+                                />
+                            </div>
+
                             <div className="quiz-content">
                                 <div className="quiz-header">
                                     <h2 className="quiz-title">{quiz?.title || "Quiz"}</h2>
@@ -1056,22 +1072,23 @@ export default function QuizDetail() {
                         </Col>
                         <Col lg={3}>
                             <div className="quiz-sidebar d-flex flex-column">
-                                <QuizTimer
-                                    timeLimit={timeLimit}
-                                    remainingTime={remainingTime}
-                                    onTimeUp={() => {
-                                        // Chỉ gọi một lần
-                                        if (!autoSubmitCalledRef.current && !submitting) {
-                                            autoSubmitCalledRef.current = true;
-                                            setNotification({
-                                                isOpen: true,
-                                                type: "warning",
-                                                message: "Hết thời gian làm bài!"
-                                            });
-                                            handleSubmitQuiz();
-                                        }
-                                    }}
-                                />
+                                <div className="d-none d-lg-block">
+                                    <QuizTimer
+                                        timeLimit={timeLimit}
+                                        remainingTime={remainingTime}
+                                        onTimeUp={() => {
+                                            if (!autoSubmitCalledRef.current && !submitting) {
+                                                autoSubmitCalledRef.current = true;
+                                                setNotification({
+                                                    isOpen: true,
+                                                    type: "warning",
+                                                    message: "Hết thời gian làm bài!"
+                                                });
+                                                handleSubmitQuiz();
+                                            }
+                                        }}
+                                    />
+                                </div>
 
                                 <QuizNavigation
                                     questions={questions}
@@ -1080,7 +1097,7 @@ export default function QuizDetail() {
                                     onGoToQuestion={handleGoToQuestion}
                                 />
 
-                                <div className="quiz-submit-section">
+                                <div className="quiz-submit-section mt-4">
                                     <Button
                                         size="lg"
                                         className="submit-quiz-btn"

@@ -161,7 +161,7 @@
 /* Responsive */
 @media (max-width: 1200px) {
     .quiz-review-animate-fade-in {
-        flex-direction: column;
+        flex-direction: column-reverse; /* Put sidebar map at the bottom on tablets/mobile */
     }
 
     .quiz-results-sidebar-v3 {
@@ -170,7 +170,7 @@
 
     .sticky-sidebar-v3 {
         position: static;
-        margin-bottom: 24px;
+        margin-top: 32px;
     }
 }
 
@@ -181,27 +181,48 @@
     }
 
     .results-title {
-        font-size: 1.75rem;
+        font-size: 1.5rem;
+    }
+
+    .score-display {
+        font-size: 2.5rem !important;
     }
 }
 
 @media (max-width: 768px) {
+    .results-header {
+        padding: 2rem 1rem !important;
+    }
+
     .summary-item {
-        margin-bottom: 1rem;
+        padding: 1rem !important;
+        margin-bottom: 0;
+    }
+
+    .summary-item svg {
+        font-size: 24px !important;
     }
 
     .section-title-v3 {
-        font-size: 1.25rem;
+        font-size: 1.15rem;
     }
 
-    .results-header {
-        padding: 1.5rem !important;
+    .section-block-v3 {
+        padding: 16px;
     }
 }
 
 @media (max-width: 576px) {
+    .score-display {
+        font-size: 2rem !important;
+    }
+
     .results-title {
-        font-size: 1.5rem;
+        font-size: 1.25rem;
+    }
+
+    .summary-item .fw-800 {
+        font-size: 0.95rem !important;
     }
 }
 

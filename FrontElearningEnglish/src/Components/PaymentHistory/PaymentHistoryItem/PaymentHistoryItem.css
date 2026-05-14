@@ -102,35 +102,91 @@
 
 @media (max-width: 767.98px) {
     .payment-history-item-row {
-        padding: 20px;
+        padding: 16px !important;
+        margin-bottom: 16px;
+        border-radius: 16px;
+        border: 1px solid rgba(0, 0, 0, 0.05);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+        background: white;
     }
 
-    .product-info, .amount-info, .status-info, .date-info {
-        width: 100% !important;
-        text-align: left !important;
-        margin-bottom: 12px;
+    .payment-history-item-row:hover {
+        transform: translateY(-2px);
     }
 
     .product-info {
-        margin-bottom: 16px;
+        margin-bottom: 12px !important;
+        padding-bottom: 12px;
+        border-bottom: 1px dashed #f1f5f9;
+    }
+
+    .payment-product {
+        font-size: 1rem;
+        line-height: 1.4;
+    }
+
+    .amount-info, .status-info {
+        width: 100% !important;
+        text-align: left !important;
+        margin-bottom: 8px !important;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .status-info {
+        justify-content: flex-start !important;
     }
 
     .label {
-        font-weight: 700;
+        font-size: 0.75rem;
         color: #94a3b8;
-        font-size: 0.85rem;
-        margin-right: 8px;
+        min-width: 80px;
+        font-weight: 600;
+    }
+
+    .payment-amount {
+        font-size: 1.1rem;
+    }
+
+    .status-badge-custom {
+        min-width: 100px !important;
+        font-size: 0.7rem !important;
+        padding: 4px 10px !important;
+        border-radius: 8px;
     }
 
     .date-info {
-        text-align: left !important;
-        justify-content: flex-start !important;
-        border-top: 1px dashed #e2e8f0;
-        padding-top: 12px;
-        margin-bottom: 0;
+        margin-top: 8px;
+        border-top: 1px solid #f8fafc;
+        padding-top: 8px;
+        text-align: right !important;
+        margin-bottom: 0 !important;
     }
-    
+
     .date-info .d-flex {
-        justify-content: flex-start !important;
+        justify-content: flex-end !important;
     }
+
+    .payment-date {
+        font-size: 0.75rem;
+        color: #94a3b8;
+    }
+}
+
+/* Status indicator on the left for premium feel */
+.payment-history-item-row {
+    border-left: 4px solid transparent;
+}
+
+.payment-history-item-row:has(.status-completed) {
+    border-left-color: #10b981;
+}
+
+.payment-history-item-row:has(.status-pending) {
+    border-left-color: #f59e0b;
+}
+
+.payment-history-item-row:has(.status-failed) {
+    border-left-color: #ef4444;
 }

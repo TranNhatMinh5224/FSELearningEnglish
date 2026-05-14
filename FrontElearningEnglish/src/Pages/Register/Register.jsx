@@ -291,12 +291,15 @@ export default function Register() {
 
   return (
     <div className="auth-container">
-      <Header />
-
       <Container>
         <Row className="justify-content-center">
           <Col xs={12} sm={10} md={8} lg={6} xl={5}>
             <div className="auth-card">
+              {/* Logo moved INSIDE the card for modern look */}
+              <div className="auth-card-logo">
+                <Header variant="dark" />
+              </div>
+              
               <div className="auth-header-section">
                 <h1 className="auth-title">Đăng Ký Tài Khoản</h1>
                 <p className="auth-subtitle">Bắt đầu hành trình chinh phục tiếng Anh ngay hôm nay</p>

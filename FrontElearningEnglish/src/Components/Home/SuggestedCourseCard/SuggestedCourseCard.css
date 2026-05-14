@@ -13,28 +13,26 @@
     min-height: 360px;
     /* Độ cao chuẩn */
     width: 100%;
-    max-width: 240px;
-    /* Hạ xuống để giống trang chủ */
+    max-width: 280px; /* Standard desktop max-width */
     box-sizing: border-box;
     position: relative;
     transform-style: preserve-3d;
     perspective: 1000px;
     border: 1px solid transparent;
     will-change: transform, box-shadow;
-    /* Tăng tốc GPU */
 }
 
-/* Mobile optimization: Simplify effects to reduce main-thread work */
-@media (max-width: 767.98px) {
+/* Mobile optimization: Fill width and stabilize layout */
+@media (max-width: 575.98px) {
     .suggested-course-card {
-        min-height: 340px;
-        /* Hơi nhỏ hơn trên mobile */
+        max-width: 100%; /* Fill the screen on mobile */
+        min-height: auto;
+        margin-bottom: 20px;
     }
 
     .suggested-course-card:hover {
-        transform: translateY(-4px) scale(1.01);
-        /* Bỏ rotateX/Y trên mobile */
-        box-shadow: 0 10px 20px rgba(65, 214, 227, 0.2);
+        transform: translateY(-4px); /* Simpler hover for touch */
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
     }
 }
 
@@ -272,18 +270,24 @@
     position: relative;
     z-index: 2;
     box-shadow: 0 2px 8px rgba(65, 214, 227, 0.3);
-    transform: translateZ(15px);
 }
 
-.suggested-course-card .course-action-btn:hover {
-    opacity: 1;
-    transform: translateY(-3px) translateZ(20px) scale(1.05);
-    box-shadow: 0 4px 16px rgba(65, 214, 227, 0.4);
-}
-
-.suggested-course-card .course-action-btn:active {
-    transform: translateY(-1px) translateZ(15px) scale(1.02);
-    transition: all 0.1s ease;
+@media (max-width: 575.98px) {
+    .suggested-course-card .course-action-btn {
+        width: 100%;
+        padding: 12px;
+        font-size: 15px;
+    }
+    
+    .suggested-course-card .course-content {
+        padding: 20px;
+    }
+    
+    .suggested-course-card .course-image-wrapper {
+        height: auto;
+        min-height: auto;
+        max-height: none;
+    }
 }
 
 .suggested-course-card .course-action-btn.enrolled {

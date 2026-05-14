@@ -7,12 +7,20 @@
   background: var(--color-primary-gradient, linear-gradient(90deg, #6fd5e0, #d447b6));
   color: var(--color-text-white, #fff);
   box-shadow: 0 2px 8px var(--shadow-sm, rgba(0, 0, 0, 0.1));
+  /* Anti-vibration: Hardware acceleration */
+  transform: translateZ(0);
+  will-change: transform, box-shadow;
+  transition: box-shadow 0.3s ease;
 }
 
-/* Default: collapse luôn show trên desktop */
-.main-header .navbar-collapse {
-  display: flex;
-  flex-basis: auto;
+/* Desktop only: Ensure menu items are visible */
+@media (min-width: 992px) {
+  .main-header .navbar-collapse {
+    display: flex !important;
+    flex-basis: auto;
+    flex-grow: 1;
+    justify-content: space-between;
+  }
 }
 
 /* Bootstrap container inside header - chỉ thêm height và alignment */
@@ -41,20 +49,22 @@
 .main-header .navbar-brand {
   display: flex;
   align-items: center;
-  gap: 14px;
+  gap: clamp(8px, 1.5vw, 14px);
   color: var(--color-text-white, #fff);
   text-decoration: none;
+  flex-shrink: 0; /* Never shrink logo */
 }
 
 .main-header__logo {
-  width: 44px;
-  height: 44px;
+  width: clamp(32px, 4vw, 44px);
+  height: clamp(32px, 4vw, 44px);
   border-radius: 50%;
   object-fit: cover;
+  flex-shrink: 0;
 }
 
 .main-header__brand {
-  font-size: 1.25rem;
+  font-size: clamp(1rem, 0.8rem + 1vw, 1.25rem);
   font-weight: 700;
   white-space: nowrap;
   line-height: 1.2;
@@ -149,9 +159,10 @@
 .main-header__right {
   display: flex;
   align-items: center;
-  gap: 1rem;
-  /* Increased from 0.5rem */
+  gap: clamp(8px, 1.2vw, 16px);
   flex-wrap: nowrap;
+  flex-shrink: 0; /* Keep actions grouped */
+  justify-content: flex-end;
 }
 
 /* Switch to Student Button */
@@ -534,270 +545,147 @@
    RESPONSIVE - Tablet & Mobile
 ========================================================= */
 
-/* Tablet: Ẩn toggle button, giữ header luôn mở, ẩn text chỉ hiển thị icon */
-@media (max-width: 991.98px) and (min-width: 768px) {
-  .main-header .container-fluid {
-    padding-left: 1rem;
-    padding-right: 1rem;
+/* Mobile Premium Aesthetics (WOW Factor) */
+@media (max-width: 991.98px) {
+  .main-header .streak-badge {
+    background: linear-gradient(135deg, #ff6b35 0%, #f7931e 50%, #ffd966 100%) !important;
+    border: 1px solid rgba(255, 255, 255, 0.3) !important;
+    box-shadow: 0 4px 10px rgba(255, 107, 53, 0.4) !important;
+    color: #fff !important;
+    padding: 5px 12px !important;
+    border-radius: 20px !important;
+    animation: pulseGlow 2s ease-in-out infinite;
   }
 
-  /* Ẩn toggle button */
-  .main-header .navbar-toggler {
-    display: none;
+  .main-header .wallet-badge {
+    background: rgba(255, 255, 255, 0.15) !important;
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border: 1px solid rgba(255, 255, 255, 0.2) !important;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1) !important;
+    color: #ffc107 !important;
+    padding: 5px 12px !important;
+    border-radius: 20px !important;
   }
 
-  /* Force collapse luôn show (giống desktop) */
-  .main-header .navbar-collapse {
-    display: flex;
-    flex-basis: auto;
+  .main-header .streak-icon {
+    color: #fff !important; /* White icon on orange gradient looks better */
+    filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2)) !important;
   }
 
-  /* Ẩn text, giữ icon */
-  .main-header .nav-item span.nav-text {
-    display: none;
+  .main-header .wallet-icon {
+    color: #ffc107 !important;
+    filter: drop-shadow(0 0 5px rgba(255, 193, 7, 0.5)) !important;
   }
 
-  /* Nav item chỉ hiển thị icon, căn giữa */
-  .main-header .nav-item {
-    padding: 6px 10px;
-    justify-content: center;
-    min-width: 40px;
-    gap: 0;
-  }
-
-  /* Icon lớn hơn một chút để dễ nhìn */
-  .main-header .nav-icon {
-    width: 18px;
-    height: 18px;
-    margin: 0;
-  }
-
-  .main-header .nav-item svg {
-    font-size: 1.1rem;
-  }
-
-  /* Giảm gap giữa các nav items */
-  .main-header__nav,
-  .main-header .nav {
-    gap: 8px;
-  }
-
-  /* Brand name nhỏ hơn trên tablet */
-  .main-header__brand {
-    font-size: 0.9rem;
-  }
-
-  /* Logo nhỏ hơn trên tablet */
-  .main-header__logo {
-    width: 28px;
-    height: 28px;
-  }
-
-  /* Switch student button trên tablet - ẩn text, chỉ hiển thị icon */
-  .main-header .switch-student-btn .switch-text {
-    display: none;
-  }
-
-  .main-header .switch-student-btn {
-    padding: 6px 10px;
-    min-width: 40px;
-    justify-content: center;
-  }
-
-  .main-header .switch-icon {
-    font-size: 1.1rem;
-    margin: 0;
+  .main-header .streak-badge span,
+  .main-header .wallet-balance-short {
+    font-size: 0.85rem;
+    font-weight: 800;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.1);
   }
 }
 
-/* Mobile: Menu collapse, hiển thị theo chiều dọc với overlay */
-@media (max-width: 767.98px) {
-
-  /* Navbar collapse - ẩn mặc định, hiện khi có class show */
-  .main-header .navbar-collapse {
-    display: none;
+@media (max-width: 480px) {
+  .main-header__brand {
+    display: none; /* Hide brand name on tiny screens to keep badges beautiful */
   }
+}
 
+/* Mobile: Menu collapse refinement with 60FPS animation */
+@media (max-width: 991.98px) {
   .main-header .navbar-collapse.show {
     display: block;
     position: fixed;
     top: 70px;
     left: 0;
     right: 0;
-    max-height: calc(100vh - 70px);
+    height: calc(100vh - 70px);
     overflow-y: auto;
-    overflow-x: hidden;
-    padding: 24px 20px;
-    background: var(--color-primary-gradient, linear-gradient(180deg, #6fd5e0, #d447b6));
+    padding: 24px 20px 80px 20px;
+    background: linear-gradient(180deg, rgba(111, 213, 224, 0.95) 0%, rgba(212, 71, 182, 0.95) 100%);
+    backdrop-filter: blur(15px);
+    -webkit-backdrop-filter: blur(15px);
     margin-top: 0;
     border-top: 1px solid rgba(255, 255, 255, 0.3);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
     z-index: 1040;
-    -webkit-overflow-scrolling: touch;
+    
+    /* Animation for the overlay itself */
+    animation: menuSlideFadeIn 0.4s cubic-bezier(0, 0, 0.2, 1) forwards;
+    will-change: transform, opacity;
   }
 
-  /* Menu collapse */
-  .main-header .navbar-collapse.show {
-    z-index: 1040;
+  /* Staggered items animation - ONLY when parent is .show */
+  .main-header .navbar-collapse.show .nav-item, 
+  .main-header .navbar-collapse.show .mobile-stagger-item {
+    opacity: 0;
+    transform: translateY(20px);
+    animation: itemSlideIn 0.5s cubic-bezier(0, 0, 0.2, 1) forwards;
+    animation-delay: calc(var(--i) * 0.05s + 0.1s);
+    will-change: transform, opacity;
   }
 
-
-  /* Ẩn scrollbar nhưng vẫn cho phép scroll */
-  .main-header .navbar-collapse::-webkit-scrollbar {
-    width: 6px;
+  /* Keep items hidden when menu is closed or closing */
+  .main-header .navbar-collapse:not(.show) .nav-item,
+  .main-header .navbar-collapse:not(.show) .mobile-stagger-item {
+    opacity: 0;
+    visibility: hidden;
   }
 
-  .main-header .navbar-collapse::-webkit-scrollbar-track {
-    background: rgba(255, 255, 255, 0.1);
-  }
-
-  .main-header .navbar-collapse::-webkit-scrollbar-thumb {
-    background: rgba(255, 255, 255, 0.3);
-    border-radius: 3px;
-  }
-
-  /* Nav items - hiển thị theo chiều dọc */
-  .main-header__nav,
-  .main-header .nav {
+  .main-header__nav {
     flex-direction: column;
-    gap: 10px;
+    gap: 12px;
     width: 100%;
-    margin: 0;
-    align-items: stretch;
+    margin-bottom: 24px;
   }
 
-  .main-header .nav-item {
-    width: 100%;
-    justify-content: flex-start;
-    align-items: center;
-    padding: 0.875rem 1.25rem;
-    font-size: 1rem;
-    font-weight: 500;
-    border-radius: 0.625rem;
-    min-height: 48px;
-    gap: 0.75rem;
-  }
-
-  .main-header .nav-item:hover {
-    background: rgba(255, 255, 255, 0.25);
-  }
-
-  .main-header .nav-item.active {
-    background: rgba(255, 255, 255, 0.35);
-    font-weight: 700;
-  }
-
-  .main-header .nav-icon {
-    width: 22px;
-    height: 22px;
-    flex-shrink: 0;
-    display: block;
-  }
-
-  .main-header .nav-item svg {
-    font-size: 1.25rem;
-    flex-shrink: 0;
-  }
-
-  .main-header .nav-text {
-    flex: 1;
-    line-height: 1.2;
-  }
-
-  /* Right section - streak + notification + profile */
   .main-header__right {
     flex-direction: column;
     width: 100%;
     gap: 12px;
-    margin-top: 24px;
     padding-top: 24px;
     border-top: 1px solid rgba(255, 255, 255, 0.3);
-    align-items: stretch;
   }
 
-  /* Switch student button on mobile */
-  .main-header .switch-student-btn {
+  .main-header .nav-item, 
+  .main-header .mobile-stagger-item {
     width: 100%;
-    justify-content: flex-start;
-    padding: 0.875rem 1.25rem;
-    font-size: 1rem;
-    border-radius: 0.625rem;
-    min-height: 48px;
-  }
-
-  .main-header .switch-icon {
-    font-size: 1.25rem;
-    margin-right: 0.75rem;
-  }
-
-  .main-header .streak-badge {
-    width: 100%;
-    justify-content: center;
-    padding: 0.625rem 1.25rem;
-    font-size: 1rem;
-  }
-
-  .main-header .streak-icon {
-    width: 20px;
-    height: 20px;
-  }
-
-  .main-header .notification-button {
-    width: 100%;
-    justify-content: flex-start;
-    align-items: center;
-    border-radius: 0.625rem;
-    padding: 0.875rem 1.25rem;
-    height: auto;
-    min-height: 48px;
+    justify-content: flex-start !important;
+    padding: 12px 16px;
     background: rgba(255, 255, 255, 0.15);
-    font-size: 1rem;
-    font-weight: 500;
-    color: var(--color-text-white, #fff);
-    position: relative;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 14px;
+    transition: background 0.2s ease;
   }
 
-  .main-header .notification-button:hover {
-    background: rgba(255, 255, 255, 0.25);
+  /* Exempt Dropdowns from the background to fix the 'white oval' glitch */
+  .main-header .mobile-stagger-item {
+    background: transparent !important;
+    border: none !important;
+    padding: 0 !important;
   }
+}
 
-  .main-header .notification-icon {
-    width: 22px;
-    height: 22px;
-    margin-right: 14px;
-    flex-shrink: 0;
-    position: static;
-    transform: none;
-    top: auto;
-    left: auto;
+/* 60FPS KEYFRAMES */
+@keyframes menuSlideFadeIn {
+  0% {
+    opacity: 0;
+    transform: translateY(-10px);
   }
-
-  .main-header .profile-wrapper {
-    width: 100%;
+  100% {
+    opacity: 1;
+    transform: translateY(0);
   }
+}
 
-  .main-header .profile-trigger {
-    width: 100%;
-    justify-content: flex-start;
-    padding: 8px 0;
+@keyframes itemSlideIn {
+  0% {
+    opacity: 0;
+    transform: translateY(15px);
   }
-
-  .main-header .avatar {
-    width: 40px;
-    height: 40px;
-  }
-
-  .main-header .user-info {
-    font-size: 0.9375rem;
-  }
-
-  .main-header__brand {
-    font-size: 1rem;
-  }
-
-  .main-header__logo {
-    width: 32px;
-    height: 32px;
+  100% {
+    opacity: 1;
+    transform: translateY(0);
   }
 }
 
