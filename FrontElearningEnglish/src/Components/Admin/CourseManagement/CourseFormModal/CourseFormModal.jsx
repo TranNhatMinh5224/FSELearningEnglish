@@ -462,7 +462,7 @@ export default function CourseFormModal({ show, onClose, onSubmit, initialData }
                             <FileUpload
                                 bucket={COURSE_IMAGE_BUCKET}
                                 accept="image/*"
-                                maxSize={5}
+                                maxSize={10}
                                 existingUrl={existingImageUrl}
                                 onUploadSuccess={handleImageUploadSuccess}
                                 onRemove={handleImageRemove}

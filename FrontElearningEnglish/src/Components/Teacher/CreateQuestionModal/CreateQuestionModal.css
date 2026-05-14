@@ -52,7 +52,8 @@ body .modal.show .create-question-modal-xl .modal-content {
   border-bottom: none !important;
   background: linear-gradient(135deg, #7765f5 0%, #6352e8 100%) !important;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-  justify-content: space-between;
+  justify-content: center !important;
+  /* Center the title */
   align-items: center;
   position: relative;
   overflow: hidden;
@@ -79,6 +80,8 @@ body .modal.show .create-question-modal-xl .modal-content {
   margin: 0;
   display: flex;
   align-items: center;
+  justify-content: center;
+  /* Centering content */
   gap: 0.75rem;
 }
 
@@ -108,6 +111,11 @@ body .modal.show .create-question-modal-xl .modal-content {
   opacity: 1;
   filter: brightness(0) invert(1);
   /* Make close button white */
+  position: absolute !important;
+  right: 2.5rem !important;
+  top: 50% !important;
+  transform: translateY(-50%) !important;
+  z-index: 10;
 }
 
 .create-question-modal .btn-close:hover {
@@ -348,7 +356,8 @@ body .modal.show.create-question-modal-xl .modal-body {
   width: 64px;
   height: 64px;
   background: linear-gradient(135deg, #7765f5 0%, #5a49d8 100%) !important;
-  border-radius: 20px; /* Modern squircle look */
+  border-radius: 20px;
+  /* Modern squircle look */
   display: flex;
   align-items: center;
   justify-content: center;
@@ -373,6 +382,9 @@ body .modal.show.create-question-modal-xl .modal-body {
   border: none !important;
   padding: 12px 24px !important;
   transition: all 0.3s ease !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
 }
 
 .btn-primary-custom:hover {
@@ -421,10 +433,12 @@ body .modal.show.create-question-modal-xl .modal-body {
     transform: scale(0.95);
     box-shadow: 0 0 0 0 rgba(119, 101, 245, 0.7);
   }
+
   70% {
     transform: scale(1);
     box-shadow: 0 0 0 6px rgba(119, 101, 245, 0);
   }
+
   100% {
     transform: scale(0.95);
     box-shadow: 0 0 0 0 rgba(119, 101, 245, 0);
@@ -445,18 +459,64 @@ body .modal.show.create-question-modal-xl .modal-body {
 }
 
 .active-group-banner {
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
 .active-group-banner:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 20px rgba(0,0,0,0.08) !important;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08) !important;
 }
 
 .group-tab-container .form-section-card {
-    border-radius: 16px !important;
+  border-radius: 16px !important;
 }
 
 .group-tab-container .form-control:focus {
-    background-color: white !important;
+  background-color: white !important;
+}
+
+/* Quick Point Presets */
+.point-presets {
+  flex-wrap: wrap;
+}
+
+.point-btn {
+  flex: 1;
+  padding: 4px 8px;
+  background: white;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #64748b;
+  transition: all 0.2s ease;
+  min-width: 40px;
+}
+
+.point-btn:hover {
+  border-color: #7463F1;
+  color: #7463F1;
+  background: #f5f3ff;
+  transform: translateY(-1px);
+}
+
+.point-btn.active {
+  background: #dc3545;
+  /* Red for points */
+  border-color: #dc3545;
+  color: white;
+  box-shadow: 0 4px 10px rgba(220, 53, 69, 0.2);
+}
+
+.accent-icon-color {
+  color: #dc3545 !important;
+  /* Red star */
+}
+
+.points-input-red {
+  color: #dc3545 !important;
+}
+
+.focus-white:focus {
+  background-color: white !important;
 }

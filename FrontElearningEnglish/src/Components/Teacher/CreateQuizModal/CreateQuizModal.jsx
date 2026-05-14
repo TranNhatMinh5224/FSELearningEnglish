@@ -134,16 +134,34 @@ export default function CreateQuizModal({ show, onClose, onSuccess, assessmentId
                     />
                   </Col>
                   <Col md={6}>
-                    <FormSelect
-                      label="Trạng thái"
-                      name="status"
-                      value={formData.status}
-                      onChange={handleChange}
-                      onBlur={handleBlur}
-                      options={quizStatusOptions}
-                      loading={enumsLoading}
-                      required
-                    />
+                    <div className="status-toggle-wrapper">
+                      <label className="form-label fw-bold mb-2">Trạng thái Quiz</label>
+                      <div className={`status-toggle-card ${formData.status === 1 ? 'status-open' : 'status-closed'}`}>
+                        <div className="d-flex align-items-center justify-content-between p-2">
+                          <div className="status-info d-flex align-items-center">
+                            <div className="status-dot"></div>
+                            <span className="status-text fw-bold">
+                              {formData.status === 1 ? "Đang mở (Open)" : "Đã đóng (Closed)"}
+                            </span>
+                          </div>
+                          <div className="form-check form-switch m-0 p-0">
+                            <input
+                              className="form-check-input status-switch"
+                              type="checkbox"
+                              role="switch"
+                              id="quizStatusSwitch"
+                              checked={formData.status === 1}
+                              onChange={(e) => setFieldValue("status", e.target.checked ? 1 : 2)}
+                            />
+                          </div>
+                        </div>
+                      </div>
+                      <div className="form-text mt-1">
+                        {formData.status === 1 
+                          ? "Học sinh có thể bắt đầu làm bài Quiz này." 
+                          : "Quiz bị khóa, học sinh không thể truy cập."}
+                      </div>
+                    </div>
                   </Col>
                 </Row>
               </div>
@@ -200,6 +218,20 @@ export default function CreateQuizModal({ show, onClose, onSuccess, assessmentId
                 </div>
                 <Row className="g-3">
                   <Col md={12}>
+                    <div className="duration-presets mb-3">
+                      <div className="preset-buttons">
+                        {[10, 15, 30, 45, 60, 90, 120].map((preset) => (
+                          <button
+                            key={preset}
+                            type="button"
+                            className={`preset-btn ${Number(formData.duration) === preset ? 'active' : ''}`}
+                            onClick={() => setFieldValue("duration", preset)}
+                          >
+                            {preset} phút
+                          </button>
+                        ))}
+                      </div>
+                    </div>
                     <FormInput
                       label="Thời gian làm bài riêng phần Quiz (phút)"
                       name="duration"

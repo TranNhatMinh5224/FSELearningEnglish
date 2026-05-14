@@ -12,17 +12,11 @@ const axiosClient = axios.create({
 // ==== REQUEST ====
 axiosClient.interceptors.request.use(
   (config) => {
-    const requestUrl = config.url || "";
-    const isPublicEndpoint = requestUrl.includes("/public/");
     const token = tokenStorage.getAccessToken();
-    if (isPublicEndpoint) {
-      delete config.headers.Authorization;
-      delete config.headers["X-Access-Token"];
-    }
+    const isInternalRequest = !config.url?.startsWith("http") || config.url?.startsWith(API_BASE_URL);
 
-    if (token && !isPublicEndpoint) {
+    if (token && isInternalRequest) {
       config.headers.Authorization = `Bearer ${token}`;
-
       config.headers["X-Access-Token"] = token;
     }
     return config;

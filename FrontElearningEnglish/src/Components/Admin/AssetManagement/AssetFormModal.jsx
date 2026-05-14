@@ -260,14 +260,14 @@ export default function AssetFormModal({ show, onClose, onSuccess, assetToEdit }
                                 <FileUpload
                                     bucket={ASSET_IMAGE_BUCKET}
                                     accept="image/*"
-                                    maxSize={5}
+                                    maxSize={10}
                                     existingUrl={existingImageUrl}
                                     onUploadSuccess={handleImageUploadSuccess}
                                     onRemove={handleImageRemove}
                                     onError={handleImageError}
                                     onUploadingChange={handleImageUploadingChange}
                                     label="Chọn ảnh hoặc kéo thả vào đây"
-                                    hint="Hỗ trợ JPG, PNG, GIF (tối đa 5MB)"
+                                    hint="Hỗ trợ JPG, PNG, GIF (tối đa 10MB)"
                                 />
                                 {errors.image && (
                                     <div className="text-danger small mt-1">{errors.image}</div>

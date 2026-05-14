@@ -15,10 +15,23 @@ export const useQuestionTypes = () => {
     }, {});
 
     /**
-     * Get question type label
+     * Get question type label (Bilingual: English (Vietnamese))
      */
     const getQuestionTypeLabel = (type) => {
-        return getEnumLabel('QuestionType', type);
+        const rawLabel = getEnumLabel('QuestionType', type);
+        
+        const nameMap = {
+            "MultipleChoice": "Multiple Choice (Trắc nghiệm 1 đáp án)",
+            "MultipleAnswers": "Multiple Answers (Trắc nghiệm nhiều đáp án)",
+            "TrueFalse": "True / False (Đúng / Sai)",
+            "FillBlank": "Fill in Blanks (Điền từ)",
+            "Matching": "Matching (Nối từ)",
+            "Ordering": "Ordering (Sắp xếp)",
+            "ShortAnswer": "Short Answer (Trả lời ngắn)",
+            "Essay": "Essay (Tự luận)"
+        };
+
+        return nameMap[rawLabel] || rawLabel;
     };
 
     /**

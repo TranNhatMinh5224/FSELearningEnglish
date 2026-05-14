@@ -19,14 +19,14 @@ const QuestionHeader = ({
         const name = type.DisplayName || type.displayName || type.Name || type.name || "";
         
         const nameMap = {
-            "MultipleChoice": "Trắc nghiệm (1 đáp án)",
-            "MultipleAnswers": "Trắc nghiệm (Nhiều đáp án)",
-            "TrueFalse": "Đúng / Sai",
-            "FillBlank": "Điền từ (Fill in blanks)",
-            "Matching": "Nối từ (Matching)",
-            "Ordering": "Sắp xếp (Ordering)",
-            "ShortAnswer": "Trả lời ngắn",
-            "Essay": "Tự luận"
+            "MultipleChoice": "Multiple Choice (Trắc nghiệm 1 đáp án)",
+            "MultipleAnswers": "Multiple Answers (Trắc nghiệm nhiều đáp án)",
+            "TrueFalse": "True / False (Đúng / Sai)",
+            "FillBlank": "Fill in Blanks (Điền từ)",
+            "Matching": "Matching (Nối từ)",
+            "Ordering": "Ordering (Sắp xếp)",
+            "ShortAnswer": "Short Answer (Trả lời ngắn)",
+            "Essay": "Essay (Tự luận)"
         };
 
         return nameMap[name] || name;
@@ -61,12 +61,13 @@ const QuestionHeader = ({
                             ))
                         ) : (
                             <>
-                                <option value={String(QUESTION_TYPES.MultipleChoice)}>Trắc nghiệm (1 đáp án)</option>
-                                <option value={String(QUESTION_TYPES.MultipleAnswers)}>Trắc nghiệm (Nhiều đáp án)</option>
-                                <option value={String(QUESTION_TYPES.TrueFalse)}>Đúng / Sai</option>
-                                <option value={String(QUESTION_TYPES.FillBlank)}>Điền từ (Fill in blanks)</option>
-                                <option value={String(QUESTION_TYPES.Matching)}>Nối từ (Matching)</option>
-                                <option value={String(QUESTION_TYPES.Ordering)}>Sắp xếp (Ordering)</option>
+                                <option value={String(QUESTION_TYPES.MultipleChoice)}>Multiple Choice (Trắc nghiệm 1 đáp án)</option>
+                                <option value={String(QUESTION_TYPES.MultipleAnswers)}>Multiple Answers (Trắc nghiệm nhiều đáp án)</option>
+                                <option value={String(QUESTION_TYPES.TrueFalse)}>True / False (Đúng / Sai)</option>
+                                <option value={String(QUESTION_TYPES.FillBlank)}>Fill in Blanks (Điền từ)</option>
+                                <option value={String(QUESTION_TYPES.Matching)}>Matching (Nối từ)</option>
+                                <option value={String(QUESTION_TYPES.Ordering)}>Ordering (Sắp xếp)</option>
+                                <option value={String(QUESTION_TYPES.Essay)}>Essay (Tự luận)</option>
                             </>
                         )}
                     </Form.Select>
@@ -81,7 +82,7 @@ const QuestionHeader = ({
                         <Form.Control
                             type="text"
                             inputMode="decimal"
-                            className="fw-bold bg-light border-0 focus-white text-center"
+                            className="fw-bold bg-light border-0 focus-white text-center points-input-red"
                             isInvalid={qTouched.points && !!qErrors.points}
                             value={qFormData.points || ''}
                             onChange={(e) => {
@@ -94,10 +95,22 @@ const QuestionHeader = ({
                                 }
                             }}
                             onBlur={() => handleQBlur("points")}
-                            placeholder="10"
+                            placeholder="1"
                         />
                         {qTouched.points && qErrors.points && <Form.Control.Feedback type="invalid">{qErrors.points}</Form.Control.Feedback>}
                     </InputGroup>
+                    <div className="point-presets d-flex gap-2 mt-2">
+                        {[0.1, 0.2, 0.25, 0.45, 0.5, 1, 2, 5].map(p => (
+                            <button 
+                                key={p}
+                                type="button"
+                                className={`point-btn ${Number(qFormData.points) === p ? 'active' : ''}`}
+                                onClick={() => handlePointsChange(String(p))}
+                            >
+                                {p}
+                            </button>
+                        ))}
+                    </div>
                 </Form.Group>
             </Col>
         </Row>

@@ -48,12 +48,13 @@ const PendingQuestionsList = ({
                 <div className="d-flex align-items-center gap-2">
                   <span className="fw-bold text-primary small">#{idx + 1}</span>
                   <span className="text-uppercase small fw-bold text-muted" style={{ letterSpacing: '0.5px', fontSize: '10px' }}>
-                    {q.preview.type === QUESTION_TYPES.MultipleChoice && "Trắc nghiệm (1 đáp án)"}
-                    {q.preview.type === QUESTION_TYPES.MultipleAnswers && "Trắc nghiệm (Nhiều đáp án)"}
-                    {q.preview.type === QUESTION_TYPES.TrueFalse && "Đúng / Sai"}
-                    {q.preview.type === QUESTION_TYPES.FillBlank && "Điền từ (Fill in blanks)"}
-                    {q.preview.type === QUESTION_TYPES.Matching && "Nối từ (Matching)"}
-                    {q.preview.type === QUESTION_TYPES.Ordering && "Sắp xếp (Ordering)"}
+                    {q.preview.type === QUESTION_TYPES.MultipleChoice && "Multiple Choice (Trắc nghiệm 1 đáp án)"}
+                    {q.preview.type === QUESTION_TYPES.MultipleAnswers && "Multiple Answers (Trắc nghiệm nhiều đáp án)"}
+                    {q.preview.type === QUESTION_TYPES.TrueFalse && "True / False (Đúng / Sai)"}
+                    {q.preview.type === QUESTION_TYPES.FillBlank && "Fill in Blanks (Điền từ)"}
+                    {q.preview.type === QUESTION_TYPES.Matching && "Matching (Nối từ)"}
+                    {q.preview.type === QUESTION_TYPES.Ordering && "Ordering (Sắp xếp)"}
+                    {q.preview.type === QUESTION_TYPES.Essay && "Essay (Tự luận)"}
                   </span>
                 </div>
                 <div className="d-flex align-items-center gap-2">

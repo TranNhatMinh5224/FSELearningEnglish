@@ -105,12 +105,12 @@ const GroupTab = ({
                                 <FileUpload
                                     bucket={QUIZ_GROUP_BUCKET}
                                     accept="image/*"
-                                    maxSize={5}
+                                    maxSize={10}
                                     existingUrl={gMedia.image.preview}
                                     onUploadSuccess={handleGMediaChange}
                                     onRemove={() => handleRemoveMedia('image')}
                                     label="Chọn ảnh nhóm"
-                                    hint="JPG, PNG, WEBP (Max 5MB)"
+                                    hint="JPG, PNG, WEBP (Max 10MB)"
                                 />
                             </div>
                         </Col>
@@ -122,12 +122,12 @@ const GroupTab = ({
                                 <FileUpload
                                     bucket={QUIZ_GROUP_BUCKET}
                                     accept="audio/*"
-                                    maxSize={50}
+                                    maxSize={300}
                                     existingUrl={gMedia.audio.preview}
                                     onUploadSuccess={handleGMediaChange}
                                     onRemove={() => handleRemoveMedia('audio')}
                                     label="Chọn Audio"
-                                    hint="MP3, WAV (Max 50MB)"
+                                    hint="MP3, WAV (Max 300MB)"
                                 />
                             </div>
                         </Col>
@@ -139,12 +139,12 @@ const GroupTab = ({
                                 <FileUpload
                                     bucket={QUIZ_GROUP_BUCKET}
                                     accept="video/*"
-                                    maxSize={100}
+                                    maxSize={300}
                                     existingUrl={gMedia.video.preview}
                                     onUploadSuccess={handleGMediaChange}
                                     onRemove={() => handleRemoveMedia('video')}
                                     label="Chọn Video"
-                                    hint="MP4, WEBM (Max 100MB)"
+                                    hint="MP4, WEBM (Max 300MB)"
                                 />
                             </div>
                         </Col>

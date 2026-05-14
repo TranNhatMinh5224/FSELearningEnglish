@@ -208,15 +208,20 @@
   font-size: 18px;
   margin-bottom: 6px;
   background: #fff;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
 }
 
 .gender-option.active .gender-icon {
   transform: scale(1.1);
 }
 
-.gender-icon.female { color: #ec4899; }
-.gender-icon.male { color: #3b82f6; }
+.gender-icon.female {
+  color: #ec4899;
+}
+
+.gender-icon.male {
+  color: #3b82f6;
+}
 
 .gender-name {
   font-size: 14px;
@@ -357,7 +362,6 @@
   }
 }
 
-/* Small Mobile: 480px and below */
 @media (max-width: 480px) {
   .auth-card {
     padding: var(--padding-container-sm, clamp(0.75rem, 0.5rem + 1.25vw, 1.5rem));
@@ -367,12 +371,5 @@
   /* Bootstrap utilities: flex-column trong JSX */
   .date-picker-wrapper .date-picker-container {
     gap: var(--spacing-xs, clamp(0.25rem, 0.2rem + 0.25vw, 0.5rem));
-  }
-}
-
-@media (min-width: 992px) {
-  .auth-container {
-    min-height: 125vh;
-    /* Compensate for desktop zoom: 0.8 */
   }
 }

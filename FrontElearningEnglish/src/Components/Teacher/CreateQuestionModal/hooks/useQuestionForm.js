@@ -10,7 +10,7 @@ export const useQuestionForm = (show, questionToUpdate) => {
   const [qFormData, setQFormData] = useState({
     stemText: "",
     explanation: "",
-    points: 10,
+    points: 1,
     type: null,
     options: [],
     matchingPairs: [],
@@ -64,7 +64,7 @@ export const useQuestionForm = (show, questionToUpdate) => {
     setQFormData({
       stemText: "",
       explanation: "",
-      points: 10,
+      points: 1,
       type: selectedType,
       options: defaultOptions,
       matchingPairs: defaultPairs,
@@ -125,7 +125,7 @@ export const useQuestionForm = (show, questionToUpdate) => {
       setQFormData({
         stemText: "",
         explanation: "",
-        points: 10,
+        points: 1,
         type: null,
         options: [],
         matchingPairs: [],

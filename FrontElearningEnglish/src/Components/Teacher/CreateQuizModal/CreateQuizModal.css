@@ -206,17 +206,17 @@
 }
 
 .create-quiz-modal .preset-btn:hover {
-  border-color: #74CEDE;
-  background: #f0f9ff;
-  color: #0ea5e9;
+  border-color: #7463F1;
+  background: #f5f3ff;
+  color: #7463F1;
   transform: translateY(-1px);
 }
 
 .create-quiz-modal .preset-btn.active {
-  border-color: #74CEDE;
-  background: linear-gradient(135deg, #74CEDE 0%, #5BB8C8 100%);
+  border-color: #7463F1;
+  background: linear-gradient(135deg, #7463F1 0%, #5d4ed1 100%);
   color: white;
-  box-shadow: 0 2px 8px rgba(116, 206, 222, 0.3);
+  box-shadow: 0 2px 8px rgba(116, 99, 241, 0.3);
 }
 
 .create-quiz-modal .duration-input-wrapper {
@@ -232,9 +232,9 @@
 
 .create-quiz-modal .duration-input-wrapper .form-control:focus + .input-group-text,
 .create-quiz-modal .duration-input-wrapper .input-group:focus-within .input-group-text {
-  border-color: #74CEDE;
-  background: #f0f9ff;
-  color: #0ea5e9;
+  border-color: #7463F1;
+  background: #f5f3ff;
+  color: #7463F1;
 }
 
 /* Improved form sections */
@@ -263,7 +263,7 @@
   content: "";
   width: 4px;
   height: 20px;
-  background: linear-gradient(135deg, #74CEDE 0%, #5BB8C8 100%);
+  background: linear-gradient(135deg, #7463F1 0%, #5d4ed1 100%);
   border-radius: 2px;
 }
 
@@ -276,6 +276,66 @@
   font-size: 0.8rem;
   color: #64748b;
   margin-top: 0.25rem;
+}
+
+/* Status Toggle Styling */
+.status-toggle-card {
+  border-radius: 10px;
+  border: 1px solid #e2e8f0;
+  transition: all 0.3s ease;
+  background: white;
+}
+
+.status-toggle-card.status-open {
+  border-color: #10b981;
+  background: #f0fdf4;
+}
+
+.status-toggle-card.status-closed {
+  border-color: #94a3b8;
+  background: #f8fafc;
+}
+
+.status-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  margin-right: 10px;
+}
+
+.status-open .status-dot {
+  background-color: #10b981;
+  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.2);
+  animation: pulse-green 2s infinite;
+}
+
+.status-closed .status-dot {
+  background-color: #94a3b8;
+}
+
+.status-open .status-text {
+  color: #065f46;
+}
+
+.status-closed .status-text {
+  color: #475569;
+}
+
+.status-switch {
+  cursor: pointer;
+  width: 3rem !important;
+  height: 1.5rem !important;
+}
+
+.status-switch:checked {
+  background-color: #10b981;
+  border-color: #10b981;
+}
+
+@keyframes pulse-green {
+  0% { box-shadow: 0 0 0 0px rgba(16, 185, 129, 0.4); }
+  70% { box-shadow: 0 0 0 6px rgba(16, 185, 129, 0); }
+  100% { box-shadow: 0 0 0 0px rgba(16, 185, 129, 0); }
 }
 
 /* Responsive */

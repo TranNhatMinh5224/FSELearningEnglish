@@ -249,15 +249,15 @@ export default function CreateQuizGroupModal({ show, onClose, onSuccess, quizSec
                     <div className="form-section-title">Media đa phương tiện</div>
                     <div className="mb-3">
                         <small className="text-muted d-block mb-1">Hình ảnh</small>
-                        <FileUpload bucket={QUIZ_GROUP_BUCKET} accept="image/*" existingUrl={imageUrl} onUploadSuccess={(key) => setImageTempKey(key)} onRemove={() => {setImageUrl(null); setImageTempKey(null);}} />
+                        <FileUpload bucket={QUIZ_GROUP_BUCKET} accept="image/*" maxSize={10} existingUrl={imageUrl} onUploadSuccess={(key) => setImageTempKey(key)} onRemove={() => {setImageUrl(null); setImageTempKey(null);}} />
                     </div>
                     <div className="mb-3">
                         <small className="text-muted d-block mb-1">Video</small>
-                        <FileUpload bucket={QUIZ_GROUP_BUCKET} accept="video/*" existingUrl={videoUrl} onUploadSuccess={(key, type, url, size, dur) => {setVideoTempKey(key); setVideoDuration(dur);}} onRemove={() => {setVideoUrl(null); setVideoTempKey(null);}} />
+                        <FileUpload bucket={QUIZ_GROUP_BUCKET} accept="video/*" maxSize={300} existingUrl={videoUrl} onUploadSuccess={(key, type, url, size, dur) => {setVideoTempKey(key); setVideoDuration(dur);}} onRemove={() => {setVideoUrl(null); setVideoTempKey(null);}} />
                     </div>
                     <div className="mb-0">
                         <small className="text-muted d-block mb-1">Âm thanh</small>
-                        <FileUpload bucket={QUIZ_GROUP_BUCKET} accept="audio/*" existingUrl={audioUrl} onUploadSuccess={(key) => setAudioTempKey(key)} onRemove={() => {setAudioUrl(null); setAudioTempKey(null);}} />
+                        <FileUpload bucket={QUIZ_GROUP_BUCKET} accept="audio/*" maxSize={300} existingUrl={audioUrl} onUploadSuccess={(key) => setAudioTempKey(key)} onRemove={() => {setAudioUrl(null); setAudioTempKey(null);}} />
                     </div>
                   </div>
                 </div>

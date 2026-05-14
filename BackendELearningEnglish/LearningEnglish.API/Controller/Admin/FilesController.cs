@@ -16,9 +16,9 @@ namespace LearningEnglish.API.Controller.AdminAndTeacher
         private readonly ILogger<FilesController> _logger;
 
         // File size limits (in bytes)
-        private const long MAX_IMAGE_SIZE = 5_242_880;      // 5MB
-        private const long MAX_AUDIO_SIZE = 10_485_760;     // 10MB
-        private const long MAX_VIDEO_SIZE = 5_368_709_120;    // 5GB (Tăng từ 100MB)
+        private const long MAX_IMAGE_SIZE = 10_485_760;     // 10MB (Tăng lên từ 5MB cho ảnh chất lượng cao)
+        private const long MAX_AUDIO_SIZE = 314_572_800;    // 300MB (Đồng bộ với Nginx)
+        private const long MAX_VIDEO_SIZE = 314_572_800;    // 300MB (Đồng bộ với Nginx)
         private const long MAX_DOCUMENT_SIZE = 20_971_520;  // 20MB
 
         public FilesController(IMinioFileStorage minioFileStorage, ILogger<FilesController> logger)
@@ -68,19 +68,19 @@ namespace LearningEnglish.API.Controller.AdminAndTeacher
             {
                 maxSize = MAX_IMAGE_SIZE;
                 fileType = "Image";
-                maxSizeReadable = "5MB";
+                maxSizeReadable = "10MB";
             }
             else if (contentType.StartsWith("audio/") || bucketName == "flashcards")
             {
                 maxSize = MAX_AUDIO_SIZE;
                 fileType = "Audio";
-                maxSizeReadable = "10MB";
+                maxSizeReadable = "300MB";
             }
             else if (contentType.StartsWith("video/") || bucketName == "lectures")
             {
                 maxSize = MAX_VIDEO_SIZE;
                 fileType = "Video";
-                maxSizeReadable = "5GB";
+                maxSizeReadable = "300MB";
             }
             else
             {
