@@ -59,24 +59,23 @@ namespace LearningEnglish.API.Controller.AdminAndTeacher
         private static (bool IsValid, string ErrorMessage, string MaxSizeReadable) ValidateFileSize(IFormFile file, string bucketName)
         {
             var contentType = file.ContentType.ToLower();
+            var extension = Path.GetExtension(file.FileName).ToLower();
             long maxSize;
             string fileType;
             string maxSizeReadable;
-
-            // xác định giới hạn kích thước dựa trên loại file
-            if (contentType.StartsWith("image/"))
+            if (contentType.StartsWith("image/") || extension == ".jpg" || extension == ".jpeg" || extension == ".png" || extension == ".webp")
             {
                 maxSize = MAX_IMAGE_SIZE;
                 fileType = "Image";
                 maxSizeReadable = "10MB";
             }
-            else if (contentType.StartsWith("audio/") || bucketName == "flashcards")
+            else if (contentType.StartsWith("audio/") || extension == ".mp3" || extension == ".wav" || extension == ".m4a" || bucketName == "flashcards")
             {
                 maxSize = MAX_AUDIO_SIZE;
                 fileType = "Audio";
                 maxSizeReadable = "300MB";
             }
-            else if (contentType.StartsWith("video/") || bucketName == "lectures")
+            else if (contentType.StartsWith("video/") || extension == ".mp4" || extension == ".webm" || extension == ".mov" || bucketName == "lectures")
             {
                 maxSize = MAX_VIDEO_SIZE;
                 fileType = "Video";

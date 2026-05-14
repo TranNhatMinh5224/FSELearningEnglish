@@ -207,6 +207,14 @@ namespace LearningEnglish.Application.Service
                 }
 
                 await _questionRepository.AddQuestionAsync(question);
+
+                // Identify QuizId to update TotalPossibleScore
+                if (!quizId.HasValue && questionCreateDto.QuizSectionId.HasValue)
+                {
+                    var section = await _quizSectionRepository.GetQuizSectionByIdAsync(questionCreateDto.QuizSectionId.Value);
+                    if (section != null) quizId = section.QuizId;
+                }
+
                 if (quizId.HasValue) await UpdateQuizTotalScoreAsync(quizId.Value);
 
                 var dto = _mapper.Map<QuestionReadDto>(question);
@@ -269,6 +277,21 @@ namespace LearningEnglish.Application.Service
                     }
 
                     await _questionRepository.UpdateQuestionAsync(existing);
+
+                    // Update Quiz Score
+                    int? quizIdToUpdate = null;
+                    if (existing.QuizGroupId.HasValue)
+                    {
+                        var group = await _quizGroupRepository.GetQuizGroupByIdAsync(existing.QuizGroupId.Value);
+                        if (group != null && group.QuizSection != null) quizIdToUpdate = group.QuizSection.QuizId;
+                    }
+                    else if (existing.QuizSectionId.HasValue)
+                    {
+                        var section = await _quizSectionRepository.GetQuizSectionByIdAsync(existing.QuizSectionId.Value);
+                        if (section != null) quizIdToUpdate = section.QuizId;
+                    }
+                    
+                    if (quizIdToUpdate.HasValue) await UpdateQuizTotalScoreAsync(quizIdToUpdate.Value);
                     
                     // Cleanup old files
                     if (newMedia != null && oldMedia != null) await _questionMediaService.DeleteMediaAsync(oldMedia);
@@ -321,7 +344,22 @@ namespace LearningEnglish.Application.Service
                     if (opt.MediaKey != null) await _questionMediaService.DeleteMediaAsync(opt.MediaKey);
                 }
 
+                // Identify QuizId before deletion
+                int? quizIdToUpdate = null;
+                if (question.QuizGroupId.HasValue)
+                {
+                    var group = await _quizGroupRepository.GetQuizGroupByIdAsync(question.QuizGroupId.Value);
+                    if (group != null && group.QuizSection != null) quizIdToUpdate = group.QuizSection.QuizId;
+                }
+                else if (question.QuizSectionId.HasValue)
+                {
+                    var section = await _quizSectionRepository.GetQuizSectionByIdAsync(question.QuizSectionId.Value);
+                    if (section != null) quizIdToUpdate = section.QuizId;
+                }
+
                 await _questionRepository.DeleteQuestionAsync(questionId);
+                
+                if (quizIdToUpdate.HasValue) await UpdateQuizTotalScoreAsync(quizIdToUpdate.Value);
                 response.Data = true;
                 response.Success = true;
             }
@@ -512,24 +550,49 @@ namespace LearningEnglish.Application.Service
             {
                 var quiz = await _quizRepository.GetFullQuizAsync(quizId);
                 if (quiz == null) return;
+                
                 decimal total = 0;
+                bool hasChanges = false;
+
                 foreach (var section in quiz.QuizSections)
                 {
+                    // [1] Update SumScore for Groups in this section
                     foreach (var group in section.QuizGroups)
-                        total += group.SumScore;
-                    foreach (var q in section.Questions.Where(q => q.QuizGroupId == null))
-                        total += q.Points;
+                    {
+                        decimal groupTotal = group.Questions.Sum(q => q.Points);
+                        if (group.SumScore != groupTotal)
+                        {
+                            group.SumScore = groupTotal;
+                            group.UpdatedAt = DateTime.UtcNow;
+                            hasChanges = true;
+                        }
+                        total += groupTotal;
+                    }
+
+                    // [2] Add points from standalone questions (not in any group)
+                    var standalonePoints = section.Questions
+                        .Where(q => q.QuizGroupId == null)
+                        .Sum(q => q.Points);
+                    
+                    total += standalonePoints;
                 }
-                var qToUpdate = await _quizRepository.GetQuizByIdAsync(quizId);
-                if (qToUpdate != null)
+
+                if (quiz.TotalPossibleScore != total)
                 {
-                    qToUpdate.TotalPossibleScore = total;
-                    await _quizRepository.UpdateQuizAsync(qToUpdate);
+                    quiz.TotalPossibleScore = total;
+                    quiz.UpdatedAt = DateTime.UtcNow;
+                    hasChanges = true;
+                }
+
+                if (hasChanges)
+                {
+                    // Use the repository's SaveChanges if available, or assume the repository handles updates through the same context
+                    await _quizRepository.UpdateQuizAsync(quiz);
                 }
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error updating quiz score");
+                _logger.LogError(ex, "Error updating quiz score for Quiz {QuizId}", quizId);
             }
         }
     }

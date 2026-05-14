@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using System.Text.Json.Serialization;
 
 namespace LearningEnglish.Application.DTOs
 {
@@ -9,11 +10,11 @@ namespace LearningEnglish.Application.DTOs
         public string? Description { get; set; }
         public int QuizSectionId { get; set; }
         public string Title { get; set; } = string.Empty;
+        public int DisplayOrder { get; set; }
         
-        // Multi-media URLs for Response
-        public string? ImgUrl { get; set; }
-        public string? VideoUrl { get; set; }
-        public string? AudioUrl { get; set; }
+        public string? ImgKey { get; set; }
+        public string? VideoKey { get; set; }
+        public string? AudioKey { get; set; }
 
         public string? ImgType { get; set; }
         public string? VideoType { get; set; }
@@ -21,15 +22,12 @@ namespace LearningEnglish.Application.DTOs
         public int? VideoDuration { get; set; }
 
         public decimal SumScore { get; set; }
-        public int DisplayOrder { get; set; }
         
         public DateTime CreatedAt { get; set; }
         public DateTime UpdatedAt { get; set; }
 
         // Navigation Properties
-        [System.Text.Json.Serialization.JsonIgnore]
-        public QuizSectionDto? QuizSection { get; set; }
-        public List<QuestionReadDto> Questions { get; set; } = new();
+        public List<QuestionDto> Questions { get; set; } = new();
     }
 
     public class CreateQuizGroupDto
@@ -44,16 +42,22 @@ namespace LearningEnglish.Application.DTOs
         public decimal SumScore { get; set; }
         public int DisplayOrder { get; set; } = 0;
 
-        // Multi-media TempKeys for Request
-        public string? ImgTempKey { get; set; }
+        // Multi-media keys for creation
+        public string? ImgKey { get; set; }
         public string? ImgType { get; set; }
 
-        public string? VideoTempKey { get; set; }
+        public string? VideoKey { get; set; }
         public string? VideoType { get; set; }
 
-        public string? AudioTempKey { get; set; }
+        public string? AudioKey { get; set; }
         public string? AudioType { get; set; }
         public int? VideoDuration { get; set; }
+        
+        // Support for TempKeys from frontend
+        [JsonPropertyName("imageTempKey")]
+        public string? ImgTempKey { get; set; }
+        public string? VideoTempKey { get; set; }
+        public string? AudioTempKey { get; set; }
     }
 
     public class UpdateQuizGroupDto : CreateQuizGroupDto
@@ -68,17 +72,11 @@ namespace LearningEnglish.Application.DTOs
         public string? Description { get; set; }
         public string Title { get; set; } = string.Empty;
         
-        public string? ImgUrl { get; set; }
-        public string? VideoUrl { get; set; }
-        public string? AudioUrl { get; set; }
-
-        public string? ImgType { get; set; }
-        public string? VideoType { get; set; }
-        public string? AudioType { get; set; }
+        public string? ImgKey { get; set; }
+        public string? VideoKey { get; set; }
+        public string? AudioKey { get; set; }
         
         public int DisplayOrder { get; set; }
-        public int? VideoDuration { get; set; }
-
         public decimal SumScore { get; set; }
         public int QuestionCount { get; set; }
     }

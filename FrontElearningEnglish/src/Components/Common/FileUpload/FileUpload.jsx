@@ -135,7 +135,23 @@ export default function FileUpload({
                 throw new Error(uploadResponse.data?.message || "Upload thất bại");
             }
         } catch (error) {
-            let errorMessage = error.message || "Lỗi upload file";
+            let errorMessage = "Lỗi upload file";
+            if (error.response?.data) {
+                const data = error.response.data;
+                if (data.message) {
+                    errorMessage = data.message;
+                } else if (data.errors) {
+                    // Xử lý lỗi validation từ ASP.NET (ModelState/FluentValidation)
+                    errorMessage = Object.values(data.errors).flat().join(", ");
+                } else if (data.title) {
+                    errorMessage = data.title;
+                }
+            } else if (error.response?.status === 413) {
+                errorMessage = "Dung lượng file quá lớn (Vượt giới hạn máy chủ 300MB)";
+            } else if (error.message) {
+                errorMessage = error.message;
+            }
+            
             setError(errorMessage);
             setPreview(existingUrl || null);
             if (onError) onError(errorMessage);

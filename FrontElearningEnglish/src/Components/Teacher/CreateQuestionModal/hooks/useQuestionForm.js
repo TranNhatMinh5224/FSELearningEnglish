@@ -94,9 +94,22 @@ export const useQuestionForm = (show, questionToUpdate) => {
           const parsed = typeof questionToUpdate.correctAnswersJson === 'string'
             ? JSON.parse(questionToUpdate.correctAnswersJson)
             : questionToUpdate.correctAnswersJson;
-          if (Array.isArray(parsed)) initialPairs = parsed;
-          else if (typeof parsed === 'object') initialPairs = Object.entries(parsed).map(([k, v]) => ({ key: k, value: v }));
-        } catch (e) { initialPairs = [{ key: "", value: "" }]; }
+          
+          if (Array.isArray(parsed)) {
+            initialPairs = parsed.map(p => ({
+              leftSide: p.leftSide || p.key || "",
+              rightSide: p.rightSide || p.value || ""
+            }));
+          } else if (typeof parsed === 'object') {
+            initialPairs = Object.entries(parsed).map(([k, v]) => ({
+              leftSide: k,
+              rightSide: v
+            }));
+          }
+        } catch (e) { 
+          console.error("Error parsing matching pairs:", e);
+          initialPairs = [{ leftSide: "", rightSide: "" }]; 
+        }
       } else if (questionToUpdate.matchingPairs || questionToUpdate.MatchingPairs) {
         initialPairs = questionToUpdate.matchingPairs || questionToUpdate.MatchingPairs;
       }

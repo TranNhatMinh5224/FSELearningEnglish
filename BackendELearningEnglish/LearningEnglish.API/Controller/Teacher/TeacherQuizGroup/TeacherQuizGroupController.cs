@@ -26,7 +26,13 @@ namespace LearningEnglish.API.Controller.Teacher.TeacherQuizGroup
         public async Task<IActionResult> CreateQuizGroup([FromBody] CreateQuizGroupDto createDto)
         {
             var teacherId = User.GetUserId();
-            _logger.LogInformation("Teacher {TeacherId} đang tạo QuizGroup mới", teacherId);
+            _logger.LogInformation("Teacher {TeacherId} đang tạo QuizGroup mới. ImgTempKey: {ImgTempKey}", 
+                teacherId, createDto.ImgTempKey);
+            
+            if (string.IsNullOrEmpty(createDto.ImgTempKey))
+            {
+                _logger.LogWarning("CẢNH BÁO: ImgTempKey gửi lên đang bị TRỐNG hoặc NULL");
+            }
 
             var result = await _quizGroupService.CreateQuizGroupAsync(createDto);
 

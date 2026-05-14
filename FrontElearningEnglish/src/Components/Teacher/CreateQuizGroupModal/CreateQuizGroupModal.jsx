@@ -69,9 +69,9 @@ export default function CreateQuizGroupModal({ show, onClose, onSuccess, quizSec
           description: group.description || group.Description || "",
           title: group.title || group.Title || "",
           sumScore: (group.sumScore || group.SumScore || 0).toString(),
-          imageUrl: group.imgUrl || group.ImgUrl || null,
-          videoUrl: group.videoUrl || group.VideoUrl || null,
-          audioUrl: group.audioUrl || group.AudioUrl || null,
+          imageUrl: group.imgKey || group.ImgKey || null,
+          videoUrl: group.videoKey || group.VideoKey || null,
+          audioUrl: group.audioKey || group.AudioKey || null,
           videoDuration: group.videoDuration || group.VideoDuration || null
         };
 
@@ -161,11 +161,13 @@ export default function CreateQuizGroupModal({ show, onClose, onSuccess, quizSec
         description: description.trim() || null,
         title: title.trim(),
         sumScore: parseFloat(sumScore),
-        imageTempKey: imageTempKey,
+        imgTempKey: imageTempKey,
         videoTempKey: videoTempKey,
         audioTempKey: audioTempKey,
         videoDuration: videoDuration
       };
+
+      console.log("Creating Quiz Group Payload:", payload);
 
       let response;
       if (isUpdateMode && groupToUpdate) {

@@ -23,7 +23,7 @@ const FillBlankInfo = () => {
                         </p>
                         
                         <div className="bg-white p-3 rounded-3 border border-info border-opacity-25 font-monospace small mb-3 text-break">
-                            Ví dụ: Hà Nội là [thủ đô] của Việt Nam.
+                            Example: Hanoi is the [capital] of Vietnam.
                         </div>
 
                         <div className="d-flex align-items-center gap-2 text-info-emphasis small fw-bold">

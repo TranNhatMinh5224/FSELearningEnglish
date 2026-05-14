@@ -445,19 +445,25 @@ namespace LearningEnglish.Application.Mappings
             CreateMap<UpdateQuizSectionDto, QuizSection>()
                 .ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
 
-            // QuizGroup mappings
+            // QuizGroup mappings (Exact field matches)
             CreateMap<QuizGroup, QuizGroupDto>()
-                .ForMember(dest => dest.ImgUrl, opt => opt.MapFrom(src => src.ImgKey))
-                .ForMember(dest => dest.VideoUrl, opt => opt.MapFrom(src => src.VideoKey));
+                .ForMember(dest => dest.Questions, opt => opt.MapFrom(src => src.Questions))
+                .ReverseMap();
+
+            CreateMap<QuizGroup, ListQuizGroupDto>()
+                .ForMember(dest => dest.QuestionCount, opt => opt.MapFrom(src => src.Questions.Count));
 
             CreateMap<CreateQuizGroupDto, QuizGroup>()
                 .ForMember(dest => dest.QuizGroupId, opt => opt.Ignore())
-                .ForMember(dest => dest.ImgKey, opt => opt.Ignore()) // Set manually in service after commit
-                .ForMember(dest => dest.VideoKey, opt => opt.Ignore()); // Set manually in service after commit
+                .ForMember(dest => dest.ImgKey, opt => opt.Ignore())
+                .ForMember(dest => dest.VideoKey, opt => opt.Ignore())
+                .ForMember(dest => dest.AudioKey, opt => opt.Ignore())
+                .ForMember(dest => dest.Questions, opt => opt.Ignore());
 
             CreateMap<UpdateQuizGroupDto, QuizGroup>()
-                .ForMember(dest => dest.ImgKey, opt => opt.Ignore()) // Set manually in service after commit
-                .ForMember(dest => dest.VideoKey, opt => opt.Ignore()) // Set manually in service after commit
+                .ForMember(dest => dest.ImgKey, opt => opt.Ignore())
+                .ForMember(dest => dest.VideoKey, opt => opt.Ignore())
+                .ForMember(dest => dest.AudioKey, opt => opt.Ignore())
                 .ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
 
             // QuizGroupBulkCreateDto -> QuizGroup mapping for bulk section creation
@@ -471,13 +477,19 @@ namespace LearningEnglish.Application.Mappings
                 .ForMember(dest => dest.QuizSection, opt => opt.Ignore())
                 .ForMember(dest => dest.Questions, opt => opt.Ignore()); // Questions created separately in service
 
-            // Question mappings
             CreateMap<Question, QuestionReadDto>()
+                .ForMember(dest => dest.QuestionId, opt => opt.MapFrom(src => src.QuestionId))
+                .ForMember(dest => dest.StemText, opt => opt.MapFrom(src => src.StemText))
                 .ForMember(dest => dest.MediaUrl, opt => opt.MapFrom(src => src.MediaKey))
                 .ForMember(dest => dest.Options, opt => opt.MapFrom(src => src.Options));
 
             CreateMap<Question, QuestionDto>()
+                .ForMember(dest => dest.QuestionId, opt => opt.MapFrom(src => src.QuestionId))
+                .ForMember(dest => dest.QuestionText, opt => opt.MapFrom(src => src.StemText))
                 .ForMember(dest => dest.MediaUrl, opt => opt.MapFrom(src => src.MediaKey))
+                .ForMember(dest => dest.ImgUrl, opt => opt.MapFrom(src => src.MediaType == "image" ? src.MediaKey : null))
+                .ForMember(dest => dest.AudioUrl, opt => opt.MapFrom(src => src.MediaType == "audio" ? src.MediaKey : null))
+                .ForMember(dest => dest.VideoUrl, opt => opt.MapFrom(src => src.MediaType == "video" ? src.MediaKey : null))
                 .ForMember(dest => dest.Options, opt => opt.MapFrom(src => src.Options));
 
             CreateMap<QuestionCreateDto, Question>()
@@ -497,10 +509,20 @@ namespace LearningEnglish.Application.Mappings
             CreateMap<AnswerOption, AnswerOptionReadDto>()
                 .ForMember(dest => dest.MediaUrl, opt => opt.MapFrom(src => src.MediaKey));
 
+            CreateMap<AnswerOption, AnswerOptionDto>()
+                .ForMember(dest => dest.OptionId, opt => opt.MapFrom(src => src.AnswerOptionId))
+                .ForMember(dest => dest.OptionText, opt => opt.MapFrom(src => src.Text))
+                .ForMember(dest => dest.MediaUrl, opt => opt.MapFrom(src => src.MediaKey));
+            
+            CreateMap<AnswerOption, AnswerOptionReviewDto>()
+                .ForMember(dest => dest.OptionId, opt => opt.MapFrom(src => src.AnswerOptionId))
+                .ForMember(dest => dest.OptionText, opt => opt.MapFrom(src => src.Text))
+                .ForMember(dest => dest.MediaUrl, opt => opt.MapFrom(src => src.MediaKey));
+
             CreateMap<AnswerOptionCreateDto, AnswerOption>()
                 .ForMember(dest => dest.AnswerOptionId, opt => opt.Ignore())
                 .ForMember(dest => dest.QuestionId, opt => opt.Ignore())
-                .ForMember(dest => dest.MediaKey, opt => opt.Ignore()); // 
+                .ForMember(dest => dest.MediaKey, opt => opt.Ignore()); 
 
             // QuizAttempt mappings
             CreateMap<QuizAttempt, QuizAttemptDto>()

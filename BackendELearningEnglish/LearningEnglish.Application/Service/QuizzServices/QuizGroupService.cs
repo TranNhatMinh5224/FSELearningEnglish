@@ -11,27 +11,52 @@ namespace LearningEnglish.Application.Service
     public class QuizGroupService : IQuizGroupService
     {
         private readonly IQuizGroupRepository _quizGroupRepository;
+        private readonly IQuizRepository _quizRepository;
         private readonly IMapper _mapper;
         private readonly IQuizGroupMediaService _quizGroupMediaService;
+        private readonly IQuestionMediaService _questionMediaService; // Added
         private readonly ILogger<QuizGroupService> _logger;
 
         public QuizGroupService(
             IQuizGroupRepository quizGroupRepository,
+            IQuizRepository quizRepository,
             IMapper mapper,
             IQuizGroupMediaService quizGroupMediaService,
+            IQuestionMediaService questionMediaService, // Added
             ILogger<QuizGroupService> logger)
         {
             _quizGroupRepository = quizGroupRepository;
+            _quizRepository = quizRepository;
             _mapper = mapper;
             _quizGroupMediaService = quizGroupMediaService;
+            _questionMediaService = questionMediaService; // Added
             _logger = logger;
         }
 
         private void BuildMediaUrls(QuizGroupDto dto)
         {
-            if (!string.IsNullOrWhiteSpace(dto.ImgUrl)) dto.ImgUrl = _quizGroupMediaService.BuildImageUrl(dto.ImgUrl);
-            if (!string.IsNullOrWhiteSpace(dto.VideoUrl)) dto.VideoUrl = _quizGroupMediaService.BuildVideoUrl(dto.VideoUrl);
-            if (!string.IsNullOrWhiteSpace(dto.AudioUrl)) dto.AudioUrl = _quizGroupMediaService.BuildAudioUrl(dto.AudioUrl);
+            if (!string.IsNullOrWhiteSpace(dto.ImgKey)) dto.ImgKey = _quizGroupMediaService.BuildImageUrl(dto.ImgKey);
+            if (!string.IsNullOrWhiteSpace(dto.VideoKey)) dto.VideoKey = _quizGroupMediaService.BuildVideoUrl(dto.VideoKey);
+            if (!string.IsNullOrWhiteSpace(dto.AudioKey)) dto.AudioKey = _quizGroupMediaService.BuildAudioUrl(dto.AudioKey);
+
+            // Xử lý media cho các câu hỏi bên trong group
+            if (dto.Questions != null)
+            {
+                foreach (var q in dto.Questions)
+                {
+                    if (!string.IsNullOrWhiteSpace(q.MediaUrl))
+                        q.MediaUrl = _questionMediaService.BuildMediaUrl(q.MediaUrl);
+                    
+                    if (q.Options != null)
+                    {
+                        foreach (var opt in q.Options)
+                        {
+                            if (!string.IsNullOrWhiteSpace(opt.MediaUrl))
+                                opt.MediaUrl = _questionMediaService.BuildMediaUrl(opt.MediaUrl);
+                        }
+                    }
+                }
+            }
         }
 
         public async Task<ServiceResponse<QuizGroupDto>> CreateQuizGroupAsync(CreateQuizGroupDto createDto)
@@ -57,17 +82,29 @@ namespace LearningEnglish.Application.Service
                     if (!string.IsNullOrWhiteSpace(createDto.ImgTempKey))
                     {
                         var res = await _quizGroupMediaService.CommitImageAsync(createDto.ImgTempKey);
-                        if (res.Success) quizGroup.ImgKey = committedImg = res.Data.ImageKey;
+                        if (res.Success) 
+                        {
+                            quizGroup.ImgKey = committedImg = res.Data.ImageKey;
+                            _logger.LogInformation("Committed Group Image: {Key}", committedImg);
+                        }
                     }
                     if (!string.IsNullOrWhiteSpace(createDto.VideoTempKey))
                     {
                         var res = await _quizGroupMediaService.CommitVideoAsync(createDto.VideoTempKey);
-                        if (res.Success) quizGroup.VideoKey = committedVideo = res.Data.VideoKey;
+                        if (res.Success) 
+                        {
+                            quizGroup.VideoKey = committedVideo = res.Data.VideoKey;
+                            _logger.LogInformation("Committed Group Video: {Key}", committedVideo);
+                        }
                     }
                     if (!string.IsNullOrWhiteSpace(createDto.AudioTempKey))
                     {
                         var res = await _quizGroupMediaService.CommitAudioAsync(createDto.AudioTempKey);
-                        if (res.Success) quizGroup.AudioKey = committedAudio = res.Data.AudioKey;
+                        if (res.Success) 
+                        {
+                            quizGroup.AudioKey = committedAudio = res.Data.AudioKey;
+                            _logger.LogInformation("Committed Group Audio: {Key}", committedAudio);
+                        }
                     }
                 }
                 catch (Exception ex)
@@ -78,6 +115,7 @@ namespace LearningEnglish.Application.Service
                     return response;
                 }
 
+                _logger.LogInformation("Lưu QuizGroup vào DB. ImgKey chuẩn bị lưu: {Key}", quizGroup.ImgKey);
                 try
                 {
                     var result = await _quizGroupRepository.CreateQuizGroupAsync(quizGroup);
@@ -134,20 +172,46 @@ namespace LearningEnglish.Application.Service
                     if (!string.IsNullOrWhiteSpace(updateDto.ImgTempKey))
                     {
                         var res = await _quizGroupMediaService.CommitImageAsync(updateDto.ImgTempKey);
-                        if (res.Success) existing.ImgKey = newImg = res.Data.ImageKey;
+                        if (res.Success) 
+                        {
+                            existing.ImgKey = newImg = res.Data.ImageKey;
+                            _logger.LogInformation("Updated Group Image: {Key}", newImg);
+                        }
                     }
                     if (!string.IsNullOrWhiteSpace(updateDto.VideoTempKey))
                     {
                         var res = await _quizGroupMediaService.CommitVideoAsync(updateDto.VideoTempKey);
-                        if (res.Success) existing.VideoKey = newVid = res.Data.VideoKey;
+                        if (res.Success) 
+                        {
+                            existing.VideoKey = newVid = res.Data.VideoKey;
+                            _logger.LogInformation("Updated Group Video: {Key}", newVid);
+                        }
                     }
                     if (!string.IsNullOrWhiteSpace(updateDto.AudioTempKey))
                     {
                         var res = await _quizGroupMediaService.CommitAudioAsync(updateDto.AudioTempKey);
-                        if (res.Success) existing.AudioKey = newAud = res.Data.AudioKey;
+                        if (res.Success) 
+                        {
+                            existing.AudioKey = newAud = res.Data.AudioKey;
+                            _logger.LogInformation("Updated Group Audio: {Key}", newAud);
+                        }
                     }
 
                     await _quizGroupRepository.UpdateQuizGroupAsync(existing);
+                    
+                    // Synchronize Quiz Total Score
+                    try
+                    {
+                        var section = await _quizGroupRepository.GetQuizSectionByIdAsync(existing.QuizSectionId);
+                        if (section != null)
+                        {
+                            await UpdateQuizTotalScoreAsync(section.QuizId);
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger.LogError(ex, "Error synchronizing quiz score after group update");
+                    }
                     
                     // Cleanup old files
                     if (newImg != null && !string.IsNullOrWhiteSpace(oldImg)) await _quizGroupMediaService.DeleteImageAsync(oldImg);
@@ -230,21 +294,94 @@ namespace LearningEnglish.Application.Service
                 return response;
             }
 
-            if (quizGroup.Questions?.Any() == true)
+            int? quizIdToUpdate = quizGroup.QuizSection?.QuizId;
+
+            // Xóa media của các câu hỏi bên trong nhóm trước
+            if (quizGroup.Questions != null)
             {
-                response.Success = false;
-                response.Message = "Nhóm đã có câu hỏi, không thể xóa.";
-                response.StatusCode = 400;
-                return response;
+                foreach (var q in quizGroup.Questions)
+                {
+                    if (!string.IsNullOrWhiteSpace(q.MediaKey))
+                        await _questionMediaService.DeleteMediaAsync(q.MediaKey);
+                    
+                    if (q.Options != null)
+                    {
+                        foreach (var opt in q.Options)
+                        {
+                            if (!string.IsNullOrWhiteSpace(opt.MediaKey))
+                                await _questionMediaService.DeleteMediaAsync(opt.MediaKey);
+                        }
+                    }
+                }
             }
 
+            // Xóa media của chính nhóm đó
             await RollbackMedia(quizGroup.ImgKey, quizGroup.VideoKey, quizGroup.AudioKey);
+            
+            // Thực hiện xóa nhóm (Repository nên xử lý việc xóa Questions/Options lồng nhau)
             await _quizGroupRepository.DeleteQuizGroupAsync(quizGroupId);
             
+            // Cập nhật lại điểm tổng của Quiz
+            if (quizIdToUpdate.HasValue)
+            {
+                await UpdateQuizTotalScoreAsync(quizIdToUpdate.Value);
+            }
+
             response.Data = true;
             response.Success = true;
             response.Message = "Xóa thành công.";
             return response;
+        }
+
+        private async Task UpdateQuizTotalScoreAsync(int quizId)
+        {
+            try
+            {
+                var quiz = await _quizRepository.GetFullQuizAsync(quizId);
+                if (quiz == null) return;
+                
+                decimal total = 0;
+                bool hasChanges = false;
+
+                foreach (var section in quiz.QuizSections)
+                {
+                    // [1] Update SumScore for Groups in this section
+                    foreach (var group in section.QuizGroups)
+                    {
+                        decimal groupTotal = group.Questions.Sum(q => q.Points);
+                        if (group.SumScore != groupTotal)
+                        {
+                            group.SumScore = groupTotal;
+                            group.UpdatedAt = DateTime.UtcNow;
+                            hasChanges = true;
+                        }
+                        total += groupTotal;
+                    }
+
+                    // [2] Add points from standalone questions
+                    var standalonePoints = section.Questions
+                        .Where(q => q.QuizGroupId == null)
+                        .Sum(q => q.Points);
+                    
+                    total += standalonePoints;
+                }
+
+                if (quiz.TotalPossibleScore != total)
+                {
+                    quiz.TotalPossibleScore = total;
+                    quiz.UpdatedAt = DateTime.UtcNow;
+                    hasChanges = true;
+                }
+
+                if (hasChanges)
+                {
+                    await _quizRepository.UpdateQuizAsync(quiz);
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error updating quiz score for Quiz {QuizId}", quizId);
+            }
         }
     }
 }
