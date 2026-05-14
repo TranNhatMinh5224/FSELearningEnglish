@@ -225,7 +225,7 @@ export default function TeacherQuestionManagement() {
               <div className="d-flex align-items-center gap-2 mb-2">
                 <div className="question-number-badge">#{index + 1}</div>
                 <Badge bg="info">{getQuestionTypeLabel(q.type || q.Type)}</Badge>
-                <div className="ms-auto fw-bold text-primary">{(q.points || q.Points || 0).toFixed(1)} pts</div>
+                <div className="ms-auto fw-bold text-danger">{(q.points || q.Points || 0).toFixed(1)} pts</div>
               </div>
               <h6 className="fw-bold mb-2">{q.questionText || q.QuestionText || q.stemText || q.StemText}</h6>
               
@@ -320,7 +320,7 @@ export default function TeacherQuestionManagement() {
                         <div className="d-flex align-items-center gap-3 mb-2">
                           <FaLayerGroup className="text-primary" size={24} />
                           <h4 className="fw-bold mb-0">{group.title || group.Title || group.name || group.Name}</h4>
-                          <Badge bg="secondary" className="px-3 py-2">Total: {group.sumScore || group.SumScore} pts</Badge>
+                          <span className="points-badge-premium">Total: {group.sumScore || group.SumScore} pts</span>
                         </div>
                         {(group.description || group.Description) && <p className="text-muted mb-3">{group.description || group.Description}</p>}
                         

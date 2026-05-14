@@ -1,42 +1,95 @@
-/* --- Admin Premium UI Upgrade --- */
+/* --- Admin Premium UI Upgrade (Synced with Teacher) --- */
 :root {
-  --admin-primary: linear-gradient(135deg, #0d6efd 0%, #0a58ca 100%);
   --primary-gradient: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
-  --admin-soft-bg: #f8fafc;
-  --admin-card-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+  --glass-bg: rgba(255, 255, 255, 0.85);
+  --glass-border: rgba(255, 255, 255, 0.4);
+  --soft-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+  --card-shadow-hover: 0 15px 45px rgba(79, 70, 229, 0.1);
 }
 
 .admin-lesson-detail-container {
   min-height: 100vh;
-  background: var(--admin-soft-bg);
-  padding: 0;
+  background: #f8fafc;
+  padding: 3rem 0 6rem 0;
+  padding-top: calc(70px + 3rem);
 }
 
-/* --- Breadcrumb Wrapper --- */
+/* --- Breadcrumb Styling --- */
 .admin-breadcrumb-wrapper {
   background: white;
   border-bottom: 1px solid #eef2f6;
   padding: 1rem 0;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.02);
+  margin-bottom: 2rem;
 }
 
 /* --- Header Section --- */
-.admin-header-main {
+.question-header-section {
   background: white;
   border-radius: 24px;
   padding: 2.5rem;
-  box-shadow: var(--admin-card-shadow);
+  box-shadow: var(--soft-shadow);
+  border: 1px solid var(--glass-border);
   margin-bottom: 3rem;
-  border: 1px solid #f1f5f9;
+  position: relative;
+  overflow: hidden;
 }
 
-.admin-header-main h2 {
+.question-header-section::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 200px;
+  height: 200px;
+  background: var(--primary-gradient);
+  filter: blur(100px);
+  opacity: 0.1;
+  z-index: -1;
+  pointer-events: none;
+}
+
+.premium-gradient-text {
+  background: var(--primary-gradient);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  font-size: 2.2rem;
   font-weight: 800;
-  color: #1e293b;
   letter-spacing: -0.5px;
 }
 
-/* --- Enhanced Question Cards (Quiz Style) --- */
+.header-stats-badge {
+  background: white;
+  padding: 0.6rem 1.5rem;
+  border-radius: 50px;
+  font-weight: 700;
+  color: #4f46e5;
+  border: 1px solid #e0e7ff;
+  box-shadow: 0 4px 12px rgba(79, 70, 229, 0.08);
+}
+
+/* --- Premium Buttons --- */
+.premium-btn {
+  background: var(--primary-gradient);
+  border: none;
+  border-radius: 14px;
+  padding: 0.8rem 2rem;
+  font-weight: 600;
+  color: white !important;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 4px 15px rgba(79, 70, 229, 0.2);
+  cursor: pointer !important;
+  position: relative;
+  z-index: 5;
+}
+
+.premium-btn:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 25px rgba(79, 70, 229, 0.35);
+  filter: brightness(1.1);
+}
+
+/* --- Enhanced Question Cards --- */
 .question-card {
   background: white;
   border-radius: 20px;
@@ -58,13 +111,13 @@
 }
 
 .question-number-badge {
-  background: linear-gradient(135deg, #0d6efd 0%, #0a58ca 100%);
+  background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
   color: white;
   padding: 0.4rem 1rem;
   border-radius: 10px;
   font-weight: 800;
   font-size: 1rem;
-  box-shadow: 0 4px 12px rgba(13, 110, 253, 0.2);
+  box-shadow: 0 4px 12px rgba(79, 70, 229, 0.2);
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -78,7 +131,6 @@
   margin-top: 0.25rem;
 }
 
-/* Points Badge (v4 Style) */
 .points-badge-v4-compact {
   display: flex;
   align-items: center;
@@ -89,6 +141,17 @@
   border: 1px solid #e2e8f0;
   color: #475569;
   flex-shrink: 0;
+}
+
+.points-badge-premium {
+  background: #eef2ff !important;
+  color: #4f46e5 !important;
+  border: 1px solid #e0e7ff !important;
+  font-weight: 700 !important;
+  padding: 0.5rem 1.25rem !important;
+  border-radius: 50px !important;
+  font-size: 0.9rem !important;
+  box-shadow: 0 2px 8px rgba(79, 70, 229, 0.05);
 }
 
 .points-value {
@@ -104,7 +167,7 @@
   opacity: 0.7;
 }
 
-/* --- Answer Options Vertical (Result Style) --- */
+/* --- Answer Options --- */
 .options-preview {
   display: flex;
   flex-direction: column;
@@ -163,12 +226,24 @@
 }
 
 .group-header-bar {
-  background: linear-gradient(to right, #f8fafc, white) !important;
-  border-radius: 20px !important;
-  padding: 1.5rem 2rem !important;
-  border-left: 8px solid #0d6efd !important;
+  background: white !important;
+  border-radius: 24px !important;
+  padding: 2rem !important;
   margin-bottom: 2.5rem !important;
   border: 1px solid #f1f5f9 !important;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.02);
+  position: relative;
+  overflow: hidden;
+}
+
+.group-header-bar::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 6px;
+  background: var(--primary-gradient);
 }
 
 /* --- Premium Media Containers --- */
@@ -209,7 +284,7 @@
 
 .premium-video-element {
   width: 100%;
-  max-height: 450px;
+  max-height: 550px;
   display: block;
 }
 
@@ -228,7 +303,7 @@
   content: '🎧 Audio đính kèm';
   font-size: 1rem;
   font-weight: 700;
-  color: #0d6efd;
+  color: #4f46e5;
 }
 
 .premium-audio-element {
@@ -237,10 +312,18 @@
 }
 
 /* --- Action Buttons --- */
+.action-buttons {
+  opacity: 0.3;
+  transition: all 0.3s ease;
+}
+
+.question-card:hover .action-buttons {
+  opacity: 1;
+}
+
 .action-buttons button {
   border-radius: 14px;
-  width: 48px !important;
-  height: 48px !important;
+  padding: 12px;
   background: white !important;
   border: 1px solid #eef2f6 !important;
   transition: all 0.2s ease;
@@ -250,32 +333,4 @@
 .action-buttons button:hover {
   transform: scale(1.1);
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-}
-
-@media (min-width: 992px) {
-  .admin-lesson-detail-container {
-    min-height: 100vh;
-  }
-}
-
-/* Premium Buttons for Admin */
-.premium-btn {
-  background: var(--primary-gradient);
-  border: none;
-  border-radius: 14px;
-  padding: 0.8rem 2rem;
-  font-weight: 600;
-  color: white !important;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  box-shadow: 0 4px 15px rgba(79, 70, 229, 0.2);
-  cursor: pointer !important;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.premium-btn:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 8px 25px rgba(79, 70, 229, 0.35);
-  filter: brightness(1.1);
 }

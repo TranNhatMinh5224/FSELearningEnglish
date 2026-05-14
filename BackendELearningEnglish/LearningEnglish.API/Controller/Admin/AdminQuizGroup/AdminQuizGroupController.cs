@@ -27,7 +27,12 @@ namespace LearningEnglish.API.Controller.Admin.AdminQuizGroup
         public async Task<IActionResult> CreateQuizGroup([FromBody] CreateQuizGroupDto createDto)
         {
             var adminId = User.GetUserId();
-            _logger.LogInformation("Admin {AdminId} đang tạo QuizGroup mới", adminId);
+            _logger.LogInformation("Admin {AdminId} đang tạo QuizGroup mới. ImgTempKey: {ImgTempKey}", adminId, createDto.ImgTempKey);
+            
+            if (string.IsNullOrEmpty(createDto.ImgTempKey))
+            {
+                _logger.LogWarning("CẢNH BÁO: Admin gửi ImgTempKey TRỐNG");
+            }
 
             var result = await _quizGroupService.CreateQuizGroupAsync(createDto);
 
@@ -69,7 +74,8 @@ namespace LearningEnglish.API.Controller.Admin.AdminQuizGroup
         public async Task<IActionResult> UpdateQuizGroup(int id, [FromBody] UpdateQuizGroupDto updateDto)
         {
             var adminId = User.GetUserId();
-            _logger.LogInformation("Admin {AdminId} đang cập nhật QuizGroup {QuizGroupId}", adminId, id);
+            _logger.LogInformation("Admin {AdminId} đang cập nhật QuizGroup {QuizGroupId}. New ImgTempKey: {ImgTempKey}", 
+                adminId, id, updateDto.ImgTempKey);
 
             var result = await _quizGroupService.UpdateQuizGroupAsync(id, updateDto);
 

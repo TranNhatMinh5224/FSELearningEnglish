@@ -147,6 +147,17 @@
   flex-shrink: 0;
 }
 
+.points-badge-premium {
+  background: #eef2ff !important;
+  color: #4f46e5 !important;
+  border: 1px solid #e0e7ff !important;
+  font-weight: 700 !important;
+  padding: 0.5rem 1.25rem !important;
+  border-radius: 50px !important;
+  font-size: 0.9rem !important;
+  box-shadow: 0 2px 8px rgba(79, 70, 229, 0.05);
+}
+
 .points-value {
   font-weight: 800;
   font-size: 0.95rem;
