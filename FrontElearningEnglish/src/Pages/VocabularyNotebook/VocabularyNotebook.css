@@ -1,5 +1,5 @@
 .vocabulary-notebook-container {
-    min-height: calc(100vh - 70px);
+    min-height: 125vh;
     padding: var(--padding-container-xl, clamp(2rem, 1.5rem + 2.5vw, 4rem)) var(--padding-container-md, clamp(1rem, 0.75rem + 1.25vw, 2rem));
     padding-top: calc(var(--padding-container-xl, clamp(2rem, 1.5rem + 2.5vw, 4rem)) + 70px);
     background: var(--color-bg-secondary, #f5f5f5);
@@ -34,52 +34,112 @@
     z-index: 0;
 }
 
-.vocabulary-notebook-header {
-    text-align: center;
-    margin-bottom: var(--padding-container-xl, clamp(2rem, 1.5rem + 2.5vw, 4rem));
+.vocabulary-notebook-header-section {
     position: relative;
     z-index: 1;
 }
 
 .vocabulary-notebook-title {
-    font-size: var(--font-size-4xl, clamp(2.25rem, 1.8rem + 2.25vw, 3rem));
-    font-weight: 700;
-    color: var(--color-text-primary, #333);
-    margin: 0 0 var(--spacing-md, clamp(0.75rem, 0.6rem + 0.75vw, 1rem)) 0;
-    line-height: 1.2;
+    font-size: clamp(28px, 2rem + 1vw, 36px);
+    font-weight: 800;
+    background: linear-gradient(90deg, #6fd5e0 0%, #7a3df0 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 8px;
+    letter-spacing: -1px;
+    text-transform: uppercase;
 }
 
 .vocabulary-notebook-subtitle {
-    font-size: var(--font-size-lg, clamp(1.125rem, 1rem + 0.625vw, 1.25rem));
-    color: var(--color-text-secondary, #666);
+    font-size: 15px;
+    color: #64748b;
+    font-weight: 500;
     margin: 0;
 }
 
-.count-badge {
+/* Stats Highlight Card - Standardized with QuizHistory */
+.stats-highlight-card {
+    background: white;
+    padding: 18px 28px;
+    border-radius: 24px;
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.04);
+    border: 1px solid rgba(0, 0, 0, 0.01);
+    min-width: 240px;
+    transition: all 0.3s ease;
+}
+
+.stat-icon-box {
+    width: 52px;
+    height: 52px;
+    background: rgba(111, 213, 224, 0.1); /* Light cyan background instead of pink */
+    color: #6fd5e0; /* Cyan icon color */
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+    flex-shrink: 0;
+}
+
+.stat-info {
+    display: flex;
+    flex-direction: column;
+}
+
+.stat-label {
+    font-size: 11px;
     font-weight: 700;
-    color: var(--color-secondary-cyan, #6fd5e0);
-    font-size: var(--font-size-xl, clamp(1.25rem, 1.1rem + 0.75vw, 1.5rem));
+    color: #64748b; /* Adjusted label color to match Image 1 */
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    margin-bottom: 2px;
+}
+
+.stat-value {
+    font-size: 28px;
+    font-weight: 800;
+    color: #6fd5e0; /* Cyan color from Image 1 */
+    line-height: 1;
 }
 
 .empty-state {
     text-align: center;
-    padding: clamp(2.5rem, 2rem + 2.5vw, 3.75rem) var(--padding-container-md, clamp(1rem, 0.75rem + 1.25vw, 2rem));
-    background: var(--color-bg-white, #ffffff);
-    border-radius: var(--radius-xl, clamp(1rem, 0.8rem + 1vw, 1.5rem));
-    box-shadow: 0 8px 24px var(--shadow-md, rgba(0, 0, 0, 0.08));
+    padding: 80px 40px;
+    background: white;
+    border-radius: 24px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.04);
+    border: 1px solid rgba(0, 0, 0, 0.02);
     position: relative;
     z-index: 1;
 }
 
-.empty-state p {
-    font-size: var(--font-size-lg, clamp(1.125rem, 1rem + 0.625vw, 1.25rem));
-    color: var(--color-text-secondary, #666);
-    margin: 0 0 var(--spacing-sm, clamp(0.5rem, 0.4rem + 0.5vw, 0.75rem)) 0;
+.empty-icon {
+    font-size: 5rem;
+    margin-bottom: 24px;
+    filter: drop-shadow(0 10px 15px rgba(0,0,0,0.1));
+}
+
+.empty-title {
+    font-size: 24px;
+    font-weight: 800;
+    color: #1e293b;
+    margin-bottom: 12px;
+}
+
+.empty-subtitle {
+    font-size: 16px;
+    color: #64748b;
+    font-weight: 500;
+    margin-bottom: 8px;
 }
 
 .empty-state-hint {
-    font-size: var(--font-size-sm, clamp(0.875rem, 0.8rem + 0.375vw, 1rem));
-    color: var(--color-text-tertiary, #999);
+    font-size: 14px;
+    color: #94a3b8;
     font-style: italic;
 }
 
@@ -92,6 +152,13 @@
     z-index: 1;
     display: flex;
     flex-direction: column;
+    /* Hide scrollbar */
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+}
+
+.vocabulary-list-container::-webkit-scrollbar {
+    display: none;
 }
 
 /* Modern CSS Grid-based Table Layout */
@@ -99,23 +166,30 @@
     display: flex;
     flex-direction: column;
     overflow: hidden;
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+}
+
+.vocabulary-table-wrapper::-webkit-scrollbar {
+    display: none;
 }
 
 .vocabulary-list-header {
     display: grid;
-    grid-template-columns: 80px 1fr 140px 120px 2fr;
-    gap: clamp(1rem, 0.75rem + 1.25vw, 1.5rem);
-    padding: clamp(1rem, 0.875rem + 0.625vw, 1.25rem) clamp(1.5rem, 1.25rem + 1.25vw, 2rem);
-    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-    border-bottom: 2px solid var(--color-border-medium, #e9ecef);
-    font-weight: 600;
-    font-size: var(--font-size-base, clamp(1rem, 0.95rem + 0.25vw, 1.125rem));
-    color: var(--color-text-primary, #495057);
-    transition: background 0.3s ease, border-color 0.3s ease, color 0.3s ease;
+    grid-template-columns: 100px 2fr 1.5fr 1.5fr 4fr;
+    gap: 2rem;
+    padding: 1.5rem 2rem;
+    background: rgba(255, 255, 255, 0.8) !important;
+    backdrop-filter: blur(12px) saturate(180%);
+    border-bottom: 2px solid rgba(111, 213, 224, 0.2);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    font-size: 0.85rem;
+    color: #6c757d;
     position: sticky;
     top: 0;
     z-index: 10;
-    backdrop-filter: blur(10px);
 }
 
 [data-theme="dark"] .vocabulary-list-header {
@@ -137,13 +211,19 @@
     overflow-y: auto;
     display: flex;
     flex-direction: column;
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+}
+
+.vocabulary-list::-webkit-scrollbar {
+    display: none;
 }
 
 .vocabulary-item {
     display: grid;
-    grid-template-columns: 80px 1fr 140px 120px 2fr;
-    gap: clamp(1rem, 0.75rem + 1.25vw, 1.5rem);
-    padding: clamp(1rem, 0.875rem + 0.625vw, 1.25rem) clamp(1.5rem, 1.25rem + 1.25vw, 2rem);
+    grid-template-columns: 100px 2fr 1.5fr 1.5fr 4fr;
+    gap: 2rem;
+    padding: 1.5rem 2rem;
     border-bottom: 1px solid var(--color-border-light, #f0f0f0);
     transition: all 0.2s ease;
     align-items: center;
@@ -163,7 +243,8 @@
 }
 
 .vocabulary-item:hover {
-    background: linear-gradient(90deg, rgba(16, 185, 129, 0.05) 0%, rgba(16, 185, 129, 0.02) 100%);
+    background: rgba(111, 213, 224, 0.04);
+    transform: scale(1.002);
 }
 
 .vocabulary-item:hover::before {
@@ -246,14 +327,55 @@
 }
 
 .vocabulary-part-of-speech {
-    font-size: var(--font-size-base, clamp(1rem, 0.95rem + 0.25vw, 1.125rem));
-    color: var(--color-text-primary, #1f2937);
-    font-weight: 500;
-    text-transform: capitalize;
-    padding: clamp(0.25rem, 0.2rem + 0.25vw, 0.375rem) clamp(0.5rem, 0.4rem + 0.5vw, 0.75rem);
-    background: rgba(16, 185, 129, 0.1);
-    border-radius: 6px;
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: #475569;
+    background: #f1f5f9;
+    padding: 6px 12px;
+    border-radius: 8px;
     display: inline-block;
+    transition: all 0.3s ease;
+}
+
+/* Part of Speech Colors */
+.pos-noun {
+    background: rgba(16, 185, 129, 0.1) !important;
+    color: #10b981 !important;
+}
+
+.pos-verb {
+    background: rgba(59, 130, 246, 0.1) !important;
+    color: #3b82f6 !important;
+}
+
+.pos-adjective, .pos-adj {
+    background: rgba(245, 158, 11, 0.1) !important;
+    color: #f59e0b !important;
+}
+
+.pos-adverb, .pos-adv {
+    background: rgba(139, 92, 246, 0.1) !important;
+    color: #8b5cf6 !important;
+}
+
+.pos-preposition, .pos-prep {
+    background: rgba(244, 63, 94, 0.1) !important;
+    color: #f43f5e !important;
+}
+
+.pos-conjunction, .pos-conj {
+    background: rgba(6, 182, 212, 0.1) !important;
+    color: #0891b2 !important;
+}
+
+.pos-pronoun, .pos-pron {
+    background: rgba(99, 102, 241, 0.1) !important;
+    color: #6366f1 !important;
+}
+
+.pos-interjection, .pos-int {
+    background: rgba(244, 114, 182, 0.1) !important;
+    color: #db2777 !important;
 }
 
 .meaning-column {
@@ -293,24 +415,12 @@
     color: var(--color-status-error, #ef4444);
 }
 
-/* Scrollbar styling */
-.vocabulary-list::-webkit-scrollbar {
-    width: 8px;
-}
-
-.vocabulary-list::-webkit-scrollbar-track {
-    background: var(--color-bg-secondary, #f1f1f1);
-    transition: background-color 0.3s ease;
-}
-
-.vocabulary-list::-webkit-scrollbar-thumb {
-    background: var(--color-secondary-cyan, #6fd5e0);
-    border-radius: 4px;
-    transition: background-color 0.3s ease;
-}
-
-.vocabulary-list::-webkit-scrollbar-thumb:hover {
-    background: var(--color-secondary-cyan-light, #5bc4d0);
+.pagination-wrapper {
+    padding: 20px 32px;
+    display: flex;
+    justify-content: flex-end;
+    border-top: 1px solid var(--color-border-light, #f0f0f0);
+    background: #fcfcfc;
 }
 
 /* ===========================
@@ -319,6 +429,7 @@
 
 /* Desktop: 1200px and below */
 @media (max-width: 1200px) {
+
     .vocabulary-list-header,
     .vocabulary-item {
         grid-template-columns: 70px 1fr 120px 100px 2fr;
@@ -329,6 +440,7 @@
 
 /* Tablet: 992px and below */
 @media (max-width: 992px) {
+
     .vocabulary-list-header,
     .vocabulary-item {
         grid-template-columns: 60px 1fr 110px 90px 2fr;
@@ -349,7 +461,8 @@
     }
 
     .vocabulary-list-header {
-        display: none; /* Hide header on mobile/tablet */
+        display: none;
+        /* Hide header on mobile/tablet */
     }
 
     .vocabulary-item {
@@ -420,10 +533,11 @@
 
 
 @media (min-width: 992px) {
-  .vocabulary-notebook-container {
-    min-height: calc(125vh - 70px);
-  }
-  .vocabulary-list {
-    max-height: calc(125vh - clamp(250px, 15.625rem + 3vw, 300px));
-  }
+    .vocabulary-notebook-container {
+        min-height: calc(125vh - 70px);
+    }
+
+    .vocabulary-list {
+        max-height: calc(125vh - clamp(250px, 15.625rem + 3vw, 300px));
+    }
 }

@@ -1,7 +1,6 @@
 import React, { useState, useRef, useEffect } from "react";
 import { Container, Row, Col, Button, Alert, Form } from "react-bootstrap";
 import { FaSyncAlt } from "react-icons/fa";
-import LogoHeader from "../../Header/LogoHeader";
 import "./OtpVerifier.css";
 
 /**
@@ -202,7 +201,6 @@ export default function OtpVerifier({
     <div className="otp-container">
       {/* Logo at top-left, same as Login/Register */}
       <div className="auth-logo-container">
-        <LogoHeader />
       </div>
 
       <Container className="position-relative">

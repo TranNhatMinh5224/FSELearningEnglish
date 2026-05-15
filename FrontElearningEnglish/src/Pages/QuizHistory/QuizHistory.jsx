@@ -14,7 +14,7 @@ export default function QuizHistory() {
     const [attempts, setAttempts] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
-    
+
     // Pagination state
     const [currentPage, setCurrentPage] = useState(1);
     const [pageSize] = useState(6); // Each card takes more space
@@ -118,12 +118,12 @@ export default function QuizHistory() {
             <MainHeader />
             <div className="quiz-history-container">
                 <Container>
-                    <Breadcrumb 
+                    <Breadcrumb
                         items={[
                             { label: "Lịch sử làm bài", isCurrent: true }
                         ]}
                     />
-                    
+
                     <div className="quiz-history-header-section mt-4">
                         <div className="d-flex align-items-center justify-content-between flex-wrap gap-4">
                             <div className="title-area">
@@ -183,57 +183,57 @@ export default function QuizHistory() {
                             </Row>
 
                             <div className="quiz-list-body">
-                                        {currentItems.map((attempt) => {
-                                            const aId = attempt.attemptId || attempt.AttemptId;
-                                            const title = attempt.quizTitle || attempt.QuizTitle || "Bài kiểm tra";
-                                            const aNumber = attempt.attemptNumber || attempt.AttemptNumber;
-                                            const score = attempt.totalScore ?? attempt.TotalScore ?? 0;
-                                            const maxScoreRaw = attempt.totalPossibleScore ?? attempt.TotalPossibleScore;
-                                            const maxScore = Number(maxScoreRaw) > 0 ? maxScoreRaw : 10;
-                                            const status = attempt.status ?? attempt.Status;
-                                            const startedAt = attempt.startedAt || attempt.StartedAt;
+                                {currentItems.map((attempt) => {
+                                    const aId = attempt.attemptId || attempt.AttemptId;
+                                    const title = attempt.quizTitle || attempt.QuizTitle || "Bài kiểm tra";
+                                    const aNumber = attempt.attemptNumber || attempt.AttemptNumber;
+                                    const score = attempt.totalScore ?? attempt.TotalScore ?? 0;
+                                    const maxScoreRaw = attempt.totalPossibleScore ?? attempt.TotalPossibleScore;
+                                    const maxScore = Number(maxScoreRaw) > 0 ? maxScoreRaw : 10;
+                                    const status = attempt.status ?? attempt.Status;
+                                    const startedAt = attempt.startedAt || attempt.StartedAt;
 
-                                            return (
-                                                <div 
-                                                    key={aId} 
-                                                    className="quiz-history-item-row"
-                                                    onClick={() => handleReview(attempt)}
-                                                >
-                                                    <Row className="g-0 align-items-center">
-                                                        <Col xs={12} md={4} className="quiz-info">
-                                                            <div className="quiz-title-wrapper">
-                                                                <FaRegClipboard className="item-icon-small" />
-                                                                <span className="quiz-name">{title}</span>
-                                                            </div>
-                                                        </Col>
-                                                        <Col xs={4} md={2} className="attempt-info text-center">
-                                                            <span className="label d-md-none">Lần: </span>
-                                                            <span className="attempt-badge">#{aNumber}</span>
-                                                        </Col>
-                                                        <Col xs={4} md={2} className="score-info text-center">
-                                                            <span className="label d-md-none">Điểm: </span>
-                                                            {attempt.isScoreHidden || attempt.IsScoreHidden ? (
-                                                                <div className="score-hidden-wrapper" title="Điểm chưa được công bố">
-                                                                    <FaLock className="score-lock-icon" style={{ fontSize: '0.8rem', marginRight: '4px', color: '#7765F5' }} />
-                                                                    <span className="score-hidden-text" style={{ fontSize: '0.85rem', color: '#6c757d', fontWeight: '500' }}>Chờ</span>
-                                                                </div>
-                                                            ) : (
-                                                                <>
-                                                                    <span className="score-value-text">{score}</span>
-                                                                    <span className="score-max">/{maxScore}</span>
-                                                                </>
-                                                            )}
-                                                        </Col>
-                                                        <Col xs={4} md={2} className="status-info text-center">
-                                                            {getStatusBadge(status)}
-                                                        </Col>
-                                                        <Col xs={12} md={2} className="date-info text-center">
-                                                            <span className="date-text-small">{formatDate(startedAt)}</span>
-                                                        </Col>
-                                                    </Row>
-                                                </div>
-                                            );
-                                        })}
+                                    return (
+                                        <div
+                                            key={aId}
+                                            className="quiz-history-item-row"
+                                            onClick={() => handleReview(attempt)}
+                                        >
+                                            <Row className="g-0 align-items-center">
+                                                <Col xs={12} md={4} className="quiz-info">
+                                                    <div className="quiz-title-wrapper">
+                                                        <FaRegClipboard className="item-icon-small" />
+                                                        <span className="quiz-name">{title}</span>
+                                                    </div>
+                                                </Col>
+                                                <Col xs={4} md={2} className="attempt-info text-center">
+                                                    <span className="label d-md-none">Lần: </span>
+                                                    <span className="attempt-badge">#{aNumber}</span>
+                                                </Col>
+                                                <Col xs={4} md={2} className="score-info text-center">
+                                                    <span className="label d-md-none">Điểm: </span>
+                                                    {attempt.isScoreHidden || attempt.IsScoreHidden ? (
+                                                        <div className="score-hidden-wrapper" title="Điểm chưa được công bố">
+                                                            <FaLock className="score-lock-icon" style={{ fontSize: '0.8rem', marginRight: '4px', color: '#7765F5' }} />
+                                                            <span className="score-hidden-text" style={{ fontSize: '0.85rem', color: '#6c757d', fontWeight: '500' }}>Chờ</span>
+                                                        </div>
+                                                    ) : (
+                                                        <>
+                                                            <span className="score-value-text">{score}</span>
+                                                            <span className="score-max">/{maxScore}</span>
+                                                        </>
+                                                    )}
+                                                </Col>
+                                                <Col xs={4} md={2} className="status-info text-center">
+                                                    {getStatusBadge(status)}
+                                                </Col>
+                                                <Col xs={12} md={2} className="date-info text-center">
+                                                    <span className="date-text-small">{formatDate(startedAt)}</span>
+                                                </Col>
+                                            </Row>
+                                        </div>
+                                    );
+                                })}
                             </div>
 
                             {/* Pagination */}

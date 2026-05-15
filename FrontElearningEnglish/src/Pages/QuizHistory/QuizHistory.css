@@ -91,8 +91,8 @@
 .stat-icon-box {
     width: 54px;
     height: 54px;
-    background: rgba(212, 71, 182, 0.1);
-    color: #d447b6;
+    background: rgba(111, 213, 224, 0.1);
+    color: #6fd5e0;
     border-radius: 18px;
     display: flex;
     align-items: center;
@@ -112,7 +112,7 @@
 .stat-value {
     font-size: 28px;
     font-weight: 900;
-    color: #1e293b;
+    color: #6fd5e0;
     line-height: 1;
 }
 
@@ -396,7 +396,7 @@
     display: block;
     font-size: 1.75rem;
     font-weight: 800;
-    color: #74CFDE;
+    color: #6fd5e0;
     line-height: 1.2;
 }
 
