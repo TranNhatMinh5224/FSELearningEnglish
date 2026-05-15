@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { Container, Row, Col } from "react-bootstrap";
-import { FaEdit, FaTrash, FaArrowLeft, FaPlus, FaRegListAlt } from "react-icons/fa";
+import { FaEdit, FaTrash, FaArrowLeft, FaPlus, FaList } from "react-icons/fa";
+import { PiExamDuotone, PiFilesDuotone } from "react-icons/pi";
 import TeacherHeader from "../../../Components/Header/TeacherHeader";
 import Breadcrumb from "../../../Components/Common/Breadcrumb/Breadcrumb";
 import { useAuth } from "../../../Context/AuthContext";
@@ -11,6 +12,7 @@ import { quizService } from "../../../Services/quizService";
 import { essayService } from "../../../Services/essayService";
 import CreateQuizModal from "../../../Components/Teacher/CreateQuizModal/CreateQuizModal";
 import CreateEssayModal from "../../../Components/Teacher/CreateEssayModal/CreateEssayModal";
+import EssayDetailModal from "../../../Components/Common/EssayDetailModal/EssayDetailModal.jsx";
 import SuccessModal from "../../../Components/Common/SuccessModal/SuccessModal";
 import NotificationModal from "../../../Components/Common/NotificationModal/NotificationModal";
 import ConfirmModal from "../../../Components/Common/ConfirmModal/ConfirmModal";
@@ -40,7 +42,7 @@ export default function TeacherQuizEssayManagement() {
   const [quizToDelete, setQuizToDelete] = useState(null);
   const [showDeleteQuizSuccessModal, setShowDeleteQuizSuccessModal] = useState(false);
   const [deleting, setDeleting] = useState(false);
-  
+
   // Essay modals
   const [showCreateEssayModal, setShowCreateEssayModal] = useState(false);
   const [showCreateEssaySuccessModal, setShowCreateEssaySuccessModal] = useState(false);
@@ -60,15 +62,18 @@ export default function TeacherQuizEssayManagement() {
   const isTeacher = (roles && roles.some(role => {
     const roleName = typeof role === 'string' ? role : (role?.name || '');
     return roleName === "Teacher";
-  })) || 
-  user?.teacherSubscription?.isTeacher === true || 
-  isAdmin;
+  })) ||
+    user?.teacherSubscription?.isTeacher === true ||
+    isAdmin;
+
+  const [selectedEssayId, setSelectedEssayId] = useState(null);
+  const [showEssayDetailModal, setShowEssayDetailModal] = useState(false);
 
   const fetchData = useCallback(async () => {
     try {
       setLoading(true);
       setError("");
-      
+
       // Fetch metadata in parallel
       const metadataPromises = [
         teacherService.getCourseDetail(courseId),
@@ -250,6 +255,12 @@ export default function TeacherQuizEssayManagement() {
     }
   };
 
+  const handleViewEssay = (essay) => {
+    const essayId = essay.essayId || essay.EssayId;
+    setSelectedEssayId(essayId);
+    setShowEssayDetailModal(true);
+  };
+
   if (!isAuthenticated || !isTeacher) {
     return null;
   }
@@ -288,30 +299,34 @@ export default function TeacherQuizEssayManagement() {
     <>
       <TeacherHeader />
       <div className="teacher-quiz-essay-management-container">
-        <Container>
+        <Container fluid className="p-0 content-wrapper">
+          <div className="mb-4">
+            <Breadcrumb
+              items={[
+                { label: "Quản lý khóa học", path: ROUTE_PATHS.TEACHER_COURSE_MANAGEMENT },
+                { label: course?.title || course?.Title || "Khóa học", path: `/teacher/course/${courseId}` },
+                { label: lesson?.title || lesson?.Title || "Bài học", path: `/teacher/course/${courseId}/lesson/${lessonId}` },
+                { label: "Quản lý bài tập", isCurrent: true }
+              ]}
+              showHomeIcon={true}
+              className="breadcrumb-compact"
+            />
+          </div>
+
           {/* Premium Header */}
-          <div className="quiz-essay-management-header">
+          <div className="quiz-essay-management-header mt-0">
             <div className="d-flex align-items-center justify-content-between mb-4 flex-wrap gap-3">
               <div className="d-flex flex-column">
-                <Breadcrumb
-                  items={[
-                    { label: "Quản lý khoá học", path: ROUTE_PATHS.TEACHER_COURSE_MANAGEMENT },
-                    { label: course?.title || course?.Title || "Khoá học", path: `/teacher/course/${courseId}` },
-                    { label: lesson?.title || lesson?.Title || "Bài học", path: `/teacher/course/${courseId}/lesson/${lessonId}` },
-                    { label: "Quản lý bài tập", isCurrent: true }
-                  ]}
-                  showHomeIcon={true}
-                />
-                <h1 className="premium-gradient-text mt-3 mb-0">Quản lý nội dung bài kiểm tra</h1>
+                <h1 className="premium-gradient-text mb-0">Xây dựng bài tập</h1>
               </div>
-              
+
               <div className="d-flex gap-3 align-items-center">
-                <div className="header-stats-badge">
-                  <FaRegListAlt />
+                <div className="header-stats-badge stats-badge-quiz">
+                  <FaList />
                   <span>{quizzes.length} Quizzes</span>
                 </div>
-                <div className="header-stats-badge" style={{ backgroundColor: "rgba(188, 105, 192, 0.1)", color: "#BC69C0" }}>
-                  <FaRegListAlt />
+                <div className="header-stats-badge stats-badge-essay">
+                  <FaList />
                   <span>{essays.length} Essays</span>
                 </div>
               </div>
@@ -341,13 +356,13 @@ export default function TeacherQuizEssayManagement() {
               className="premium-btn-primary d-flex align-items-center gap-2"
               onClick={() => setShowCreateQuizModal(true)}
             >
-              <FaPlus /> Tạo Quiz mới
+              <FaPlus /> <span>Xây dựng Quiz</span>
             </button>
             <button
               className="premium-btn-outline d-flex align-items-center gap-2"
               onClick={() => setShowCreateEssayModal(true)}
             >
-              <FaPlus /> Tạo Essay mới
+              <FaPlus /> <span>Xây dựng Essay</span>
             </button>
           </div>
 
@@ -366,24 +381,32 @@ export default function TeacherQuizEssayManagement() {
                       const statusInfo = getStatusLabel(quizStatus);
 
                       return (
-                        <div 
-                          key={quizId} 
-                          className="card border rounded-3 p-3 hover-card"
+                        <div
+                          key={quizId}
+                          className="card border rounded-3 p-3 hover-card quiz-card"
                           style={{ cursor: "pointer" }}
                           onClick={() => navigate(ROUTE_PATHS.TEACHER_QUIZ_SECTION_MANAGEMENT(courseId, lessonId, moduleId, assessmentId, quizId))}
                         >
                           <div className="d-flex justify-content-between align-items-start">
                             <div className="flex-grow-1">
-                              <h5 className="mb-2 fw-semibold">{quizTitle}</h5>
-                              <span
-                                className="badge rounded-pill px-3 py-1"
-                                style={{
-                                  color: statusInfo.color,
-                                  backgroundColor: statusInfo.bg,
-                                }}
-                              >
-                                {statusInfo.label}
-                              </span>
+                              <div className="d-flex align-items-center gap-2 mb-2">
+                                <h5 className="mb-0 fw-bold">{quizTitle}</h5>
+                                <span className="fse-badge fse-badge-quiz">QUIZ</span>
+                              </div>
+                              <div className="d-flex align-items-center gap-2">
+                                <span className="small text-muted fw-medium">Trạng thái:</span>
+                                <span
+                                  className="badge rounded-pill px-3 py-1"
+                                  style={{
+                                    color: statusInfo.color,
+                                    backgroundColor: statusInfo.bg,
+                                    fontSize: "0.7rem",
+                                    fontWeight: "700"
+                                  }}
+                                >
+                                  {statusInfo.label}
+                                </span>
+                              </div>
                             </div>
                             <div className="d-flex gap-2 ms-3" onClick={(e) => e.stopPropagation()}>
                               <button
@@ -406,7 +429,13 @@ export default function TeacherQuizEssayManagement() {
                       );
                     })
                   ) : (
-                    <div className="text-center text-muted py-5">Chưa có Quiz nào</div>
+                    <div className="no-items-message-small">
+                      <div className="empty-icon-wrapper-small">
+                        <PiExamDuotone />
+                      </div>
+                      <p className="mb-0 fw-bold">Chưa có Quiz nào</p>
+                      <p className="small text-muted mb-0">Tạo quiz trắc nghiệm để kiểm tra kiến thức.</p>
+                    </div>
                   )}
                 </div>
               </div>
@@ -421,16 +450,38 @@ export default function TeacherQuizEssayManagement() {
                     essays.map((essay) => {
                       const essayId = essay.essayId || essay.EssayId;
                       const essayTitle = essay.title || essay.Title || "Untitled Essay";
-                      const essayStatus = essay.status !== undefined ? essay.status : essay.Status;
+                      const essayStatus = essay.status || essay.Status || assessment?.status || assessment?.Status || "Open";
                       const statusInfo = getStatusLabel(essayStatus);
 
                       return (
-                        <div key={essayId} className="card border rounded-3 p-3 hover-card">
+                        <div
+                          key={essayId}
+                          className="card border rounded-3 p-3 hover-card essay-card"
+                          style={{ cursor: "pointer" }}
+                          onClick={() => handleViewEssay(essay)}
+                        >
                           <div className="d-flex justify-content-between align-items-start">
                             <div className="flex-grow-1">
-                              <h5 className="mb-2 fw-semibold">{essayTitle}</h5>
+                              <div className="d-flex align-items-center gap-2 mb-2">
+                                <h5 className="mb-0 fw-bold">{essayTitle}</h5>
+                                <span className="fse-badge fse-badge-essay">ESSAY</span>
+                              </div>
+                              <div className="d-flex align-items-center gap-2">
+                                <span className="small text-muted fw-medium">Trạng thái:</span>
+                                <span
+                                  className={`badge rounded-pill px-3 py-1 status-${essayStatus.toLowerCase()}`}
+                                  style={{
+                                    color: statusInfo.color || "#059669",
+                                    backgroundColor: statusInfo.bg || "#ecfdf5",
+                                    fontSize: "0.7rem",
+                                    fontWeight: "700"
+                                  }}
+                                >
+                                  {statusInfo.label !== "Unknown" ? statusInfo.label : essayStatus}
+                                </span>
+                              </div>
                             </div>
-                            <div className="d-flex gap-2 ms-3">
+                            <div className="d-flex gap-2 ms-3" onClick={(e) => e.stopPropagation()}>
                               <button
                                 className="btn btn-edit-essay d-flex align-items-center justify-content-center"
                                 title="Sửa Essay"
@@ -451,7 +502,13 @@ export default function TeacherQuizEssayManagement() {
                       );
                     })
                   ) : (
-                    <div className="text-center text-muted py-5">Chưa có Essay nào</div>
+                    <div className="no-items-message-small">
+                      <div className="empty-icon-wrapper-small">
+                        <PiFilesDuotone />
+                      </div>
+                      <p className="mb-0 fw-bold">Chưa có Essay nào</p>
+                      <p className="small text-muted mb-0">Tạo bài tự luận để học viên luyện viết.</p>
+                    </div>
                   )}
                 </div>
               </div>
@@ -614,7 +671,15 @@ export default function TeacherQuizEssayManagement() {
         type={notification.type}
         message={notification.message}
       />
+      <EssayDetailModal
+        show={showEssayDetailModal}
+        onClose={() => {
+          setShowEssayDetailModal(false);
+          setSelectedEssayId(null);
+        }}
+        essayId={selectedEssayId}
+        isAdmin={false}
+      />
     </>
   );
 }
-

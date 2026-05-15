@@ -142,20 +142,28 @@ namespace LearningEnglish.Infrastructure.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<string>("ImageType")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
                     b.Property<string>("KeyImage")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
 
                     b.Property<string>("NameImage")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)");
 
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("timestamp with time zone");
 
                     b.HasKey("Id");
 
-                    b.ToTable("AssetsFrontend");
+                    b.HasIndex("AssetType");
+
+                    b.ToTable("AssetsFrontend", (string)null);
                 });
 
             modelBuilder.Entity("LearningEnglish.Domain.Entities.Course", b =>
@@ -197,7 +205,7 @@ namespace LearningEnglish.Infrastructure.Migrations
 
                     b.Property<decimal?>("Price")
                         .HasPrecision(18, 2)
-                        .HasColumnType("numeric(18,2)");
+                        .HasColumnType("numeric");
 
                     b.Property<int>("Status")
                         .HasColumnType("integer");
@@ -298,6 +306,7 @@ namespace LearningEnglish.Infrastructure.Migrations
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<decimal>("ProgressPercentage")
+                        .HasPrecision(18, 2)
                         .HasColumnType("numeric");
 
                     b.Property<int>("TotalLessons")
@@ -400,6 +409,7 @@ namespace LearningEnglish.Infrastructure.Migrations
                         .HasColumnType("character varying(255)");
 
                     b.Property<decimal>("TotalPoints")
+                        .HasPrecision(18, 2)
                         .HasColumnType("numeric");
 
                     b.HasKey("EssayId");
@@ -431,18 +441,8 @@ namespace LearningEnglish.Infrastructure.Migrations
                     b.Property<int>("EssayId")
                         .HasColumnType("integer");
 
-                    b.Property<string>("Feedback")
-                        .HasMaxLength(5000)
-                        .HasColumnType("character varying(5000)");
-
-                    b.Property<DateTime?>("GradedAt")
-                        .HasColumnType("timestamp with time zone");
-
                     b.Property<int?>("GradedByTeacherId")
                         .HasColumnType("integer");
-
-                    b.Property<decimal?>("Score")
-                        .HasColumnType("numeric");
 
                     b.Property<DateTime?>("StartedAt")
                         .HasColumnType("timestamp with time zone");
@@ -461,6 +461,7 @@ namespace LearningEnglish.Infrastructure.Migrations
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<decimal?>("TeacherScore")
+                        .HasPrecision(18, 2)
                         .HasColumnType("numeric");
 
                     b.Property<string>("TextContent")
@@ -872,6 +873,7 @@ namespace LearningEnglish.Infrastructure.Migrations
                         .HasColumnType("integer");
 
                     b.Property<decimal>("ProgressPercentage")
+                        .HasPrecision(18, 2)
                         .HasColumnType("numeric");
 
                     b.Property<DateTime?>("StartedAt")
@@ -1003,7 +1005,7 @@ namespace LearningEnglish.Infrastructure.Migrations
 
                     b.Property<decimal>("Amount")
                         .HasPrecision(18, 2)
-                        .HasColumnType("numeric(18,2)");
+                        .HasColumnType("numeric");
 
                     b.Property<string>("CheckoutUrl")
                         .HasMaxLength(1000)
@@ -1474,7 +1476,7 @@ namespace LearningEnglish.Infrastructure.Migrations
 
                     b.Property<decimal>("Points")
                         .HasPrecision(18, 2)
-                        .HasColumnType("numeric(18,2)");
+                        .HasColumnType("numeric");
 
                     b.Property<int?>("QuizGroupId")
                         .HasColumnType("integer");
@@ -1562,7 +1564,7 @@ namespace LearningEnglish.Infrastructure.Migrations
 
                     b.Property<decimal>("TotalPossibleScore")
                         .HasPrecision(18, 2)
-                        .HasColumnType("numeric(18,2)");
+                        .HasColumnType("numeric");
 
                     b.Property<int>("TotalQuestions")
                         .HasColumnType("integer");
@@ -1616,7 +1618,7 @@ namespace LearningEnglish.Infrastructure.Migrations
 
                     b.Property<decimal>("TotalScore")
                         .HasPrecision(18, 2)
-                        .HasColumnType("numeric(18,2)");
+                        .HasColumnType("numeric");
 
                     b.Property<int>("UserId")
                         .HasColumnType("integer");
@@ -1672,8 +1674,9 @@ namespace LearningEnglish.Infrastructure.Migrations
                     b.Property<int>("QuizSectionId")
                         .HasColumnType("integer");
 
-                    b.Property<float>("SumScore")
-                        .HasColumnType("real");
+                    b.Property<decimal>("SumScore")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("numeric");
 
                     b.Property<string>("Title")
                         .IsRequired()
@@ -2013,7 +2016,7 @@ namespace LearningEnglish.Infrastructure.Migrations
 
                     b.Property<decimal>("Price")
                         .HasPrecision(18, 2)
-                        .HasColumnType("numeric(18,2)");
+                        .HasColumnType("numeric");
 
                     b.HasKey("TeacherPackageId");
 
@@ -2115,7 +2118,7 @@ namespace LearningEnglish.Infrastructure.Migrations
 
                     b.Property<decimal>("Balance")
                         .HasPrecision(18, 2)
-                        .HasColumnType("numeric(18,2)");
+                        .HasColumnType("numeric");
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
@@ -2212,7 +2215,7 @@ namespace LearningEnglish.Infrastructure.Migrations
                             IsMale = true,
                             LastName = "System",
                             NormalizedEmail = "MINHXOANDEV@GMAIL.COM",
-                            PasswordHash = "$2a$11$sTw7bN6x3Oskv5UTytFz9OhOctDAZkSmcqfJl2hCsqiecvMNgpkB.",
+                            PasswordHash = "$2a$11$RLTZtmLzUwyyRsaxFSl2K.C5oKk4yIUXEVPkHrQYHtm1INFsTCWC6",
                             PhoneNumber = "0257554479",
                             Status = 1,
                             UpdatedAt = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc)
@@ -2261,15 +2264,15 @@ namespace LearningEnglish.Infrastructure.Migrations
 
                     b.Property<decimal>("Amount")
                         .HasPrecision(18, 2)
-                        .HasColumnType("numeric(18,2)");
+                        .HasColumnType("numeric");
 
                     b.Property<decimal>("BalanceAfter")
                         .HasPrecision(18, 2)
-                        .HasColumnType("numeric(18,2)");
+                        .HasColumnType("numeric");
 
                     b.Property<decimal>("BalanceBefore")
                         .HasPrecision(18, 2)
-                        .HasColumnType("numeric(18,2)");
+                        .HasColumnType("numeric");
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone");

@@ -26,6 +26,9 @@ import { useAuth } from "../../Context/AuthContext";
 export default function AdminLayout() {
   const { user, roles, isAuthenticated, loading, logout } = useAuth();
   const navigate = useNavigate();
+  const adminAvatarUrl = (user?.avatarUrl || user?.AvatarUrl || "").trim();
+  const adminDisplayName = user?.fullName || user?.displayName || "Admin";
+  const [avatarLoadFailed, setAvatarLoadFailed] = useState(false);
 
   // Unauthorized Modal State
   const [showUnauthorizedModal, setShowUnauthorizedModal] = useState(false);
@@ -52,6 +55,10 @@ export default function AdminLayout() {
       }
     }
   }, [isAuthenticated, isAdmin, loading, navigate, roles]);
+
+  useEffect(() => {
+    setAvatarLoadFailed(false);
+  }, [adminAvatarUrl]);
 
   const handleLogout = () => {
     logout(navigate);
@@ -252,12 +259,19 @@ export default function AdminLayout() {
 
           <div className="header-actions ms-auto">
             <div className="admin-profile">
-              <span className="d-none d-sm-inline" style={{ fontWeight: 600, color: '#334155' }}>{user?.fullName || "Admin"}</span>
-              <img
-                src={user?.avatarUrl || "https://ui-avatars.com/api/?name=Admin&background=0D8ABC&color=fff"}
-                alt="Admin"
-                style={{ width: '32px', height: '32px', borderRadius: '50%', marginLeft: '10px', verticalAlign: 'middle', objectFit: 'cover' }}
-              />
+              <span className="d-none d-sm-inline" style={{ fontWeight: 600, color: '#334155' }}>{adminDisplayName}</span>
+              {adminAvatarUrl && !avatarLoadFailed ? (
+                <img
+                  src={adminAvatarUrl}
+                  alt={adminDisplayName}
+                  className="admin-avatar-img"
+                  onError={() => setAvatarLoadFailed(true)}
+                />
+              ) : (
+                <span className="admin-avatar-fallback" aria-label={adminDisplayName}>
+                  <MdAdminPanelSettings />
+                </span>
+              )}
             </div>
           </div>
         </header>

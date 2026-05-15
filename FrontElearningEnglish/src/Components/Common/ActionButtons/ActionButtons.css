@@ -44,18 +44,22 @@
   display: inline;
 }
 
-/* Update Button - Primary Style */
-.action-btn.update-btn {
-  background: linear-gradient(135deg, #7259B6 0%, #5d47a3 100%);
+/* Update Button - Premium Purple Style - Using container prefix for specificity */
+.action-buttons-container .action-btn.update-btn {
+  background: linear-gradient(135deg, #9333ea 0%, #6d28d9 100%);
   border: none;
   color: #fff;
-  box-shadow: 0 2px 4px rgba(114, 89, 182, 0.2);
+  box-shadow: 0 4px 12px rgba(109, 40, 217, 0.2);
+  padding: 0.625rem 1.25rem;
+  border-radius: 12px;
+  font-weight: 700;
 }
 
-.action-btn.update-btn:hover:not(:disabled) {
-  background: linear-gradient(135deg, #5d47a3 0%, #4a3a82 100%);
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(114, 89, 182, 0.35);
+.action-buttons-container .action-btn.update-btn:hover:not(:disabled) {
+  background: linear-gradient(135deg, #a855f7 0%, #7c3aed 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(109, 40, 217, 0.35);
+  color: #fff;
 }
 
 .action-btn.update-btn:active:not(:disabled) {
@@ -63,19 +67,22 @@
   box-shadow: 0 2px 4px rgba(114, 89, 182, 0.2);
 }
 
-/* Delete Button - Outline Danger Style */
-.action-btn.delete-btn {
-  background: #fff;
-  border: 2px solid #dc3545;
-  color: #dc3545;
+/* Delete Button - Premium Danger Style (White background + Red border) */
+.action-buttons-container .action-btn.delete-btn {
+  background: #ffffff;
+  border: 1.5px solid #ef4444;
+  color: #ef4444;
+  padding: 0.625rem;
+  border-radius: 10px;
+  box-shadow: 0 2px 4px rgba(239, 68, 68, 0.05);
 }
 
-.action-btn.delete-btn:hover:not(:disabled) {
-  background: #dc3545;
-  border-color: #dc3545;
-  color: #fff;
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(220, 53, 69, 0.35);
+.action-buttons-container .action-btn.delete-btn:hover:not(:disabled) {
+  background: #fef2f2;
+  border-color: #dc2626;
+  color: #dc2626;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.15);
 }
 
 .action-btn.delete-btn:active:not(:disabled) {
@@ -97,82 +104,61 @@
   border-radius: 0.375rem;
 }
 
-.action-buttons-container.small .action-icon {
-  font-size: 0.75rem;
+.action-buttons-container.small .action-btn.update-btn {
+  padding: 0.5rem 1rem;
 }
 
-/* Medium - Default */
+.action-buttons-container.small .action-btn.delete-btn {
+  padding: 0.4375rem;
+}
+
+/* Medium (Default) */
 .action-buttons-container.medium .action-btn {
   padding: 0.5rem 1rem;
   font-size: 0.875rem;
   border-radius: 0.5rem;
 }
 
-.action-buttons-container.medium .action-btn.delete-btn {
-  padding: 0.5rem 0.75rem;
-}
-
-.action-buttons-container.medium .action-icon {
-  font-size: 0.875rem;
-}
-
 /* Large (btn-lg) */
 .action-buttons-container.large .action-btn {
-  padding: 0.625rem 1.25rem;
+  padding: 0.75rem 1.5rem;
   font-size: 1rem;
-  border-radius: 0.5rem;
+  border-radius: 0.625rem;
 }
 
-.action-buttons-container.large .action-icon {
-  font-size: 1rem;
+/* Only Icon Style (Square buttons) */
+.action-buttons-container.icon-only .action-btn {
+  width: 2.5rem;
+  height: 2.5rem;
+  padding: 0;
 }
 
-/* Responsive Breakpoints - Bootstrap Pattern */
-
-/* Large devices (desktops, 992px and up) */
-@media (min-width: 992px) {
-  .action-buttons-container {
-    gap: 0.5rem;
-  }
+.action-buttons-container.icon-only .action-btn.update-btn {
+  padding: 0;
 }
 
-/* Medium devices (tablets, 768px to 991px) */
-@media (min-width: 768px) and (max-width: 991.98px) {
-  .action-buttons-container {
-    gap: 0.5rem;
-  }
-
-  .action-buttons-container.medium .action-btn {
-    padding: 0.5rem 0.875rem;
-    font-size: 0.8125rem;
-  }
+.action-buttons-container.icon-only .action-btn.delete-btn {
+  padding: 0;
 }
 
-/* Small devices (landscape phones, 576px to 767px) */
-@media (min-width: 576px) and (max-width: 767.98px) {
+/* Responsive adjustments */
+@media (max-width: 576px) {
   .action-buttons-container {
     gap: 0.375rem;
   }
 
+  .action-buttons-container.large .action-btn {
+    padding: 0.5rem 1rem;
+    font-size: 0.875rem;
+  }
+
   .action-buttons-container.medium .action-btn {
-    padding: 0.4375rem 0.75rem;
+    padding: 0.375rem 0.75rem;
     font-size: 0.8125rem;
   }
 
-  .action-buttons-container.medium .action-btn.delete-btn {
-    padding: 0.4375rem 0.625rem;
-  }
-}
-
-/* Extra small devices (portrait phones, less than 576px) */
-@media (max-width: 575.98px) {
-  .action-buttons-container {
-    gap: 0.375rem;
-  }
-
-  .action-buttons-container.medium .action-btn {
-    padding: 0.375rem 0.625rem;
-    font-size: 0.75rem;
+  .action-buttons-container.medium .action-btn.update-btn {
+    padding: 0.4375rem 0.875rem;
   }
 
   .action-buttons-container.medium .action-btn.delete-btn {

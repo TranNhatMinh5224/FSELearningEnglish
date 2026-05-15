@@ -58,26 +58,25 @@ export default function CreateModuleModal({ show, onClose, onSuccess, lessonId, 
     <>
       <Modal show={show} onHide={handleCancel} centered className="create-module-modal modal-modern" dialogClassName="create-module-modal-dialog">
         <Modal.Header closeButton={false}>
-          <Modal.Title className="fw-bold">{isUpdateMode ? "Cập nhật Module" : "Tạo Module mới"}</Modal.Title>
+          <div className="modal-title-custom">
+             <FaLayerGroup className="header-icon me-2" />
+             {isUpdateMode ? "Cập nhật Bài học" : "Thiết lập Bài học"}
+          </div>
           <PremiumCloseButton onClick={handleCancel} />
         </Modal.Header>
 
         <Modal.Body className="p-4">
           <form onSubmit={handleSubmit}>
             <div className="form-section-card p-3 mb-4">
-              <div className="form-section-title mb-3 fw-bold text-primary">
-                <FaLayerGroup className="me-2" /> Thông tin chung
-              </div>
-              
               <FormInput
-                label="Tên module"
+                label="Tên bài học"
                 name="name"
                 value={formData.name}
                 onChange={handleChange}
                 onBlur={handleBlur}
                 error={errors.name}
                 touched={touched.name}
-                placeholder="Nhập tên module..."
+                placeholder="Ví dụ: Lesson 1 - Daily Routines..."
                 required
                 maxLength={200}
               />
@@ -90,7 +89,7 @@ export default function CreateModuleModal({ show, onClose, onSuccess, lessonId, 
                 onBlur={handleBlur}
                 error={errors.description}
                 touched={touched.description}
-                placeholder="Mô tả ngắn gọn về module này..."
+                placeholder="Mô tả nội dung chính của bài học này..."
                 maxLength={200}
                 rows={3}
               />
@@ -106,7 +105,7 @@ export default function CreateModuleModal({ show, onClose, onSuccess, lessonId, 
                 options={MODULE_TYPES}
                 required={!isUpdateMode}
                 disabled={isUpdateMode}
-                placeholder="Chọn loại nội dung bài học..."
+                placeholder="Chọn loại hình học tập (Video, Bài đọc, FlashCard...)"
               />
             </div>
 
@@ -122,7 +121,7 @@ export default function CreateModuleModal({ show, onClose, onSuccess, lessonId, 
                 onUploadSuccess={handleImageUploadSuccess}
                 onRemove={() => setImageUrl(null)}
                 onUploadingChange={setUploadingImage}
-                label={isUpdateMode ? "Thay đổi ảnh module" : "Chọn ảnh đại diện cho module"}
+                label={isUpdateMode ? "Thay đổi ảnh bài học" : "Chọn ảnh đại diện cho bài học"}
                 hint="Khuyến nghị tỉ lệ 16:9 để hiển thị đẹp nhất."
                 previewClassName="course-image-preview"
               />
@@ -137,7 +136,7 @@ export default function CreateModuleModal({ show, onClose, onSuccess, lessonId, 
             Hủy bỏ
           </Button>
           <Button className="btn-primary-custom px-4" onClick={handleSubmit} disabled={isSubmitting || uploadingImage}>
-            {isSubmitting ? "Đang xử lý..." : (isUpdateMode ? "Lưu thay đổi" : "Tạo Module")}
+            {isSubmitting ? "Đang xử lý..." : (isUpdateMode ? "Cập nhật ngay" : "Khởi tạo ngay")}
           </Button>
         </Modal.Footer>
       </Modal>
@@ -147,7 +146,7 @@ export default function CreateModuleModal({ show, onClose, onSuccess, lessonId, 
         onClose={() => setShowConfirmCancel(false)}
         onConfirm={() => { setShowConfirmCancel(false); onClose(); }}
         title="Xác nhận hủy"
-        message="Dữ liệu module chưa được lưu. Bạn có chắc chắn muốn thoát không?"
+        message="Dữ liệu bài học chưa được lưu. Bạn có chắc chắn muốn thoát không?"
         confirmText="Đóng cửa sổ"
         cancelText="Tiếp tục chỉnh sửa"
         type="warning"

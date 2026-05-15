@@ -1,3 +1,4 @@
+using LearningEnglish.Application.Common;
 using LearningEnglish.Application.Interface;
 using LearningEnglish.Application.Interface.Infrastructure.MediaService;
 using LearningEnglish.Infrastructure.Common.Constants;
@@ -11,76 +12,28 @@ public class LessonImageService : ILessonImageService
     private readonly IMinioFileStorage _minioFileStorage;
     private readonly ILogger<LessonImageService> _logger;
 
-    public LessonImageService(
-        IMinioFileStorage minioFileStorage,
-        ILogger<LessonImageService> logger)
+    public LessonImageService(IMinioFileStorage minioFileStorage, ILogger<LessonImageService> logger)
     {
         _minioFileStorage = minioFileStorage;
         _logger = logger;
     }
 
-    public async Task<string> CommitImageAsync(string tempKey, CancellationToken cancellationToken = default)
+    public async Task<ServiceResponse<(string ImageKey, string ContentType)>> CommitImageAsync(string tempKey, CancellationToken cancellationToken = default)
     {
-        if (string.IsNullOrWhiteSpace(tempKey))
+        var response = new ServiceResponse<(string ImageKey, string ContentType)>();
+        var result = await _minioFileStorage.CommitFileAsync(tempKey, StorageConstants.LessonImageBucket, StorageConstants.LessonImageFolder);
+        
+        if (!result.Success || result.Data == null)
         {
-            throw new ArgumentException("Temp key cannot be null or empty", nameof(tempKey));
+            response.Success = false;
+            response.Message = result.Message;
+            return response;
         }
 
-        var result = await _minioFileStorage.CommitFileAsync(
-            tempKey,
-            StorageConstants.LessonImageBucket,
-            StorageConstants.LessonImageFolder);
-
-        if (!result.Success || string.IsNullOrWhiteSpace(result.Data))
-        {
-            _logger.LogError("Failed to commit lesson image. TempKey: {TempKey}, Message: {Message}", 
-                tempKey, result.Message);
-            throw new InvalidOperationException($"Failed to commit lesson image: {result.Message}");
-        }
-
-        _logger.LogInformation("Lesson image committed successfully. TempKey: {TempKey}, ImageKey: {ImageKey}", 
-            tempKey, result.Data);
-
-        return result.Data;
+        response.Data = (result.Data.RealKey, result.Data.ContentType);
+        return response;
     }
 
-    public async Task DeleteImageAsync(string imageKey, CancellationToken cancellationToken = default)
-    {
-        if (string.IsNullOrWhiteSpace(imageKey))
-        {
-            return;
-        }
-
-        try
-        {
-            var result = await _minioFileStorage.DeleteFileAsync(
-                imageKey,
-                StorageConstants.LessonImageBucket);
-
-            if (result.Success)
-            {
-                _logger.LogInformation("Lesson image deleted successfully. ImageKey: {ImageKey}", imageKey);
-            }
-            else
-            {
-                _logger.LogWarning("Failed to delete lesson image. ImageKey: {ImageKey}, Message: {Message}", 
-                    imageKey, result.Message);
-            }
-        }
-        catch (Exception ex)
-        {
-            _logger.LogWarning(ex, "Error deleting lesson image. ImageKey: {ImageKey}", imageKey);
-        }
-    }
-
-    public string BuildImageUrl(string? imageKey)
-    {
-        if (string.IsNullOrWhiteSpace(imageKey))
-        {
-            return string.Empty;
-        }
-
-        return BuildPublicUrl.BuildURL(StorageConstants.LessonImageBucket, imageKey);
-    }
+    public async Task DeleteImageAsync(string imageKey, CancellationToken cancellationToken = default) => await _minioFileStorage.DeleteFileAsync(imageKey, StorageConstants.LessonImageBucket);
+    public string BuildImageUrl(string? imageKey) => string.IsNullOrWhiteSpace(imageKey) ? string.Empty : BuildPublicUrl.BuildURL(StorageConstants.LessonImageBucket, imageKey);
 }
-

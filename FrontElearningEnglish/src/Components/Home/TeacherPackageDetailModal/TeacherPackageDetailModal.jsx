@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { Modal, Button, Spinner } from "react-bootstrap";
+import { PiGraduationCapDuotone } from "react-icons/pi";
 import { teacherPackageService } from "../../../Services/teacherPackageService";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../../Context/AuthContext";
@@ -109,8 +110,11 @@ export default function TeacherPackageDetailModal({
                 className="teacher-package-detail-modal"
                 backdrop={true}
             >
-                <Modal.Header closeButton>
-                    <Modal.Title>Chi tiết gói giáo viên</Modal.Title>
+                <Modal.Header closeButton className="modal-header-centered">
+                    <Modal.Title>
+                        <PiGraduationCapDuotone size={28} style={{ marginRight: "0.6rem", verticalAlign: "middle", opacity: 0.92 }} />
+                        Đặc quyền Gói giảng dạy
+                    </Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
                     {loading ? (

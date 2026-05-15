@@ -98,8 +98,13 @@ namespace LearningEnglish.Application.Service
                 {
                     try
                     {
-                        committedImageKey = await _assetFrontendMediaService.CommitImageAsync(newAssetFrontend.ImageTempKey);
-                        assetFrontend.KeyImage = committedImageKey;
+                        var result = await _assetFrontendMediaService.CommitImageAsync(newAssetFrontend.ImageTempKey);
+                        if (result.Success)
+                        {
+                            committedImageKey = result.Data.KeyImage;
+                            assetFrontend.KeyImage = committedImageKey;
+                            assetFrontend.ImageType = result.Data.ContentType;
+                        }
                     }
                     catch (Exception ex)
                     {
@@ -234,7 +239,13 @@ namespace LearningEnglish.Application.Service
                 {
                     try
                     {
-                        committedImageKey = await _assetFrontendMediaService.CommitImageAsync(updatedAssetFrontend.ImageTempKey);
+                        var result = await _assetFrontendMediaService.CommitImageAsync(updatedAssetFrontend.ImageTempKey);
+                        if (result.Success)
+                        {
+                            committedImageKey = result.Data.KeyImage;
+                            existingAsset.KeyImage = committedImageKey;
+                            existingAsset.ImageType = result.Data.ContentType;
+                        }
                     }
                     catch (Exception ex)
                     {

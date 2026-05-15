@@ -2,6 +2,8 @@ import React, { useState, useEffect } from "react";
 import { Container, Nav, Tab } from "react-bootstrap";
 import { FaFileAlt, FaClipboardList } from "react-icons/fa";
 import TeacherHeader from "../../../Components/Header/TeacherHeader";
+import Breadcrumb from "../../../Components/Common/Breadcrumb/Breadcrumb";
+import { ROUTE_PATHS } from "../../../Routes/Paths";
 import { useAuth } from "../../../Context/AuthContext";
 import { teacherService } from "../../../Services/teacherService";
 import EssaySubmissionTab from "../../../Components/Teacher/SubmissionManagement/EssaySubmissionTab/EssaySubmissionTab";
@@ -82,11 +84,21 @@ export default function TeacherSubmissionManagement() {
     <>
       <TeacherHeader />
       <div className="teacher-submission-management-container">
-        <div className="tab-wrapper">
+        <Container fluid className="p-0 content-wrapper">
           <div className="mb-4">
-            <h1 className="mb-0 fw-bold text-primary">Quản lý bài nộp</h1>
+            <Breadcrumb
+              items={[{ label: "Quản lý bài nộp", isCurrent: true }]}
+              showHomeIcon={true}
+              className="breadcrumb-compact"
+            />
+          </div>
+
+          <div className="mb-4">
+            <h1 className="premium-gradient-text mb-0">Quản lý bài nộp</h1>
             <p className="text-muted mt-2">Xem và chấm bài nộp của học sinh</p>
           </div>
+
+          <div className="tab-wrapper p-0 border-0 shadow-none bg-transparent">
 
           <Tab.Container activeKey={activeTab} onSelect={(k) => setActiveTab(k || "essay")}>
             <Nav variant="tabs" className="mb-4 border-0">
@@ -122,8 +134,9 @@ export default function TeacherSubmissionManagement() {
             </Tab.Content>
           </Tab.Container>
         </div>
-      </div>
-    </>
+      </Container>
+    </div>
+  </>
   );
 }
 

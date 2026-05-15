@@ -25,6 +25,29 @@
     text-align: left;
 }
 
+/* Khi có Icon - Padding bên trái */
+.input-field-container .input-field.has-icon {
+    padding-left: 46px !important;
+}
+
+.input-field-icon {
+    position: absolute;
+    left: 16px;
+    top: 50%;
+    transform: translateY(-50%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #9ca3af;
+    font-size: 18px;
+    z-index: 2;
+    pointer-events: none;
+}
+
+.input-field-container:focus-within .input-field-icon {
+    color: var(--color-primary-main, #7a3df0);
+}
+
 /* When password toggle is present - extra padding for icon */
 .input-field-container.has-password-toggle .input-field {
     padding-right: 48px !important;

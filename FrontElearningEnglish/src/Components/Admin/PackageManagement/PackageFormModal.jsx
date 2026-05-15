@@ -4,6 +4,7 @@ import { teacherPackageService } from "../../../Services/teacherPackageService";
 import { toast } from "react-toastify";
 import { toVietnameseWords } from "../../../Utils/currencyUtils";
 import PremiumCloseButton from "../../Common/PremiumCloseButton/PremiumCloseButton";
+import { PiPackageDuotone } from "react-icons/pi";
 import "./PackageFormModal.css";
 
 export default function PackageFormModal({ show, onClose, onSuccess, packageToEdit }) {
@@ -154,11 +155,12 @@ export default function PackageFormModal({ show, onClose, onSuccess, packageToEd
             onHide={onClose} 
             size="lg" 
             centered
-            className="modal-modern"
+            className="modal-modern modal-package-size"
         >
-            <Modal.Header closeButton={false} className="modal-header-cyan">
-                <Modal.Title className="fw-bold modal-title-centered text-white">
-                    {packageToEdit ? "Cập nhật Package" : "Tạo Teacher Package"}
+            <Modal.Header closeButton={false} className="px-4 py-3">
+                <Modal.Title className="fw-bold modal-title-centered text-white d-flex align-items-center gap-3">
+                    <PiPackageDuotone size={32} />
+                    <span>{packageToEdit ? "Cập nhật Package" : "Tạo Teacher Package"}</span>
                 </Modal.Title>
                 <PremiumCloseButton onClick={onClose} />
             </Modal.Header>
@@ -308,8 +310,13 @@ export default function PackageFormModal({ show, onClose, onSuccess, packageToEd
                     <Button variant="secondary" onClick={onClose} disabled={loading}>
                         Hủy
                     </Button>
-                    <Button variant="primary" type="submit" disabled={loading}>
-                        {loading ? "Đang lưu..." : "Lưu"}
+                    <Button 
+                        variant="primary" 
+                        type="submit" 
+                        disabled={loading}
+                        className="rounded-pill px-4 btn-primary-custom"
+                    >
+                        {loading ? "Đang lưu..." : "Lưu Package"}
                     </Button>
                 </Modal.Footer>
             </Form>

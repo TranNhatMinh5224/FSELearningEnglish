@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { Modal, Button, Row, Col, Form } from "react-bootstrap";
 import { FaImage, FaMusic, FaSearch, FaMagic, FaTimes, FaBook, FaTags, FaFileAlt, FaVolumeUp, FaCheck, FaInfoCircle } from "react-icons/fa";
+import { PiCardsDuotone } from "react-icons/pi";
 import PremiumCloseButton from "../../Common/PremiumCloseButton/PremiumCloseButton";
 import { flashcardService } from "../../../Services/flashcardService";
 import { fileService } from "../../../Services/fileService";
@@ -284,7 +285,7 @@ export default function CreateFlashCardModal({ show, onClose, onSuccess, moduleI
       image: true,
       audio: true,
     });
-    
+
     validateForm(newData);
   };
 
@@ -391,10 +392,10 @@ export default function CreateFlashCardModal({ show, onClose, onSuccess, moduleI
 
       let res;
       if (isEditMode) {
-        const flashcardId = flashcardToUpdate.flashCardId || 
-                           flashcardToUpdate.FlashCardId || 
-                           flashcardToUpdate.flashcardId || 
-                           flashcardToUpdate.FlashcardId;
+        const flashcardId = flashcardToUpdate.flashCardId ||
+          flashcardToUpdate.FlashCardId ||
+          flashcardToUpdate.flashcardId ||
+          flashcardToUpdate.FlashcardId;
         res = isAdmin
           ? await flashcardService.updateAdminFlashcard(flashcardId, payload)
           : await flashcardService.updateFlashcard(flashcardId, payload);
@@ -428,9 +429,10 @@ export default function CreateFlashCardModal({ show, onClose, onSuccess, moduleI
 
   return (
     <>
-      <Modal show={show} onHide={handleClose} centered size="xl" className="create-flashcard-modal modal-modern" dialogClassName="create-flashcard-modal-dialog">
+      <Modal show={show} onHide={handleClose} centered size="xl" className={`create-flashcard-modal modal-modern ${isAdmin ? "admin-modal" : "teacher-modal"}`} dialogClassName="create-flashcard-modal-dialog">
         <Modal.Header closeButton={false}>
           <Modal.Title className="modal-title-custom">
+            <PiCardsDuotone className="me-2" style={{ fontSize: "2.2rem", verticalAlign: "middle" }} />
             {isEditMode ? "Cập nhật Flashcard" : "Tạo Flashcard mới"}
           </Modal.Title>
           <PremiumCloseButton onClick={handleClose} />
@@ -445,7 +447,7 @@ export default function CreateFlashCardModal({ show, onClose, onSuccess, moduleI
           <Form onSubmit={handleSubmit}>
             {/* MODERIZED FORM LAYOUT */}
             <div className="flashcard-modern-container">
-              
+
               {/* Left Column: English Context */}
               <div className="flashcard-modern-column">
                 <div className="premium-card context-section">
@@ -453,7 +455,7 @@ export default function CreateFlashCardModal({ show, onClose, onSuccess, moduleI
                     <FaBook className="icon-blue" />
                     <span>Bối cảnh Tiếng Anh</span>
                   </div>
-                  
+
                   <div className="card-body-premium">
                     <Form.Group className="mb-4">
                       <Form.Label className="premium-label required">Từ vựng</Form.Label>

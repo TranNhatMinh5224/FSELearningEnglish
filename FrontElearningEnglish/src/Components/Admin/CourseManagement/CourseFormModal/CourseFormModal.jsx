@@ -321,10 +321,18 @@ export default function CourseFormModal({ show, onClose, onSubmit, initialData }
 
     return (
         <>
-            <Modal show={show} onHide={handleCancel} centered size="xl" className="modal-modern create-course-modal">
+            <Modal 
+                show={show} 
+                onHide={handleCancel} 
+                centered 
+                size="xl" 
+                className="modal-modern create-course-modal"
+                dialogClassName="create-course-modal-dialog"
+            >
                 <Modal.Header closeButton={false}>
-                    <Modal.Title className="fw-bold modal-title-centered">
-                        {isUpdateMode ? "Cập nhật khóa học" : "Tạo khóa học mới"}
+                    <Modal.Title className="modal-title-custom">
+                        <FaLayerGroup className="me-2 header-icon" />
+                        {isUpdateMode ? "Cập nhật Khóa học" : "Khởi tạo Khóa học"}
                     </Modal.Title>
                     <PremiumCloseButton onClick={onClose} />
                 </Modal.Header>
@@ -420,65 +428,67 @@ export default function CourseFormModal({ show, onClose, onSubmit, initialData }
                             </Row>
                         </div>
 
-                        {/* SECTION 2: MÔ TẢ & HÌNH ẢNH */}
-                        <Row>
-                            <Col lg={8}>
-                                <div className="form-section">
-                                    <div className="section-title"><FaMarkdown /> Nội dung bài học (Markdown)</div>
-                                    <div className="markdown-toolbar">
-                                        <button type="button" className="toolbar-btn" onClick={() => insertMarkdown('bold')} title="In đậm"><FaBold /></button>
-                                        <button type="button" className="toolbar-btn" onClick={() => insertMarkdown('italic')} title="In nghiêng"><FaItalic /></button>
-                                        <button type="button" className="toolbar-btn" onClick={() => insertMarkdown('heading')} title="Tiêu đề"><FaHeading /></button>
-                                        <button type="button" className="toolbar-btn" onClick={() => insertMarkdown('list')} title="Danh sách"><FaListUl /></button>
-                                        <button type="button" className="toolbar-btn" onClick={() => insertMarkdown('code')} title="Mã code"><FaCode /></button>
-                                    </div>
-                                    <div className="markdown-editor-container">
-                                        <textarea
-                                            ref={textAreaRef}
-                                            className="markdown-textarea"
-                                            value={description}
-                                            onChange={e => {
-                                                setDescription(e.target.value);
-                                                if (touched.description) validateField("description", e.target.value);
-                                            }}
-                                            onBlur={e => handleBlur("description", e.target.value)}
-                                            placeholder="Sử dụng Markdown để viết mô tả chi tiết..."
-                                        />
-                                        <div className="markdown-preview">
-                                            {description ? <ReactMarkdown remarkPlugins={[remarkGfm]}>{description}</ReactMarkdown> : <div className="text-muted d-flex align-items-center justify-content-center h-100">Xem trước nội dung...</div>}
-                                        </div>
-                                    </div>
-                                    {errors.description && <div className="text-danger small mt-2">{errors.description}</div>}
+                        {/* SECTION 2: MÔ TẢ (STACKED FULL WIDTH) */}
+                        <div className="form-section">
+                            <div className="section-title"><FaMarkdown /> Nội dung bài học (Markdown)</div>
+                            <div className="markdown-toolbar">
+                                <button type="button" className="toolbar-btn" onClick={() => insertMarkdown('bold')} title="In đậm"><FaBold /></button>
+                                <button type="button" className="toolbar-btn" onClick={() => insertMarkdown('italic')} title="In nghiêng"><FaItalic /></button>
+                                <button type="button" className="toolbar-btn" onClick={() => insertMarkdown('heading')} title="Tiêu đề"><FaHeading /></button>
+                                <button type="button" className="toolbar-btn" onClick={() => insertMarkdown('list')} title="Danh sách"><FaListUl /></button>
+                                <button type="button" className="toolbar-btn" onClick={() => insertMarkdown('code')} title="Mã code"><FaCode /></button>
+                            </div>
+                            <div className="markdown-editor-container">
+                                <textarea
+                                    ref={textAreaRef}
+                                    className="markdown-textarea"
+                                    value={description}
+                                    onChange={e => {
+                                        setDescription(e.target.value);
+                                        if (touched.description) validateField("description", e.target.value);
+                                    }}
+                                    onBlur={e => handleBlur("description", e.target.value)}
+                                    placeholder="Sử dụng Markdown để viết mô tả chi tiết và sinh động hơn cho khóa học của bạn..."
+                                />
+                                <div className="markdown-preview">
+                                    {description ? <ReactMarkdown remarkPlugins={[remarkGfm]}>{description}</ReactMarkdown> : <div className="text-muted d-flex align-items-center justify-content-center h-100">Xem trước nội dung...</div>}
                                 </div>
-                            </Col>
-                            <Col lg={4}>
-                                <div className="form-section">
-                                    <div className="section-title">Ảnh đại diện</div>
-                                    <FileUpload
-                                        bucket={COURSE_IMAGE_BUCKET}
-                                        accept="image/*"
-                                        maxSize={5}
-                                        existingUrl={existingImageUrl}
-                                        onUploadSuccess={handleImageUploadSuccess}
-                                        onRemove={handleImageRemove}
-                                        onError={handleImageUploadError}
-                                        label={isUpdateMode ? "Thay đổi ảnh lớp học" : "Chọn ảnh đại diện cho lớp học"}
-                                        hint="Khuyến nghị tỉ lệ 16:9 (VD: 1200x675) để hiển thị đẹp nhất."
-                                        previewClassName="course-image-preview"
-                                    />
-                                    
-                                    <div className="featured-toggle mt-4 p-3 rounded-4 bg-light border">
-                                        <div className="d-flex justify-content-between align-items-center">
-                                            <div>
-                                                <div className="fw-bold small">Khóa học nổi bật</div>
-                                                <small className="text-muted">Ghim lên đầu trang chủ</small>
-                                            </div>
-                                            <Form.Check type="switch" checked={isFeatured} onChange={e => setIsFeatured(e.target.checked)} />
-                                        </div>
-                                    </div>
+                            </div>
+                            {errors.description && <div className="text-danger small mt-2">{errors.description}</div>}
+                        </div>
+                        {/* SECTION 3: HÌNH ẢNH (STACKED FULL WIDTH) */}
+                        <div className="form-section">
+                            <div className="section-title">Ảnh đại diện</div>
+                            <FileUpload
+                                bucket={COURSE_IMAGE_BUCKET}
+                                accept="image/*"
+                                maxSize={10}
+                                existingUrl={existingImageUrl}
+                                onUploadSuccess={handleImageUploadSuccess}
+                                onRemove={handleImageRemove}
+                                onError={handleImageUploadError}
+                                label={isUpdateMode ? "Thay đổi ảnh lớp học" : "Chọn ảnh đại diện cho lớp học"}
+                                hint="Khuyến nghị tỉ lệ 16:9 (VD: 1200x675) để hiển thị đẹp nhất."
+                                previewClassName="course-image-preview"
+                            />
+                        </div>
+
+                        {/* SECTION 4: NỔI BẬT (STACKED FULL WIDTH) */}
+                        <div className="form-section featured-section-card">
+                            <div className="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <div className="fw-bold section-title mb-1"><FaLayerGroup /> Khóa học nổi bật</div>
+                                    <small className="text-muted">Ghim khóa học này lên đầu trang chủ để thu hút học viên</small>
                                 </div>
-                            </Col>
-                        </Row>
+                                <Form.Check
+                                    type="switch"
+                                    id="featured-switch"
+                                    className="custom-switch-lg"
+                                    checked={isFeatured}
+                                    onChange={e => setIsFeatured(e.target.checked)}
+                                />
+                            </div>
+                        </div>
 
                         {errors.submit && <div className="alert alert-danger mt-3">{errors.submit}</div>}
                     </Form>
@@ -487,7 +497,7 @@ export default function CourseFormModal({ show, onClose, onSubmit, initialData }
                 <Modal.Footer>
                     <Button variant="link" className="text-muted text-decoration-none" onClick={handleCancel} disabled={submitting}>Hủy bỏ</Button>
                     <Button className="btn-primary-custom" onClick={handleSubmit} disabled={submitting}>
-                        {submitting ? "Đang lưu..." : (isUpdateMode ? "Lưu thay đổi" : "Tạo khóa học")}
+                        {submitting ? "Đang xử lý..." : (isUpdateMode ? "Lưu thay đổi" : "Khởi tạo Khóa học")}
                     </Button>
                 </Modal.Footer>
             </Modal>

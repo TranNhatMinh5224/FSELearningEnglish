@@ -5,6 +5,8 @@ import { useAuth } from "../../../Context/AuthContext";
 import { adminService } from "../../../Services/adminService";
 import EssaySubmissionTab from "../../../Components/Teacher/SubmissionManagement/EssaySubmissionTab/EssaySubmissionTab";
 import QuizAttemptTab from "../../../Components/Teacher/SubmissionManagement/QuizAttemptTab/QuizAttemptTab";
+import AdminSearch from "../../../Components/Common/AdminSearch/AdminSearch";
+import CourseTypeFilter from "../../../Components/Common/CourseTypeFilter/CourseTypeFilter";
 import "./AdminSubmissionManagement.css";
 
 export default function AdminSubmissionManagement() {
@@ -13,7 +15,7 @@ export default function AdminSubmissionManagement() {
   const [courses, setCourses] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-  const [courseType, setCourseType] = useState("");
+  const [courseType, setCourseType] = useState("all");
   const [searchTerm, setSearchTerm] = useState("");
   const [isSearching, setIsSearching] = useState(false);
 
@@ -32,11 +34,16 @@ export default function AdminSubmissionManagement() {
 
       const trimmedSearch = (override.searchTerm ?? searchTerm).trim();
       const selectedType = override.courseType ?? courseType;
+      
+      let typeParam = "";
+      if (selectedType === "system") typeParam = "1";
+      if (selectedType === "teacher") typeParam = "2";
+
       const params = {
         pageNumber: 1,
         pageSize: 100, // Get all courses
         ...(trimmedSearch ? { searchTerm: trimmedSearch } : {}),
-        ...(selectedType ? { type: Number(selectedType) } : {})
+        ...(typeParam ? { type: Number(typeParam) } : {})
       };
 
       const response = await adminService.getAllCourses(params);
@@ -73,10 +80,10 @@ export default function AdminSubmissionManagement() {
   };
 
   const handleResetFilters = () => {
-    setCourseType("");
+    setCourseType("all");
     setSearchTerm("");
     setIsSearching(true);
-    fetchCourses({ courseType: "", searchTerm: "" });
+    fetchCourses({ courseType: "all", searchTerm: "" });
   };
 
   if (!isAuthenticated || !isAdmin) {
@@ -94,66 +101,31 @@ export default function AdminSubmissionManagement() {
         </div>
 
         <Form onSubmit={handleSearch} className="mb-4">
-          <Row className="g-3 align-items-end">
-            <Col xs={12} lg={5}>
-              <Form.Label className="fw-semibold">Loại khóa học</Form.Label>
-              <div className="admin-course-type-toggle">
-                <Button
-                  type="button"
-                  variant={courseType === "" ? "dark" : "outline-secondary"}
-                  className="admin-course-type-btn"
-                  onClick={() => setCourseType("")}
-                >
-                  All Courses
-                </Button>
-                <Button
-                  type="button"
-                  variant={courseType === "1" ? "dark" : "outline-secondary"}
-                  className="admin-course-type-btn"
-                  onClick={() => setCourseType("1")}
-                >
-                  System Courses
-                </Button>
-                <Button
-                  type="button"
-                  variant={courseType === "2" ? "dark" : "outline-secondary"}
-                  className="admin-course-type-btn"
-                  onClick={() => setCourseType("2")}
-                >
-                  Teacher Courses
-                </Button>
-              </div>
-            </Col>
-            <Col xs={12} lg={5}>
-              <Form.Label className="fw-semibold">Tìm kiếm khóa học</Form.Label>
-              <InputGroup>
-                <Form.Control
-                  type="text"
-                  placeholder="Nhập tên khóa học, mã lớp hoặc tên giáo viên..."
-                  value={searchTerm}
-                  onChange={(event) => setSearchTerm(event.target.value)}
-                />
-                <Button
-                  type="submit"
-                  variant="primary"
-                  disabled={loading || isSearching}
-                >
-                  {isSearching ? "Đang tìm..." : "Tìm"}
-                </Button>
-              </InputGroup>
-            </Col>
-            <Col xs={12} lg={2} className="d-flex">
+          <div className="admin-filters-header">
+            <CourseTypeFilter 
+              activeType={courseType}
+              onTypeChange={setCourseType}
+            />
+            
+            <div className="admin-filters-right">
+              <AdminSearch 
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                onSearch={fetchCourses}
+                placeholder="Tìm tên khóa học, mã lớp hoặc giáo viên..."
+                className="submission-search-bar"
+              />
               <Button
                 type="button"
                 variant="outline-secondary"
-                className="w-100"
+                className="px-4 reset-btn"
                 onClick={handleResetFilters}
                 disabled={loading || isSearching}
               >
                 Xóa bộ lọc
               </Button>
-            </Col>
-          </Row>
+            </div>
+          </div>
         </Form>
 
         <div className={`admin-management-content ${loading ? 'content-loading' : ''}`}>

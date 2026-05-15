@@ -58,6 +58,7 @@ export default function TeacherHeader() {
             <Nav.Item
               onClick={() => handleNavigation("/teacher/course-management", true)}
               className={`nav-item d-flex align-items-center ${isActive("/teacher/course-management") ? "active" : ""}`}
+              style={{ "--i": 1 }}
             >
               <FaChalkboardTeacher className="nav-icon" />
               <span className="nav-text">Quản lí khoá học</span>
@@ -66,6 +67,7 @@ export default function TeacherHeader() {
             <Nav.Item
               onClick={() => handleNavigation("/teacher/submission-management", true)}
               className={`nav-item d-flex align-items-center ${isActive("/teacher/submission-management") ? "active" : ""}`}
+              style={{ "--i": 2 }}
             >
               <FaUserCog className="nav-icon" />
               <span className="nav-text">Quản lí bài nộp</span>
@@ -74,8 +76,12 @@ export default function TeacherHeader() {
 
           {/* RIGHT: profile */}
           <div className="main-header__right d-flex align-items-center gap-3">
-            <WalletDropdown />
-            <ProfileDropdown />
+            <div className="mobile-stagger-item" style={{ "--i": 3 }}>
+              <WalletDropdown />
+            </div>
+            <div className="mobile-stagger-item" style={{ "--i": 4 }}>
+              <ProfileDropdown />
+            </div>
           </div>
         </Navbar.Collapse>
       </Container>

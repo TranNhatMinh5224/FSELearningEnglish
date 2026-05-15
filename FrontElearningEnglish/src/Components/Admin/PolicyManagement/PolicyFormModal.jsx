@@ -3,6 +3,9 @@ import { Modal, Button, Form, Row, Col } from "react-bootstrap";
 import { policyService } from "../../../Services/policyService";
 import { toast } from "react-toastify";
 import PremiumCloseButton from "../../Common/PremiumCloseButton/PremiumCloseButton";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
+import { PiShieldCheckDuotone } from "react-icons/pi";
 
 export default function PolicyFormModal({ show, onClose, onSuccess, policyToEdit }) {
   const [formData, setFormData] = useState({
@@ -64,10 +67,11 @@ export default function PolicyFormModal({ show, onClose, onSuccess, policyToEdit
   };
 
   return (
-    <Modal show={show} onHide={onClose} size="lg" centered className="modal-modern">
-      <Modal.Header closeButton={false} className="modal-header-cyan">
-        <Modal.Title className="fw-bold modal-title-centered text-white">
-          {policyToEdit ? "Cập nhật chính sách" : "Thêm chính sách mới"}
+    <Modal show={show} onHide={onClose} size="lg" centered className="modal-modern modal-policy-size">
+      <Modal.Header closeButton={false} className="px-4 py-3">
+        <Modal.Title className="fw-bold modal-title-centered text-white d-flex align-items-center gap-3">
+          <PiShieldCheckDuotone size={32} />
+          <span>{policyToEdit ? "Cập nhật chính sách" : "Thêm chính sách mới"}</span>
         </Modal.Title>
         <PremiumCloseButton onClick={onClose} variant="white" />
       </Modal.Header>
@@ -112,18 +116,40 @@ export default function PolicyFormModal({ show, onClose, onSuccess, policyToEdit
             </Form.Select>
           </Form.Group>
           <Form.Group className="mb-3">
-            <Form.Label className="fw-semibold">Nội dung (Markdown)</Form.Label>
-            <Form.Control
-              as="textarea"
-              rows={10}
-              name="contentMarkdown"
-              value={formData.contentMarkdown}
-              onChange={handleChange}
-              placeholder="Nhập nội dung chính sách bằng Markdown..."
-              required
-            />
+            <Form.Label className="fw-semibold text-primary">Nội dung Chính sách (Markdown)</Form.Label>
+            <Row>
+              <Col md={6}>
+                <div className="d-flex flex-column h-100">
+                  <Form.Label className="small text-muted mb-1">Trình soạn thảo</Form.Label>
+                  <Form.Control
+                    as="textarea"
+                    rows={12}
+                    name="contentMarkdown"
+                    value={formData.contentMarkdown}
+                    onChange={handleChange}
+                    placeholder="Nhập nội dung chính sách bằng Markdown..."
+                    required
+                    className="font-monospace"
+                  />
+                </div>
+              </Col>
+              <Col md={6}>
+                <div className="d-flex flex-column h-100">
+                  <Form.Label className="small text-muted mb-1">Xem trước (Preview)</Form.Label>
+                  <div className="markdown-preview-box">
+                    {formData.contentMarkdown ? (
+                      <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                        {formData.contentMarkdown}
+                      </ReactMarkdown>
+                    ) : (
+                      <em className="text-muted">Xem trước nội dung tại đây...</em>
+                    )}
+                  </div>
+                </div>
+              </Col>
+            </Row>
             <Form.Text className="text-muted">
-              Nội dung này sẽ được AI sử dụng để làm tri thức trả lời người dùng.
+              Nội dung này sẽ được AI sử dụng để làm tri thức trả lời người dùng. Bạn có thể sử dụng các thẻ Markdown như # H1, **Bold**, - List...
             </Form.Text>
           </Form.Group>
         </Modal.Body>
@@ -131,7 +157,12 @@ export default function PolicyFormModal({ show, onClose, onSuccess, policyToEdit
           <Button variant="secondary" onClick={onClose} disabled={loading}>
             Hủy
           </Button>
-          <Button variant="primary" type="submit" disabled={loading}>
+          <Button 
+            variant="primary" 
+            type="submit" 
+            disabled={loading}
+            className="rounded-pill px-4 btn-primary-custom"
+          >
             {loading ? "Đang lưu..." : "Lưu chính sách"}
           </Button>
         </Modal.Footer>

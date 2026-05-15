@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { Modal, Button, Row, Col } from "react-bootstrap";
 import { FaInfoCircle, FaClock, FaCalendarAlt, FaCog, FaListOl } from "react-icons/fa";
+import { PiLightningDuotone } from "react-icons/pi";
 import DateTimePicker from "../DateTimePicker/DateTimePicker";
 import ConfirmModal from "../../Common/ConfirmModal/ConfirmModal";
 import FormInput from "../../Common/FormControls/FormInput";
@@ -49,11 +50,14 @@ export default function CreateQuizModal({ show, onClose, onSuccess, assessmentId
         onHide={handleClose}
         centered
         size="lg"
-        className="create-quiz-modal modal-modern"
+        className={`create-quiz-modal modal-modern ${isAdmin ? "admin-modal" : "teacher-modal"}`}
         dialogClassName="create-quiz-modal-dialog"
       >
         <Modal.Header closeButton={false}>
-          <Modal.Title className="fw-bold">{quizToUpdate ? "Cập nhật Quiz" : "Tạo Quiz mới"}</Modal.Title>
+          <Modal.Title className="fw-bold modal-title-centered">
+            <PiLightningDuotone className="me-2" style={{ fontSize: "2.2rem", verticalAlign: "middle" }} />
+            {quizToUpdate ? "Cập nhật Bài Quiz" : "Thiết lập Bài Quiz"}
+          </Modal.Title>
           <PremiumCloseButton onClick={handleClose} />
         </Modal.Header>
         <Modal.Body className="p-4">
@@ -130,16 +134,34 @@ export default function CreateQuizModal({ show, onClose, onSuccess, assessmentId
                     />
                   </Col>
                   <Col md={6}>
-                    <FormSelect
-                      label="Trạng thái"
-                      name="status"
-                      value={formData.status}
-                      onChange={handleChange}
-                      onBlur={handleBlur}
-                      options={quizStatusOptions}
-                      loading={enumsLoading}
-                      required
-                    />
+                    <div className="status-toggle-wrapper">
+                      <label className="form-label fw-bold mb-2">Trạng thái Quiz</label>
+                      <div className={`status-toggle-card ${formData.status === 1 ? 'status-open' : 'status-closed'}`}>
+                        <div className="d-flex align-items-center justify-content-between p-2">
+                          <div className="status-info d-flex align-items-center">
+                            <div className="status-dot"></div>
+                            <span className="status-text fw-bold">
+                              {formData.status === 1 ? "Đang mở (Open)" : "Đã đóng (Closed)"}
+                            </span>
+                          </div>
+                          <div className="form-check form-switch m-0 p-0">
+                            <input
+                              className="form-check-input status-switch"
+                              type="checkbox"
+                              role="switch"
+                              id="quizStatusSwitch"
+                              checked={formData.status === 1}
+                              onChange={(e) => setFieldValue("status", e.target.checked ? 1 : 2)}
+                            />
+                          </div>
+                        </div>
+                      </div>
+                      <div className="form-text mt-1">
+                        {formData.status === 1 
+                          ? "Học sinh có thể bắt đầu làm bài Quiz này." 
+                          : "Quiz bị khóa, học sinh không thể truy cập."}
+                      </div>
+                    </div>
                   </Col>
                 </Row>
               </div>
@@ -196,6 +218,20 @@ export default function CreateQuizModal({ show, onClose, onSuccess, assessmentId
                 </div>
                 <Row className="g-3">
                   <Col md={12}>
+                    <div className="duration-presets mb-3">
+                      <div className="preset-buttons">
+                        {[10, 15, 30, 45, 60, 90, 120].map((preset) => (
+                          <button
+                            key={preset}
+                            type="button"
+                            className={`preset-btn ${Number(formData.duration) === preset ? 'active' : ''}`}
+                            onClick={() => setFieldValue("duration", preset)}
+                          >
+                            {preset} phút
+                          </button>
+                        ))}
+                      </div>
+                    </div>
                     <FormInput
                       label="Thời gian làm bài riêng phần Quiz (phút)"
                       name="duration"

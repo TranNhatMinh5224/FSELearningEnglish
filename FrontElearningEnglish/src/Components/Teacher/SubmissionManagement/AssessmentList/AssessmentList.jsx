@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback } from "react";
 import { Card, Spinner, Badge } from "react-bootstrap";
 import { FaClipboardCheck, FaClock, FaCalendarAlt } from "react-icons/fa";
 import { assessmentService } from "../../../../Services/assessmentService";
+import { AssessmentCardSkeleton } from "../../../Common/Skeleton/LectureDetailSkeleton";
 import "./AssessmentList.css";
 
 export default function AssessmentList({ moduleId, onSelect, isAdmin = false }) {
@@ -46,8 +47,8 @@ export default function AssessmentList({ moduleId, onSelect, isAdmin = false }) 
 
   if (loading) {
     return (
-      <div className="text-center py-5">
-        <Spinner animation="border" variant="primary" />
+      <div className="assessment-grid">
+        {[...Array(3)].map((_, i) => <AssessmentCardSkeleton key={i} />)}
       </div>
     );
   }
@@ -83,38 +84,34 @@ export default function AssessmentList({ moduleId, onSelect, isAdmin = false }) 
               >
                 <Card.Body>
                   <div className="d-flex align-items-start gap-3 mb-3">
-                    <div className="assessment-icon flex-shrink-0">
-                      <FaClipboardCheck size={24} />
+                    <div className="assessment-icon">
+                      <FaClipboardCheck size={20} />
                     </div>
-                    <div className="flex-grow-1">
-                      <div className="d-flex justify-content-between align-items-start">
-                        <Card.Title className="assessment-title mb-1 text-break">{title}</Card.Title>
-                        <Badge bg={isPublished ? "success" : "secondary"} className="ms-2">
-                          {isPublished ? "Đã xuất bản" : "Nháp"}
+                    <div className="flex-grow-1 min-width-0">
+                      <div className="d-flex justify-content-between align-items-start gap-2">
+                        <Card.Title className="assessment-title mb-0 text-break">{title}</Card.Title>
+                        <Badge bg={isPublished ? "success" : "secondary"} className="assessment-badge flex-shrink-0">
+                          {isPublished ? "Published" : "Draft"}
                         </Badge>
                       </div>
                       
                       {timeLimit && (
-                        <div className="text-muted small d-flex align-items-center mt-1">
+                        <div className="text-muted small d-flex align-items-center mt-2">
                           <FaClock className="me-1" size={12} />
-                          {timeLimit}
+                          <span>{timeLimit}</span>
                         </div>
                       )}
                     </div>
                   </div>
 
-                  <div className="border-top pt-2 mt-2">
-                    <div className="d-flex justify-content-between text-muted small">
-                      <div title="Thời gian mở">
-                        <FaCalendarAlt className="me-1" size={12} />
-                        Mở: {formatDate(openAt)}
-                      </div>
+                  <div className="border-top pt-3 mt-auto">
+                    <div className="date-row" title="Opening time">
+                      <FaCalendarAlt size={12} />
+                      <span>Mở: {formatDate(openAt)}</span>
                     </div>
-                    <div className="d-flex justify-content-between text-muted small mt-1">
-                      <div title="Hạn nộp" className="text-danger">
-                        <FaCalendarAlt className="me-1" size={12} />
-                        Đóng: {formatDate(dueAt)}
-                      </div>
+                    <div className="date-row danger" title="Due time">
+                      <FaCalendarAlt size={12} />
+                      <span>Đóng: {formatDate(dueAt)}</span>
                     </div>
                   </div>
                 </Card.Body>

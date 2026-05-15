@@ -5,6 +5,7 @@ using Microsoft.Extensions.Logging;
 using AutoMapper;
 using LearningEnglish.Application.Common;
 using LearningEnglish.Infrastructure.Common.Helpers;
+using LearningEnglish.Infrastructure.Services;
 using Minio;
 using Minio.Exceptions;
 using System;
@@ -21,16 +22,18 @@ namespace LearningEnglish.Infrastructure.MinioFileStorage
         private readonly IMapper _mapper;
         private readonly IMinioClient _minioClient; // client để kết nối với minio server
         private readonly ILogger<MinioFileStorageService> _logger;
+        private readonly ImageProcessingService _imageProcessing;
 
         // Prevent stampede when multiple requests try to create the same bucket concurrently
         private static readonly ConcurrentDictionary<string, SemaphoreSlim> _bucketLocks =
             new(StringComparer.OrdinalIgnoreCase);
 
-        public MinioFileStorageService(IMapper mapper, IMinioClient minioClient, ILogger<MinioFileStorageService> logger)
+        public MinioFileStorageService(IMapper mapper, IMinioClient minioClient, ILogger<MinioFileStorageService> logger, ImageProcessingService imageProcessing)
         {
             _mapper = mapper;
             _minioClient = minioClient;
             _logger = logger;
+            _imageProcessing = imageProcessing;
         }
 
         private async Task<bool> EnsureBucketExistsAsync(string bucketName)
@@ -101,30 +104,60 @@ namespace LearningEnglish.Infrastructure.MinioFileStorage
                     return response;
                 }
 
+                // --- Xử lý ảnh: resize + nén WebP trước khi upload ---
+                Stream uploadStream;
+                long uploadSize;
+                string contentType;
+                string extension;
+
+                bool isImage = _imageProcessing.IsImage(file); // Cache kết quả, tránh gọi 2 lần
+
+                if (isImage)
+                {
+                    // Ảnh → resize về max 900x600, chuyển sang WebP
+                    var (processedStream, processedContentType, processedExtension) =
+                        await _imageProcessing.ProcessImageAsync(file);
+
+                    uploadStream = processedStream;
+                    uploadSize = processedStream.Length;
+                    contentType = processedContentType;
+                    extension = processedExtension; // .webp
+                }
+                else
+                {
+                    // File khác (audio, video, pdf...) → upload nguyên bản
+                    uploadStream = file.OpenReadStream();
+                    uploadSize = file.Length;
+                    contentType = file.ContentType;
+                    extension = Path.GetExtension(file.FileName);
+                }
+
                 // tạo tempkey cho file
-                var extension = Path.GetExtension(file.FileName);
                 var datetime = DateTime.UtcNow.ToString("yyyyMMddHHmmss");
                 var objectKey = $"{tempFolder}/{datetime}/{Guid.NewGuid()}{extension}";
                 objectKey = NormalizeKey(objectKey);
 
+                var imageUrl = BuildPublicUrl.BuildURL(BucketName, objectKey); // gọi helper để tạo url public
 
-                var imageUrl = BuildPublicUrl.BuildURL(BucketName, objectKey);// gọi helper để tạo url public
+                var putfile = new PutObjectArgs()
+                    .WithBucket(BucketName)
+                    .WithObject(objectKey)
+                    .WithStreamData(uploadStream)
+                    .WithObjectSize(uploadSize)
+                    .WithContentType(contentType);
 
-                var putfile = new PutObjectArgs() // tạo object args để upload file
-                    .WithBucket(BucketName) // tên bucket
-                    .WithObject(objectKey) // đặt tên file trên minio server
-                    .WithStreamData(file.OpenReadStream()) // lấy stream từ IFormFile
-                    .WithObjectSize(file.Length) // kích thước file
-                    .WithContentType(file.ContentType); // kiểu file 
+                await _minioClient.PutObjectAsync(putfile);
 
-                await _minioClient.PutObjectAsync(putfile); // upload file lên minio serverl
+                // Giải phóng stream nếu là ảnh đã xử lý
+                if (isImage)
+                    await uploadStream.DisposeAsync();
                 _logger?.LogInformation("Uploaded temp object. Bucket={Bucket}, Key={Key}", BucketName, objectKey);
 
                 response.Data = new ResultUploadDto
                 {
-                    TempKey = objectKey, // chú ý: property trong DTO nên là TempKey (đúng PascalCase)
+                    TempKey = objectKey,
                     ImageUrl = imageUrl,
-                    ImageType = file.ContentType
+                    ImageType = contentType // WebP nếu là ảnh, nguyên bản nếu là file khác
                 };
                 response.Success = true;
                 response.Message = "File uploaded successfully.";
@@ -205,14 +238,12 @@ namespace LearningEnglish.Infrastructure.MinioFileStorage
             return response;
         }
 
-
-
-        public async Task<ServiceResponse<string>> CommitFileAsync(
+        public async Task<ServiceResponse<CommitFileResultDto>> CommitFileAsync(
             string TempKey,
             string BucketName,
             string CommitFolder = "real")
         {
-            var response = new ServiceResponse<string>();
+            var response = new ServiceResponse<CommitFileResultDto>();
 
             try
             {
@@ -224,9 +255,6 @@ namespace LearningEnglish.Infrastructure.MinioFileStorage
                     return response;
                 }
 
-                _logger?.LogInformation("CommitFileAsync called. Bucket={Bucket}, TempKey={TempKey}", BucketName, TempKey);
-
-                // Ensure bucket exists (auto-create if needed)
                 if (!await EnsureBucketExistsAsync(BucketName))
                 {
                     response.Success = false;
@@ -235,59 +263,66 @@ namespace LearningEnglish.Infrastructure.MinioFileStorage
                     return response;
                 }
 
-                // copy temp to real 
-                // Vd : tempkey = temp/20240615123000/uuid.jpg
-                // realkey = real/20240615123000/uuid.jpg
+                // 1. Lấy metadata của file temp để lấy ContentType chuẩn
+                var statObjectArgs = new StatObjectArgs()
+                    .WithBucket(BucketName)
+                    .WithObject(TempKey);
+                var stat = await _minioClient.StatObjectAsync(statObjectArgs);
+                var contentType = stat.ContentType;
 
-                var fileName = Path.GetFileName(TempKey);  // đầu ra là : uuid.jpg
-                var getdirname = Path.GetDirectoryName(TempKey)?.Replace("\\", "/"); // đầu ra là : temp/20240615123000
-                var part = getdirname?.Split('/'); // tách chuỗi theo dấu /
-                var datetimePart = part != null && part.Length > 1 ? part[1] : ""; // lấy phần datetime
-                // var realKey = $"{CommitFolder}/{datetimePart}/{fileName}"; // tạo realkey
+                // 2. Tạo real key
+                var fileName = Path.GetFileName(TempKey);
+                var getdirname = Path.GetDirectoryName(TempKey)?.Replace("\\", "/");
+                var part = getdirname?.Split('/');
+                var datetimePart = part != null && part.Length > 1 ? part[1] : "";
+                
                 string realKey;
-                if (!string.IsNullOrEmpty(datetimePart)) // nếu có phần datetime
+                if (!string.IsNullOrEmpty(datetimePart))
                 {
-                    var datePath = datetimePart; // giữ nguyên định dạng datetimePart
-                    realKey = $"{CommitFolder}/{datePath}/{fileName}".Replace("\\", "/");
+                    realKey = $"{CommitFolder}/{datetimePart}/{fileName}".Replace("\\", "/");
                 }
-                else // nếu không có phần datetime
+                else
                 {
                     realKey = $"{CommitFolder}/{fileName}".Replace("\\", "/");
                 }
 
                 realKey = NormalizeKey(realKey);
 
-                // thực hiện copy
-                var SourceCopyObj = new CopySourceObjectArgs()  // tạo obj . chức năng của CopySourceObjectArgs là để định nghĩa nguồn (source) của đối tượng (object) mà bạn muốn sao chép trong MinIO là nằm ở đâu
-                              .WithBucket(BucketName) // tên bucket nguồn
-                                .WithObject(TempKey); // tên object nguồn
+                // 3. Thực hiện copy
+                var sourceCopyObj = new CopySourceObjectArgs()
+                               .WithBucket(BucketName)
+                                 .WithObject(TempKey);
 
-                var copyObjectArgs = new CopyObjectArgs() // tạo obj để cấu hình việc copy
-                    .WithBucket(BucketName) // tên bucket đích
-                    .WithObject(realKey) // tên object đích
-                    .WithCopyObjectSource(SourceCopyObj);
+                var copyObjectArgs = new CopyObjectArgs()
+                    .WithBucket(BucketName)
+                    .WithObject(realKey)
+                    .WithCopyObjectSource(sourceCopyObj);
 
                 _logger?.LogInformation("Copying object from temp to real. Source={Source}, Destination={Dest}", TempKey, realKey);
-                await _minioClient.CopyObjectAsync(copyObjectArgs); // thực hiện copy
+                await _minioClient.CopyObjectAsync(copyObjectArgs);
 
-                // trả về realkey
-                response.Data = realKey;
+                // 4. Trả về kết quả
+                response.Data = new CommitFileResultDto
+                {
+                    RealKey = realKey,
+                    ContentType = contentType
+                };
                 response.Success = true;
                 response.Message = "File committed successfully.";
                 response.StatusCode = 200;
 
-                // xóa file temp sau khi copy thành công
+                // 5. Xóa file temp sau khi copy thành công
                 try
                 {
                     var removeObjectArgs = new RemoveObjectArgs()
                         .WithBucket(BucketName)
                         .WithObject(TempKey);
 
-                    await _minioClient.RemoveObjectAsync(removeObjectArgs); // thực hiện xóa
+                    await _minioClient.RemoveObjectAsync(removeObjectArgs);
                 }
-                catch
+                catch (Exception deleteEx)
                 {
-                    // có thể log warning ở đây nếu cần
+                    _logger?.LogWarning(deleteEx, "Failed to delete temp file after commit: {TempKey}", TempKey);
                 }
             }
             catch (MinioException mEx)

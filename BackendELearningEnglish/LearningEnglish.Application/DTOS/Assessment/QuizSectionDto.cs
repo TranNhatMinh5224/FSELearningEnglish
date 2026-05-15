@@ -7,7 +7,10 @@ namespace LearningEnglish.Application.DTOs
         public string Title { get; set; } = string.Empty;
         public string? Description { get; set; }
 
+        public List<QuizGroupDto> QuizGroups { get; set; } = new();
+        public List<QuestionDto> Questions { get; set; } = new();
     }
+
     public class CreateQuizSectionDto
     {
         public int QuizId { get; set; }
@@ -56,7 +59,7 @@ namespace LearningEnglish.Application.DTOs
         public string? Description { get; set; }
         public string Title { get; set; } = string.Empty;
 
-        public float SumScore { get; set; }
+        public decimal SumScore { get; set; }
 
         // Thứ tự hiển thị
         public int DisplayOrder { get; set; } = 0;

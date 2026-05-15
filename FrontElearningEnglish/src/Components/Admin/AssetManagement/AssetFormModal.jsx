@@ -5,6 +5,7 @@ import { useEnums } from "../../../Context/EnumContext";
 import FileUpload from "../../Common/FileUpload/FileUpload";
 import { toast } from "react-toastify";
 import PremiumCloseButton from "../../Common/PremiumCloseButton/PremiumCloseButton";
+import { PiImageDuotone } from "react-icons/pi";
 import "./AssetFormModal.css";
 
 const ASSET_IMAGE_BUCKET = "assetsfrontend"; // Bucket name for asset images
@@ -184,12 +185,13 @@ export default function AssetFormModal({ show, onClose, onSuccess, assetToEdit }
             onHide={onClose}
             centered
             size="lg"
-            className="modal-modern asset-form-modal"
+            className="modal-modern asset-form-modal modal-asset-size"
             dialogClassName="asset-form-modal-dialog"
         >
-            <Modal.Header closeButton={false} className="modal-header-cyan">
-                <Modal.Title className="fw-bold modal-title-centered text-white">
-                    {assetToEdit ? "Cập nhật Asset" : "Thêm Asset Mới"}
+            <Modal.Header closeButton={false} className="px-4 py-3">
+                <Modal.Title className="fw-bold modal-title-centered text-white d-flex align-items-center gap-3">
+                    <PiImageDuotone size={32} />
+                    <span>{assetToEdit ? "Cập nhật Asset" : "Thêm Asset Mới"}</span>
                 </Modal.Title>
                 <PremiumCloseButton onClick={onClose} />
             </Modal.Header>
@@ -258,14 +260,14 @@ export default function AssetFormModal({ show, onClose, onSuccess, assetToEdit }
                                 <FileUpload
                                     bucket={ASSET_IMAGE_BUCKET}
                                     accept="image/*"
-                                    maxSize={5}
+                                    maxSize={10}
                                     existingUrl={existingImageUrl}
                                     onUploadSuccess={handleImageUploadSuccess}
                                     onRemove={handleImageRemove}
                                     onError={handleImageError}
                                     onUploadingChange={handleImageUploadingChange}
                                     label="Chọn ảnh hoặc kéo thả vào đây"
-                                    hint="Hỗ trợ JPG, PNG, GIF (tối đa 5MB)"
+                                    hint="Hỗ trợ JPG, PNG, GIF (tối đa 10MB)"
                                 />
                                 {errors.image && (
                                     <div className="text-danger small mt-1">{errors.image}</div>
@@ -278,8 +280,13 @@ export default function AssetFormModal({ show, onClose, onSuccess, assetToEdit }
                     <Button variant="secondary" onClick={onClose} disabled={loading || uploadingImage}>
                         Hủy
                     </Button>
-                    <Button variant="primary" type="submit" disabled={loading || uploadingImage}>
-                        {loading ? "Đang lưu..." : uploadingImage ? "Đang upload..." : "Lưu"}
+                    <Button 
+                        variant="primary" 
+                        type="submit" 
+                        disabled={loading || uploadingImage}
+                        className="rounded-pill px-4 btn-primary-custom"
+                    >
+                        {loading ? "Đang lưu..." : uploadingImage ? "Đang upload..." : "Lưu Asset"}
                     </Button>
                 </Modal.Footer>
             </Form>

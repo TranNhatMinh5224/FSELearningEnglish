@@ -110,9 +110,13 @@ namespace LearningEnglish.Application.Service
                 {
                     try
                     {
-                        committedImageKey = await _lessonImageService.CommitImageAsync(dto.ImageTempKey);
-                        lesson.ImageKey = committedImageKey;
-                        lesson.ImageType = dto.ImageType ?? "real";
+                        var result = await _lessonImageService.CommitImageAsync(dto.ImageTempKey);
+                        if (result.Success)
+                        {
+                            committedImageKey = result.Data.ImageKey;
+                            lesson.ImageKey = committedImageKey;
+                            lesson.ImageType = result.Data.ContentType;
+                        }
                     }
                     catch (Exception imageEx)
                     {
@@ -215,9 +219,13 @@ namespace LearningEnglish.Application.Service
                 {
                     try
                     {
-                        newImageKey = await _lessonImageService.CommitImageAsync(dto.ImageTempKey);
-                        lesson.ImageKey = newImageKey;
-                        lesson.ImageType = dto.ImageType ?? "real";
+                        var result = await _lessonImageService.CommitImageAsync(dto.ImageTempKey);
+                        if (result.Success)
+                        {
+                            newImageKey = result.Data.ImageKey;
+                            lesson.ImageKey = newImageKey;
+                            lesson.ImageType = result.Data.ContentType;
+                        }
                     }
                     catch (Exception imageEx)
                     {

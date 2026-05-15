@@ -18,7 +18,9 @@ root.render(
       <AuthProvider>
         <StreakProvider>
           <NotificationProvider>
-            <App />
+            <div id="app-scale-root">
+              <App />
+            </div>
           </NotificationProvider>
         </StreakProvider>
       </AuthProvider>

@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { Container, Button, Card, Badge } from "react-bootstrap";
 import { FaPlus, FaEdit, FaTrash, FaLayerGroup } from "react-icons/fa";
+import { PiFilesDuotone } from "react-icons/pi";
 import CreateQuestionModal from "../../../Components/Teacher/CreateQuestionModal/CreateQuestionModal";
 import CreateQuizGroupModal from "../../../Components/Teacher/CreateQuizGroupModal/CreateQuizGroupModal";
 import SuccessModal from "../../../Components/Common/SuccessModal/SuccessModal";
@@ -13,6 +14,7 @@ import { quizService } from "../../../Services/quizService";
 import { courseService } from "../../../Services/courseService";
 import { lessonService } from "../../../Services/lessonService";
 import { assessmentService } from "../../../Services/assessmentService";
+import { adminService } from "../../../Services/adminService";
 import { ROUTE_PATHS } from "../../../Routes/Paths";
 import { useAuth } from "../../../Context/AuthContext";
 import { useQuestionTypes } from "../../../hooks/useQuestionTypes";
@@ -31,6 +33,7 @@ export default function AdminQuestionManagement() {
   const [assessment, setAssessment] = useState(null);
   const [quiz, setQuiz] = useState(null);
   const [section, setSection] = useState(null);
+  const [module, setModule] = useState(null);
   const [contextData, setContextData] = useState({ title: "", subtitle: "" });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -61,14 +64,15 @@ export default function AdminQuestionManagement() {
     setLoading(true);
     setError("");
     try {
-      const [qRes, gRes, sectionRes, quizRes, assessRes, courseRes, lessonRes] = await Promise.all([
+      const [qRes, gRes, sectionRes, quizRes, assessRes, courseRes, lessonRes, moduleRes] = await Promise.all([
         questionService.getAdminQuestionsBySection(sectionId),
         quizService.getAdminQuizGroupsBySection(sectionId),
         quizService.getAdminQuizSectionById(sectionId),
         quizService.getAdminQuizById(quizId),
         assessmentService.getAdminAssessmentById(assessmentId),
         courseService.getCourseById(courseId),
-        lessonService.getLessonById(lessonId)
+        lessonService.getLessonById(lessonId),
+        adminService.getModuleById(moduleId)
       ]);
 
       if (qRes.data?.success) setQuestions(qRes.data.data || []);
@@ -82,6 +86,7 @@ export default function AdminQuestionManagement() {
       if (assessRes.data?.success) setAssessment(assessRes.data.data);
       if (courseRes.data?.success) setCourse(courseRes.data.data);
       if (lessonRes.data?.success) setLesson(lessonRes.data.data);
+      if (moduleRes.data?.success) setModule(moduleRes.data.data);
 
     } catch (err) {
       console.error(err);
@@ -181,170 +186,227 @@ export default function AdminQuestionManagement() {
   });
 
   const renderQuestionCard = (q, index, isGrouped = false) => {
-      const renderQuestionBody = () => {
-          if (q.type === 5) {
-              let pairs = [];
-              try {
-                  if (q.matchingPairs) pairs = q.matchingPairs;
-                  else if (q.correctAnswersJson) pairs = JSON.parse(q.correctAnswersJson);
-              } catch (e) { console.error("Error parsing matching pairs", e); }
+    const renderQuestionBody = () => {
+      if (q.type === 5 || q.Type === 5) {
+        let pairs = [];
+        try {
+          if (q.matchingPairs) pairs = q.matchingPairs;
+          else if (q.correctAnswersJson) pairs = JSON.parse(q.correctAnswersJson);
+          else if (q.CorrectAnswersJson) pairs = JSON.parse(q.CorrectAnswersJson);
+        } catch (e) { console.error("Error parsing matching pairs", e); }
 
-              if (pairs.length > 0) {
-                  return (
-                      <div className="mt-2 bg-light p-2 rounded small">
-                          {pairs.map((p, i) => (
-                              <div key={i} className="d-flex align-items-center gap-2 mb-1">
-                                  <span className="fw-bold text-dark">{p.key}</span>
-                                  <span className="text-muted">➡</span>
-                                  <span className="text-dark">{p.value}</span>
-                              </div>
-                          ))}
-                      </div>
-                  );
-              }
-          }
-          
-          if (q.type === 6) {
-              return (
-                  <ol className="mt-2 ps-3 mb-0 small">
-                      {q.options?.map((opt, idx) => (
-                          <li key={idx} className="mb-1 text-dark">{opt.text}</li>
-                      ))}
-                  </ol>
-              );
-          }
-
+        if (pairs.length > 0) {
           return (
-            <ul className="list-unstyled options-preview mb-0 small text-muted mt-2">
-                {q.options?.map((opt, idx) => (
-                    <li key={idx} className={`mb-1 ${opt.isCorrect ? "text-success fw-bold" : ""}`}>
-                        {opt.isCorrect && "✓ "} {opt.text}
-                    </li>
-                ))}
-            </ul>
+            <div className="mt-2 bg-light p-3 rounded border shadow-sm">
+              {pairs.map((p, i) => (
+                <div key={i} className="d-flex align-items-center gap-3 mb-2 border-bottom pb-1 last-mb-0">
+                  <span className="fw-bold text-primary">{p.key}</span>
+                  <span className="text-muted">➡</span>
+                  <span className="text-dark">{p.value}</span>
+                </div>
+              ))}
+            </div>
           );
-      };
+        }
+      }
 
+      if (q.type === 6 || q.Type === 6) {
+        const options = q.options || q.Options || [];
+        return (
+          <ol className="mt-2 ps-3 mb-0">
+            {options.map((opt, idx) => (
+              <li key={idx} className="mb-1 text-dark fw-medium">{opt.text || opt.Text}</li>
+            ))}
+          </ol>
+        );
+      }
+
+      const options = q.options || q.Options || [];
       return (
-        <Card key={q.questionId} className="mb-3 border-0 shadow-sm question-card">
-            <Card.Body className="p-3">
-                <div className="d-flex justify-content-between">
-                <div className="d-flex gap-3 w-100">
-                    <div className="question-index text-center pt-1">
-                        <span className="badge rounded-pill bg-secondary">#{index + 1}</span>
-                    </div>
-                    <div className="flex-grow-1">
-                        <div className="d-flex align-items-center gap-2 mb-2">
-                            <Badge bg="info">{getQuestionTypeLabel(q.type)}</Badge>
-                            <span className="text-muted small">Points: {q.points}</span>
-                        </div>
-                        <h6 className="question-stem mb-1 fw-bold text-break">{q.stemText}</h6>
-                        {renderQuestionBody()}
-                    </div>
-                </div>
-
-                <div className="action-buttons d-flex flex-column gap-2 justify-content-start ms-2">
-                    <Button variant="light" size="sm" onClick={() => handleEditQuestion(q)} title="Sửa">
-                    <FaEdit className="text-primary" />
-                    </Button>
-                    <Button variant="light" size="sm" onClick={() => handleDeleteQuestion(q)} title="Xóa">
-                    <FaTrash className="text-danger" />
-                    </Button>
-                </div>
-                </div>
-            </Card.Body>
-        </Card>
+        <ul className="list-unstyled options-preview mb-0">
+          {options.map((opt, idx) => {
+            const isCorrect = opt.isCorrect || opt.IsCorrect;
+            const text = opt.text || opt.Text;
+            return (
+              <li key={idx} className={isCorrect ? "text-success fw-bold" : ""}>
+                {isCorrect && "✓ "} {text}
+              </li>
+            );
+          })}
+        </ul>
       );
+    };
+
+    const mediaUrl = q.mediaUrl || q.MediaUrl;
+
+    return (
+      <Card key={q.questionId || q.QuestionId || index} className="mb-3 border-0 shadow-sm question-card">
+        <Card.Body className="p-3">
+          <div className="d-flex justify-content-between gap-3">
+            <div className="flex-grow-1">
+              <div className="d-flex align-items-center gap-2 mb-2">
+                <div className="question-number-badge">#{index + 1}</div>
+                <Badge bg="info">{getQuestionTypeLabel(q.type || q.Type)}</Badge>
+                <div className="ms-auto fw-bold text-danger">{(q.points || q.Points || 0).toFixed(1)} pts</div>
+              </div>
+              <h6 className="fw-bold mb-2">{q.questionText || q.QuestionText || q.stemText || q.StemText}</h6>
+              
+              {mediaUrl && (
+                <div className="question-media-preview">
+                  {mediaUrl.match(/\.(mp4|webm|mov|m4v)$/i) ? (
+                    <div className="premium-video-container">
+                      <video src={mediaUrl} controls className="premium-video-element" />
+                    </div>
+                  ) : mediaUrl.match(/\.(mp3|wav|ogg|m4a)$/i) ? (
+                    <div className="premium-audio-container">
+                      <audio src={mediaUrl} controls className="premium-audio-element" />
+                    </div>
+                  ) : (
+                    <div className="premium-image-container" onClick={() => window.open(mediaUrl, '_blank')}>
+                      <img src={mediaUrl} alt="Question" className="premium-image-element" />
+                    </div>
+                  )}
+                </div>
+              )}
+              <div className="question-content-body">
+                {renderQuestionBody()}
+              </div>
+            </div>
+            <div className="action-buttons d-flex flex-column gap-2">
+              <Button variant="light" size="sm" onClick={() => handleEditQuestion(q)} title="Sửa"><FaEdit className="text-primary" /></Button>
+              <Button variant="light" size="sm" onClick={() => handleDeleteQuestion(q)} title="Xóa"><FaTrash className="text-danger" /></Button>
+            </div>
+          </div>
+        </Card.Body>
+      </Card>
+    );
   };
 
   if (!isAuthenticated || !isAdmin) return null;
 
   return (
-    <div className="admin-question-management-container">
-      <Container fluid className="py-4 p-0">
-        <div className="d-flex justify-content-between align-items-center mb-4">
-          <div>
-            <div className="breadcrumb-wrapper mb-3">
-              <Breadcrumb
-                items={[
-                  { label: "Admin: Khóa học", path: ROUTE_PATHS.ADMIN.COURSES },
-                  { label: course?.title || course?.Title || "Khóa học", path: `/admin/courses/${courseId}` },
-                  { label: lesson?.title || lesson?.Title || "Bài học", path: `/admin/courses/${courseId}/lesson/${lessonId}?moduleId=${moduleId}` },
-                  { label: assessment?.title || assessment?.Title || "Bài tập", path: `/admin/courses/${courseId}/lesson/${lessonId}/module/${moduleId}/assessment/${assessmentId}/manage` },
-                  { label: quiz?.title || quiz?.Title || "Quiz", path: `/admin/courses/${courseId}/lesson/${lessonId}/module/${moduleId}/assessment/${assessmentId}/quiz/${quizId}/sections` },
-                  { label: section?.title || section?.Title || "Section", isCurrent: true }
-                ]}
-                showHomeIcon={false}
-              />
+    <div className="admin-lesson-detail-container">
+      <div className="admin-breadcrumb-wrapper">
+        <Container fluid>
+          <div className="breadcrumb-section pt-0">
+            <Breadcrumb
+              items={[
+                { label: "Courses", path: ROUTE_PATHS.ADMIN.COURSES },
+                { label: course?.title || course?.Title || "Course", path: `/admin/courses/${courseId}` },
+                { label: lesson?.title || lesson?.Title || "Lesson", path: `/admin/courses/${courseId}/lesson/${lessonId}` },
+                { label: module?.name || module?.Name || "Module", path: `/admin/courses/${courseId}/lesson/${lessonId}?moduleId=${moduleId}` },
+                { label: assessment?.title || assessment?.Title || "Assessment", path: `/admin/courses/${courseId}/lesson/${lessonId}/module/${moduleId}/assessment/${assessmentId}` },
+                { label: quiz?.title || quiz?.Title || "Quiz", path: `/admin/courses/${courseId}/lesson/${lessonId}/module/${moduleId}/assessment/${assessmentId}/quiz/${quizId}/sections` },
+                { label: "Questions", isCurrent: true }
+              ]}
+              showHomeIcon={false}
+            />
+          </div>
+        </Container>
+      </div>
+
+      <Container fluid className="lesson-detail-content px-4 py-5">
+        <div className="question-header-section d-flex justify-content-between align-items-center mb-5">
+          <div className="d-flex flex-column gap-2">
+            <div className="d-flex align-items-center gap-3">
+              <h1 className="premium-gradient-text mb-0">{contextData.title}</h1>
             </div>
-            <h2 className="mb-0 text-primary fw-bold">{contextData.title}</h2>
-            {contextData.subtitle && <p className="text-muted mb-0">{contextData.subtitle}</p>}
+            {contextData.subtitle && <p className="text-muted mb-0 fw-medium">{contextData.subtitle}</p>}
           </div>
 
-          <div className="d-flex gap-2 align-items-center">
-            <Button variant="primary" onClick={() => handleAddQuestion(null)}><FaPlus className="me-1"/> Thêm câu hỏi</Button>
+          <div className="d-flex gap-3 align-items-center">
+            <div className="header-stats-badge d-flex align-items-center gap-2">
+              <PiFilesDuotone size={24} className="text-primary" />
+              <span className="fw-bold">{questions.length} Items</span>
+            </div>
+            <Button className="premium-btn" onClick={() => handleAddQuestion(null)}>
+              <FaPlus className="me-2" /> New Question
+            </Button>
           </div>
         </div>
 
-          {loading ? (
-             <div className="text-center py-5"><div className="spinner-border text-primary"></div></div>
-          ) : error ? (
-            <div className="alert alert-danger">{error}</div>
-          ) : (
-            <div className="question-content-area">
-                
-                {standaloneQuestions.length > 0 && (
-                    <div className="mb-4">
-                        <h5 className="text-muted border-bottom pb-2 mb-3">Câu hỏi lẻ ({standaloneQuestions.length})</h5>
-                        {standaloneQuestions.map((q, idx) => renderQuestionCard(q, idx))}
-                    </div>
-                )}
+        {loading ? (
+          <div className="text-center py-5"><div className="spinner-border text-primary"></div></div>
+        ) : error ? (
+          <div className="alert alert-danger">{error}</div>
+        ) : (
+          <div className="question-content-area">
+            {standaloneQuestions.length > 0 && (
+              <div className="mb-5">
+                <h5 className="text-muted border-bottom pb-2 mb-3">Standalone Questions ({standaloneQuestions.length})</h5>
+                {standaloneQuestions.map((q, i) => renderQuestionCard(q, i))}
+              </div>
+            )}
 
-                {groups.map((group) => {
-                    const groupQuestions = questionsByGroup[group.quizGroupId] || [];
-                    return (
-                        <div key={group.quizGroupId} className="mb-5 group-container">
-                            <div className="group-header-bar bg-light border rounded p-3 mb-3 d-flex justify-content-between align-items-center shadow-sm" style={{borderLeft: '5px solid #0d6efd'}}>
-                                <div>
-                                    <div className="d-flex align-items-center gap-2">
-                                        <FaLayerGroup className="text-primary"/>
-                                        <h5 className="mb-0 fw-bold text-primary">{group.name}</h5>
-                                        <Badge bg="secondary">Total: {group.sumScore} pts</Badge>
-                                    </div>
-                                    <div className="text-muted small mt-1">{group.title}</div>
-                                </div>
-                                <div className="d-flex gap-2">
-                                    <Button variant="outline-primary" size="sm" onClick={() => handleAddQuestion(group)}>
-                                        <FaPlus className="me-1"/> Thêm câu hỏi
-                                    </Button>
-                                    <Button variant="outline-secondary" size="sm" onClick={() => { setGroupToUpdate(group); setShowGroupEditModal(true); }}>
-                                        <FaEdit />
-                                    </Button>
-                                    <Button variant="outline-danger" size="sm" onClick={() => { setGroupToDelete(group); setShowGroupDeleteModal(true); }}>
-                                        <FaTrash />
-                                    </Button>
-                                </div>
-                            </div>
+            {groups.map((group) => {
+              const gId = group.quizGroupId || group.QuizGroupId;
+              const gQuestions = questionsByGroup[gId] || group.questions || group.Questions || [];
+              const imgUrl = group.imgKey || group.ImgKey || group.imgUrl;
+              const videoUrl = group.videoKey || group.VideoKey || group.videoUrl;
+              const audioUrl = group.audioKey || group.AudioKey || group.audioUrl;
 
-                            <div className="group-questions-list ps-4 ms-2 border-start border-3 border-light">
-                                {groupQuestions.length === 0 ? (
-                                    <div className="text-muted fst-italic py-2 ps-3">Chưa có câu hỏi nào trong nhóm này.</div>
-                                ) : (
-                                    groupQuestions.map((q, idx) => renderQuestionCard(q, idx, true))
-                                )}
-                            </div>
+              return (
+                <div key={gId} className="mb-5 group-container">
+                  <div className="group-header-bar d-flex justify-content-between align-items-center">
+                    <div className="flex-grow-1">
+                      <div className="d-flex align-items-center gap-3 mb-3">
+                        <FaLayerGroup className="text-primary" size={24} />
+                        <h4 className="text-primary fw-bold mb-0">{group.title || group.Title || group.name || group.Name}</h4>
+                        <span className="points-badge-premium">Total: {(group.sumScore || group.SumScore || 0).toFixed(1)} pts</span>
+                      </div>
+                      
+                      {(group.description || group.Description) && (
+                        <div className="text-muted lh-lg mb-3" style={{ whiteSpace: 'pre-wrap', fontSize: '1rem' }}>
+                          {group.description || group.Description}
                         </div>
-                    );
-                })}
+                      )}
 
-                {questions.length === 0 && groups.length === 0 && (
-                    <div className="text-center py-5 text-muted bg-light rounded">
-                        <p className="mb-3">Chưa có nội dung nào.</p>
-                        <Button variant="primary" onClick={() => handleAddQuestion(null)}>Tạo nội dung đầu tiên</Button>
+                      {(imgUrl || videoUrl || audioUrl) && (
+                        <div className="group-media-grid d-flex flex-column gap-4">
+                          {imgUrl && (
+                            <div className="premium-image-container" onClick={() => window.open(imgUrl, '_blank')}>
+                              <img src={imgUrl} alt="Group context" className="premium-image-element" />
+                            </div>
+                          )}
+                          {videoUrl && (
+                            <div className="premium-video-container">
+                              <video src={videoUrl} controls className="premium-video-element" />
+                            </div>
+                          )}
+                          {audioUrl && (
+                            <div className="premium-audio-container">
+                              <audio src={audioUrl} controls className="premium-audio-element" />
+                            </div>
+                          )}
+                        </div>
+                      )}
                     </div>
-                )}
-            </div>
-          )}
+                    <div className="d-flex gap-2 align-self-start">
+                      <Button variant="outline-primary" size="sm" onClick={() => handleAddQuestion(group)}><FaPlus className="me-1" /> Add Question</Button>
+                      <Button variant="outline-secondary" size="sm" onClick={() => { setGroupToUpdate(group); setShowGroupEditModal(true); }}><FaEdit /></Button>
+                      <Button variant="outline-danger" size="sm" onClick={() => { setGroupToDelete(group); setShowGroupDeleteModal(true); }}><FaTrash /></Button>
+                    </div>
+                  </div>
+
+                  <div className="group-questions-list ps-4 ms-2 border-start border-3 border-light">
+                    {gQuestions.length === 0 ? (
+                      <div className="text-muted fst-italic py-2 ps-3">No questions in this group yet.</div>
+                    ) : (
+                      gQuestions.map((q, i) => renderQuestionCard(q, i, true))
+                    )}
+                  </div>
+                </div>
+              );
+            })}
+
+            {questions.length === 0 && groups.length === 0 && (
+              <div className="text-center py-5 text-muted bg-light rounded">
+                <p className="mb-3">No content available yet.</p>
+                <Button variant="primary" onClick={() => handleAddQuestion(null)}>Create First Content</Button>
+              </div>
+            )}
+          </div>
+        )}
       </Container>
 
       <CreateQuestionModal 

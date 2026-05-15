@@ -9,6 +9,7 @@ import { courseService } from "../../../Services/courseService";
 import { lessonService } from "../../../Services/lessonService";
 import { teacherService } from "../../../Services/teacherService";
 import { quizService } from "../../../Services/quizService";
+import { adminService } from "../../../Services/adminService";
 import { ROUTE_PATHS } from "../../../Routes/Paths";
 import CreateQuizSectionModal from "../../../Components/Teacher/CreateQuizSectionModal/CreateQuizSectionModal";
 import SuccessModal from "../../../Components/Common/SuccessModal/SuccessModal";
@@ -24,6 +25,7 @@ export default function AdminQuizSectionManagement() {
   const [assessment, setAssessment] = useState(null);
   const [course, setCourse] = useState(null);
   const [lesson, setLesson] = useState(null);
+  const [module, setModule] = useState(null);
   const [sections, setSections] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -47,12 +49,13 @@ export default function AdminQuizSectionManagement() {
       setLoading(true);
       setError("");
 
-      const [quizRes, sectionsRes, assessRes, courseRes, lessonRes] = await Promise.all([
+      const [quizRes, sectionsRes, assessRes, courseRes, lessonRes, moduleRes] = await Promise.all([
         quizService.getAdminQuizById(quizId),
         quizService.getAdminQuizSectionsByQuiz(quizId),
         assessmentService.getAdminAssessmentById(assessmentId),
         courseService.getCourseById(courseId),
-        lessonService.getLessonById(lessonId)
+        lessonService.getLessonById(lessonId),
+        adminService.getModuleById(moduleId)
       ]);
 
       if (quizRes.data?.success) setQuiz(quizRes.data.data);
@@ -60,6 +63,7 @@ export default function AdminQuizSectionManagement() {
       if (assessRes.data?.success) setAssessment(assessRes.data.data);
       if (courseRes.data?.success) setCourse(courseRes.data.data);
       if (lessonRes.data?.success) setLesson(lessonRes.data.data);
+      if (moduleRes.data?.success) setModule(moduleRes.data.data);
 
     } catch (err) {
       console.error("Error fetching data:", err);
@@ -136,123 +140,118 @@ export default function AdminQuizSectionManagement() {
     return null;
   }
 
-  if (loading) {
-    return (
-      <div className="admin-quiz-section-management-container">
-        <Container fluid className="p-0">
-          <div className="text-center py-5">
-            <div className="spinner-border text-primary" role="status">
-              <span className="visually-hidden">Đang tải...</span>
-            </div>
-          </div>
-        </Container>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="admin-quiz-section-management-container">
-        <Container fluid className="p-0">
-          <div className="alert alert-danger text-center">{error}</div>
-        </Container>
-      </div>
-    );
-  }
-
   const quizTitle = quiz?.title || quiz?.Title || "Quiz";
 
   return (
-    <div className="admin-quiz-section-management-container">
-      <Container fluid className="p-0">
-        {/* Breadcrumb */}
-        <div className="breadcrumb-section mt-3">
-          <Breadcrumb
-            items={[
-              { label: "Admin: Khóa học", path: ROUTE_PATHS.ADMIN.COURSES },
-              { label: course?.title || course?.Title || "Khóa học", path: `/admin/courses/${courseId}` },
-              { label: lesson?.title || lesson?.Title || "Bài học", path: `/admin/courses/${courseId}/lesson/${lessonId}?moduleId=${moduleId}` },
-              { label: assessment?.title || assessment?.Title || "Bài tập", path: `/admin/courses/${courseId}/lesson/${lessonId}/module/${moduleId}/assessment/${assessmentId}/manage` },
-              { label: "Quản lý Section", isCurrent: true }
-            ]}
-            showHomeIcon={false}
-          />
+    <>
+      <div className="admin-quiz-section-management-container">
+        <div className="admin-breadcrumb-wrapper">
+          <Container fluid>
+            <div className="breadcrumb-section pt-0">
+              <Breadcrumb
+                items={[
+                  { label: "Quản lý khóa học", path: ROUTE_PATHS.ADMIN.COURSES },
+                  { label: course?.title || course?.Title || "Khóa học", path: `/admin/courses/${courseId}` },
+                  { label: lesson?.title || lesson?.Title || "Bài học", path: `/admin/courses/${courseId}/lesson/${lessonId}` },
+                  { label: module?.name || module?.Name || "Module", path: `/admin/courses/${courseId}/lesson/${lessonId}?moduleId=${moduleId}` },
+                  { label: assessment?.title || assessment?.Title || "Bài tập", path: `/admin/courses/${courseId}/lesson/${lessonId}/module/${moduleId}/assessment/${assessmentId}` },
+                  { label: "Quản lý Section", isCurrent: true }
+                ]}
+                showHomeIcon={false}
+              />
+            </div>
+          </Container>
         </div>
 
-        {/* Header */}
-        <div className="mb-4 question-header-section mt-4">
-          <div className="d-flex align-items-center justify-content-between flex-wrap gap-3">
-            <div className="title-wrapper">
-              <h2 className="mb-0 fw-bold premium-gradient-text">Quản lý Quiz: {quizTitle}</h2>
+        <Container fluid className="lesson-detail-content px-4">
+          {loading ? (
+            <div className="text-center py-5">
+              <div className="spinner-border text-primary" role="status">
+                <span className="visually-hidden">Đang tải...</span>
+              </div>
             </div>
-            <div>
-              <button
-                className="btn premium-btn shadow-sm px-4 py-2 text-white"
-                onClick={() => setShowCreateSectionModal(true)}
-              >
-                <FaPlus className="me-2" /> Tạo Section mới
-              </button>
-            </div>
-          </div>
-        </div>
-
-        {/* Sections List */}
-        {sections.length === 0 ? (
-          <div className="text-center text-muted py-5">
-            <p>Chưa có Section nào. Hãy tạo Section đầu tiên!</p>
-          </div>
-        ) : (
-          <div className="sections-list">
-            {sections.map((section) => {
-              const sectionId = section.quizSectionId || section.QuizSectionId;
-              const sectionTitle = section.title || section.Title || "Untitled Section";
-              const sectionDescription = section.description || section.Description;
-
-              return (
-                <div key={sectionId} className="section-card mb-4">
-                  <div className="section-header">
-                    <div className="section-info">
-                      <h3 
-                          className="section-title text-primary cursor-pointer" 
-                          onClick={() => handleManageQuestionsSection(sectionId)}
-                          style={{cursor: 'pointer'}}
-                      >
-                          {sectionTitle}
-                      </h3>
-                      {sectionDescription && (
-                        <p className="section-description text-muted">{sectionDescription}</p>
-                      )}
-                    </div>
-                    <div className="section-actions">
-                      <button
-                        className="btn btn-primary text-white me-2"
-                        onClick={() => handleManageQuestionsSection(sectionId)}
-                        title="Quản lý nội dung (Câu hỏi & Nhóm)"
-                      >
-                        <FaList className="me-1" /> Quản lý nội dung
-                      </button>
-                      <button
-                        className="btn btn-edit-section"
-                        onClick={() => handleEditSection(section)}
-                        title="Sửa Section"
-                      >
-                        <FaEdit />
-                      </button>
-                      <button
-                        className="btn btn-delete-section"
-                        onClick={() => handleDeleteSectionClick(section)}
-                        title="Xóa Section"
-                      >
-                        <FaTrash />
-                      </button>
-                    </div>
+          ) : error ? (
+            <div className="alert alert-danger text-center">{error}</div>
+          ) : (
+            <>
+              {/* Header */}
+              <div className="mb-4 question-header-section mt-0">
+                <div className="d-flex align-items-center justify-content-between flex-wrap gap-3">
+                  <div className="title-wrapper">
+                    <h2 className="mb-0 fw-bold premium-gradient-text">Quản lý Quiz: {quizTitle}</h2>
+                  </div>
+                  <div>
+                    <button
+                      className="btn premium-btn shadow-sm px-4 py-2 text-white"
+                      onClick={() => setShowCreateSectionModal(true)}
+                    >
+                      <FaPlus className="me-2" /> Tạo Section mới
+                    </button>
                   </div>
                 </div>
-              );
-            })}
-          </div>
-        )}
-      </Container>
+              </div>
+
+              {/* Sections List */}
+              {sections.length === 0 ? (
+                <div className="text-center text-muted py-5">
+                  <p>Chưa có Section nào. Hãy tạo Section đầu tiên!</p>
+                </div>
+              ) : (
+                <div className="sections-list">
+                  {sections.map((section) => {
+                    const sectionId = section.quizSectionId || section.QuizSectionId;
+                    const sectionTitle = section.title || section.Title || "Untitled Section";
+                    const sectionDescription = section.description || section.Description;
+
+                    return (
+                      <div key={sectionId} className="section-card mb-4">
+                        <div className="section-header">
+                          <div className="section-info">
+                            <h3
+                              className="section-title text-primary cursor-pointer"
+                              onClick={() => handleManageQuestionsSection(sectionId)}
+                              style={{ cursor: 'pointer' }}
+                            >
+                              {sectionTitle}
+                            </h3>
+                            {sectionDescription && (
+                              <p className="section-description text-muted">{sectionDescription}</p>
+                            )}
+                          </div>
+                          <div className="section-actions">
+                            <button
+                              className="btn btn-primary text-white me-2"
+                              onClick={() => handleManageQuestionsSection(sectionId)}
+                              title="Quản lý nội dung (Câu hỏi & Nhóm)"
+                            >
+                              <FaList className="me-1" /> Quản lý nội dung
+                            </button>
+                            <button
+                              className="btn btn-edit-section"
+                              onClick={() => handleEditSection(section)}
+                              title="Sửa Section"
+                            >
+                              <FaEdit />
+                            </button>
+                            <button
+                              className="btn btn-delete-section"
+                              onClick={() => handleDeleteSectionClick(section)}
+                              title="Xóa Section"
+                            >
+                              <FaTrash />
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+
+            </>
+          )}
+        </Container>
+      </div>
 
       {/* Create Section Modal */}
       {quizId && (
@@ -332,6 +331,6 @@ export default function AdminQuizSectionManagement() {
         autoClose={true}
         autoCloseDelay={1500}
       />
-    </div>
+    </>
   );
 }

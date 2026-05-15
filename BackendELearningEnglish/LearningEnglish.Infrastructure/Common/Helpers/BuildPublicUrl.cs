@@ -17,7 +17,10 @@ public static class BuildPublicUrl
     public static string BuildURL(string bucketName, string objectKey)
     {
         if (string.IsNullOrEmpty(_baseUrl))
-            throw new InvalidOperationException("BuildPublicUrl not configured. Call BuildPublicUrl.Configure(config) in Program.cs.");
+        {
+            // Fallback: return just the key if not configured, prevents 500 error
+            return objectKey;
+        }
 
         return $"{_baseUrl}/{bucketName}/{objectKey}".Replace("\\", "/");
     }

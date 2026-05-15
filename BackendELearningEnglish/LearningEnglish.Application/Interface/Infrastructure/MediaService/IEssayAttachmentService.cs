@@ -4,7 +4,7 @@ namespace LearningEnglish.Application.Interface.Infrastructure.MediaService;
 
 public interface IEssayAttachmentService
 {
-    Task<string> CommitAttachmentAsync(string tempKey, CancellationToken cancellationToken = default);
+    Task<ServiceResponse<(string Key, string ContentType)>> CommitAttachmentAsync(string tempKey, CancellationToken cancellationToken = default);
 
     Task DeleteAttachmentAsync(string attachmentKey, CancellationToken cancellationToken = default);
 

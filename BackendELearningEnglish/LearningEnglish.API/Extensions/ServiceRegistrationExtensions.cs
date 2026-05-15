@@ -190,12 +190,21 @@ public static class ServiceRegistrationExtensions // Lớp static chứa các ex
                     },
                     OnAuthenticationFailed = context => // Xử lý khi xác thực thất bại
                     {
-                            // Ghi log lỗi xác thực thất bại nhưng không ghi kèm token để đảm bảo bảo mật
+                        try 
+                        {
                             var logger = context.HttpContext.RequestServices
-                            .GetRequiredService<ILoggerFactory>()
-                            .CreateLogger("JwtBearer");
+                                .GetRequiredService<ILoggerFactory>()
+                                .CreateLogger("JwtBearer");
 
-                        logger.LogWarning(context.Exception, "JWT authentication failed for {Path}", context.HttpContext.Request.Path);
+                            // Chỉ log message thay vì truyền exception object để tránh lỗi System.Diagnostics.StackTrace
+                            var errorMessage = context.Exception?.Message ?? "Unknown authentication failure";
+                            logger.LogWarning("JWT authentication failed for {Path}: {Error}", 
+                                context.HttpContext.Request.Path, errorMessage);
+                        }
+                        catch 
+                        {
+                            // Tuyệt đối không để crash ở đây
+                        }
                         return Task.CompletedTask;
                     }
                 };
@@ -508,6 +517,7 @@ public static class ServiceRegistrationExtensions // Lớp static chứa các ex
     private static void RegisterExternalServices(IServiceCollection services)
     {    
         services.AddScoped<IAudioConverterService, AudioConverterService>(); // Dịch vụ chuyển đổi định dạng âm thanh 
+        services.AddSingleton<ImageProcessingService>(); // Xử lý resize + nén ảnh sang WebP trước khi upload MinIO
         services.AddScoped<IMinioFileStorage, MinioFileStorageService>(); // Dịch vụ lõi lưu trữ/truy xuất file trên MinIO 
 
         services.AddScoped<ICourseImageService, CourseImageService>(); // Xử lý ảnh đại diện khóa học 

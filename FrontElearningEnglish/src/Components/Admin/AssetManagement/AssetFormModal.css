@@ -4,11 +4,19 @@
     background: var(--color-bg-primary, white);
     box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
     transition: background-color 0.3s ease, box-shadow 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    max-height: 90vh;
 }
 
 .asset-form-modal .modal-header {
+    background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
     border-bottom: none;
-    padding: 20px 30px;
+    padding: 2rem 2.5rem;
+    min-height: 100px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .asset-form-modal .modal-title {
@@ -22,6 +30,8 @@
     background: var(--color-bg-secondary, #f6f8fb);
     color: var(--color-text-primary, #1f2937);
     transition: background-color 0.3s ease, color 0.3s ease;
+    flex: 1;
+    overflow-y: auto;
 }
 
 .asset-form-modal .modal-footer {

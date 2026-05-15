@@ -77,3 +77,223 @@
   white-space: pre-wrap;
   word-wrap: break-word;
 }
+
+/* Custom Tabs Styling */
+.custom-tabs {
+  border-bottom: 1px solid #e5e7eb !important;
+  background-color: #f9fafb;
+}
+
+.custom-tabs .nav-link {
+  border: none !important;
+  color: #6b7280;
+  font-weight: 600;
+  padding: 15px 0;
+  transition: all 0.3s ease;
+  border-bottom: 2px solid transparent !important;
+}
+
+.custom-tabs .nav-link.active {
+  color: #6366f1 !important;
+  background-color: white !important;
+  border-bottom: 2px solid #6366f1 !important;
+}
+
+.tab-content-wrapper {
+  max-height: 70vh;
+  overflow-y: auto;
+}
+
+/* Modern Section Title */
+.section-title-modern .badge {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  padding: 5px 10px;
+}
+
+/* Modern Prompt Box */
+.essay-prompt-box-modern {
+  background-color: #f5f3ff;
+  border: 1px solid #ddd6fe;
+  color: #4c1d95;
+}
+
+/* Submission Content Modern */
+.submission-content-modern {
+  background-color: #fff;
+  border: 1px solid #e5e7eb;
+  color: #1f2937;
+  line-height: 1.7;
+}
+
+/* Attachment Section Modern */
+.attachment-section-modern {
+  background-color: #f8fafc;
+  border: 1px solid #e2e8f0 !important;
+}
+
+.file-icon-square {
+  width: 48px;
+  height: 48px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Grading Header */
+.grading-header {
+  padding-bottom: 20px;
+  border-bottom: 1px dashed #e5e7eb;
+}
+
+.user-avatar-mini {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+}
+
+/* Extra Small Text */
+.extra-small {
+  font-size: 11px;
+}
+
+.rounded-4 {
+  border-radius: 1rem !important;
+}
+
+.modal-modern .modal-content {
+  overflow: hidden;
+}
+
+.modal-title-centered {
+  margin-left: auto;
+  margin-right: auto;
+  text-align: center;
+  width: 100%;
+}
+
+.bg-light-purple {
+  background-color: #f3f0ff;
+}
+
+.plain-text-content {
+  font-size: 15px;
+  line-height: 1.6;
+  white-space: pre-wrap;
+  word-break: break-word;
+  overflow-wrap: anywhere;
+}
+
+.submission-content-modern {
+  max-height: 400px;
+  overflow-y: auto;
+  border: 1px solid #e5e7eb;
+  border-radius: 1rem;
+  background: white;
+}
+
+/* Premium Grading UI */
+.grading-card-premium {
+  background-color: #ffffff;
+  border: 1px solid rgba(0,0,0,0.05);
+}
+
+.user-avatar-premium {
+  width: 56px;
+  height: 56px;
+  background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%);
+  color: white;
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  font-weight: 700;
+}
+
+.score-input-wrapper {
+  border: 2px solid #e5e7eb;
+  transition: border-color 0.3s ease;
+}
+
+.score-input-wrapper:focus-within {
+  border-color: #6366f1;
+}
+
+.score-control {
+  color: #dc2626 !important;
+}
+
+.score-control:focus {
+  box-shadow: none !important;
+  color: #dc2626 !important;
+  background-color: transparent !important;
+}
+
+
+.feedback-control {
+  resize: none;
+  min-height: 200px;
+}
+
+.feedback-control:focus {
+  border-color: #6366f1 !important;
+  box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1) !important;
+}
+
+.grade-submit-btn {
+  background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+  border: none;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.grade-submit-btn:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 20px rgba(99, 102, 241, 0.3) !important;
+}
+
+.grade-submit-btn:active {
+  transform: translateY(0);
+}
+
+.current-grade-banner {
+  background: linear-gradient(90deg, #f0fdf4 0%, #ffffff 100%);
+  border: 1px solid #dcfce7;
+}
+
+.grade-badge-circle {
+  width: 40px;
+  height: 40px;
+  background-color: #22c55e;
+  color: white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2rem;
+}
+
+/* Premium Modal Header */
+.modal-header-premium {
+  background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%);
+  position: relative;
+  border-radius: 1rem 1rem 0 0 !important;
+}
+
+
+.modal-header-premium .btn-close-white {
+  opacity: 0.8;
+  transition: opacity 0.2s;
+}
+
+
+.modal-header-premium .btn-close-white:hover {
+  opacity: 1;
+}
+

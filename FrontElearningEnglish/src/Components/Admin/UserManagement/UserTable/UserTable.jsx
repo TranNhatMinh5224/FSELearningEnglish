@@ -1,27 +1,10 @@
 import React, { useState } from "react";
 import { MdBlock, MdCheckCircle, MdArrowUpward, MdVisibility, MdAttachMoney } from "react-icons/md";
+import UserAvatar from "../../../Common/UserAvatar/UserAvatar";
 import "./UserTable.css";
 
 // Component để hiển thị avatar - chỉ hiển thị nếu có avatarUrl
 // Component để hiển thị avatar - hỗ trợ fallback nếu không có ảnh hoặc ảnh lỗi
-const Avatar = ({ avatarUrl, displayName }) => {
-  const [imageError, setImageError] = useState(false);
-  
-  const fallbackUrl = `https://ui-avatars.com/api/?name=${encodeURIComponent(displayName || 'User')}&background=72D0DE&color=fff&size=128`;
-  
-  return (
-    <img 
-      src={avatarUrl && avatarUrl.trim() && !imageError ? avatarUrl : fallbackUrl} 
-      className="rounded-circle me-2 border shadow-sm" 
-      width="40" 
-      height="40" 
-      alt={displayName}
-      style={{ objectFit: 'cover', flexShrink: 0, backgroundColor: '#f8f9fa' }}
-      onError={() => setImageError(true)}
-    />
-  );
-};
-
 export default function UserTable({ 
   users, 
   loading, 
@@ -29,7 +12,8 @@ export default function UserTable({
   onUpgrade, 
   onToggleStatus,
   onAdjustBalance,
-  canAdjustBalance
+  canAdjustBalance,
+  pageSize = 10
 }) {
   const getStatusBadge = (status) => {
     if (status === 'Active' || status === 1) {
@@ -39,30 +23,48 @@ export default function UserTable({
   };
 
   return (
-    <div className="admin-card">
+    <div className="user-management-table-card">
       <div className="table-responsive">
         <table className="admin-table">
           <thead>
             <tr>
-              <th>User Info</th>
-              <th>Role</th>
-              <th>Phone</th>
-              <th>Status</th>
-              <th>Actions</th>
+              <th style={{width: '30%'}}>User Info</th>
+              <th style={{width: '15%'}}>Role</th>
+              <th style={{width: '20%'}}>Phone</th>
+              <th style={{width: '15%'}}>Status</th>
+              <th style={{width: '20%'}}>Actions</th>
             </tr>
           </thead>
-          <tbody>
-            {loading ? (
-              <tr>
-                <td colSpan="5" className="text-center py-4">
-                  <div className="spinner-border text-primary" role="status">
-                    <span className="visually-hidden">Loading...</span>
-                  </div>
-                </td>
-              </tr>
+          <tbody className={loading ? "table-loading-fade" : ""}>
+            {loading && users.length === 0 ? (
+              // Show skeleton rows ONLY on initial load
+              Array.from({ length: pageSize }).map((_, index) => (
+                <tr key={`skeleton-${index}`}>
+                  <td>
+                    <div className="d-flex align-items-center">
+                      <div className="skeleton skeleton-avatar me-3"></div>
+                      <div>
+                        <div className="skeleton skeleton-text" style={{ width: '120px' }}></div>
+                        <div className="skeleton skeleton-text" style={{ width: '180px' }}></div>
+                      </div>
+                    </div>
+                  </td>
+                  <td><div className="skeleton skeleton-badge"></div></td>
+                  <td><div className="skeleton skeleton-text" style={{ width: '100px' }}></div></td>
+                  <td><div className="skeleton skeleton-badge"></div></td>
+                  <td>
+                    <div className="d-flex gap-2">
+                      <div className="skeleton skeleton-circle"></div>
+                      <div className="skeleton skeleton-circle"></div>
+                      <div className="skeleton skeleton-circle"></div>
+                      <div className="skeleton skeleton-circle"></div>
+                    </div>
+                  </td>
+                </tr>
+              ))
             ) : users.length === 0 ? (
               <tr>
-                <td colSpan="5" className="text-center py-4 text-muted">
+                <td colSpan="5" className="text-center py-5 text-muted">
                   No users found
                 </td>
               </tr>
@@ -81,9 +83,11 @@ export default function UserTable({
                 <tr key={userId}>
                   <td>
                     <div className="d-flex align-items-center">
-                      <Avatar 
-                        avatarUrl={avatarUrl}
+                      <UserAvatar 
+                        imageUrl={avatarUrl}
                         displayName={displayName}
+                        size={42}
+                        className="me-3"
                       />
                       <div>
                         <div className="fw-bold">{displayName || 'N/A'}</div>
@@ -133,7 +137,7 @@ export default function UserTable({
                         title="Xem lịch sử giao dịch"
                         onClick={() => window.location.href = `/admin/payment-monitoring?search=${email}`}
                       >
-                        <MdAttachMoney style={{ transform: 'rotate(15deg)' }} /> {/* Using money icon represent transactions */}
+                        <MdAttachMoney style={{ transform: 'rotate(15deg)' }} />
                       </button>
                       
                       <button 

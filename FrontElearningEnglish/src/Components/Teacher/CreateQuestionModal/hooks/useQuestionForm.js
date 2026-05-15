@@ -1,22 +1,16 @@
 import { useState, useRef, useCallback, useEffect } from "react";
 import { fileService } from "../../../../Services/fileService";
 
-export const QUESTION_TYPES = {
-  MultipleChoice: 1,
-  MultipleAnswers: 2,
-  TrueFalse: 3,
-  FillBlank: 4,
-  Matching: 5,
-  Ordering: 6,
-};
-
-const QUESTION_BUCKET = "questions";
+import { useEnums } from "../../../../Context/EnumContext";
 
 export const useQuestionForm = (show, questionToUpdate) => {
+  const { mappings } = useEnums();
+  const QUESTION_TYPES = mappings.QuestionType || {};
+  const QUESTION_BUCKET = "questions"; // For now keep it as string if not in enums
   const [qFormData, setQFormData] = useState({
     stemText: "",
     explanation: "",
-    points: 0,
+    points: 1,
     type: null,
     options: [],
     matchingPairs: [],
@@ -31,38 +25,47 @@ export const useQuestionForm = (show, questionToUpdate) => {
   const [qTouched, setQTouched] = useState({});
 
   const resetQuestionForm = useCallback((type) => {
+    // Fallback IDs if enums are not loaded yet
+    const selectedType = Number(type);
+    const MC_TYPE = Number(QUESTION_TYPES.MultipleChoice || 1);
+    const MA_TYPE = Number(QUESTION_TYPES.MultipleAnswers || 2);
+    const TF_TYPE = Number(QUESTION_TYPES.TrueFalse || 3);
+    const MT_TYPE = Number(QUESTION_TYPES.Matching || 5);
+    const OR_TYPE = Number(QUESTION_TYPES.Ordering || 6);
+    
     let defaultOptions = [];
     let defaultPairs = [];
-    if (type === QUESTION_TYPES.MultipleChoice || type === QUESTION_TYPES.MultipleAnswers) {
+
+    if (selectedType === MC_TYPE || selectedType === MA_TYPE) {
       defaultOptions = [
-        { text: "", isCorrect: false },
-        { text: "", isCorrect: false },
-        { text: "", isCorrect: false },
-        { text: "", isCorrect: false }
+        { tempId: `opt-${Date.now()}-1`, text: "", isCorrect: false },
+        { tempId: `opt-${Date.now()}-2`, text: "", isCorrect: false },
+        { tempId: `opt-${Date.now()}-3`, text: "", isCorrect: false },
+        { tempId: `opt-${Date.now()}-4`, text: "", isCorrect: false }
       ];
-    } else if (type === QUESTION_TYPES.TrueFalse) {
+    } else if (selectedType === TF_TYPE) {
       defaultOptions = [
-        { text: "True", isCorrect: true },
-        { text: "False", isCorrect: false }
+        { tempId: 'tf-true', text: "True", isCorrect: true },
+        { tempId: 'tf-false', text: "False", isCorrect: false }
       ];
-    } else if (type === QUESTION_TYPES.Ordering) {
+    } else if (selectedType === OR_TYPE) {
       defaultOptions = [
-        { text: "", isCorrect: true },
-        { text: "", isCorrect: true },
-        { text: "", isCorrect: true }
+        { tempId: `ord-${Date.now()}-1`, text: "", isCorrect: true },
+        { tempId: `ord-${Date.now()}-2`, text: "", isCorrect: true },
+        { tempId: `ord-${Date.now()}-3`, text: "", isCorrect: true }
       ];
-    } else if (type === QUESTION_TYPES.Matching) {
+    } else if (selectedType === MT_TYPE) {
       defaultPairs = [
-        { key: "", value: "" },
-        { key: "", value: "" }
+        { tempId: `mt-${Date.now()}-1`, leftSide: "", rightSide: "" },
+        { tempId: `mt-${Date.now()}-2`, leftSide: "", rightSide: "" }
       ];
     }
 
     setQFormData({
       stemText: "",
       explanation: "",
-      points: 0,
-      type: type,
+      points: 1,
+      type: selectedType,
       options: defaultOptions,
       matchingPairs: defaultPairs,
     });
@@ -71,26 +74,42 @@ export const useQuestionForm = (show, questionToUpdate) => {
     setQMediaType(null);
     setQErrors({});
     setQTouched({});
-  }, []);
+  }, [QUESTION_TYPES]);
 
   // Sync with questionToUpdate
   useEffect(() => {
     if (show && questionToUpdate) {
       let initialOptions = (questionToUpdate.options || questionToUpdate.Options || []).map(opt => ({
         ...opt,
+        tempId: opt.id || opt.Id || Math.random().toString(36).substr(2, 9),
         text: opt.text || opt.Text || "",
-        isCorrect: opt.isCorrect !== undefined ? opt.isCorrect : (opt.IsCorrect || false)
+        isCorrect: opt.isCorrect !== undefined ? opt.isCorrect : (opt.IsCorrect || false),
+        mediaUrl: opt.mediaUrl || opt.MediaUrl || null,
+        mediaType: opt.mediaType || opt.MediaType || null
       }));
 
       let initialPairs = [];
       if (questionToUpdate.type === QUESTION_TYPES.Matching && questionToUpdate.correctAnswersJson) {
         try {
-          const parsed = typeof questionToUpdate.correctAnswersJson === 'string' 
-            ? JSON.parse(questionToUpdate.correctAnswersJson) 
+          const parsed = typeof questionToUpdate.correctAnswersJson === 'string'
+            ? JSON.parse(questionToUpdate.correctAnswersJson)
             : questionToUpdate.correctAnswersJson;
-          if (Array.isArray(parsed)) initialPairs = parsed;
-          else if (typeof parsed === 'object') initialPairs = Object.entries(parsed).map(([k, v]) => ({ key: k, value: v }));
-        } catch (e) { initialPairs = [{ key: "", value: "" }]; }
+          
+          if (Array.isArray(parsed)) {
+            initialPairs = parsed.map(p => ({
+              leftSide: p.leftSide || p.key || "",
+              rightSide: p.rightSide || p.value || ""
+            }));
+          } else if (typeof parsed === 'object') {
+            initialPairs = Object.entries(parsed).map(([k, v]) => ({
+              leftSide: k,
+              rightSide: v
+            }));
+          }
+        } catch (e) { 
+          console.error("Error parsing matching pairs:", e);
+          initialPairs = [{ leftSide: "", rightSide: "" }]; 
+        }
       } else if (questionToUpdate.matchingPairs || questionToUpdate.MatchingPairs) {
         initialPairs = questionToUpdate.matchingPairs || questionToUpdate.MatchingPairs;
       }
@@ -104,7 +123,7 @@ export const useQuestionForm = (show, questionToUpdate) => {
         points: questionToUpdate.points !== undefined ? questionToUpdate.points : (questionToUpdate.Points || 0),
         type: normalizedType || QUESTION_TYPES.MultipleChoice,
         options: initialOptions,
-        matchingPairs: initialPairs.length > 0 ? initialPairs : [{ key: "", value: "" }],
+        matchingPairs: initialPairs.length > 0 ? initialPairs : [{ leftSide: "", rightSide: "" }],
       });
 
       const url = questionToUpdate.mediaUrl || questionToUpdate.MediaUrl || questionToUpdate.mediaPreview;
@@ -116,20 +135,19 @@ export const useQuestionForm = (show, questionToUpdate) => {
         else setQMediaType('image');
       }
     } else if (show && !questionToUpdate) {
-        // Reset when modal opens without update
-        setQFormData({
-            stemText: "",
-            explanation: "",
-            points: 0,
-            type: null,
-            options: [],
-            matchingPairs: [],
-        });
-        setQMediaPreview(null);
-        setQMediaTempKey(null);
-        setQMediaType(null);
-        setQErrors({});
-        setQTouched({});
+      setQFormData({
+        stemText: "",
+        explanation: "",
+        points: 1,
+        type: null,
+        options: [],
+        matchingPairs: [],
+      });
+      setQMediaPreview(null);
+      setQMediaTempKey(null);
+      setQMediaType(null);
+      setQErrors({});
+      setQTouched({});
     }
   }, [show, questionToUpdate]);
 
@@ -164,8 +182,8 @@ export const useQuestionForm = (show, questionToUpdate) => {
       if (!hasCorrect) errors.options = "Vui lòng chọn đáp án Đúng hoặc Sai";
     }
 
-    if (qFormData.type === QUESTION_TYPES.Matching) {
-      const allFilled = qFormData.matchingPairs.every(p => (p.key || "").trim() && (p.value || "").trim());
+    if (Number(qFormData.type) === QUESTION_TYPES.Matching) {
+      const allFilled = qFormData.matchingPairs.every(p => (p.leftSide || "").trim() && (p.rightSide || "").trim());
       if (!allFilled) errors.matchingPairs = "Vui lòng nhập đầy đủ nội dung các cặp nối";
     }
 
@@ -190,6 +208,14 @@ export const useQuestionForm = (show, questionToUpdate) => {
     validateQuestionForm();
   };
 
+  const handlePointsChange = (value) => {
+    // Only allow positive numbers or empty string (for typing)
+    if (value === '' || /^\d*\.?\d*$/.test(value)) {
+      setQFormData(prev => ({ ...prev, points: value }));
+      setQErrors(prev => ({ ...prev, points: null }));
+    }
+  };
+
   const handleOptionChange = (index, field, value) => {
     const newOptions = [...qFormData.options];
     if (field === "isCorrect" && (qFormData.type === QUESTION_TYPES.MultipleChoice || qFormData.type === QUESTION_TYPES.TrueFalse)) {
@@ -200,9 +226,27 @@ export const useQuestionForm = (show, questionToUpdate) => {
     setQFormData({ ...qFormData, options: newOptions });
   };
 
-  const addOption = () => setQFormData({ ...qFormData, options: [...qFormData.options, { text: "", isCorrect: qFormData.type === QUESTION_TYPES.Ordering }] });
+  const addOption = () => {
+    const isOrdering = Number(qFormData.type) === Number(QUESTION_TYPES.Ordering || 6);
+    const newOption = { 
+      tempId: `opt-${Date.now()}-${Math.random().toString(36).substr(2, 5)}`, 
+      text: "", 
+      isCorrect: isOrdering 
+    };
+    setQFormData(prev => ({ ...prev, options: [...prev.options, newOption] }));
+  };
   const removeOption = (index) => setQFormData({ ...qFormData, options: qFormData.options.filter((_, i) => i !== index) });
-  
+
+  const reorderOptions = (oldIndex, newIndex) => {
+    if (oldIndex === newIndex) return;
+    setQFormData(prev => {
+      const newOptions = [...prev.options];
+      const [movedItem] = newOptions.splice(oldIndex, 1);
+      newOptions.splice(newIndex, 0, movedItem);
+      return { ...prev, options: newOptions };
+    });
+  };
+
   const moveOption = (index, direction) => {
     if ((direction === 'up' && index === 0) || (direction === 'down' && index === qFormData.options.length - 1)) return;
     const newOptions = [...qFormData.options];
@@ -216,38 +260,18 @@ export const useQuestionForm = (show, questionToUpdate) => {
     newPairs[index][field] = value;
     setQFormData({ ...qFormData, matchingPairs: newPairs });
   };
-  const addPair = () => setQFormData({ ...qFormData, matchingPairs: [...qFormData.matchingPairs, { key: "", value: "" }] });
+
+  const addPair = () => setQFormData({ ...qFormData, matchingPairs: [...qFormData.matchingPairs, { leftSide: "", rightSide: "" }] });
   const removePair = (index) => setQFormData({ ...qFormData, matchingPairs: qFormData.matchingPairs.filter((_, i) => i !== index) });
 
-  const handleQMediaChange = async (e) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    if (file.size > 100 * 1024 * 1024) {
-      setQErrors(prev => ({ ...prev, media: "File quá lớn (giới hạn 100MB)." }));
-      return;
-    }
-    setQUploadingMedia(true);
+  const handleUploadSuccess = (tempKey, fileType, previewUrl) => {
+    setQMediaTempKey(tempKey);
+    setQMediaType(fileType.startsWith('video/') ? 'video' : fileType.startsWith('audio/') ? 'audio' : 'image');
+    setQMediaPreview(previewUrl);
     setQErrors(prev => ({ ...prev, media: null }));
-    try {
-      const previewUrl = URL.createObjectURL(file);
-      setQMediaPreview(previewUrl);
-      let type = file.type.startsWith('video/') ? 'video' : file.type.startsWith('audio/') ? 'audio' : 'image';
-      setQMediaType(type);
-      const response = await fileService.uploadTempFile(file, QUESTION_BUCKET, "temp");
-      if (response.data?.success && response.data?.data) {
-        setQMediaTempKey(response.data.data.tempKey || response.data.data.TempKey);
-        setQErrors(prev => ({ ...prev, media: null }));
-      } else {
-        setQErrors(prev => ({ ...prev, media: "Upload thất bại." }));
-      }
-    } catch (err) {
-      setQErrors(prev => ({ ...prev, media: "Lỗi khi upload file." }));
-    } finally {
-      setQUploadingMedia(false);
-    }
   };
 
-  const handleRemoveQMedia = () => {
+  const handleRemoveMedia = () => {
     setQMediaPreview(null);
     setQMediaTempKey(null);
     setQMediaType(null);
@@ -259,29 +283,43 @@ export const useQuestionForm = (show, questionToUpdate) => {
       ? (qFormData.points.trim() === '' ? 0 : parseFloat(qFormData.points))
       : qFormData.points;
 
+    // Use Dual-Casing (PascalCase + camelCase) to ensure binding success
     const payload = {
+      // Basic Fields
+      stemText: qFormData.stemText.trim(),
       StemText: qFormData.stemText.trim(),
+      explanation: qFormData.explanation || "",
       Explanation: qFormData.explanation || "",
+      points: pointsValue || 0,
       Points: pointsValue || 0,
-      Type: qFormData.type,
-      QuizSectionId: sectionId || null,
-      QuizGroupId: internalGroupId || null,
+      type: qFormData.type ? parseInt(qFormData.type) : 0,
+      Type: qFormData.type ? parseInt(qFormData.type) : 0,
+
+      // Relations
+      quizSectionId: sectionId ? parseInt(sectionId) : null,
+      QuizSectionId: sectionId ? parseInt(sectionId) : null,
+      quizGroupId: internalGroupId ? parseInt(internalGroupId) : null,
+      QuizGroupId: internalGroupId ? parseInt(internalGroupId) : null,
+
+      // Media (CRITICAL)
+      mediaTempKey: qMediaTempKey || null,
       MediaTempKey: qMediaTempKey || null,
+      mediaType: qMediaType || null,
       MediaType: qMediaType || null,
-      Options: []
+
+      options: []
     };
 
-    // Helper for robust type checking
     const checkType = (t, target) => {
-        const strT = String(t || "").toLowerCase();
-        const strTarget = String(target).toLowerCase();
-        const typeNames = {
-            "3": ["matching", "3", "nối"],
-            "2": ["ordering", "2", "sắp xếp"],
-            "4": ["fillblank", "4", "điền"],
-            "5": ["truefalse", "5", "đúng sai"]
-        };
-        return strT === strTarget || (typeNames[strTarget] && typeNames[strTarget].includes(strT));
+      const strT = String(t || "").toLowerCase();
+      const strTarget = String(target).toLowerCase();
+      const typeNames = {
+        "5": ["matching", "5", "nối"],
+        "6": ["ordering", "6", "sắp xếp"],
+        "4": ["fillblank", "4", "điền"],
+        "3": ["truefalse", "3", "đúng sai"]
+      };
+      return strT === strTarget || (typeNames[strTarget] && typeNames[strTarget].includes(strT));
     };
 
     if (checkType(qFormData.type, QUESTION_TYPES.Matching)) {
@@ -290,45 +328,64 @@ export const useQuestionForm = (show, questionToUpdate) => {
       const rightTexts = [];
 
       qFormData.matchingPairs.forEach(pair => {
-        if (pair.key && pair.value) {
-          correctMatchesMap[pair.key] = pair.value;
-          leftTexts.push(pair.key);
-          rightTexts.push(pair.value);
+        if (pair.leftSide && pair.rightSide) {
+          correctMatchesMap[pair.leftSide] = pair.rightSide;
+          leftTexts.push(pair.leftSide);
+          rightTexts.push(pair.rightSide);
         }
       });
-      payload.CorrectAnswersJson = JSON.stringify(correctMatchesMap);
-      payload.correctAnswersJson = payload.CorrectAnswersJson;
-      payload.MetadataJson = JSON.stringify({ left: leftTexts, right: rightTexts });
-      payload.metadataJson = payload.MetadataJson;
-      payload.Options = [
-        ...leftTexts.map(t => ({ Text: t, IsCorrect: true, text: t, isCorrect: true })),
-        ...rightTexts.map(t => ({ Text: t, IsCorrect: false, text: t, isCorrect: false }))
-      ];
-      payload.Options = payload.Options || [];
+      const correctAnswersJson = JSON.stringify(correctMatchesMap);
+      const metadataJson = JSON.stringify({ left: leftTexts, right: rightTexts });
 
-      // Diagnostics removed for production
-      payload.options = payload.Options;
+      payload.correctAnswersJson = correctAnswersJson;
+      payload.CorrectAnswersJson = correctAnswersJson;
+      payload.metadataJson = metadataJson;
+      payload.MetadataJson = metadataJson;
+
+      const matchingOptions = [
+        ...leftTexts.map(t => ({ text: t, Text: t, isCorrect: true, IsCorrect: true })),
+        ...rightTexts.map(t => ({ text: t, Text: t, isCorrect: false, IsCorrect: false }))
+      ];
+      payload.options = matchingOptions;
+      payload.Options = matchingOptions;
     } else if (checkType(qFormData.type, QUESTION_TYPES.FillBlank)) {
-      // Support all markers: [...], {...}, (...) and ___
       const matches = [...qFormData.stemText.matchAll(/\[(.*?)\]|\{(.*?)\}|\((.*?)\)/g)];
-      const extractedAnswers = matches.map(m => {
-          return (m[1] || m[2] || m[3] || "").trim();
-      }).filter(Boolean);
-      payload.correctAnswersJson = JSON.stringify(extractedAnswers);
-      payload.options = extractedAnswers.map(ans => ({ text: ans, isCorrect: true }));
+      const extractedAnswers = matches.map(m => (m[1] || m[2] || m[3] || "").trim()).filter(Boolean);
+      const correctAnswersJson = JSON.stringify(extractedAnswers);
+
+      payload.correctAnswersJson = correctAnswersJson;
+      payload.CorrectAnswersJson = correctAnswersJson;
+
+      const fillBlankOptions = extractedAnswers.map(ans => ({ text: ans, Text: ans, isCorrect: true, IsCorrect: true }));
+      payload.options = fillBlankOptions;
+      payload.Options = fillBlankOptions;
     } else if (qFormData.type === QUESTION_TYPES.Ordering) {
-      payload.options = qFormData.options.map((opt, index) => ({
+      const orderingOptions = qFormData.options.map((opt) => ({
         text: (opt.text || opt.Text || "").trim(),
-        displayOrder: index,
-        isCorrect: true
+        Text: (opt.text || opt.Text || "").trim(),
+        isCorrect: true,
+        IsCorrect: true
       }));
-      payload.correctAnswersJson = JSON.stringify(payload.options.map(o => o.text));
+      payload.options = orderingOptions;
+      payload.Options = orderingOptions;
+      const correctAnswersJson = JSON.stringify(orderingOptions.map(o => o.text));
+      payload.correctAnswersJson = correctAnswersJson;
+      payload.CorrectAnswersJson = correctAnswersJson;
     } else {
-      payload.options = qFormData.options.map(opt => ({
+      const standardOptions = qFormData.options.map(opt => ({
         text: (opt.text || opt.Text || "").trim(),
+        Text: (opt.text || opt.Text || "").trim(),
         isCorrect: !!opt.isCorrect,
-        feedback: opt.feedback || null
+        IsCorrect: !!opt.isCorrect,
+        feedback: opt.feedback || null,
+        Feedback: opt.feedback || null,
+        mediaTempKey: opt.mediaTempKey || opt.MediaTempKey || null,
+        MediaTempKey: opt.mediaTempKey || opt.MediaTempKey || null,
+        mediaType: opt.mediaType || opt.MediaType || null,
+        MediaType: opt.mediaType || opt.MediaType || null
       }));
+      payload.options = standardOptions;
+      payload.Options = standardOptions;
     }
 
     return payload;
@@ -340,6 +397,7 @@ export const useQuestionForm = (show, questionToUpdate) => {
     qMediaTempKey, setQMediaTempKey,
     qMediaType, setQMediaType,
     qUploadingMedia,
+    setQUploadingMedia,
     qFileInputRef,
     qErrors, setQErrors,
     qTouched, setQTouched,
@@ -349,8 +407,11 @@ export const useQuestionForm = (show, questionToUpdate) => {
     handleOptionChange,
     addOption, removeOption, moveOption,
     handlePairChange, addPair, removePair,
-    handleQMediaChange, handleRemoveQMedia,
+    handleUploadSuccess,
+    handleRemoveMedia,
+    handlePointsChange,
     validateQuestionForm,
-    buildQuestionPayload
+    buildQuestionPayload,
+    reorderOptions
   };
 };

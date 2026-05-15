@@ -6,6 +6,7 @@ import PremiumCloseButton from "../../../Common/PremiumCloseButton/PremiumCloseB
 import QuizAttemptSidebar from "./QuizAttemptSidebar";
 import QuizAttemptSummary from "./QuizAttemptSummary";
 import QuizAttemptQuestion from "./QuizAttemptQuestion";
+import { PiGraduationCapDuotone } from "react-icons/pi";
 import "./QuizAttemptDetailModal.css";
 
 export default function QuizAttemptDetailModal({ show, onClose, attempt, quizId, isAdmin = false }) {
@@ -135,8 +136,9 @@ export default function QuizAttemptDetailModal({ show, onClose, attempt, quizId,
       className="quiz-review-modal-v3"
     >
       <Modal.Header closeButton={false} className="quiz-header-custom border-0 px-4 py-3">
-        <Modal.Title className="fw-bold text-white modal-title-centered">
-          Chi tiết kết quả bài làm: <span className="ms-2">{fullName}</span>
+        <Modal.Title className="fw-bold text-white modal-title-centered d-flex align-items-center gap-3">
+          <PiGraduationCapDuotone size={32} />
+          <span>Chi tiết kết quả bài làm: <span className="ms-1 fw-normal opacity-90">{fullName}</span></span>
         </Modal.Title>
         <PremiumCloseButton onClick={onClose} />
       </Modal.Header>

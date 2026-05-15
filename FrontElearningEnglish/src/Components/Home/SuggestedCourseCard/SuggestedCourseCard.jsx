@@ -57,7 +57,7 @@ const SuggestedCourseCard = ({ course, isEnrolled = false, showEnrolledBadge = t
                     imageKey={id || courseId}
                     width="300"
                     height="169"
-                    fetchpriority={priority ? "high" : "auto"}
+                    fetchPriority={priority ? "high" : "auto"}
                     loading={priority ? "eager" : "lazy"}
                 />
             </div>

@@ -6,11 +6,10 @@ import Breadcrumb from "../../../Components/Common/Breadcrumb/Breadcrumb";
 import { useAuth } from "../../../Context/AuthContext";
 import { useModuleTypes } from "../../../hooks/useModuleTypes";
 import { adminService } from "../../../Services/adminService";
-import { lectureService } from "../../../Services/lectureService";
-import { flashcardService } from "../../../Services/flashcardService";
 import { assessmentService } from "../../../Services/assessmentService";
 import { quizService } from "../../../Services/quizService";
 import { essayService } from "../../../Services/essayService";
+import { ROUTE_PATHS } from "../../../Routes/Paths";
 import { useAssets } from "../../../Context/AssetContext";
 import CreateLessonModal from "../../../Components/Teacher/CreateLessonModal/CreateLessonModal";
 import CreateModuleModal from "../../../Components/Teacher/CreateModuleModal/CreateModuleModal";
@@ -20,7 +19,7 @@ import NotificationModal from "../../../Components/Common/NotificationModal/Noti
 import ConfirmModal from "../../../Components/Common/ConfirmModal/ConfirmModal";
 import ActionButtons from "../../../Components/Common/ActionButtons";
 import { FaPlus, FaEdit } from "react-icons/fa";
-import { PiBookOpenFill, PiLayoutDuotone, PiCardsDuotone, PiExamDuotone, PiBookOpenDuotone } from "react-icons/pi";
+import { PiBookOpenFill, PiLayoutDuotone, PiCardsDuotone, PiExamDuotone, PiBookOpenDuotone, PiTrayDuotone } from "react-icons/pi";
 import ImageWithIconFallback from "../../../Components/Common/ImageWithIconFallback/ImageWithIconFallback";
 
 export default function AdminLessonDetail() {
@@ -35,6 +34,7 @@ export default function AdminLessonDetail() {
   const [modules, setModules] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [assessmentTypes, setAssessmentTypes] = useState({}); // { assessmentId: { hasQuiz: boolean, hasEssay: boolean } }
   const [showUpdateModal, setShowUpdateModal] = useState(false);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [showCreateModuleModal, setShowCreateModuleModal] = useState(false);
@@ -99,11 +99,11 @@ export default function AdminLessonDetail() {
       if (response.data?.success && response.data?.data) {
         setLesson(response.data.data);
       } else {
-        setError("Không thể tải thông tin bài học");
+        setError("Không thể tải thông tin chương học");
       }
     } catch (err) {
       console.error("Error fetching lesson detail:", err);
-      setError("Không thể tải thông tin bài học");
+      setError("Không thể tải thông tin chương học");
     } finally {
       setLoading(false);
     }
@@ -161,60 +161,72 @@ export default function AdminLessonDetail() {
     }
   }, [lessonId]);
 
-  // Handle module click - fetch content based on module type
-  const handleModuleClick = useCallback(async (module) => {
+  // Handle module click - navigate to dedicated management page
+  const handleModuleClick = useCallback((module) => {
     const contentTypeValue = module.contentType || module.ContentType;
     const contentTypeNum = typeof contentTypeValue === 'number' ? contentTypeValue : parseInt(contentTypeValue);
+    const moduleId = module.moduleId || module.ModuleId;
 
-    setSelectedModule(module);
-    setLoadingContent(true);
-    setContentError("");
+    if (isLecture(contentTypeNum)) {
+      navigate(`/admin/courses/${courseId}/lesson/${lessonId}/module/${moduleId}/lecture/manage`);
+    } else if (isFlashCard(contentTypeNum)) {
+      navigate(`/admin/courses/${courseId}/lesson/${lessonId}/module/${moduleId}/flashcard/manage`);
+    } else if (isAssessment(contentTypeNum)) {
+      setSelectedModule(module);
+      setLoadingContent(true);
+      setContentError("");
 
-    try {
-      const moduleId = module.moduleId || module.ModuleId;
+      assessmentService.getAdminAssessmentsByModule(moduleId)
+        .then(response => {
+          if (response.data?.success && response.data?.data) {
+            const assessments = response.data.data || [];
+            setModuleContent(assessments);
 
-      if (isLecture(contentTypeNum)) {
-        // Lecture module - fetch lectures
-        const response = await lectureService.getAdminLecturesByModule(moduleId);
+            // Fetch quiz and essay info for each assessment
+            const typePromises = assessments.map(async (assessment) => {
+              const assessmentId = assessment.assessmentId || assessment.AssessmentId;
+              if (!assessmentId) return null;
 
-        if (response.data?.success && response.data?.data) {
-          setModuleContent(response.data.data || []);
-        } else {
-          setContentError("Không thể tải danh sách lectures");
+              try {
+                const [quizRes, essayRes] = await Promise.all([
+                  quizService.getAdminQuizzesByAssessment(assessmentId),
+                  essayService.getAdminEssaysByAssessment(assessmentId)
+                ]);
+
+                const hasQuiz = quizRes.data?.success && quizRes.data?.data && quizRes.data.data.length > 0;
+                const hasEssay = essayRes.data?.success && essayRes.data?.data && essayRes.data.data.length > 0;
+
+                return { assessmentId, hasQuiz, hasEssay };
+              } catch (error) {
+                console.error(`Error fetching types for assessment ${assessmentId}:`, error);
+                return { assessmentId, hasQuiz: false, hasEssay: false };
+              }
+            });
+
+            Promise.all(typePromises).then(types => {
+              const typesMap = {};
+              types.forEach(type => {
+                if (type) {
+                  typesMap[type.assessmentId] = { hasQuiz: type.hasQuiz, hasEssay: type.hasEssay };
+                }
+              });
+              setAssessmentTypes(typesMap);
+            });
+          } else {
+            setContentError("Không thể tải danh sách assessments");
+            setModuleContent([]);
+          }
+        })
+        .catch(error => {
+          console.error("Error fetching content:", error);
+          setContentError("Có lỗi xảy ra khi tải danh sách");
           setModuleContent([]);
-        }
-      } else if (isFlashCard(contentTypeNum)) {
-        // FlashCard module - fetch flashcards
-        const response = await flashcardService.getAdminFlashcardsByModule(moduleId);
-
-        if (response.data?.success && response.data?.data) {
-          setModuleContent(response.data.data || []);
-        } else {
-          setContentError("Không thể tải danh sách flashcards");
-          setModuleContent([]);
-        }
-      } else if (isAssessment(contentTypeNum)) {
-        // Assessment module - fetch assessments
-        const response = await assessmentService.getAdminAssessmentsByModule(moduleId);
-
-        if (response.data?.success && response.data?.data) {
-          const assessments = response.data.data || [];
-          setModuleContent(assessments);
-
-          setModuleContent(assessments);
-        } else {
-          setContentError("Không thể tải danh sách assessments");
-          setModuleContent([]);
-        }
-      }
-    } catch (error) {
-      console.error("Error fetching content:", error);
-      setContentError("Có lỗi xảy ra khi tải danh sách");
-      setModuleContent([]);
-    } finally {
-      setLoadingContent(false);
+        })
+        .finally(() => {
+          setLoadingContent(false);
+        });
     }
-  }, [courseId, lessonId, isLecture, isFlashCard, isAssessment]);
+  }, [courseId, lessonId, isLecture, isFlashCard, isAssessment, navigate, getModuleTypePath]);
 
   useEffect(() => {
     if (!isAuthenticated || !isAdmin) {
@@ -227,40 +239,29 @@ export default function AdminLessonDetail() {
     fetchModules();
   }, [isAuthenticated, isAdmin, navigate, fetchCourseDetail, fetchLessonDetail, fetchModules]);
 
-  // Handle auto-selecting module from query param
+  // Handle auto-selecting module from query param (Only for Assessment since others navigate away)
   useEffect(() => {
     const moduleIdParam = searchParams.get("moduleId");
-    if (moduleIdParam && modules.length > 0 && !selectedModule) {
-      const targetModule = modules.find(
-        (m) => (m.moduleId || m.ModuleId).toString() === moduleIdParam
-      );
-      if (targetModule) {
-        handleModuleClick(targetModule);
+    
+    // Check if we need to sync state with URL
+    const currentSelectedId = selectedModule ? (selectedModule.moduleId || selectedModule.ModuleId).toString() : null;
+    
+    if (moduleIdParam) {
+      // If URL has moduleId but state doesn't match, sync it
+      if (currentSelectedId !== moduleIdParam && modules.length > 0) {
+        const targetModule = modules.find(
+          (m) => (m.moduleId || m.ModuleId).toString() === moduleIdParam
+        );
+        if (targetModule) {
+          const type = targetModule.contentType || targetModule.ContentType;
+          if (isAssessment(type)) {
+            handleModuleClick(targetModule);
+          }
+        }
       }
     }
-  }, [searchParams, modules, selectedModule, handleModuleClick]);
+  }, [searchParams, modules, selectedModule, handleModuleClick, isAssessment]);
 
-  // Handle edit lecture
-  const handleEditLecture = (lecture) => {
-    const lectureId = lecture.lectureId || lecture.LectureId;
-    const moduleId = selectedModule.moduleId || selectedModule.ModuleId;
-    navigate(`/admin/courses/${courseId}/lesson/${lessonId}/module/${moduleId}/lecture/${lectureId}/edit`);
-  };
-
-  // Handle edit flashcard
-  const handleEditFlashcard = (flashcard) => {
-    // Backend returns flashCardId (camelCase with capital C)
-    const flashcardId = flashcard.flashCardId || flashcard.flashcardId || flashcard.FlashcardId || flashcard.FlashCardId || flashcard.id || flashcard.Id;
-    const moduleId = selectedModule.moduleId || selectedModule.ModuleId;
-
-    if (!flashcardId) {
-      console.error("Flashcard ID not found. Available keys:", Object.keys(flashcard));
-      setNotification({ isOpen: true, type: "error", message: "Không tìm thấy ID của flashcard. Vui lòng thử lại." });
-      return;
-    }
-
-    navigate(`/admin/courses/${courseId}/lesson/${lessonId}/module/${moduleId}/flashcard/${flashcardId}/edit`);
-  };
 
   const handleDeleteModuleClick = (module) => {
     setModuleToDelete(module);
@@ -292,6 +293,26 @@ export default function AdminLessonDetail() {
   };
 
 
+  const renderModuleBadge = (typeName) => {
+    const type = typeName?.toLowerCase() || "";
+    if (type.includes("lecture")) return (
+      <span className="fse-badge fse-badge-lecture">
+        <PiLayoutDuotone className="badge-icon" /> LECTURE
+      </span>
+    );
+    if (type.includes("flashcard")) return (
+      <span className="fse-badge fse-badge-flashcard">
+        <PiCardsDuotone className="badge-icon" /> FLASHCARD
+      </span>
+    );
+    if (type.includes("assessment")) return (
+      <span className="fse-badge fse-badge-assessment">
+        <PiExamDuotone className="badge-icon" /> ASSESSMENT
+      </span>
+    );
+    return <span className="fse-badge">{typeName}</span>;
+  };
+
   if (!isAuthenticated || !isAdmin) {
     return null;
   }
@@ -299,7 +320,7 @@ export default function AdminLessonDetail() {
   if (loading) {
     return (
       <div className="admin-lesson-detail-container">
-        <div className="loading-message">Đang tải thông tin bài học...</div>
+        <div className="loading-message">Đang tải thông tin chương học...</div>
       </div>
     );
   }
@@ -307,29 +328,46 @@ export default function AdminLessonDetail() {
   if (error || !lesson) {
     return (
       <div className="admin-lesson-detail-container">
-        <div className="error-message">{error || "Không tìm thấy bài học"}</div>
+        <div className="error-message">{error || "Không tìm thấy chương học"}</div>
       </div>
     );
   }
 
-  const lessonTitle = lesson.title || lesson.Title || "Bài học";
+  const lessonTitle = lesson.title || lesson.Title || "Chương học";
   const lessonDescription = lesson.description || lesson.Description || "";
   const lessonImage = lesson.imageUrl || lesson.ImageUrl || getDefaultLessonImage();
 
   return (
     <>
       <div className="admin-lesson-detail-container">
+        <div className="admin-breadcrumb-wrapper">
+          <Container fluid>
+            <div className="breadcrumb-section pt-0">
+              <Breadcrumb
+                items={[
+                  { label: "Quản lý khóa học", path: ROUTE_PATHS.ADMIN.COURSES },
+                  { label: course?.title || course?.Title || courseId, path: `/admin/courses/${courseId}` },
+                  {
+                    label: lessonTitle,
+                    path: !selectedModule ? undefined : `/admin/courses/${courseId}/lesson/${lessonId}`,
+                    onClick: selectedModule
+                      ? () => {
+                          setSelectedModule(null);
+                          setModuleContent([]);
+                          setLoadingContent(false);
+                          navigate(`/admin/courses/${courseId}/lesson/${lessonId}`, { replace: true });
+                        }
+                      : undefined,
+                    isCurrent: !selectedModule
+                  },
+                  ...(selectedModule ? [{ label: selectedModule.name || selectedModule.Name || "Bài học", isCurrent: true }] : [])
+                ]}
+                showHomeIcon={false}
+              />
+            </div>
+          </Container>
+        </div>
         <Container fluid className="lesson-detail-content p-0">
-          <div className="breadcrumb-section pt-0">
-            <Breadcrumb
-              items={[
-                { label: "Quản lý khoá học", path: "/admin/course-management" },
-                { label: course?.title || course?.Title || courseId, path: `/admin/courses/${courseId}` },
-                { label: lessonTitle, isCurrent: true }
-              ]}
-              showHomeIcon={false}
-            />
-          </div>
           <Row>
             {/* Left Column - Lesson Info */}
             <Col md={4} className="lesson-info-column">
@@ -352,7 +390,7 @@ export default function AdminLessonDetail() {
                     onClick={() => setShowUpdateModal(true)}
                   >
                     <FaEdit className="btn-icon" />
-                    Cập nhật Bài học
+                    Cập nhật Chương học
                   </button>
                 </div>
               </div>
@@ -364,9 +402,12 @@ export default function AdminLessonDetail() {
                 // Module Content View (Lectures/Flashcards List)
                 <div className="modules-section">
                   <div className="module-content-header">
-                    <h3 className="module-content-title">
-                      {selectedModule.name || selectedModule.Name || "Module"}
-                    </h3>
+                    <div>
+                      <h3 className="module-content-title mb-1">
+                        {selectedModule.name || selectedModule.Name || "Bài học"}
+                      </h3>
+                      {renderModuleBadge(selectedModule.contentTypeName || selectedModule.ContentTypeName || "Lecture")}
+                    </div>
                   </div>
 
                   {loadingContent ? (
@@ -384,76 +425,7 @@ export default function AdminLessonDetail() {
                       <div className="module-content-list">
                         {moduleContent.length > 0 ? (
                           moduleContent.map((item, index) => {
-                            const contentTypeValue = selectedModule.contentType || selectedModule.ContentType;
-                            const contentTypeNum = typeof contentTypeValue === 'number' ? contentTypeValue : parseInt(contentTypeValue);
-
-                            if (isLecture(contentTypeNum)) {
-                              // Lecture
-                              const lectureId = item.lectureId || item.LectureId;
-                              const lectureTitle = item.title || item.Title || `Lecture ${index + 1}`;
-                              const lectureDescription = item.markdownContent || item.MarkdownContent || "";
-
-                              return (
-                                <div key={lectureId || index} className="content-item">
-                                  <div className="content-item-info">
-                                    <h4 className="content-item-title">{lectureTitle}</h4>
-                                    {lectureDescription && (
-                                      <p className="content-item-description">
-                                        {lectureDescription.length > 100
-                                          ? lectureDescription.substring(0, 100) + "..."
-                                          : lectureDescription}
-                                      </p>
-                                    )}
-                                  </div>
-                                  <button
-                                    className="content-item-edit-btn"
-                                    onClick={() => handleEditLecture(item)}
-                                    title="Sửa"
-                                  >
-                                    <FaEdit className="edit-icon" />
-                                    Sửa
-                                  </button>
-                                </div>
-                              );
-                            } else if (isFlashCard(contentTypeNum)) {
-                              // FlashCard - backend returns flashCardId (camelCase with capital C)
-                              const flashcardId = item.flashCardId || item.flashcardId || item.FlashcardId || item.FlashCardId;
-                              const word = item.word || item.Word || `Flashcard ${index + 1}`;
-                              const meaning = item.meaning || item.Meaning || "";
-                              const pronunciation = item.pronunciation || item.Pronunciation || "";
-                              const partOfSpeech = item.partOfSpeech || item.PartOfSpeech || "";
-
-                              return (
-                                <div key={flashcardId || index} className="content-item">
-                                  <div className="content-item-info">
-                                    <h4 className="content-item-title">{word}</h4>
-                                    {pronunciation && (
-                                      <p className="content-item-description" style={{ fontStyle: 'italic', color: '#6b7280' }}>
-                                        {pronunciation}
-                                      </p>
-                                    )}
-                                    {meaning && (
-                                      <p className="content-item-description">
-                                        <strong>Nghĩa:</strong> {meaning}
-                                      </p>
-                                    )}
-                                    {partOfSpeech && (
-                                      <p className="content-item-description" style={{ fontSize: '12px', color: '#9ca3af' }}>
-                                        {partOfSpeech}
-                                      </p>
-                                    )}
-                                  </div>
-                                  <button
-                                    className="content-item-edit-btn"
-                                    onClick={() => handleEditFlashcard(item)}
-                                    title="Sửa"
-                                  >
-                                    <FaEdit className="edit-icon" />
-                                    Sửa
-                                  </button>
-                                </div>
-                              );
-                            } else if (isAssessment(contentTypeNum)) {
+                            // Since Lecture/Flashcard navigate away, only Assessment logic remains here
                             // Extract assessment details
                             const assessmentId = item.assessmentId || item.AssessmentId;
                             const title = item.title || item.Title || "Assessment";
@@ -481,118 +453,110 @@ export default function AdminLessonDetail() {
                             };
 
                             // Content type indicators
-                            const typeInfo = {
+                            const typeInfo = assessmentTypes[assessmentId] || { 
                               hasQuiz: Array.isArray(item.quizzes) && item.quizzes.length > 0,
                               hasEssay: Array.isArray(item.essays) && item.essays.length > 0
                             };
 
-                              return (
-                                <div
-                                  key={assessmentId || index}
-                                  className="content-item"
-                                  style={{ cursor: 'pointer' }}
-                                  onClick={() => {
-                                    navigate(`/admin/courses/${courseId}/lesson/${lessonId}/module/${moduleId}/assessment/${assessmentId}`);
-                                  }}
-                                >
-                                  <div className="content-item-info">
-                                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '8px' }}>
-                                      <h4 className="content-item-title" style={{ margin: 0 }}>{title}</h4>
-                                      <div style={{ display: 'flex', gap: '8px' }}>
-                                        {typeInfo.hasQuiz && (
-                                          <span style={{
-                                            padding: '4px 8px',
-                                            borderRadius: '4px',
-                                            fontSize: '11px',
-                                            fontWeight: '600',
-                                            backgroundColor: '#e3f2fd',
-                                            color: '#1976d2'
-                                          }}>
-                                            Quiz
-                                          </span>
-                                        )}
-                                        {typeInfo.hasEssay && (
-                                          <span style={{
-                                            padding: '4px 8px',
-                                            borderRadius: '4px',
-                                            fontSize: '11px',
-                                            fontWeight: '600',
-                                            backgroundColor: '#f3e5f5',
-                                            color: '#7b1fa2'
-                                          }}>
-                                            Essay
-                                          </span>
-                                        )}
-                                        {!typeInfo.hasQuiz && !typeInfo.hasEssay && (
-                                          <span style={{
-                                            padding: '4px 8px',
-                                            borderRadius: '4px',
-                                            fontSize: '11px',
-                                            fontWeight: '600',
-                                            backgroundColor: '#f5f5f5',
-                                            color: '#757575'
-                                          }}>
-                                            Chưa có nội dung
-                                          </span>
-                                        )}
-                                      </div>
-                                    </div>
-                                    {description && (
-                                      <p className="content-item-description">
-                                        {description.length > 100
-                                          ? description.substring(0, 100) + "..."
-                                          : description}
-                                      </p>
-                                    )}
-                                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '16px', marginTop: '8px', fontSize: '12px', color: '#6b7280' }}>
-                                      {timeLimit && (
-                                        <span><strong>Thời gian:</strong> {timeLimit}</span>
-                                      )}
-                                      {openAt && (
-                                        <span><strong>Bắt đầu:</strong> {formatDateTime(openAt)}</span>
-                                      )}
-                                      {dueAt && (
-                                        <span><strong>Kết thúc:</strong> {formatDateTime(dueAt)}</span>
-                                      )}
-                                      {totalPoints > 0 && (
-                                        <span><strong>Tổng điểm:</strong> {totalPoints}</span>
-                                      )}
-                                      {passingScore > 0 && (
-                                        <span><strong>Điểm đạt:</strong> {passingScore}%</span>
-                                      )}
-                                      <span><strong>Trạng thái:</strong> {isPublished ? 'Đã xuất bản' : 'Chưa xuất bản'}</span>
-                                    </div>
-                                  </div>
-                                  <button
-                                    className="content-item-edit-btn"
-                                    onClick={(e) => {
-                                      e.stopPropagation();
-                                      setAssessmentToUpdate(item);
-                                      setShowUpdateAssessmentModal(true);
-                                    }}
-                                    title="Sửa Assessment"
-                                  >
-                                    <FaEdit className="edit-icon" />
-                                    Sửa
-                                  </button>
-                                </div>
-                              );
-                            }
-                            return null;
+                             return (
+                               <div
+                                 key={assessmentId || index}
+                                 className="content-item"
+                                 style={{ cursor: 'pointer' }}
+                                 onClick={() => {
+                                   navigate(`/admin/courses/${courseId}/lesson/${lessonId}/module/${moduleId}/assessment/${assessmentId}`);
+                                 }}
+                               >
+                                 <div className="content-item-info">
+                                   <div className="item-header">
+                                     <h4 className="content-item-title">{title}</h4>
+                                     <div className="item-badges">
+                                       {typeInfo.hasQuiz || typeInfo.hasEssay ? (
+                                         <>
+                                           {typeInfo.hasQuiz && <span className="fse-badge fse-badge-quiz">QUIZ</span>}
+                                           {typeInfo.hasEssay && <span className="fse-badge fse-badge-essay">ESSAY</span>}
+                                         </>
+                                       ) : (
+                                         <span className="fse-badge" style={{ background: '#f3f4f6', color: '#9ca3af' }}>Chưa có nội dung</span>
+                                       )}
+                                     </div>
+                                   </div>
+                                   <div className="item-meta-container">
+                                     <div className="item-meta-row main-meta">
+                                       {timeLimit && (
+                                         <span><strong>Thời gian:</strong> {timeLimit}</span>
+                                       )}
+                                       {openAt && (
+                                         <span><strong>Bắt đầu:</strong> {formatDateTime(openAt)}</span>
+                                       )}
+                                       {dueAt && (
+                                         <span><strong>Kết thúc:</strong> {formatDateTime(dueAt)}</span>
+                                       )}
+                                     </div>
+                                     <div className="item-meta-row status-row">
+                                       <span>
+                                         <strong>Trạng thái:</strong>
+                                         <span className={`status-tag ${isPublished ? 'published' : 'draft'}`}>
+                                           {isPublished ? 'Đã xuất bản' : 'Chưa xuất bản'}
+                                         </span>
+                                       </span>
+                                     </div>
+                                   </div>
+                                 </div>
+                                 <ActionButtons
+                                   onUpdate={(e) => {
+                                     e.stopPropagation();
+                                     setAssessmentToUpdate(item);
+                                     setShowUpdateAssessmentModal(true);
+                                   }}
+                                   onDelete={(e) => {
+                                     e.stopPropagation();
+                                   }}
+                                   updateText="Cập nhật"
+                                   showUpdateText={true}
+                                   updateTitle="Sửa Assessment"
+                                 />
+                               </div>
+                             );
                           })
                         ) : (
-                          <div className="no-content-message">
+                          <div className="no-assessment-message">
                             {(() => {
                               const contentTypeValue = selectedModule.contentType || selectedModule.ContentType;
                               const contentTypeNum = typeof contentTypeValue === 'number' ? contentTypeValue : parseInt(contentTypeValue);
+                              
                               if (isLecture(contentTypeNum)) {
-                                return "Chưa có lecture nào trong module này";
+                                return (
+                                  <>
+                                    <div className="empty-icon-wrapper-small">
+                                      <PiBookOpenDuotone />
+                                    </div>
+                                    <h4>Chưa có bài giảng nào</h4>
+                                    <p>Module này hiện đang trống. Hãy bắt đầu xây dựng bài giảng để hoàn thiện nội dung.</p>
+                                  </>
+                                );
                               } else if (isFlashCard(contentTypeNum)) {
-                                return "Chưa có flashcard nào trong module này";
+                                return (
+                                  <>
+                                    <div className="empty-icon-wrapper-small">
+                                      <PiCardsDuotone />
+                                    </div>
+                                    <h4>Chưa có bộ từ vựng</h4>
+                                    <p>Module này chưa có thẻ từ vựng nào. Hãy thêm mới để học viên bắt đầu học tập.</p>
+                                  </>
+                                );
                               } else if (isAssessment(contentTypeNum)) {
-                                return "Chưa có assessment nào trong module này";
+                                return (
+                                  <>
+                                    <div className="empty-icon-wrapper-small">
+                                      <PiExamDuotone />
+                                    </div>
+                                    <h4>Chưa có bài kiểm tra</h4>
+                                    <p>Chưa có bài kiểm tra hoặc bài tự luận nào. Hãy khởi tạo nội dung đánh giá.</p>
+                                  </>
+                                );
                               }
-                              return "Chưa có nội dung nào trong module này";
+                              return <p>Chưa có nội dung nào trong bài học này</p>;
                             })()}
                           </div>
                         )}
@@ -609,11 +573,11 @@ export default function AdminLessonDetail() {
                             <button
                               className="module-create-btn lecture-btn"
                               onClick={() => {
-                                navigate(`/admin/courses/${courseId}/lesson/${lessonId}/module/${moduleId}/lecture/create`);
+                                navigate(`/admin/courses/${courseId}/lesson/${lessonId}/module/${moduleId}/lecture/manage`);
                               }}
                             >
                               <FaPlus className="add-icon" />
-                              Tạo Lecture
+                              Quản lý Lecture
                             </button>
                           );
                         } else if (isFlashCard(contentTypeNum)) {
@@ -621,11 +585,11 @@ export default function AdminLessonDetail() {
                             <button
                               className="module-create-btn flashcard-btn"
                               onClick={() => {
-                                navigate(`/admin/courses/${courseId}/lesson/${lessonId}/module/${moduleId}/flashcard/create`);
+                                navigate(`/admin/courses/${courseId}/lesson/${lessonId}/module/${moduleId}/flashcard/manage`);
                               }}
                             >
                               <FaPlus className="add-icon" />
-                              Tạo Flashcard
+                              Quản lý Flashcard
                             </button>
                           );
                         } else if (isAssessment(contentTypeNum)) {
@@ -637,7 +601,7 @@ export default function AdminLessonDetail() {
                               }}
                             >
                               <FaPlus className="add-icon" />
-                              Thêm Assessment
+                              Xây dựng bài tập
                             </button>
                           );
                         }
@@ -649,8 +613,8 @@ export default function AdminLessonDetail() {
               ) : (
                 // Modules List View
                 <div className="modules-section">
-                  <div className="modules-header">
-                    <h3>Danh sách Module</h3>
+                  <div className="modules-header d-flex justify-content-between align-items-center mb-4">
+                    <h3 className="mb-0">Danh sách Bài học</h3>
                   </div>
                   <div className="modules-list">
                   {modules.length > 0 ? (
@@ -677,19 +641,7 @@ export default function AdminLessonDetail() {
                       // Handle module click - navigate to corresponding screen based on module type
                       const handleModuleItemClick = () => {
                         if (!isClickable(contentTypeNum)) return;
-                        
-                        const moduleIdValue = module.moduleId || module.ModuleId;
-                        
-                        if (isLecture(contentTypeNum)) {
-                          // Navigate to create lecture page
-                          navigate(`/admin/courses/${courseId}/lesson/${lessonId}/module/${moduleIdValue}/lecture/create`);
-                        } else if (isFlashCard(contentTypeNum)) {
-                          // Navigate to create flashcard page
-                          navigate(`/admin/courses/${courseId}/lesson/${lessonId}/module/${moduleIdValue}/flashcard/create`);
-                        } else if (isAssessment(contentTypeNum)) {
-                          // For Assessment, show content list in current screen (existing behavior)
-                          handleModuleClick(module);
-                        }
+                        handleModuleClick(module);
                       };
 
                       return (
@@ -714,7 +666,12 @@ export default function AdminLessonDetail() {
                             />
                             <div className="module-info">
                               <span className="module-name">{moduleName}</span>
-                              <span className="module-type">{displayContentType}</span>
+                              {(module.description || module.Description) && (
+                                <p className="module-item-description">
+                                  {module.description || module.Description}
+                                </p>
+                              )}
+                              {renderModuleBadge(displayContentType)}
                             </div>
                           </div>
                           <div className="module-actions" onClick={(e) => e.stopPropagation()}>
@@ -746,8 +703,8 @@ export default function AdminLessonDetail() {
                                 e.stopPropagation();
                                 handleDeleteModuleClick(module);
                               }}
-                              updateTitle="Cập nhật module"
-                              deleteTitle="Xóa module"
+                              updateTitle="Cập nhật bài học"
+                              deleteTitle="Xóa bài học"
                               updateText={loadingModuleDetail ? "Đang tải..." : "Cập nhật"}
                               updateDisabled={loadingModuleDetail}
                             />
@@ -756,17 +713,31 @@ export default function AdminLessonDetail() {
                       );
                     })
                   ) : (
-                    <div className="no-modules-message">Chưa có module nào</div>
+                    <div className="no-modules-message">
+                      <div className="empty-icon-wrapper">
+                        <PiBookOpenDuotone />
+                      </div>
+                      <h4>Chưa có bài học nào</h4>
+                      <p>Chương này hiện đang trống. Hãy bắt đầu xây dựng bài học để hoàn thiện nội dung khóa học.</p>
+                      <button
+                        className="btn-add-lesson-card mt-4"
+                        onClick={() => setShowCreateModuleModal(true)}
+                      >
+                        <FaPlus className="me-2" /> Thêm bài học mới
+                      </button>
+                    </div>
+                  )}
+
+                  {/* Nút thêm bài học ở cuối danh sách khi đã có dữ liệu */}
+                  {modules.length > 0 && (
+                    <button 
+                      className="btn-add-lesson-card mt-4"
+                      onClick={() => setShowCreateModuleModal(true)}
+                    >
+                      <FaPlus className="me-2" /> Thêm bài học
+                    </button>
                   )}
                   </div>
-
-                  <button
-                    className="add-module-btn-main"
-                    onClick={() => setShowCreateModuleModal(true)}
-                  >
-                    <FaPlus className="add-icon" />
-                    Thêm Module
-                  </button>
                 </div>
               )}
             </Col>
@@ -792,8 +763,8 @@ export default function AdminLessonDetail() {
       <SuccessModal
         isOpen={showSuccessModal}
         onClose={() => setShowSuccessModal(false)}
-        title="Cập nhật bài học thành công"
-        message="Bài học của bạn đã được cập nhật thành công!"
+        title="Cập nhật chương học thành công"
+        message="Chương học của bạn đã được cập nhật thành công!"
         autoClose={true}
         autoCloseDelay={1500}
       />
@@ -830,8 +801,8 @@ export default function AdminLessonDetail() {
       <SuccessModal
         isOpen={showUpdateModuleSuccessModal}
         onClose={() => setShowUpdateModuleSuccessModal(false)}
-        title="Cập nhật module thành công"
-        message="Module của bạn đã được cập nhật thành công!"
+        title="Cập nhật bài học thành công"
+        message="Bài học của bạn đã được cập nhật thành công!"
         autoClose={true}
         autoCloseDelay={1500}
       />
@@ -902,8 +873,8 @@ export default function AdminLessonDetail() {
       <SuccessModal
         isOpen={showModuleSuccessModal}
         onClose={() => setShowModuleSuccessModal(false)}
-        title="Thêm module thành công"
-        message="Module của bạn đã được thêm thành công!"
+        title="Thêm bài học thành công"
+        message="Bài học của bạn đã được thêm thành công!"
         autoClose={true}
         autoCloseDelay={1500}
       />
@@ -916,8 +887,8 @@ export default function AdminLessonDetail() {
           setModuleToDelete(null);
         }}
         onConfirm={confirmDeleteModule}
-        title="Xác nhận xóa module"
-        message="Bạn có chắc chắn muốn xóa module này không?"
+        title="Xác nhận xóa bài học"
+        message="Bạn có chắc chắn muốn xóa bài học này không?"
         itemName={moduleToDelete ? (moduleToDelete.name || moduleToDelete.Name) : ""}
         type="delete"
         confirmText="Xác nhận xóa"

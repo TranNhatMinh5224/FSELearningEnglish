@@ -32,9 +32,12 @@
 
 /* Header SaaS Modern - Cleaned up for global premium style */
 .package-form-modal .modal-header {
-  padding: 1.5rem 2rem;
+  background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
+  padding: 2rem 2.5rem;
+  min-height: 100px;
   border-bottom: none;
   justify-content: center;
+  align-items: center;
   position: relative;
   text-align: center;
 }
@@ -73,7 +76,7 @@
   content: "";
   width: 4px;
   height: 16px;
-  background: #74CEDE;
+  background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
   border-radius: 2px;
 }
 
@@ -106,8 +109,8 @@
 
 .package-form-modal .form-control:focus,
 .package-form-modal .form-select:focus {
-  border-color: #74CEDE;
-  box-shadow: 0 0 0 4px rgba(116, 206, 222, 0.1);
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
   outline: none;
 }
 
@@ -124,7 +127,7 @@
 
 .package-form-modal .btn-primary-custom,
 .package-form-modal .modal-footer .btn-primary {
-  background: linear-gradient(135deg, #74CEDE 0%, #5BB8C8 100%);
+  background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
   border: none;
   font-weight: 600;
   padding: 0.6rem 2rem;
@@ -135,9 +138,9 @@
 
 .package-form-modal .btn-primary-custom:hover:not(:disabled),
 .package-form-modal .modal-footer .btn-primary:hover:not(:disabled) {
-  background: linear-gradient(135deg, #5BB8C8 0%, #4AA8B8 100%);
+  background: linear-gradient(135deg, #2563eb 0%, #7c3aed 100%);
   transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(116, 206, 222, 0.3);
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
 }
 
 .package-form-modal .text-danger {

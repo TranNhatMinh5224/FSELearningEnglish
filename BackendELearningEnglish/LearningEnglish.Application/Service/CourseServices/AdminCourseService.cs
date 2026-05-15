@@ -116,6 +116,49 @@ namespace LearningEnglish.Application.Service
             return response;
         }
 
+        // Lấy chi tiết khóa học cho admin
+        public async Task<ServiceResponse<CourseResponseDto>> GetCourseByIdAsync(int courseId)
+        {
+            var response = new ServiceResponse<CourseResponseDto>();
+            try
+            {
+                var course = await _courseRepository.GetCourseById(courseId);
+                if (course == null)
+                {
+                    response.Success = false;
+                    response.StatusCode = 404;
+                    response.Message = "Không tìm thấy khóa học";
+                    return response;
+                }
+
+                var dto = _mapper.Map<CourseResponseDto>(course);
+                dto.LessonCount = await _courseRepository.CountLessons(courseId);
+                dto.StudentCount = await _courseRepository.CountEnrolledUsers(courseId);
+                dto.TeacherName = course.Teacher != null
+                    ? $"{course.Teacher.FirstName} {course.Teacher.LastName}"
+                    : "System Admin";
+
+                if (!string.IsNullOrWhiteSpace(course.ImageKey))
+                {
+                    dto.ImageUrl = _courseImageService.BuildImageUrl(course.ImageKey);
+                    dto.ImageType = course.ImageType;
+                }
+
+                response.StatusCode = 200;
+                response.Data = dto;
+                response.Success = true;
+                response.Message = "Lấy chi tiết khóa học thành công";
+            }
+            catch (Exception ex)
+            {
+                response.Success = false;
+                response.StatusCode = 500;
+                response.Message = "Đã xảy ra lỗi hệ thống";
+                _logger.LogError(ex, "Error in GetCourseByIdAsync for CourseId: {CourseId}", courseId);
+            }
+            return response;
+        }
+
         // Service cho Admin Tạo mới khóa học
 
         public async Task<ServiceResponse<CourseResponseDto>> AdminCreateCourseAsync(AdminCreateCourseRequestDto requestDto)
@@ -145,9 +188,13 @@ namespace LearningEnglish.Application.Service
                 {
                     try
                     {
-                        committedImageKey = await _courseImageService.CommitImageAsync(requestDto.ImageTempKey);
-                        course.ImageKey = committedImageKey;
-                        course.ImageType = requestDto.ImageType;
+                        var result = await _courseImageService.CommitImageAsync(requestDto.ImageTempKey);
+                        if (result.Success)
+                        {
+                            committedImageKey = result.Data.ImageKey;
+                            course.ImageKey = committedImageKey;
+                            course.ImageType = result.Data.ContentType;
+                        }
                     }
                     catch (Exception imageEx)
                     {
@@ -260,9 +307,13 @@ namespace LearningEnglish.Application.Service
                 {
                     try
                     {
-                        newImageKey = await _courseImageService.CommitImageAsync(requestDto.ImageTempKey);
-                        course.ImageKey = newImageKey;
-                        course.ImageType = requestDto.ImageType;
+                        var result = await _courseImageService.CommitImageAsync(requestDto.ImageTempKey);
+                        if (result.Success)
+                        {
+                            newImageKey = result.Data.ImageKey;
+                            course.ImageKey = newImageKey;
+                            course.ImageType = result.Data.ContentType;
+                        }
                     }
                     catch (Exception imageEx)
                     {

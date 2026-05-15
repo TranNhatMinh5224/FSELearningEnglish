@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import { Row, Col } from "react-bootstrap";
+import { Container, Row, Col } from "react-bootstrap";
 import CustomPagination from "../../../Components/Common/Pagination/CustomPagination";
 import "./CourseManagement.css";
 import TeacherHeader from "../../../Components/Header/TeacherHeader";
@@ -13,6 +13,7 @@ import CreateCourseModal from "../../../Components/Teacher/CreateCourseModal/Cre
 import CourseLimitModal from "../../../Components/Common/CourseLimitModal/CourseLimitModal";
 import SuccessModal from "../../../Components/Common/SuccessModal/SuccessModal";
 import TeacherCourseCard from "../../../Components/Teacher/TeacherCourseCard/TeacherCourseCard";
+import Breadcrumb from "../../../Components/Common/Breadcrumb/Breadcrumb";
 
 export default function CourseManagement() {
   const { user, roles, isAuthenticated } = useAuth();
@@ -21,7 +22,7 @@ export default function CourseManagement() {
   const [courses, setCourses] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-  
+
   // Pagination state
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize] = useState(10);
@@ -38,13 +39,13 @@ export default function CourseManagement() {
     const roleName = typeof role === 'string' ? role : (role?.name || '');
     return ["SuperAdmin", "ContentAdmin", "FinanceAdmin", "Admin"].includes(roleName);
   });
-  
+
   const isTeacher = (roles && roles.some(role => {
     const roleName = typeof role === 'string' ? role : (role?.name || '');
     return roleName === "Teacher";
-  })) || 
-  user?.teacherSubscription?.isTeacher === true || 
-  isAdmin;
+  })) ||
+    user?.teacherSubscription?.isTeacher === true ||
+    isAdmin;
 
   // Redirect from /teacher to /teacher/course-management
   useEffect(() => {
@@ -101,7 +102,7 @@ export default function CourseManagement() {
       // Get package info
       const packageResponse = await teacherPackageService.getAll();
       const userPackageLevel = user?.teacherSubscription?.packageLevel;
-      
+
       if (packageResponse.data?.success && packageResponse.data?.data && userPackageLevel) {
         const packages = packageResponse.data.data;
         const levelMap = {
@@ -111,7 +112,7 @@ export default function CourseManagement() {
           "Professional": 3
         };
         const expectedLevel = levelMap[userPackageLevel];
-        
+
         const matchedPackage = packages.find(
           (pkg) => {
             const pkgLevel = pkg.level !== undefined ? pkg.level : (pkg.Level !== undefined ? pkg.Level : null);
@@ -125,7 +126,7 @@ export default function CourseManagement() {
 
         if (matchedPackage) {
           const maxCourses = matchedPackage.maxCourses || 0;
-          
+
           // Get current course count
           const coursesResponse = await teacherService.getMyCourses({
             pageNumber: 1,
@@ -135,7 +136,7 @@ export default function CourseManagement() {
           if (coursesResponse.data?.success && coursesResponse.data?.data) {
             const data = coursesResponse.data.data;
             const total = data.totalCount || data.totalItems || (data.items?.length || 0);
-            
+
             if (total >= maxCourses) {
               // Show limit modal
               setMaxCoursesLimit(maxCourses);
@@ -148,7 +149,7 @@ export default function CourseManagement() {
     } catch (error) {
       console.error("Error checking course limit:", error);
     }
-    
+
     setShowCreateModal(true);
   };
 
@@ -172,56 +173,65 @@ export default function CourseManagement() {
   return (
     <>
       <TeacherHeader />
-
-      <div className="course-management-container">
-        <div className="course-management-header d-flex justify-content-between align-items-center flex-column flex-md-row gap-4">
-          <div className="welcome-section">
-            <h1>Chào mừng giáo viên {displayName}!</h1>
+      <div className="teacher-course-management-container">
+        <Container fluid className="p-0 content-wrapper">
+          <div className="mb-4">
+            <Breadcrumb
+              items={[{ label: "Quản lý khoá học", isCurrent: true }]}
+              showHomeIcon={true}
+              className="breadcrumb-compact"
+            />
           </div>
-          <button className="create-course-btn d-flex align-items-center" onClick={handleCreateCourse}>
-            <FaPlus className="create-course-icon d-flex align-items-center justify-content-center" />
-            <span>Tạo lớp học</span>
-          </button>
-        </div>
 
-        <div className="courses-section">
-          {loading ? (
-            <div className="loading-message">Đang tải danh sách khóa học...</div>
-          ) : error ? (
-            <div className="error-message">{error}</div>
-          ) : courses.length > 0 ? (
-            <>
-              <Row className="courses-grid g-4">
-                {courses.map((course) => (
-                  <Col
-                    key={course.courseId || course.id}
-                    xs={12}
-                    sm={6}
-                    md={4}
-                    lg={3}
-                    xl={2}
-                  >
-                    <TeacherCourseCard course={course} />
-                  </Col>
-                ))}
-              </Row>
-
-              {/* Pagination */}
-              <CustomPagination
-                currentPage={currentPage}
-                totalPages={totalPages}
-                totalCount={totalPages * pageSize} /* approximation since totalItems wasn't rigorously defined in this component state */
-                pageSize={pageSize}
-                onPageChange={setCurrentPage}
-                showInfo={false} /* Since previous UI didn't show totalCount info */
-              />
-            </>
-          ) : (
-            <div className="empty-state">
-              <p>Bạn chưa có khóa học nào. Hãy tạo khóa học đầu tiên!</p>
+          <div className="course-management-header d-flex justify-content-between align-items-center flex-column flex-md-row gap-4 mt-0">
+            <div className="welcome-section">
+              <h1 className="premium-gradient-text">Chào mừng giáo viên {displayName}!</h1>
             </div>
-          )}
-        </div>
+            <button className="create-course-btn d-flex align-items-center" onClick={handleCreateCourse}>
+              <FaPlus className="create-course-icon d-flex align-items-center justify-content-center" />
+              <span>Tạo lớp học</span>
+            </button>
+          </div>
+
+          <div className="courses-section">
+            {loading ? (
+              <div className="loading-message">Đang tải danh sách khóa học...</div>
+            ) : error ? (
+              <div className="error-message">{error}</div>
+            ) : courses.length > 0 ? (
+              <>
+                <Row className="courses-grid g-4">
+                  {courses.map((course) => (
+                    <Col
+                      key={course.courseId || course.id}
+                      xs={12}
+                      sm={6}
+                      md={4}
+                      lg={3}
+                      xl={2}
+                    >
+                      <TeacherCourseCard course={course} />
+                    </Col>
+                  ))}
+                </Row>
+
+                {/* Pagination */}
+                <CustomPagination
+                  currentPage={currentPage}
+                  totalPages={totalPages}
+                  totalCount={totalPages * pageSize}
+                  pageSize={pageSize}
+                  onPageChange={setCurrentPage}
+                  showInfo={false}
+                />
+              </>
+            ) : (
+              <div className="empty-state">
+                <p>Bạn chưa có khóa học nào. Hãy tạo khóa học đầu tiên!</p>
+              </div>
+            )}
+          </div>
+        </Container>
       </div>
 
       {/* Create Course Modal */}

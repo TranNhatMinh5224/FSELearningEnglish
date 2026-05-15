@@ -1,29 +1,58 @@
 .auth-container {
   min-height: 100vh;
   background: linear-gradient(135deg, #932da3 0%, #ffffff 100%);
-  padding: 40px 20px;
+  padding: clamp(1rem, 2vw, 3rem) clamp(0.75rem, 1.5vw, 2rem);
   box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  position: relative; /* Ensure absolute positioning for logo works */
 }
 
 .auth-card {
   background: var(--color-bg-white, #ffffff);
   border-radius: var(--radius-xl, clamp(1rem, 0.8rem + 1vw, 1.5rem));
-  padding: var(--padding-container-xl, clamp(2rem, 1.5rem + 2.5vw, 4rem));
+  padding: var(--padding-container-xl, clamp(1.5rem, 1.25rem + 2vw, 3.5rem));
   box-shadow: 0 20px 40px var(--shadow-lg, rgba(0, 0, 0, 0.15));
   text-align: center;
-  margin-top: clamp(2rem, 1.5rem + 2.5vw, 3.75rem);
-  margin-bottom: clamp(2rem, 1.5rem + 2.5vw, 3.75rem);
+  margin-top: clamp(1rem, 0.5rem + 2vw, 2rem);
+  margin-bottom: clamp(1rem, 0.5rem + 2vw, 2rem);
+  width: 100%;
+  max-width: 550px; /* Standard width for desktop */
 }
 
 
 
+.auth-header-section {
+  margin-bottom: 40px;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* Internal Logo Styling Managed in LogoHeader.css */
 .auth-title {
-  font-size: var(--font-size-3xl, clamp(1.875rem, 1.5rem + 1.875vw, 2.25rem));
-  font-weight: 700;
-  color: var(--color-text-primary, #1f2937);
-  margin-bottom: var(--spacing-lg, clamp(1rem, 0.8rem + 1vw, 1.5rem));
-  line-height: 1.2;
+  font-size: clamp(1.75rem, 1.5rem + 2vw, 2.25rem);
+  font-weight: 900;
+  background: linear-gradient(90deg, #6fd5e0 0%, #d447b6 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin-bottom: 8px;
+  letter-spacing: -1px;
+  text-transform: uppercase;
 }
+
+.auth-subtitle {
+  font-size: clamp(0.9rem, 0.85rem + 0.2vw, 1rem);
+  color: #6b7280;
+  font-weight: 500;
+  margin-bottom: 25px;
+  line-height: 1.4;
+}
+
 
 /* ===========================
    ERROR MESSAGE - Override Bootstrap Alert
@@ -137,34 +166,104 @@
 }
 
 /* ===========================
-   GENDER RADIO BUTTONS - Bootstrap Form.Check Override
+   GENDER SELECTION CARDS - Custom UI
 =========================== */
 
-.gender-radio-label {
-  font-size: var(--font-size-base, clamp(1rem, 0.95rem + 0.25vw, 1.125rem));
-  font-weight: 500;
+.field-label {
+  font-size: 16px;
+  font-weight: 600;
   color: var(--color-text-primary, #1f2937);
-  margin-bottom: var(--spacing-sm, clamp(0.5rem, 0.4rem + 0.5vw, 0.75rem));
+  margin-bottom: 12px;
   text-align: left;
+  display: block;
 }
 
-.gender-radio-option .form-check-input {
-  width: clamp(18px, 1.125rem, 20px);
-  height: clamp(18px, 1.125rem, 20px);
+.gender-selection-container {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 15px;
+  margin-bottom: 5px;
+}
+
+@media (max-width: 480px) {
+  .gender-selection-container {
+    grid-template-columns: 1fr; /* Stack on tiny screens */
+    gap: 10px;
+  }
+}
+
+.gender-option {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 15px;
+  background: #f9fafb;
+  border: 2px solid #f3f4f6;
+  border-radius: 16px;
   cursor: pointer;
-  border-color: var(--color-border-medium, #d1d5db);
+  transition: all 0.3s ease;
 }
 
-.gender-radio-option .form-check-input:checked {
-  background-color: var(--color-primary-main, #7a3df0);
+.gender-option:hover {
+  background: #f3f4f6;
+}
+
+.gender-option.active {
+  background: rgba(122, 61, 240, 0.05);
   border-color: var(--color-primary-main, #7a3df0);
 }
 
-.gender-radio-option .form-check-label {
-  font-size: var(--font-size-base, clamp(1rem, 0.95rem + 0.25vw, 1.125rem));
-  color: var(--color-text-primary, #1f2937);
-  cursor: pointer;
-  margin-left: var(--spacing-xs, clamp(0.25rem, 0.2rem + 0.25vw, 0.5rem));
+.gender-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  margin-bottom: 6px;
+  background: #fff;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.gender-option.active .gender-icon {
+  transform: scale(1.1);
+}
+
+.gender-icon.female {
+  color: #ec4899;
+}
+
+.gender-icon.male {
+  color: #3b82f6;
+}
+
+.gender-name {
+  font-size: 14px;
+  font-weight: 600;
+  color: #6b7280;
+}
+
+.gender-option.active .gender-name {
+  color: var(--color-primary-main, #7a3df0);
+}
+
+.error-text {
+  color: var(--color-status-error, #ef4444);
+  font-size: 13px;
+  margin-top: 5px;
+  display: block;
+  text-align: left;
+}
+
+/* ===========================
+   PASSWORD NOTE & OTHER
+=========================== */
+
+.password-note-container {
+  text-align: left;
+  padding-left: 5px;
 }
 
 /* ===========================
@@ -242,58 +341,40 @@
 
 @media (max-width: 768px) {
   .auth-container {
-    padding: var(--padding-container-md, clamp(1rem, 0.75rem + 1.25vw, 2rem)) var(--padding-container-sm, clamp(0.75rem, 0.5rem + 1.25vw, 1.5rem));
+    padding-top: clamp(2rem, 5vh, 4rem);
+    justify-content: flex-start !important;
+    height: auto; /* Allow container to grow with content */
     min-height: 100vh;
   }
 
   .auth-card {
-    padding: var(--padding-container-lg, clamp(1.5rem, 1rem + 2.5vw, 3rem));
-    margin-top: var(--spacing-xl, clamp(1.5rem, 1.2rem + 1.5vw, 2rem));
-    margin-bottom: var(--spacing-xl, clamp(1.5rem, 1.2rem + 1.5vw, 2rem));
-  }
-
-  .date-picker-wrapper .scroll-picker-item.selected {
-    font-size: var(--font-size-xl, clamp(1.25rem, 1.1rem + 0.75vw, 1.5rem));
+    padding: 2rem 1.25rem;
+    margin-top: 0.5rem;
+    margin-bottom: 3rem; /* Extra space at bottom for better scrolling */
   }
 }
 
-/* Mobile: 576px and below */
-@media (max-width: 576px) {
-  .auth-container {
-    padding: var(--padding-container-sm, clamp(0.75rem, 0.5rem + 1.25vw, 1.5rem));
-  }
-
+/* Fix for ultra-small devices (iPhone SE, etc.) */
+@media (max-width: 360px) {
   .auth-card {
-    padding: var(--padding-container-md, clamp(1rem, 0.75rem + 1.25vw, 2rem));
-    margin-top: var(--spacing-lg, clamp(1rem, 0.8rem + 1vw, 1.5rem));
-    margin-bottom: var(--spacing-lg, clamp(1rem, 0.8rem + 1vw, 1.5rem));
+    padding: 1.5rem 0.75rem;
   }
-
-  .auth-btn.btn-primary {
-    height: clamp(44px, 2.75rem, 48px);
-    font-size: var(--font-size-sm, clamp(0.875rem, 0.8rem + 0.375vw, 1rem));
-  }
-
+  
   .date-picker-wrapper .scroll-picker-item.selected {
-    font-size: var(--font-size-lg, clamp(1.125rem, 1rem + 0.625vw, 1.25rem));
+    font-size: 1.1rem !important;
+  }
+  
+  .auth-title {
+    font-size: 1.35rem;
   }
 }
 
-/* Small Mobile: 480px and below */
-@media (max-width: 480px) {
-  .auth-card {
-    padding: var(--padding-container-sm, clamp(0.75rem, 0.5rem + 1.25vw, 1.5rem));
-    border-radius: var(--radius-lg, clamp(0.75rem, 0.6rem + 0.75vw, 1rem));
-  }
-
-  /* Bootstrap utilities: flex-column trong JSX */
-  .date-picker-wrapper .date-picker-container {
-    gap: var(--spacing-xs, clamp(0.25rem, 0.2rem + 0.25vw, 0.5rem));
-  }
-}
-
-@media (min-width: 992px) {
+/* Fix for Landscape orientation on mobile */
+@media (max-height: 500px) and (orientation: landscape) {
   .auth-container {
-    min-height: 125vh; /* Compensate for desktop zoom: 0.8 */
+    padding-top: 2rem;
+  }
+  .auth-card {
+    margin-top: 1rem;
   }
 }

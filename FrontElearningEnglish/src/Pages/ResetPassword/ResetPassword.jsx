@@ -194,15 +194,12 @@ export default function ResetPassword() {
           <Row className="justify-content-center">
             <Col xs={12} sm={10} md={8} lg={6} xl={5}>
               <div className="reset-password-card">
-                <div className="reset-password-icon-wrapper">
-                  <FaLock className="reset-password-icon" />
+                <div className="reset-password-header-section">
+                  <h1 className="reset-password-title">Đặt Lại Mật Khẩu</h1>
+                  <p className="reset-password-subtitle">
+                    Tạo mật khẩu mới cho tài khoản <strong>{email}</strong>
+                  </p>
                 </div>
-
-                <h1 className="reset-password-title">Tạo mật khẩu mới</h1>
-
-                <p className="reset-password-description">
-                  Đặt lại mật khẩu cho email <strong>{email}</strong>
-                </p>
 
                 <Form onSubmit={handleReset}>
                   <Form.Group className="mb-3">

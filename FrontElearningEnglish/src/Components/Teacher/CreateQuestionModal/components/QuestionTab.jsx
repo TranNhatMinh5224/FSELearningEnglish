@@ -1,6 +1,6 @@
 import React from "react";
-import { Form, Button, Badge } from "react-bootstrap";
-import { FaLayerGroup, FaTimes, FaQuestionCircle } from "react-icons/fa";
+import { Form, Button, Badge, Row, Col } from "react-bootstrap";
+import { FaLayerGroup, FaTimes, FaQuestionCircle, FaSave, FaPlusCircle, FaCheckCircle, FaStar, FaClock } from "react-icons/fa";
 import QuestionHeader from "./QuestionHeader";
 import QuestionContent from "./QuestionContent";
 import MCQFields from "./QuestionFormatFields/MCQFields";
@@ -8,42 +8,78 @@ import MatchingFields from "./QuestionFormatFields/MatchingFields";
 import OrderingFields from "./QuestionFormatFields/OrderingFields";
 import FillBlankInfo from "./QuestionFormatFields/FillBlankInfo";
 import PendingQuestionsList from "./BulkSections/PendingQuestionsList";
-import CreatedQuestionsTable from "./BulkSections/CreatedQuestionsTable";
-import { QUESTION_TYPES } from "../hooks/useQuestionForm";
 
-const QuestionTab = ({
+import { useEnums } from "../../../../Context/EnumContext";
+
+export default function QuestionTab({
   // Context/State
   qFormData, setQFormData,
-  qErrors, qTouched,
+  qErrors = {}, qTouched = {},
   qLoading, qUploadingMedia,
   internalGroupId, setInternalGroupId,
-  groupInfo, sectionInfo,
+  groupInfo, sectionId, sectionInfo,
   createdGroupName, setCreatedGroupName,
   setGroupInfo,
   questionToUpdate,
-  
-  // Handlers
+
+  // Handlers from useQuestionForm
   handleQTypeChange, handleQBlur, handlePointsChange,
-  handleOptionChange, addOption, removeOption, moveOption,
+  handleOptionChange, addOption, removeOption, moveOption, reorderOptions,
   handlePairChange, addPair, removePair,
   handleQuestionSubmit, handleClose,
-  
+  validateQuestionForm, buildQuestionPayload, resetQuestionForm,
+  qMediaTempKey, qMediaType,
+  setQMediaTempKey, setQMediaType, setQMediaPreview,
+
   // Media Props
   mediaProps,
-  
+
   // Bulk Logic
-  bulkQuestionsProps
-}) => {
-  
+  bulkQuestionsProps,
+  backendQuestionTypes
+}) {
+  const { mappings } = useEnums();
+  const QUESTION_TYPES = mappings.QuestionType || {};
+
+  const {
+    pendingQuestions,
+    createdQuestions,
+    bulkLoading,
+    addToPendingList,
+    editPendingQuestion,
+    removeFromPendingList,
+    handleBulkCreate,
+    removeFromCreatedList
+  } = bulkQuestionsProps;
+
+  const handleEditPendingQuestion = (id) => {
+    const originalData = editPendingQuestion(id);
+    if (originalData) {
+      setQFormData(originalData.qFormData);
+      setQMediaTempKey(originalData.qMediaTempKey);
+      setQMediaType(originalData.qMediaType);
+      
+      // Restore media preview
+      if (originalData.qMediaPreview) {
+         setQMediaPreview(originalData.qMediaPreview);
+      } else if (originalData.qFormData.mediaUrl || originalData.qFormData.mediaPreview) {
+         setQMediaPreview(originalData.qFormData.mediaUrl || originalData.qFormData.mediaPreview);
+      }
+      
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  };
+
   const renderFormatFields = () => {
     if (!qFormData.type) {
       return (
-        <div className="alert alert-warning d-flex align-items-center">
-          <FaQuestionCircle className="me-2" size={20} />
+        <div className="alert alert-warning d-flex align-items-center rounded-4 border-0 shadow-sm p-4">
+          <div className="icon-circle bg-warning text-white me-3">
+            <FaQuestionCircle size={24} />
+          </div>
           <div>
-            <strong>Vui lòng chọn loại câu hỏi</strong>
-            <br />
-            <small>Chọn loại câu hỏi ở trên để hiển thị form xây dựng câu hỏi phù hợp.</small>
+            <strong className="d-block">Chưa chọn loại câu hỏi</strong>
+            <small className="text-muted">Vui lòng chọn loại câu hỏi ở phần cấu hình phía trên để bắt đầu soạn thảo nội dung.</small>
           </div>
         </div>
       );
@@ -55,30 +91,32 @@ const QuestionTab = ({
       case QUESTION_TYPES.MultipleAnswers:
       case QUESTION_TYPES.TrueFalse:
         return (
-          <MCQFields 
-            qFormData={qFormData} 
-            handleOptionChange={handleOptionChange} 
-            removeOption={removeOption} 
-            addOption={addOption} 
+          <MCQFields
+            qFormData={qFormData}
+            handleOptionChange={handleOptionChange}
+            removeOption={removeOption}
+            addOption={addOption}
+            QUESTION_TYPES={QUESTION_TYPES}
           />
         );
       case QUESTION_TYPES.Matching:
         return (
-          <MatchingFields 
-            matchingPairs={qFormData.matchingPairs} 
-            handlePairChange={handlePairChange} 
-            removePair={removePair} 
-            addPair={addPair} 
+          <MatchingFields
+            matchingPairs={qFormData.matchingPairs}
+            handlePairChange={handlePairChange}
+            removePair={removePair}
+            addPair={addPair}
           />
         );
       case QUESTION_TYPES.Ordering:
         return (
-          <OrderingFields 
-            options={qFormData.options} 
-            handleOptionChange={handleOptionChange} 
-            moveOption={moveOption} 
-            removeOption={removeOption} 
-            addOption={addOption} 
+          <OrderingFields
+            options={qFormData.options}
+            handleOptionChange={handleOptionChange}
+            moveOption={moveOption}
+            reorderOptions={reorderOptions}
+            removeOption={removeOption}
+            addOption={addOption}
           />
         );
       case QUESTION_TYPES.FillBlank:
@@ -89,105 +127,217 @@ const QuestionTab = ({
   };
 
   return (
-    <div className="p-3 border-top">
-      {/* Group Info Alert */}
-      <div className="mb-3">
+    <div className="p-1 question-tab-container">
+      {/* Dynamic Header Status */}
+      <div className="mb-4">
         {internalGroupId ? (
-          <div className="alert alert-info py-2 small border-0 shadow-sm">
-            <div className="d-flex justify-content-between align-items-center w-100">
+          <div className="alert alert-primary py-3 px-4 rounded-4 border-0 shadow-sm d-flex justify-content-between align-items-center group-active-banner" style={{ background: 'rgba(119, 101, 245, 0.08)', border: '1px solid rgba(119, 101, 245, 0.15) !important' }}>
+            <div className="d-flex align-items-center">
+              <div className="icon-circle bg-primary text-white me-3 shadow-sm">
+                <FaLayerGroup />
+              </div>
               <div>
-                <FaLayerGroup className="me-2" />
-                Đang thêm vào nhóm: <strong>{groupInfo?.title || groupInfo?.name || createdGroupName || `Group #${internalGroupId}`}</strong>
+                <div className="small text-primary fw-bold text-uppercase" style={{ letterSpacing: '0.5px', fontSize: '10px' }}>Đang thêm vào nhóm</div>
+                <strong className="text-dark fs-5">{groupInfo?.title || groupInfo?.name || createdGroupName || `Group #${internalGroupId}`}</strong>
               </div>
-              <div className="d-flex align-items-center gap-3">
-                {groupInfo?.sumScore !== undefined && <Badge bg="secondary">Tổng điểm nhóm: {groupInfo.sumScore}</Badge>}
-                {sectionInfo && <span className="text-muted fw-bold">| Section: {sectionInfo.title}</span>}
-                <Button 
-                  variant="link" size="sm" 
-                  className="p-0 text-decoration-none ms-2 text-danger" 
-                  onClick={() => { setInternalGroupId(null); setCreatedGroupName(""); setGroupInfo(null); }}
-                >
-                  <FaTimes className="me-1" />Thoát nhóm
-                </Button>
-              </div>
+            </div>
+            <div className="d-flex align-items-center gap-3">
+              {groupInfo?.sumScore !== undefined && (
+                <div className="px-3 py-1 bg-white rounded-pill text-primary fw-bold border shadow-xs small">
+                  {groupInfo.sumScore} Điểm
+                </div>
+              )}
+              <Button
+                variant="link"
+                className="text-danger text-decoration-none hover-scale p-0 fw-bold small"
+                onClick={() => { setInternalGroupId(null); setCreatedGroupName(""); setGroupInfo(null); }}
+              >
+                <FaTimes className="me-1" /> Thoát nhóm
+              </Button>
             </div>
           </div>
         ) : (
-          sectionInfo && <div className="alert alert-light py-2 small border shadow-sm">
-            <FaQuestionCircle className="me-2 text-primary" />
-            Thêm câu hỏi lẻ vào Section: <strong>{sectionInfo.title}</strong>
-          </div>
+          sectionInfo && (
+            <div className="alert alert-light py-3 px-4 rounded-4 border-0 shadow-sm d-flex align-items-center" style={{ background: 'white', border: '1px solid rgba(0,0,0,0.05) !important' }}>
+              <div className="icon-circle bg-primary text-white me-3 shadow-sm">
+                <FaQuestionCircle />
+              </div>
+              <div>
+                <div className="small text-muted fw-bold text-uppercase" style={{ letterSpacing: '0.5px', fontSize: '10px' }}>Phân mục hiện tại</div>
+                <strong className="text-dark fs-5">{sectionInfo.title}</strong>
+              </div>
+            </div>
+          )
         )}
       </div>
 
-      {qErrors.submit && <div className="alert alert-danger">{qErrors.submit}</div>}
+      {qErrors.submit && <div className="alert alert-danger rounded-3 shadow-sm">{qErrors.submit}</div>}
 
-      <Form>
-        <QuestionHeader 
-          qFormData={qFormData}
-          handleQTypeChange={handleQTypeChange}
-          handleQBlur={handleQBlur}
-          handlePointsChange={handlePointsChange}
-          qTouched={qTouched}
-          qErrors={qErrors}
-          questionToUpdate={questionToUpdate}
-          QUESTION_TYPES={QUESTION_TYPES}
-          internalGroupId={internalGroupId}
-          groupInfo={groupInfo}
-        />
-        
-        <QuestionContent 
-          qFormData={qFormData}
-          setQFormData={setQFormData}
-          qTouched={qTouched}
-          qErrors={qErrors}
-          handleQBlur={handleQBlur}
-          QUESTION_TYPES={QUESTION_TYPES}
-          mediaProps={mediaProps}
-        />
+      <Form className="h-100">
+        <Row className="g-4 h-100">
+          <Col lg={9} className="question-main-content">
+            {/* Main Question Builder Flow */}
+            <QuestionHeader
+              qFormData={qFormData}
+              handleQTypeChange={handleQTypeChange}
+              handleQBlur={handleQBlur}
+              handlePointsChange={handlePointsChange}
+              qTouched={qTouched}
+              qErrors={qErrors}
+              questionToUpdate={questionToUpdate}
+              QUESTION_TYPES={QUESTION_TYPES}
+              backendQuestionTypes={backendQuestionTypes}
+              internalGroupId={internalGroupId}
+              groupInfo={groupInfo}
+            />
 
-        <div className="mt-4">
-          {qErrors.options && <div className="alert alert-danger py-2 mb-3 small">{qErrors.options}</div>}
-          {qErrors.matchingPairs && <div className="alert alert-danger py-2 mb-3 small">{qErrors.matchingPairs}</div>}
-          {renderFormatFields()}
-        </div>
+            <QuestionContent
+              qFormData={qFormData}
+              setQFormData={setQFormData}
+              qTouched={qTouched}
+              qErrors={qErrors}
+              handleQBlur={handleQBlur}
+              QUESTION_TYPES={QUESTION_TYPES}
+              mediaProps={mediaProps}
+            />
+
+            <div className="mt-4">
+              {qErrors.options && <div className="alert alert-danger py-2 mb-3 small">{qErrors.options}</div>}
+              {qErrors.matchingPairs && <div className="alert alert-danger py-2 mb-3 small">{qErrors.matchingPairs}</div>}
+              <div className="question-format-fields-wrapper">
+                {renderFormatFields()}
+              </div>
+            </div>
+
+            {/* Pending List - Moved here for better UX */}
+            <div className="mt-5">
+              <PendingQuestionsList
+                pendingQuestions={pendingQuestions}
+                removeFromPendingList={removeFromPendingList}
+                onEdit={handleEditPendingQuestion}
+                handleBulkCreate={async () => {
+                  const result = await handleBulkCreate(sectionInfo?.id || sectionId, internalGroupId);
+                  if (result.success) {
+                    handleClose(); // Close modal on success
+                  }
+                }}
+                bulkLoading={bulkLoading}
+                qLoading={qLoading}
+                qUploadingMedia={qUploadingMedia}
+                QUESTION_TYPES={QUESTION_TYPES}
+              />
+            </div>
+
+          </Col>
+
+          <Col lg={3} className="question-sidebar-content">
+            <div className="sticky-top" style={{ top: '0' }}>
+              <div className="form-section-card shadow-lg border-0 overflow-hidden action-card-raised">
+                <div className="p-4 text-center">
+                  <div className="action-icon-circle bg-primary text-white mx-auto mb-3 shadow">
+                    <FaSave />
+                  </div>
+                  <h5 className="fw-bold mb-2">{questionToUpdate ? "Cập nhật câu hỏi" : "Lưu câu hỏi"}</h5>
+                  <p className="text-muted small mb-4">
+                    Kiểm tra kỹ nội dung trước khi lưu. Bạn có thể soạn nhanh bằng cách thêm vào danh sách chờ bên trái.
+                  </p>
+
+                  <div className="d-grid gap-3">
+                    <Button
+                      className="btn-primary-custom fw-bold rounded-pill shadow-primary hover-lift"
+                      onClick={() => handleQuestionSubmit(false)}
+                      disabled={qLoading || qUploadingMedia || bulkLoading}
+                    >
+                      {qLoading ? (
+                        <><span className="spinner-border spinner-border-sm me-2"></span> Đang lưu...</>
+                      ) : (
+                        <><FaCheckCircle className="me-2" /> {questionToUpdate ? "Lưu thay đổi" : "Hoàn tất & Lưu"}</>
+                      )}
+                    </Button>
+
+                    {!questionToUpdate && (
+                      <Button
+                        variant="outline-primary"
+                        className="fw-bold rounded-pill border-2 hover-lift"
+                        onClick={() => {
+                          if (validateQuestionForm()) {
+                            addToPendingList(
+                              qFormData,
+                              qMediaTempKey,
+                              qMediaType,
+                              mediaProps.qMediaPreview,
+                              () => buildQuestionPayload(null, internalGroupId)
+                            );
+                            resetQuestionForm(qFormData.type);
+                          }
+                        }}
+                        disabled={qLoading || qUploadingMedia || bulkLoading}
+                      >
+                        <FaPlusCircle className="me-2" /> Thêm vào danh sách chờ
+                      </Button>
+                    )}
+
+                    <Button
+                      variant="outline-secondary"
+                      className="rounded-pill border-0 text-muted btn-sm"
+                      onClick={handleClose}
+                      disabled={qLoading}
+                    >
+                      Hủy bỏ
+                    </Button>
+                  </div>
+                </div>
+
+                {/* Session Statistics - Minimalist Style */}
+                <div className="bg-light bg-opacity-50 p-4 border-top">
+                  <div className="d-flex align-items-center gap-2 mb-4">
+                    <div className="badge-dot bg-primary"></div>
+                    <span className="small fw-bold text-muted text-uppercase tracking-wider">Thông tin phiên làm việc</span>
+                  </div>
+
+                  <div className="session-stats">
+                    <div className="d-flex justify-content-between align-items-center mb-3">
+                      <div className="d-flex align-items-center gap-2">
+                        <FaQuestionCircle className="text-primary opacity-75" size={14} />
+                        <span className="small text-secondary">Tổng câu trong phân mục</span>
+                      </div>
+                      <span className="fw-bold text-dark small">{sectionInfo?.totalQuestions || 0}</span>
+                    </div>
+
+                    <div className="d-flex justify-content-between align-items-center mb-3">
+                      <div className="d-flex align-items-center gap-2">
+                        <FaClock className="text-warning opacity-75" size={14} />
+                        <span className="small text-secondary">Đang trong hàng đợi</span>
+                      </div>
+                      <span className="fw-bold text-warning small">{pendingQuestions.length} câu</span>
+                    </div>
+
+                    <div className="d-flex justify-content-between align-items-center">
+                      <div className="d-flex align-items-center gap-2">
+                        <FaCheckCircle className="text-success opacity-75" size={14} />
+                        <span className="small text-secondary">Đã tạo thành công</span>
+                      </div>
+                      <span className="fw-bold text-success small">{createdQuestions.length} câu</span>
+                    </div>
+
+                    {pendingQuestions.length > 0 && (
+                      <div className="mt-4 pt-3 border-top border-dashed">
+                        <div className="d-flex justify-content-between align-items-center">
+                          <span className="small text-muted fw-bold text-uppercase" style={{ fontSize: '10px' }}>Tổng điểm hàng đợi</span>
+                          <span className="fw-bold text-danger fs-5">
+                            {pendingQuestions.reduce((sum, q) => sum + (Number(q.preview.points) || 0), 0)}đ
+                          </span>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </Col>
+        </Row>
       </Form>
-
-      {/* Bulk Sections */}
-      <PendingQuestionsList 
-        {...bulkQuestionsProps}
-        qLoading={qLoading}
-        qUploadingMedia={qUploadingMedia}
-        QUESTION_TYPES={QUESTION_TYPES}
-      />
-      
-      <CreatedQuestionsTable 
-        {...bulkQuestionsProps}
-        QUESTION_TYPES={QUESTION_TYPES}
-      />
-
-      {/* Action Buttons */}
-      <div className="d-flex justify-content-end gap-2 mt-4 pt-3 border-top">
-        <Button variant="link" className="text-muted text-decoration-none fw-bold" onClick={handleClose} disabled={qLoading || bulkQuestionsProps.bulkLoading}>Hủy bỏ</Button>
-        {!questionToUpdate && (
-          <Button
-            variant="outline-success"
-            onClick={() => handleQuestionSubmit(true)}
-            disabled={qLoading || qUploadingMedia || bulkQuestionsProps.bulkLoading}
-          >
-            {qLoading ? "Đang lưu..." : "Lưu và Thêm câu hỏi khác"}
-          </Button>
-        )}
-        <Button
-          className="btn-primary-custom"
-          onClick={() => handleQuestionSubmit(false)}
-          disabled={qLoading || qUploadingMedia || bulkQuestionsProps.bulkLoading}
-        >
-          {qLoading ? "Đang xử lý..." : questionToUpdate ? "Lưu thay đổi" : "Tạo câu hỏi"}
-        </Button>
-      </div>
     </div>
   );
-};
+}
 
-export default QuestionTab;

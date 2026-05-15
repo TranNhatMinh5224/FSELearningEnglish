@@ -32,7 +32,13 @@ const Breadcrumb = ({ items = [], showHomeIcon = true, className = "" }) => {
                             </span>
                         ) : (
                             <button
-                                onClick={() => item.path && navigate(item.path)}
+                                onClick={() => {
+                                    if (typeof item.onClick === "function") {
+                                        item.onClick();
+                                        return;
+                                    }
+                                    if (item.path) navigate(item.path);
+                                }}
                                 className="breadcrumb-item breadcrumb-link"
                             >
                                 {isFirst && showHomeIcon && <FaHome className="breadcrumb-icon" />}

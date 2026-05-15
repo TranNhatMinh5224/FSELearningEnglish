@@ -12,7 +12,7 @@ namespace LearningEnglish.Application.Interface
         Task<ServiceResponse<bool>> DeleteFileAsync(string objectKey, string BucketName);
         
         // Commit file từ temp về folder chính
-        Task<ServiceResponse<string>> CommitFileAsync(string TempKey, string BucketName, string CommitFolder);
+        Task<ServiceResponse<CommitFileResultDto>> CommitFileAsync(string TempKey, string BucketName, string CommitFolder);
         
         // Tải file
         Task<ServiceResponse<Stream>> DownloadFileAsync(string objectKey, string BucketName);

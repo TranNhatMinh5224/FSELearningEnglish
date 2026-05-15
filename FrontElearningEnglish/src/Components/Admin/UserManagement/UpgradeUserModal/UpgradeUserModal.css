@@ -36,8 +36,9 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 1.25rem 1.5rem;
-  background-color: #72D0DE;
+  padding: 1.5rem 2rem;
+  min-height: 80px;
+  background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
   border-bottom: none;
   border-radius: 8px 8px 0 0;
 }
@@ -134,12 +135,13 @@
 }
 
 .btn-primary {
-  background-color: #0d6efd;
+  background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
   color: white;
 }
 
 .btn-primary:hover {
-  background-color: #0b5ed7;
+  background: linear-gradient(135deg, #2563eb 0%, #7c3aed 100%);
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
 }
 
 @media (max-width: 576px) {

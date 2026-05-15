@@ -168,16 +168,16 @@ export default function Login() {
   };
 
   return (
-    <div className="auth-container d-flex align-items-center justify-content-center position-relative">
-      {/* Logo ở góc dưới bên trái */}
-      <div className="auth-logo-container">
-        <Header />
-      </div>
-
-      <Container className="position-relative">
+    <div className="auth-container d-flex align-items-center justify-content-center">
+      <Container>
         <Row className="justify-content-center">
           <Col xs={12} sm={10} md={8} lg={6} xl={5}>
             <div className="auth-card">
+              {/* Logo moved INSIDE the card for modern look */}
+              <div className="auth-card-logo">
+                <Header variant="dark" />
+              </div>
+
               <h1 className="auth-title">Chào mừng trở lại!</h1>
               <p className="auth-subtitle">Đăng nhập để tiếp tục hành trình của bạn.</p>
 
@@ -221,7 +221,7 @@ export default function Login() {
                 </Form.Group>
 
                 {/* Options */}
-                <div className="d-flex justify-content-between align-items-center mb-3">
+                <div className="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
                   <Form.Check 
                     type="checkbox" 
                     label="Remember me"

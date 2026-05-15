@@ -1,12 +1,15 @@
-
 .quiz-detail-page {
     background-color: var(--color-bg-secondary, #f9fafb);
     min-height: 100vh;
     transition: background-color 0.3s ease;
+    padding-top: 100px;
+    /* Thêm khoảng đệm để tránh bị Header che khuất */
 }
 
 .focus-mode-active {
     background-color: var(--color-bg-primary, white);
+    padding-top: 20px;
+    /* Chỉ để lại một chút lề khi không có Header */
 }
 
 .focus-mode-active .container {
@@ -20,7 +23,7 @@
     left: 0;
     right: 0;
     bottom: 0;
-    background: 
+    background:
         radial-gradient(circle at 20% 50%, rgba(59, 130, 246, 0.1) 0%, transparent 50%),
         radial-gradient(circle at 80% 80%, rgba(14, 165, 233, 0.1) 0%, transparent 50%);
     pointer-events: none;
@@ -138,6 +141,20 @@
     color: var(--color-status-error, #ef4444);
 }
 
+/* Sticky Timer for Mobile */
+.mobile-timer-container {
+    position: sticky;
+    top: 80px; /* Right below the header */
+    z-index: 1000;
+    background-color: var(--color-bg-secondary, #f9fafb);
+    padding: 10px 0;
+    margin-bottom: 10px;
+}
+
+[data-theme="dark"] .mobile-timer-container {
+    background-color: #0f172a;
+}
+
 @media (max-width: 992px) {
     .quiz-sidebar {
         position: static;
@@ -146,15 +163,22 @@
 }
 
 @media (max-width: 768px) {
+    .quiz-detail-page {
+        padding-top: 80px;
+    }
+    
     .quiz-content {
-        padding: 20px;
+        padding: 16px;
+        border-radius: 12px;
     }
 
     .quiz-title {
-        font-size: 24px;
+        font-size: 20px;
     }
-
-    /* Bootstrap responsive tự xử lý - chỉ thêm styling */
+    
+    .mobile-timer-container {
+        top: 70px; /* Adjust for mobile header height */
+    }
 }
 
 
@@ -194,17 +218,38 @@
 }
 
 @keyframes fadeIn {
-    from { opacity: 0; }
-    to { opacity: 1; }
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
 }
 
 @keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
+    0% {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
 }
 
 @keyframes pulse {
-    0% { opacity: 1; transform: scale(1); }
-    50% { opacity: 0.7; transform: scale(0.98); }
-    100% { opacity: 1; transform: scale(1); }
+    0% {
+        opacity: 1;
+        transform: scale(1);
+    }
+
+    50% {
+        opacity: 0.7;
+        transform: scale(0.98);
+    }
+
+    100% {
+        opacity: 1;
+        transform: scale(1);
+    }
 }

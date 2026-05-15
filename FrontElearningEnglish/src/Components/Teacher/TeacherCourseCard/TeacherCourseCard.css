@@ -29,17 +29,25 @@
   position: relative;
 }
 
+@media (max-width: 576px) {
+  .teacher-course-card-image {
+    height: 180px; /* Improve ratio for full-width mobile view */
+  }
+}
+
 .teacher-course-img {
   width: 100%;
   height: 100%;
   object-fit: cover;
   transition: transform 0.5s ease;
-  background-color: #f8fafc !important; /* Flat light background */
+  background-color: #f8fafc !important;
+  /* Flat light background */
 }
 
 /* Fallback Icon Style (Flat Minimalist) */
 .teacher-course-img svg {
-  color: #6366f1 !important; /* Indigo icon */
+  color: #6366f1 !important;
+  /* Indigo icon */
   opacity: 0.9;
 }
 
@@ -61,6 +69,7 @@
   color: var(--color-text-primary, #1f2937);
   margin: 0 0 10px 0;
   line-height: 1.3;
+  min-height: 2.6em; /* Align cards in a row */
   display: -webkit-box;
   -webkit-line-clamp: 2;
   line-clamp: 2;

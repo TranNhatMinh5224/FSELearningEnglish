@@ -61,10 +61,11 @@ export default function CreateLectureModal({ show, onClose, onSuccess, moduleId,
 
   return (
     <>
-      <Modal show={show} onHide={handleClose} centered size="lg" className="clm-modal modal-modern" dialogClassName="clm-modal-dialog">
+      <Modal show={show} onHide={handleClose} centered size="lg" className={`clm-modal modal-modern ${isAdmin ? "admin-modal" : "teacher-modal"}`} dialogClassName="clm-modal-dialog">
         <Modal.Header closeButton={false}>
           <Modal.Title className="fw-bold modal-title-centered">
-            {isEditMode ? "Chỉnh sửa bài giảng" : "Tạo bài giảng mới"}
+            <FaBook className="me-2" />
+            {isEditMode ? "Cập nhật Bài giảng" : "Xây dựng Bài giảng"}
           </Modal.Title>
           <PremiumCloseButton onClick={handleClose} />
         </Modal.Header>
@@ -82,7 +83,7 @@ export default function CreateLectureModal({ show, onClose, onSuccess, moduleId,
                 <div className="form-section-title mb-3 fw-bold text-primary">
                   <FaBook className="me-2" /> Thông tin cơ bản
                 </div>
-                
+
                 <FormInput
                   label="Tiêu đề bài giảng"
                   name="title"
@@ -123,13 +124,6 @@ export default function CreateLectureModal({ show, onClose, onSuccess, moduleId,
                   <div className="form-section-title mb-3 fw-bold text-primary">
                     <FaMarkdown className="me-2" /> Nội dung văn bản (Markdown)
                   </div>
-                  <div className="clm-markdown-toolbar">
-                    <button type="button" className="clm-toolbar-btn" onClick={() => insertMarkdown('bold')} title="In đậm"><FaBold /></button>
-                    <button type="button" className="clm-toolbar-btn" onClick={() => insertMarkdown('italic')} title="In nghiêng"><FaItalic /></button>
-                    <button type="button" className="clm-toolbar-btn" onClick={() => insertMarkdown('heading')} title="Tiêu đề"><FaHeading /></button>
-                    <button type="button" className="clm-toolbar-btn" onClick={() => insertMarkdown('list')} title="Danh sách"><FaListUl /></button>
-                    <button type="button" className="clm-toolbar-btn" onClick={() => insertMarkdown('code')} title="Mã code"><FaCode /></button>
-                  </div>
                   <FormTextArea
                     name="markdownContent"
                     value={formData.markdownContent}
@@ -140,7 +134,6 @@ export default function CreateLectureModal({ show, onClose, onSuccess, moduleId,
                     placeholder="Viết nội dung bài giảng tại đây..."
                     showMarkdownPreview={true}
                     rows={12}
-                    containerClassName="clm-markdown-container-merged"
                   />
                 </div>
               )}
@@ -148,13 +141,13 @@ export default function CreateLectureModal({ show, onClose, onSuccess, moduleId,
               {(parseInt(formData.lectureType) === 2 || parseInt(formData.lectureType) === 3) && (
                 <div className="form-section-card p-3 mb-4">
                   <div className="form-section-title mb-3 fw-bold text-primary">
-                    {parseInt(formData.lectureType) === 2 ? <FaFileAlt className="me-2" /> : <FaVideo className="me-2" />} 
+                    {parseInt(formData.lectureType) === 2 ? <FaFileAlt className="me-2" /> : <FaVideo className="me-2" />}
                     Tệp đính kèm
                   </div>
                   <FileUpload
                     bucket={LECTURE_MEDIA_BUCKET}
                     accept={parseInt(formData.lectureType) === 3 ? "video/*,.mp4,.mkv,.mov,.avi,.wmv,.webm" : ".pdf,.doc,.docx,.txt"}
-                    maxSize={parseInt(formData.lectureType) === 3 ? 5120 : 10}
+                    maxSize={parseInt(formData.lectureType) === 3 ? 300 : 20}
                     existingUrl={existingMediaUrl}
                     onUploadSuccess={handleMediaUploadSuccess}
                     onRemove={() => setExistingMediaUrl(null)}
@@ -162,7 +155,7 @@ export default function CreateLectureModal({ show, onClose, onSuccess, moduleId,
                     label="Tải tệp tin lên"
                   />
                   {duration && parseInt(formData.lectureType) === 3 && (
-                    <div className="mt-2 text-muted small">Thời lượng: {Math.floor(duration/60)}:{(duration%60).toString().padStart(2,'0')}</div>
+                    <div className="mt-2 text-muted small">Thời lượng: {Math.floor(duration / 60)}:{(duration % 60).toString().padStart(2, '0')}</div>
                   )}
                 </div>
               )}

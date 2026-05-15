@@ -61,9 +61,9 @@ export default function TeacherQuizSectionManagement() {
   const isTeacher = (roles && roles.some(role => {
     const roleName = typeof role === 'string' ? role : (role?.name || '');
     return roleName === "Teacher";
-  })) || 
-  user?.teacherSubscription?.isTeacher === true || 
-  isAdmin;
+  })) ||
+    user?.teacherSubscription?.isTeacher === true ||
+    isAdmin;
 
   const fetchData = useCallback(async () => {
     try {
@@ -281,10 +281,24 @@ export default function TeacherQuizSectionManagement() {
       <>
         <TeacherHeader />
         <div className="teacher-quiz-section-management-container">
-          <Container>
-            <div className="text-center py-5">
-              <div className="spinner-border text-primary" role="status">
-                <span className="visually-hidden">Đang tải...</span>
+          <Container fluid className="p-0 content-wrapper">
+            <div className="mb-4">
+              <Breadcrumb
+                items={[
+                  { label: "Quản lý khóa học", path: ROUTE_PATHS.TEACHER_COURSE_MANAGEMENT },
+                  { label: course?.title || course?.Title || "Khóa học", path: `/teacher/course/${courseId}` },
+                  { label: lesson?.title || lesson?.Title || "Bài học", path: `/teacher/course/${courseId}/lesson/${lessonId}` },
+                  { label: assessment?.title || assessment?.Title || "Quản lý bài tập", path: ROUTE_PATHS.TEACHER_QUIZ_ESSAY_MANAGEMENT(courseId, lessonId, moduleId, assessmentId) },
+                  { label: "Quản lý Quiz", isCurrent: true }
+                ]}
+                showHomeIcon={true}
+              />
+            </div>
+            <div className="teacher-main-page-content">
+              <div className="text-center py-5">
+                <div className="spinner-border text-primary" role="status">
+                  <span className="visually-hidden">Đang tải...</span>
+                </div>
               </div>
             </div>
           </Container>
@@ -298,8 +312,22 @@ export default function TeacherQuizSectionManagement() {
       <>
         <TeacherHeader />
         <div className="teacher-quiz-section-management-container">
-          <Container>
-            <div className="alert alert-danger text-center">{error}</div>
+          <Container fluid className="p-0 content-wrapper">
+            <div className="mb-4">
+              <Breadcrumb
+                items={[
+                  { label: "Quản lý khóa học", path: ROUTE_PATHS.TEACHER_COURSE_MANAGEMENT },
+                  { label: course?.title || course?.Title || "Khóa học", path: `/teacher/course/${courseId}` },
+                  { label: lesson?.title || lesson?.Title || "Bài học", path: `/teacher/course/${courseId}/lesson/${lessonId}` },
+                  { label: assessment?.title || assessment?.Title || "Quản lý bài tập", path: ROUTE_PATHS.TEACHER_QUIZ_ESSAY_MANAGEMENT(courseId, lessonId, moduleId, assessmentId) },
+                  { label: "Quản lý Quiz", isCurrent: true }
+                ]}
+                showHomeIcon={true}
+              />
+            </div>
+            <div className="teacher-main-page-content">
+              <div className="alert alert-danger text-center">{error}</div>
+            </div>
           </Container>
         </div>
       </>
@@ -312,253 +340,266 @@ export default function TeacherQuizSectionManagement() {
     <>
       <TeacherHeader />
       <div className="teacher-quiz-section-management-container">
-        <Container>
-          {/* Premium Header */}
-          <div className="quiz-section-management-header">
-            <div className="d-flex align-items-center justify-content-between mb-4 flex-wrap gap-3">
-              <div className="d-flex flex-column">
-                <Breadcrumb
-                  items={[
-                    { label: "Quản lý khoá học", path: ROUTE_PATHS.TEACHER_COURSE_MANAGEMENT },
-                    { label: course?.title || course?.Title || "Khoá học", path: `/teacher/course/${courseId}` },
-                    { label: lesson?.title || lesson?.Title || "Bài học", path: `/teacher/course/${courseId}/lesson/${lessonId}` },
-                    { label: assessment?.title || assessment?.Title || "Quản lý bài tập", path: ROUTE_PATHS.TEACHER_QUIZ_ESSAY_MANAGEMENT(courseId, lessonId, moduleId, assessmentId) },
-                    { label: "Quản lý Quiz", isCurrent: true }
-                  ]}
-                  showHomeIcon={true}
-                />
-                <h1 className="premium-gradient-text mt-3 mb-0">Thiết lập cấu trúc Quiz: {quizTitle}</h1>
-              </div>
-              
-              <div className="d-flex gap-3 align-items-center">
-                <div className="header-stats-badge">
-                  <FaRegListAlt />
-                  <span>{sections.length} Sections</span>
-                </div>
-              </div>
-            </div>
-
-            <div className="d-flex gap-3 mt-4">
-              <button
-                className="premium-btn-primary d-flex align-items-center gap-2"
-                onClick={() => setShowCreateSectionModal(true)}
-              >
-                <FaPlus /> Thêm Section mới
-              </button>
-            </div>
+        <Container fluid className="p-0 content-wrapper">
+          <div className="mb-4">
+            <Breadcrumb
+              items={[
+                { label: "Quản lý khóa học", path: ROUTE_PATHS.TEACHER_COURSE_MANAGEMENT },
+                { label: course?.title || course?.Title || "Khóa học", path: `/teacher/course/${courseId}` },
+                { label: lesson?.title || lesson?.Title || "Bài học", path: `/teacher/course/${courseId}/lesson/${lessonId}` },
+                { label: assessment?.title || assessment?.Title || "Quản lý bài tập", path: ROUTE_PATHS.TEACHER_QUIZ_ESSAY_MANAGEMENT(courseId, lessonId, moduleId, assessmentId) },
+                { label: "Quản lý Quiz", isCurrent: true }
+              ]}
+              showHomeIcon={true}
+              className="breadcrumb-compact"
+            />
           </div>
 
-          {/* Sections List */}
-          {sections.length === 0 ? (
-            <div className="text-center text-muted py-5">
-              <p>Chưa có Section nào. Hãy tạo Section đầu tiên!</p>
-            </div>
-          ) : (
-            <div className="sections-list">
-              {sections.map((section) => {
-                const sectionId = section.quizSectionId || section.QuizSectionId;
-                const sectionTitle = section.title || section.Title || "Untitled Section";
-                const sectionDescription = section.description || section.Description;
-
-                return (
-                  <div key={sectionId} className="section-card mb-4">
-                    <div className="section-header">
-                      <div className="section-info">
-                        <h3 
-                            className="section-title text-primary cursor-pointer" 
-                            onClick={() => handleManageQuestionsSection(sectionId)}
-                            style={{cursor: 'pointer'}}
-                        >
-                            {sectionTitle}
-                        </h3>
-                        {sectionDescription && (
-                          <p className="section-description text-muted">{sectionDescription}</p>
-                        )}
-                      </div>
-                      <div className="section-actions">
-                        <button
-                          className="btn btn-primary text-white me-2"
-                          onClick={() => handleManageQuestionsSection(sectionId)}
-                          title="Quản lý nội dung (Câu hỏi & Nhóm)"
-                        >
-                          <FaList className="me-1" /> Quản lý nội dung
-                        </button>
-                        <button
-                          className="btn btn-edit-section"
-                          onClick={() => handleEditSection(section)}
-                          title="Sửa Section"
-                        >
-                          <FaEdit />
-                        </button>
-                        <button
-                          className="btn btn-delete-section"
-                          onClick={() => handleDeleteSectionClick(section)}
-                          title="Xóa Section"
-                        >
-                          <FaTrash />
-                        </button>
-                      </div>
+          <div className="teacher-main-page-content">
+            <div className="quiz-management-card">
+              <div className="quiz-header-section">
+                <div className="header-info">
+                  <h1 className="quiz-title">Thiết lập cấu trúc Quiz: {quizTitle}</h1>
+                  <div className="header-meta">
+                    <div className="meta-badge">
+                      <FaRegListAlt />
+                      <span>{sections.length} Sections</span>
                     </div>
                   </div>
-                );
-              })}
+                </div>
+
+                <div className="header-actions">
+                  <button
+                    className="add-section-btn"
+                    onClick={() => setShowCreateSectionModal(true)}
+                  >
+                    <FaPlus /> Thêm section mới
+                  </button>
+                </div>
+              </div>
+
+              {/* Sections List */}
+              {sections.length === 0 ? (
+                <div className="no-sections-message">
+                  <p>Chưa có section nào. Hãy tạo section đầu tiên!</p>
+                </div>
+              ) : (
+                <div className="sections-grid">
+                  {sections.map((section) => {
+                    const sectionId = section.quizSectionId || section.QuizSectionId;
+                    const sectionTitle = section.title || section.Title || "Untitled Section";
+                    const sectionDescription = section.description || section.Description;
+
+                    return (
+                      <div 
+                        key={sectionId} 
+                        className="section-item-card"
+                        onClick={() => handleManageQuestionsSection(sectionId)}
+                      >
+                        <div className="section-item-content">
+                          <div className="section-item-info">
+                            <h3 className="section-item-title">{sectionTitle}</h3>
+                            {sectionDescription && (
+                              <p className="section-item-description">{sectionDescription}</p>
+                            )}
+                          </div>
+                          <div className="section-item-actions" onClick={(e) => e.stopPropagation()}>
+                            <button
+                              className="btn-manage-content"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleManageQuestionsSection(sectionId);
+                              }}
+                              title="Quản lý nội dung"
+                            >
+                              <FaList className="me-2" /> Quản lý nội dung
+                            </button>
+                            <div className="action-icons">
+                              <button
+                                className="icon-btn edit"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleEditSection(section);
+                                }}
+                                title="Sửa"
+                              >
+                                <FaEdit />
+                              </button>
+                              <button
+                                className="icon-btn delete"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleDeleteSectionClick(section);
+                                }}
+                                title="Xóa"
+                              >
+                                <FaTrash />
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
             </div>
-          )}
+          </div>
         </Container>
+
+        {/* Create Section Modal */}
+        {quizId && (
+          <CreateQuizSectionModal
+            show={showCreateSectionModal}
+            onClose={() => setShowCreateSectionModal(false)}
+            onSuccess={handleCreateSectionSuccess}
+            quizId={parseInt(quizId)}
+            isAdmin={isAdmin}
+          />
+        )}
+
+        {/* Update Section Modal */}
+        {quizId && sectionToUpdate && (
+          <CreateQuizSectionModal
+            show={showUpdateSectionModal}
+            onClose={() => {
+              setShowUpdateSectionModal(false);
+              setSectionToUpdate(null);
+            }}
+            onSuccess={handleUpdateSectionSuccess}
+            quizId={parseInt(quizId)}
+            sectionToUpdate={sectionToUpdate}
+            isAdmin={isAdmin}
+          />
+        )}
+
+        {/* Delete Section Confirmation Modal */}
+        <ConfirmModal
+          isOpen={showDeleteSectionModal}
+          onClose={() => {
+            if (!deletingSection) {
+              setShowDeleteSectionModal(false);
+              setSectionToDelete(null);
+            }
+          }}
+          onConfirm={handleConfirmDeleteSection}
+          title="Bạn chắc chắn muốn xóa section này chứ?"
+          message="Hành động này sẽ xóa tất cả groups và questions trong section này. Hành động này không thể hoàn tác."
+          confirmText={deletingSection ? "Đang xóa..." : "Xác nhận"}
+          cancelText="Hủy"
+          type="danger"
+          disabled={deletingSection}
+        />
+
+        {/* Create Group Modal */}
+        {selectedSectionForGroup && (
+          <CreateQuizGroupModal
+            show={showCreateGroupModal}
+            onClose={() => {
+              setShowCreateGroupModal(false);
+              setSelectedSectionForGroup(null);
+            }}
+            onSuccess={handleCreateGroupSuccess}
+            quizSectionId={selectedSectionForGroup.quizSectionId || selectedSectionForGroup.QuizSectionId}
+            isAdmin={isAdmin}
+          />
+        )}
+
+        {/* Update Group Modal */}
+        {groupToUpdate && (
+          <CreateQuizGroupModal
+            show={showUpdateGroupModal}
+            onClose={() => {
+              setShowUpdateGroupModal(false);
+              setGroupToUpdate(null);
+            }}
+            onSuccess={handleUpdateGroupSuccess}
+            quizSectionId={groupToUpdate.quizSectionId || groupToUpdate.QuizSectionId}
+            groupToUpdate={groupToUpdate}
+            isAdmin={isAdmin}
+          />
+        )}
+
+        {/* Delete Group Confirmation Modal */}
+        <ConfirmModal
+          isOpen={showDeleteGroupModal}
+          onClose={() => {
+            if (!deletingGroup) {
+              setShowDeleteGroupModal(false);
+              setGroupToDelete(null);
+            }
+          }}
+          onConfirm={handleConfirmDeleteGroup}
+          title="Bạn chắc chắn muốn xóa group này chứ?"
+          message="Hành động này sẽ xóa tất cả questions trong group này. Hành động này không thể hoàn tác."
+          confirmText={deletingGroup ? "Đang xóa..." : "Xác nhận"}
+          cancelText="Hủy"
+          type="danger"
+          disabled={deletingGroup}
+        />
+
+        <NotificationModal
+          isOpen={notification.isOpen}
+          onClose={() => setNotification({ ...notification, isOpen: false })}
+          type={notification.type}
+          message={notification.message}
+        />
+
+        {/* Success Modals */}
+        <SuccessModal
+          isOpen={showCreateSectionSuccessModal}
+          onClose={() => setShowCreateSectionSuccessModal(false)}
+          title="Tạo Section thành công"
+          message="Section đã được tạo thành công!"
+          autoClose={true}
+          autoCloseDelay={1500}
+        />
+
+        <SuccessModal
+          isOpen={showUpdateSectionSuccessModal}
+          onClose={() => setShowUpdateSectionSuccessModal(false)}
+          title="Cập nhật Section thành công"
+          message="Section đã được cập nhật thành công!"
+          autoClose={true}
+          autoCloseDelay={1500}
+        />
+
+        <SuccessModal
+          isOpen={showDeleteSectionSuccessModal}
+          onClose={() => setShowDeleteSectionSuccessModal(false)}
+          title="Xóa Section thành công"
+          message="Section đã được xóa thành công!"
+          autoClose={true}
+          autoCloseDelay={1500}
+        />
+
+        <SuccessModal
+          isOpen={showCreateGroupSuccessModal}
+          onClose={() => setShowCreateGroupSuccessModal(false)}
+          title="Tạo Group thành công"
+          message="Group đã được tạo thành công!"
+          autoClose={true}
+          autoCloseDelay={1500}
+        />
+
+        <SuccessModal
+          isOpen={showUpdateGroupSuccessModal}
+          onClose={() => setShowUpdateGroupSuccessModal(false)}
+          title="Cập nhật Group thành công"
+          message="Group đã được cập nhật thành công!"
+          autoClose={true}
+          autoCloseDelay={1500}
+        />
+
+        <SuccessModal
+          isOpen={showDeleteGroupSuccessModal}
+          onClose={() => setShowDeleteGroupSuccessModal(false)}
+          title="Xóa Group thành công"
+          message="Group đã được xóa thành công!"
+          autoClose={true}
+          autoCloseDelay={1500}
+        />
       </div>
-
-      {/* Create Section Modal */}
-      {quizId && (
-        <CreateQuizSectionModal
-          show={showCreateSectionModal}
-          onClose={() => setShowCreateSectionModal(false)}
-          onSuccess={handleCreateSectionSuccess}
-          quizId={parseInt(quizId)}
-          isAdmin={isAdmin}
-        />
-      )}
-
-      {/* Update Section Modal */}
-      {quizId && sectionToUpdate && (
-        <CreateQuizSectionModal
-          show={showUpdateSectionModal}
-          onClose={() => {
-            setShowUpdateSectionModal(false);
-            setSectionToUpdate(null);
-          }}
-          onSuccess={handleUpdateSectionSuccess}
-          quizId={parseInt(quizId)}
-          sectionToUpdate={sectionToUpdate}
-          isAdmin={isAdmin}
-        />
-      )}
-
-      {/* Delete Section Confirmation Modal */}
-      <ConfirmModal
-        isOpen={showDeleteSectionModal}
-        onClose={() => {
-          if (!deletingSection) {
-            setShowDeleteSectionModal(false);
-            setSectionToDelete(null);
-          }
-        }}
-        onConfirm={handleConfirmDeleteSection}
-        title="Bạn chắc chắn muốn xóa section này chứ?"
-        message="Hành động này sẽ xóa tất cả groups và questions trong section này. Hành động này không thể hoàn tác."
-        confirmText={deletingSection ? "Đang xóa..." : "Xác nhận"}
-        cancelText="Hủy"
-        type="danger"
-        disabled={deletingSection}
-      />
-
-      {/* Create Group Modal */}
-      {selectedSectionForGroup && (
-        <CreateQuizGroupModal
-          show={showCreateGroupModal}
-          onClose={() => {
-            setShowCreateGroupModal(false);
-            setSelectedSectionForGroup(null);
-          }}
-          onSuccess={handleCreateGroupSuccess}
-          quizSectionId={selectedSectionForGroup.quizSectionId || selectedSectionForGroup.QuizSectionId}
-          isAdmin={isAdmin}
-        />
-      )}
-
-      {/* Update Group Modal */}
-      {groupToUpdate && (
-        <CreateQuizGroupModal
-          show={showUpdateGroupModal}
-          onClose={() => {
-            setShowUpdateGroupModal(false);
-            setGroupToUpdate(null);
-          }}
-          onSuccess={handleUpdateGroupSuccess}
-          quizSectionId={groupToUpdate.quizSectionId || groupToUpdate.QuizSectionId}
-          groupToUpdate={groupToUpdate}
-          isAdmin={isAdmin}
-        />
-      )}
-
-      {/* Delete Group Confirmation Modal */}
-      <ConfirmModal
-        isOpen={showDeleteGroupModal}
-        onClose={() => {
-          if (!deletingGroup) {
-            setShowDeleteGroupModal(false);
-            setGroupToDelete(null);
-          }
-        }}
-        onConfirm={handleConfirmDeleteGroup}
-        title="Bạn chắc chắn muốn xóa group này chứ?"
-        message="Hành động này sẽ xóa tất cả questions trong group này. Hành động này không thể hoàn tác."
-        confirmText={deletingGroup ? "Đang xóa..." : "Xác nhận"}
-        cancelText="Hủy"
-        type="danger"
-        disabled={deletingGroup}
-      />
-
-      <NotificationModal
-        isOpen={notification.isOpen}
-        onClose={() => setNotification({ ...notification, isOpen: false })}
-        type={notification.type}
-        message={notification.message}
-      />
-
-      {/* Success Modals */}
-      <SuccessModal
-        isOpen={showCreateSectionSuccessModal}
-        onClose={() => setShowCreateSectionSuccessModal(false)}
-        title="Tạo Section thành công"
-        message="Section đã được tạo thành công!"
-        autoClose={true}
-        autoCloseDelay={1500}
-      />
-
-      <SuccessModal
-        isOpen={showUpdateSectionSuccessModal}
-        onClose={() => setShowUpdateSectionSuccessModal(false)}
-        title="Cập nhật Section thành công"
-        message="Section đã được cập nhật thành công!"
-        autoClose={true}
-        autoCloseDelay={1500}
-      />
-
-      <SuccessModal
-        isOpen={showDeleteSectionSuccessModal}
-        onClose={() => setShowDeleteSectionSuccessModal(false)}
-        title="Xóa Section thành công"
-        message="Section đã được xóa thành công!"
-        autoClose={true}
-        autoCloseDelay={1500}
-      />
-
-      <SuccessModal
-        isOpen={showCreateGroupSuccessModal}
-        onClose={() => setShowCreateGroupSuccessModal(false)}
-        title="Tạo Group thành công"
-        message="Group đã được tạo thành công!"
-        autoClose={true}
-        autoCloseDelay={1500}
-      />
-
-      <SuccessModal
-        isOpen={showUpdateGroupSuccessModal}
-        onClose={() => setShowUpdateGroupSuccessModal(false)}
-        title="Cập nhật Group thành công"
-        message="Group đã được cập nhật thành công!"
-        autoClose={true}
-        autoCloseDelay={1500}
-      />
-
-      <SuccessModal
-        isOpen={showDeleteGroupSuccessModal}
-        onClose={() => setShowDeleteGroupSuccessModal(false)}
-        title="Xóa Group thành công"
-        message="Group đã được xóa thành công!"
-        autoClose={true}
-        autoCloseDelay={1500}
-      />
     </>
   );
 }

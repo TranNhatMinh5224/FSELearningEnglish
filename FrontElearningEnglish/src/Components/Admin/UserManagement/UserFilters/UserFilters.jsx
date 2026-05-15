@@ -1,8 +1,8 @@
 import React from "react";
-import { MdSearch } from "react-icons/md";
+import AdminSearch from "../../../Common/AdminSearch/AdminSearch";
 import "./UserFilters.css";
 
-export default function UserFilters({ activeTab, setActiveTab, searchTerm, setSearchTerm }) {
+export default function UserFilters({ activeTab, setActiveTab, searchTerm, setSearchTerm, onSearch }) {
   return (
     <div className="user-filters-container">
       <div className="filters-content">
@@ -27,18 +27,13 @@ export default function UserFilters({ activeTab, setActiveTab, searchTerm, setSe
           </button>
         </div>
 
-        <div className="search-box">
-          <span className="search-icon">
-            <MdSearch />
-          </span>
-          <input 
-            type="text" 
-            className="search-input" 
-            placeholder="Search email, name..." 
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-          />
-        </div>
+        <AdminSearch 
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          onSearch={onSearch}
+          placeholder="Tìm kiếm người dùng..."
+          className="user-search-bar"
+        />
       </div>
     </div>
   );

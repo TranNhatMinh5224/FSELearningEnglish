@@ -1,8 +1,8 @@
 .teacher-module-flashcard-detail-container {
   min-height: 100vh;
-  background: #fdfdfd;
-  padding: 2.5rem 1rem;
-  padding-top: calc(2.5rem + 70px);
+  background: #ffffff;
+  padding: 2.5rem 0 5rem 0;
+  padding-top: calc(70px + 2rem);
 }
 
 .flashcard-management-header {
@@ -211,6 +211,27 @@ textarea.form-control {
   cursor: not-allowed;
 }
 
+.teacher-module-flashcard-detail-container {
+  min-height: 100vh;
+  background: #ffffff;
+  padding: 2.5rem 80px 5rem 80px;
+  padding-top: calc(70px + 2rem);
+}
+
+@media (max-width: 1024px) {
+  .teacher-module-flashcard-detail-container {
+    padding: 2.5rem 40px 5rem 40px;
+    padding-top: calc(70px + 2rem);
+  }
+}
+
+@media (max-width: 768px) {
+  .teacher-module-flashcard-detail-container {
+    padding: 2rem 20px 4rem 20px;
+    padding-top: calc(70px + 1.5rem);
+  }
+}
+
 .alert {
   padding: 12px 16px;
   border-radius: 8px;
@@ -351,4 +372,56 @@ textarea.form-control {
   align-items: center;
   justify-content: center;
   padding: 0;
+}
+
+/* Empty State */
+.no-flashcards-message {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 5rem 2rem;
+  background: white;
+  border-radius: 1.5rem;
+  border: 2px dashed #e2e8f0;
+  text-align: center;
+  margin: 2rem 0;
+  transition: all 0.3s ease;
+}
+
+.no-flashcards-message:hover {
+  border-color: #3b82f6;
+  background: #f8fafc;
+}
+
+.empty-icon-wrapper {
+  width: 100px;
+  height: 100px;
+  background: #eff6ff;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 1.5rem;
+  color: #3b82f6;
+  font-size: 3rem;
+  transition: transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.no-flashcards-message:hover .empty-icon-wrapper {
+  transform: scale(1.1) rotate(10deg);
+}
+
+.no-flashcards-message h4 {
+  font-weight: 700;
+  color: #1e293b;
+  margin-bottom: 0.75rem;
+  font-size: 1.5rem;
+}
+
+.no-flashcards-message p {
+  color: #64748b;
+  max-width: 450px;
+  margin-bottom: 2rem;
+  line-height: 1.6;
 }

@@ -2,7 +2,7 @@
     padding: 30px 40px;
     padding-top: calc(30px + 70px);
     background: var(--color-bg-secondary, #f6f8fb);
-    min-height: calc(100vh - 70px);
+    min-height: calc(140vh - 70px);
 }
 
 .edit-profile-header {
@@ -224,8 +224,3 @@
     }
 }
 
-@media (min-width: 992px) {
-  .edit-profile-container {
-    min-height: calc(125vh - 70px);
-  }
-}

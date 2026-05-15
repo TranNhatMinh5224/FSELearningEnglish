@@ -1,44 +1,31 @@
 import React from "react";
-import { Form, Button } from "react-bootstrap";
-import { FaPlus, FaTimes } from "react-icons/fa";
+import { Form } from "react-bootstrap";
+import FileUpload from "../../../Common/FileUpload/FileUpload";
 
 const QuestionMediaSection = ({ 
   qMediaPreview, 
-  qMediaType, 
-  handleQMediaChange, 
-  handleRemoveQMedia, 
-  qUploadingMedia, 
-  qFileInputRef,
+  qMediaType,
+  handleUploadSuccess,
+  handleRemoveMedia,
+  onUploadingChange,
   qErrors
 }) => {
   return (
     <Form.Group className="mb-3">
-      <Form.Label>Media đính kèm</Form.Label>
-      <div className={`border p-2 rounded bg-light text-center ${qErrors.media ? 'border-danger' : ''}`} style={{ minHeight: '150px' }}>
-        {!qMediaPreview ? (
-          <div className="py-4 cursor-pointer" onClick={() => qFileInputRef.current?.click()}>
-            <FaPlus size={20} className="text-muted mb-2 d-block mx-auto" />
-            <span className="text-muted small">{qUploadingMedia ? "Đang tải..." : "Chọn Ảnh/Video/Audio"}</span>
-          </div>
-        ) : (
-          <div className="position-relative">
-            {qMediaType === 'image' && <img src={qMediaPreview} alt="Preview" className="img-fluid rounded" style={{ maxHeight: '180px' }} />}
-            {qMediaType === 'video' && <video src={qMediaPreview} controls style={{ maxHeight: '180px', width: '100%' }} />}
-            {qMediaType === 'audio' && <audio src={qMediaPreview} controls style={{ width: '100%' }} />}
-            <Button variant="danger" size="sm" className="position-absolute top-0 end-0 m-1" onClick={handleRemoveQMedia}>
-              <FaTimes />
-            </Button>
-          </div>
-        )}
-        <input 
-          type="file" 
-          ref={qFileInputRef} 
-          onChange={handleQMediaChange} 
-          style={{ display: 'none' }} 
-          accept="image/*,video/*,audio/*" 
-        />
-      </div>
-      {qErrors.media && <div className="text-danger small mt-1">{qErrors.media}</div>}
+      <Form.Label className="fw-bold text-muted small text-uppercase mb-2">Media đính kèm</Form.Label>
+      <FileUpload
+        bucket="questions"
+        accept="image/*,audio/*,video/*"
+        maxSize={100}
+        existingUrl={qMediaPreview}
+        initialFileType={qMediaType}
+        onUploadSuccess={handleUploadSuccess}
+        onRemove={handleRemoveMedia}
+        onUploadingChange={onUploadingChange}
+        label="Chọn Ảnh, Video hoặc Audio"
+        hint="Kéo thả hoặc dán từ clipboard"
+      />
+      {qErrors.media && <div className="text-danger small mt-2">{qErrors.media}</div>}
     </Form.Group>
   );
 };

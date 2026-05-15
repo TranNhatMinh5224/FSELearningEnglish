@@ -5,12 +5,13 @@
 }
 
 .flashcard-review-session-container .flashcard-content-container {
-    padding-top: 15px !important;
-    padding-bottom: 20px !important;
+    padding-top: 15px;
+    padding-bottom: 20px;
 }
 
 .review-navigation {
-    margin-top: -20px;
+    margin-top: 20px; 
+    padding-bottom: 40px;
     width: 100%;
     max-width: 800px;
 }
@@ -59,12 +60,14 @@
     background: var(--color-secondary-cyan-dark, #35c4d0);
     transform: translateY(-2px);
     box-shadow: 0 4px 12px rgba(65, 214, 227, 0.4);
+    color: white;
 }
 
 .review-next-button:hover:not(:disabled) {
     background: var(--color-secondary-cyan-dark, #35c4d0);
     transform: translateY(-2px);
     box-shadow: 0 4px 12px rgba(65, 214, 227, 0.4);
+    color: white;
 }
 
 .review-next-button:disabled {
@@ -102,6 +105,7 @@
 
 .back-button:hover {
     background: var(--color-secondary-cyan-dark, #35c4d0);
+    color: white;
 }
 
 @media (min-width: 992px) {

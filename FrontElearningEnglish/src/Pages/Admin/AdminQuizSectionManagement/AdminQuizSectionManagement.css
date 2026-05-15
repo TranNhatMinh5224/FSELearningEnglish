@@ -1,45 +1,61 @@
 .admin-quiz-section-management-container {
   min-height: 100vh;
-  background: linear-gradient(135deg, #e0f2fe 0%, #f0f9ff 100%);
+  background-color: #ffffff !important;
 }
 
 /* Premium Header Styles */
 .back-nav-link {
-    background: none;
-    border: none;
-    padding: 0;
-    font-size: 0.95rem;
-    font-weight: 500;
-    display: flex;
-    align-items: center;
-    transition: all 0.2s ease;
-    cursor: pointer;
+  background: none;
+  border: none;
+  padding: 0;
+  font-size: 0.95rem;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  transition: all 0.2s ease;
+  cursor: pointer;
 }
 
 .back-nav-link:hover {
-    color: #BC69C0 !important;
-    transform: translateX(-4px);
+  color: #BC69C0 !important;
+  transform: translateX(-4px);
 }
 
 .premium-gradient-text {
-    background: linear-gradient(135deg, #4A00E0 0%, #8E2DE2 50%, #BC69C0 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-    display: inline-block;
+  background: linear-gradient(135deg, #4A00E0 0%, #8E2DE2 50%, #BC69C0 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  display: inline-block;
 }
 
 .premium-btn {
-    background: linear-gradient(135deg, #8E2DE2 0%, #4A00E0 100%);
-    border: none;
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  background: linear-gradient(135deg, #4B7BF6 0%, #3b62c4 100%) !important;
+  color: white !important;
+  border-radius: 16px !important;
+  padding: 0.8rem 2rem !important;
+  font-weight: 700 !important;
+  font-size: 1.1rem !important;
+  box-shadow: 0 8px 20px rgba(75, 123, 246, 0.2) !important;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  border: none !important;
+  display: flex;
+  align-items: center;
+  gap: 12px;
 }
 
 .premium-btn:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 15px rgba(142, 45, 226, 0.3) !important;
-    background: linear-gradient(135deg, #9b44e8 0%, #5608ea 100%);
-    color: white !important;
+  transform: translateY(-3px) !important;
+  box-shadow: 0 12px 25px rgba(75, 123, 246, 0.3) !important;
+  filter: brightness(1.1);
+}
+
+.premium-btn:active,
+.premium-btn:focus {
+  background: linear-gradient(135deg, #4B7BF6 0%, #3b62c4 100%) !important;
+  box-shadow: 0 8px 20px rgba(75, 123, 246, 0.2) !important;
+  transform: translateY(0) !important;
+  filter: none !important;
 }
 
 .sections-list {
@@ -120,6 +136,13 @@
   color: white;
 }
 
+.btn-edit-section:active,
+.btn-edit-section:focus {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+  box-shadow: none !important;
+  transform: translateY(0);
+}
+
 .btn-delete-section {
   background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
   color: white;
@@ -130,6 +153,13 @@
   transform: translateY(-2px);
   box-shadow: 0 4px 12px rgba(245, 87, 108, 0.4);
   color: white;
+}
+
+.btn-delete-section:active,
+.btn-delete-section:focus {
+  background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%) !important;
+  box-shadow: none !important;
+  transform: translateY(0);
 }
 
 

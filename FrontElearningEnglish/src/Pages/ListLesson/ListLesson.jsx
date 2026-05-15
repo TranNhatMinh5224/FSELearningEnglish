@@ -131,6 +131,9 @@ export default function ListLesson() {
     const progressData = getProgressData();
     const milestones = calculateMilestones();
 
+    console.log(" [ListLesson] Progress Data:", progressData);
+    console.log(" [ListLesson] Lessons Count:", lessons.length);
+
     if (loading) {
         return (
             <>

@@ -1,11 +1,13 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { Container, Row, Col } from "react-bootstrap";
+import CourseDetailSkeleton from "../../../Components/Common/Skeleton/CourseDetailSkeleton";
 import "./AdminCourseDetail.css";
 import Breadcrumb from "../../../Components/Common/Breadcrumb/Breadcrumb";
 import { useAuth } from "../../../Context/AuthContext";
 import { adminService } from "../../../Services/adminService";
 import { useAssets } from "../../../Context/AssetContext";
+import { ROUTE_PATHS } from "../../../Routes/Paths";
 import CourseFormModal from "../../../Components/Admin/CourseManagement/CourseFormModal/CourseFormModal";
 import CreateLessonModal from "../../../Components/Teacher/CreateLessonModal/CreateLessonModal";
 import SuccessModal from "../../../Components/Common/SuccessModal/SuccessModal";
@@ -13,8 +15,8 @@ import NotificationModal from "../../../Components/Common/NotificationModal/Noti
 import ConfirmModal from "../../../Components/Common/ConfirmModal/ConfirmModal";
 import CourseDescription from "../../../Components/Courses/CourseDescription/CourseDescription";
 import AdminLessonCard from "../../../Components/Admin/CourseManagement/AdminLessonCard/AdminLessonCard";
-import { FaPlus } from "react-icons/fa";
-import { PiGraduationCapDuotone } from "react-icons/pi";
+import { FaPlus, FaEdit, FaUsers } from "react-icons/fa";
+import { PiGraduationCapDuotone, PiBookOpenDuotone, PiTagDuotone, PiStarDuotone, PiCurrencyCircleDollarDuotone } from "react-icons/pi";
 import ImageWithIconFallback from "../../../Components/Common/ImageWithIconFallback/ImageWithIconFallback";
 
 export default function AdminCourseDetail() {
@@ -44,11 +46,12 @@ export default function AdminCourseDetail() {
       setLoading(true);
       setError("");
 
-      // Sử dụng endpoint public để lấy thông tin chi tiết course
-      const response = await adminService.getCourseContent(courseId);
+      // Sử dụng endpoint admin để lấy đầy đủ thông tin (bao gồm type, teacher...)
+      const response = await adminService.getCourseDetail(courseId);
 
       if (response.data?.success && response.data?.data) {
         const courseData = response.data.data;
+        console.log("Course detail data:", courseData);
         setCourse(courseData);
       } else {
         setError("Không thể tải thông tin khóa học");
@@ -107,7 +110,7 @@ export default function AdminCourseDetail() {
   };
 
   const handleCreateLessonSuccess = () => {
-    setSuccessMessage("Thêm bài học thành công!");
+    setSuccessMessage("Thêm chương học thành công!");
     setShowSuccessModal(true);
     fetchLessons();
     fetchCourseDetail();
@@ -139,14 +142,14 @@ export default function AdminCourseDetail() {
 
       if (response.status === 204 || response.data?.success) {
         setShowDeleteModal(false);
-        setSuccessMessage("Đã xóa bài học thành công!");
+        setSuccessMessage("Đã xóa chương học thành công!");
         setShowSuccessModal(true);
         fetchLessons();
         fetchCourseDetail();
       }
     } catch (err) {
       console.error("Error deleting lesson:", err);
-      setNotification({ isOpen: true, type: "error", message: "Không thể xóa bài học. Vui lòng thử lại." });
+      setNotification({ isOpen: true, type: "error", message: "Không thể xóa chương học. Vui lòng thử lại." });
     } finally {
       setDeletingLesson(false);
       setLessonToDelete(null);
@@ -158,11 +161,7 @@ export default function AdminCourseDetail() {
   }
 
   if (loading) {
-    return (
-      <div className="admin-course-detail-container">
-        <div className="loading-message">Đang tải thông tin khóa học...</div>
-      </div>
-    );
+    return <CourseDetailSkeleton />;
   }
 
   if (error || !course) {
@@ -179,55 +178,92 @@ export default function AdminCourseDetail() {
   const coursePrice = course.price || course.Price || 0;
   const totalLessons = course.totalLessons || course.TotalLessons || 0;
   const isFeatured = course.isFeatured || course.IsFeatured || false;
+  
+  // Logic detect loại khóa học
+  const courseType = course.type || course.Type || 1; // 1: System, 2: Teacher
 
   return (
     <div className="admin-course-detail-container">
+      <div className="admin-breadcrumb-wrapper">
+        <Container fluid>
+          <div className="breadcrumb-section pt-0">
+            <Breadcrumb
+                items={[
+                  { label: "Quản lý khóa học", path: ROUTE_PATHS.ADMIN.COURSES },
+                  { label: courseTitle, isCurrent: true }
+                ]}
+                showHomeIcon={false}
+              />
+          </div>
+        </Container>
+      </div>
       <Container fluid className="course-detail-content p-0">
-        <div className="breadcrumb-section pt-0">
-          <Breadcrumb
-            items={[
-              { label: "Quản lý khóa học", path: "/admin/courses" },
-              { label: courseTitle, isCurrent: true }
-            ]}
-            showHomeIcon={false}
-          />
-        </div>
         <Row>
           {/* Left Column - Course Info */}
           <Col md={4} className="course-info-column">
             <div className="course-info-card">
-              <div className="course-image-wrapper">
-                <ImageWithIconFallback
-                  imageUrl={course.imageUrl || course.ImageUrl}
-                  fallbackImageUrl={getDefaultCourseImage()}
-                  icon={<PiGraduationCapDuotone size={64} />}
-                  alt={courseTitle}
-                  className="course-image"
-                />
-                {isFeatured && <span className="featured-badge">Nổi bật</span>}
-              </div>
-              <div className="course-info-content">
-                <h2 className="course-title">{courseTitle}</h2>
-                <div className="course-info-subsection">
-                  <CourseDescription description={courseDescription} />
+                <div className="course-image-wrapper">
+                  <ImageWithIconFallback
+                    imageUrl={course.imageUrl || course.ImageUrl}
+                    fallbackImageUrl={getDefaultCourseImage()}
+                    icon={<PiGraduationCapDuotone size={64} />}
+                    alt={courseTitle}
+                    className="course-image"
+                  />
                 </div>
+                <div className="course-info-content">
+                  <div className="course-title-wrapper">
+                    <h2 className="course-title">{courseTitle}</h2>
+                  </div>
+                  <div className="course-info-subsection">
+                    <CourseDescription description={courseDescription} />
+                  </div>
 
                 <div className="course-details">
                   <div className="course-detail-item">
-                    <label>Giá:</label>
-                    <span className="course-stat-value">
+                    <label>
+                      <PiTagDuotone className="detail-icon" />
+                      Loại khóa học:
+                    </label>
+                    <span className={`course-stat-value type-badge ${courseType === 1 ? 'system' : 'teacher'}`}>
+                      {courseType === 1 ? 'Hệ thống' : 'Giáo viên'}
+                    </span>
+                  </div>
+
+                  <div className="course-detail-item">
+                    <label>
+                      <PiStarDuotone className="detail-icon" />
+                      Trạng thái:
+                    </label>
+                    <span className={`course-stat-value status-badge ${isFeatured ? 'featured' : 'normal'}`}>
+                      {isFeatured ? 'Nổi bật' : 'Thường'}
+                    </span>
+                  </div>
+
+                  <div className="course-detail-item">
+                    <label>
+                      <PiCurrencyCircleDollarDuotone className="detail-icon" />
+                      Giá:
+                    </label>
+                    <span className={`course-stat-value ${coursePrice > 0 ? 'paid' : 'free'}`}>
                       {coursePrice === 0 ? "Miễn phí" : `${coursePrice.toLocaleString()} đ`}
                     </span>
                   </div>
 
                   <div className="course-detail-item">
-                    <label>Bài học:</label>
-                    <span className="course-stat-value">{totalLessons}</span>
+                    <label>
+                      <PiBookOpenDuotone className="detail-icon" />
+                      Chương học:
+                    </label>
+                    <span className="stat-number-pill">{totalLessons}</span>
                   </div>
 
                   <div className="course-detail-item">
-                    <label>Tổng số học sinh:</label>
-                    <span className="course-stat-value">{studentCount}</span>
+                    <label>
+                      <FaUsers className="detail-icon" />
+                      Tổng số học sinh:
+                    </label>
+                    <span className="stat-number-pill">{studentCount}</span>
                   </div>
                 </div>
 
@@ -235,6 +271,7 @@ export default function AdminCourseDetail() {
                   className="update-course-btn"
                   onClick={() => setShowUpdateModal(true)}
                 >
+                  <FaEdit className="btn-icon" />
                   Cập nhật khóa học
                 </button>
                 
@@ -242,6 +279,7 @@ export default function AdminCourseDetail() {
                   className="manage-students-btn"
                   onClick={() => navigate(`/admin/courses/${courseId}/students`)}
                 >
+                  <FaUsers className="btn-icon" />
                   Quản lý học viên
                 </button>
               </div>
@@ -252,7 +290,7 @@ export default function AdminCourseDetail() {
           <Col md={8} className="lessons-column">
             <div className="lessons-section">
               <div className="lessons-header">
-                <h3>Danh sách bài học</h3>
+                <h3>Danh sách chương học</h3>
               </div>
 
               {lessons.length > 0 ? (
@@ -270,7 +308,11 @@ export default function AdminCourseDetail() {
                 </div>
               ) : (
                 <div className="no-lessons-message">
-                  <p>Chưa có bài học nào</p>
+                  <div className="empty-icon-wrapper">
+                    <PiBookOpenDuotone />
+                  </div>
+                  <h4>Chưa có chương học nào</h4>
+                  <p>Hệ thống chưa ghi nhận chương học nào cho khóa học này. Hãy khởi tạo nội dung ngay.</p>
                 </div>
               )}
 
@@ -282,7 +324,7 @@ export default function AdminCourseDetail() {
                 }}
               >
                 <FaPlus className="add-icon" />
-                Thêm Lesson
+                Thêm chương học
               </button>
             </div>
           </Col>
@@ -338,12 +380,13 @@ export default function AdminCourseDetail() {
           setLessonToDelete(null);
         }}
         onConfirm={confirmDeleteLesson}
-        title="Xác nhận xóa bài học"
-        message="Bạn có chắc chắn muốn xóa bài học này không?"
+        title="Xác nhận xóa chương học"
+        message="Bạn có chắc chắn muốn xóa chương học này không?"
         itemName={lessonToDelete ? (lessonToDelete.title || lessonToDelete.Title) : ""}
         type="delete"
         confirmText="Xác nhận xóa"
         loading={deletingLesson}
-      />    </div>
+      />
+    </div>
   );
 }

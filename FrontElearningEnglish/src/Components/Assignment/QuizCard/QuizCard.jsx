@@ -4,7 +4,7 @@ import { FaQuestionCircle } from "react-icons/fa";
 import { Card, Button, Row, Col } from "react-bootstrap";
 import "./QuizCard.css";
 
-export default function QuizCard({ assessment, onClick }) {
+export default function QuizCard({ assessment, onClick, hasInProgress }) {
     const formatTimeLimit = (timeLimit) => {
         if (!timeLimit) return "Không giới hạn";
         const parts = timeLimit.split(":");
@@ -20,7 +20,7 @@ export default function QuizCard({ assessment, onClick }) {
     };
 
     return (
-        <Card className="quiz-card" onClick={onClick} style={{ cursor: "pointer" }}>
+        <Card className={`quiz-card ${hasInProgress ? 'in-progress' : ''}`} onClick={onClick} style={{ cursor: "pointer" }}>
             <Card.Body>
                 <Row className="align-items-center">
                     <Col xs="auto">
@@ -31,9 +31,16 @@ export default function QuizCard({ assessment, onClick }) {
                         </div>
                     </Col>
                     <Col>
-                        <Card.Title className="quiz-title">{assessment.title}</Card.Title>
+                        <div className="d-flex align-items-center gap-2">
+                            <Card.Title className="quiz-title mb-0">{assessment.title}</Card.Title>
+                            {hasInProgress && (
+                                <span className="badge rounded-pill bg-warning text-dark px-3 py-2" style={{ fontSize: '0.7rem', fontWeight: '600' }}>
+                                    ĐANG LÀM
+                                </span>
+                            )}
+                        </div>
                         {assessment.description && (
-                            <Card.Text className="quiz-description">{assessment.description}</Card.Text>
+                            <Card.Text className="quiz-description mt-2">{assessment.description}</Card.Text>
                         )}
                         <div className="quiz-meta">
                             {assessment.timeLimit && (
@@ -50,14 +57,14 @@ export default function QuizCard({ assessment, onClick }) {
                     </Col>
                     <Col xs="auto">
                         <Button
-                            variant="success"
+                            variant={hasInProgress ? "outline-warning" : "success"}
                             className="quiz-start-btn"
                             onClick={e => {
                                 e.stopPropagation();
                                 onClick();
                             }}
                         >
-                            Làm Quiz
+                            {hasInProgress ? "Tiếp tục" : "Làm Quiz"}
                         </Button>
                     </Col>
                 </Row>

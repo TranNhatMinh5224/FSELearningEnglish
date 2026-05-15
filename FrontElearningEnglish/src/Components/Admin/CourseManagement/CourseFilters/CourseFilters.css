@@ -73,9 +73,10 @@
   border-color: #31d2f2;
 }
 
-.filter-actions {
+.filter-right {
   display: flex;
-  gap: 0.5rem;
+  align-items: center;
+  gap: 0.75rem;
   flex: 1;
   justify-content: flex-end;
 }
@@ -84,55 +85,70 @@
   position: relative;
   max-width: 300px;
   flex: 1;
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
 }
 
 .search-icon {
   position: absolute;
-  left: 12px;
+  left: 14px;
   top: 50%;
   transform: translateY(-50%);
-  color: #6c757d;
+  color: #64748b;
   display: flex;
   align-items: center;
+  transition: color 0.2s;
+}
+
+.search-input:focus + .search-icon,
+.search-box:focus-within .search-icon {
+  color: #0d9488;
 }
 
 .search-input {
   width: 100%;
-  padding: 0.5rem 0.75rem 0.5rem 2.5rem;
-  border: 1px solid #dee2e6;
-  border-radius: 6px;
+  padding: 0.625rem 1rem 0.625rem 2.5rem;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 99px;
   font-size: 0.875rem;
-  outline: none;
-  transition: border-color 0.2s;
+  outline: none !important;
+  box-shadow: none !important;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  background: #f8fafc;
+  color: #1e293b;
 }
 
 .search-input:focus {
-  border-color: #0d6efd;
-  box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
+  border-color: #0d9488;
+  background: white;
+  box-shadow: 0 0 0 4px rgba(13, 148, 136, 0.15) !important;
 }
 
 .search-input::placeholder {
-  color: #adb5bd;
+  color: #94a3b8;
 }
 
 .btn-filter {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 40px;
-  height: 40px;
+  width: 42px;
+  height: 42px;
   background: white;
-  border: 1px solid #dee2e6;
-  border-radius: 6px;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 50%;
   cursor: pointer;
   transition: all 0.2s;
-  color: #6c757d;
+  color: #64748b;
   font-size: 1.25rem;
 }
 
 .btn-filter:hover {
-  background-color: #f8f9fa;
-  border-color: #6c757d;
+  background-color: #f0fdfa;
+  border-color: #0d9488;
+  color: #0d9488;
+  transform: rotate(15deg);
 }
 
 @media (max-width: 768px) {
@@ -150,7 +166,7 @@
     padding: 0.4rem 0.5rem;
   }
   
-  .filter-actions {
+  .filter-right {
     width: 100%;
   }
   

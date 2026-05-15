@@ -1,5 +1,7 @@
 .admin-course-management-container {
   width: 100%;
+  background-color: #ffffff !important;
+  min-height: 100vh;
 }
 
 /* Bootstrap utilities: d-flex, justify-content-between, align-items-center */
@@ -27,21 +29,22 @@
 /* Bootstrap utilities: d-flex, align-items-center */
 .btn-create {
   gap: 0.5rem;
-  padding: 0.75rem 1.5rem;
-  background-color: #0d6efd;
-  color: white;
-  border: none;
-  border-radius: 6px;
-  font-weight: 500;
+  padding: 0.75rem 1.75rem;
+  background: #6d28d9 !important;
+  color: white !important;
+  border: none !important;
+  border-radius: 12px !important;
+  font-weight: 600 !important;
   cursor: pointer;
-  transition: all 0.2s;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   font-size: 0.9375rem;
+  box-shadow: 0 4px 12px rgba(109, 40, 217, 0.2) !important;
 }
 
 .btn-create:hover {
-  background-color: #0b5ed7;
-  transform: translateY(-1px);
-  box-shadow: 0 4px 8px rgba(13, 110, 253, 0.3);
+  background: #5b21b6 !important;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(109, 40, 217, 0.3) !important;
 }
 
 .btn-create svg {

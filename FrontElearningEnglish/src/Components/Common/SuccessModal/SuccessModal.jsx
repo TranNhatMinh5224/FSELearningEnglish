@@ -8,7 +8,9 @@ export default function SuccessModal({
     title = "Thành công",
     message,
     autoClose = true,
-    autoCloseDelay = 1500
+    autoCloseDelay = 1500,
+    actionText,
+    onAction
 }) {
     const onCloseRef = useRef(onClose);
 
@@ -43,6 +45,14 @@ export default function SuccessModal({
                 <div className="success-modal-body">
                     <p className="success-message">{message}</p>
                 </div>
+
+                {actionText && onAction && (
+                    <div className="success-modal-footer">
+                        <button type="button" className="success-action-btn" onClick={onAction}>
+                            {actionText}
+                        </button>
+                    </div>
+                )}
             </div>
         </div>
     );

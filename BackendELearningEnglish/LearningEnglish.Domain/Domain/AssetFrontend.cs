@@ -12,6 +12,9 @@ namespace LearningEnglish.Domain.Entities
         
         // Key/path lưu trong MinIO
         public string KeyImage { get; set; } = string.Empty;
+
+        // MIME type (image/png, image/webp, etc.)
+        public string? ImageType { get; set; }
         
         // Loại asset: Logo, DefaultCourse, DefaultLesson
         public AssetType AssetType { get; set; }

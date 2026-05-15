@@ -64,9 +64,13 @@ namespace LearningEnglish.Application.Service
                 {
                     try
                     {
-                        committedImageKey = await _moduleImageService.CommitImageAsync(dto.ImageTempKey);
-                        module.ImageKey = committedImageKey;
-                        module.ImageType = dto.ImageType;
+                        var result = await _moduleImageService.CommitImageAsync(dto.ImageTempKey);
+                        if (result.Success)
+                        {
+                            committedImageKey = result.Data.ImageKey;
+                            module.ImageKey = committedImageKey;
+                            module.ImageType = result.Data.ContentType;
+                        }
                     }
                     catch (Exception imageEx)
                     {
@@ -197,9 +201,13 @@ namespace LearningEnglish.Application.Service
                 {
                     try
                     {
-                        newImageKey = await _moduleImageService.CommitImageAsync(dto.ImageTempKey);
-                        module.ImageKey = newImageKey;
-                        module.ImageType = dto.ImageType;
+                        var result = await _moduleImageService.CommitImageAsync(dto.ImageTempKey);
+                        if (result.Success)
+                        {
+                            newImageKey = result.Data.ImageKey;
+                            module.ImageKey = newImageKey;
+                            module.ImageType = result.Data.ContentType;
+                        }
                     }
                     catch (Exception imageEx)
                     {

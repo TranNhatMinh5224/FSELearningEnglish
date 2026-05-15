@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { Container, Button, Badge } from "react-bootstrap";
 import { FaPlus } from "react-icons/fa";
+import { PiBookOpenDuotone } from "react-icons/pi";
 import TeacherHeader from "../../../Components/Header/TeacherHeader";
 import Breadcrumb from "../../../Components/Common/Breadcrumb/Breadcrumb";
 import { teacherService } from "../../../Services/teacherService";
@@ -182,23 +183,24 @@ export default function TeacherModuleLectureDetail() {
     <>
       <TeacherHeader />
       <div className="teacher-module-lecture-detail-container">
-        <Container>
-          <div className="breadcrumb-section mt-3">
+        <Container fluid className="p-0 content-wrapper">
+          <div className="mb-4">
             <Breadcrumb
               items={[
                 { label: "Quản lý khoá học", path: ROUTE_PATHS.TEACHER_COURSE_MANAGEMENT },
-                { label: course?.title || course?.Title || "Khóa học", path: `/teacher/course/${courseId}` },
+                { label: course?.title || course?.Title || "Khoá học", path: `/teacher/course/${courseId}` },
                 { label: lesson?.title || lesson?.Title || "Bài học", path: `/teacher/course/${courseId}/lesson/${lessonId}` },
                 { label: "Quản lý bài giảng", isCurrent: true }
               ]}
-              showHomeIcon={false}
+              showHomeIcon={true}
+              className="breadcrumb-compact"
             />
           </div>
-
-          <div className="lecture-management-header mb-4 mt-4">
+          <div className="teacher-main-page-content p-0 border-0 shadow-none bg-transparent">
+            <div className="lecture-management-header mb-4 mt-0">
             <div className="d-flex align-items-center justify-content-between">
               <div className="header-content">
-                <h2 className="mb-1 fw-bold text-primary">Quản lý bài giảng</h2>
+                <h2 className="premium-gradient-text mb-1 fw-bold">Quản lý bài giảng</h2>
                 <div className="d-flex align-items-center gap-3">
                   <span className="module-name text-muted">
                     {module?.name || module?.Name || "Module"}
@@ -223,9 +225,19 @@ export default function TeacherModuleLectureDetail() {
           {loading ? (
             <div className="text-center py-5"><div className="spinner-border text-primary"></div></div>
           ) : lectures.length === 0 ? (
-            <div className="text-center py-5 bg-light rounded text-muted">
-              <p>Chưa có bài giảng nào trong module này.</p>
-              <Button variant="primary" onClick={() => { setLectureToUpdate(null); setShowCreateModal(true); }}>Tạo bài giảng đầu tiên</Button>
+            <div className="no-modules-message">
+              <div className="empty-icon-wrapper">
+                <PiBookOpenDuotone />
+              </div>
+              <h4>Chưa có bài giảng nào</h4>
+              <p>Module này hiện đang trống. Hãy bắt đầu xây dựng nội dung bài giảng để học viên có thể tiếp cận kiến thức.</p>
+              <Button 
+                variant="primary" 
+                className="btn-primary-custom px-4"
+                onClick={() => { setLectureToUpdate(null); setShowCreateModal(true); }}
+              >
+                Tạo bài giảng đầu tiên
+              </Button>
             </div>
           ) : (
             <LectureTreeView
@@ -238,8 +250,9 @@ export default function TeacherModuleLectureDetail() {
               onReorder={handleReorder}
             />
           )}
-        </Container>
-      </div>
+        </div>
+      </Container>
+    </div>
 
       <CreateLectureModal
         show={showCreateModal}

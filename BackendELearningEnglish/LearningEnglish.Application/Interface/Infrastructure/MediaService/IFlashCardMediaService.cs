@@ -1,22 +1,17 @@
 using Microsoft.AspNetCore.Http;
+using LearningEnglish.Application.Common;
 
 namespace LearningEnglish.Application.Interface.Infrastructure.MediaService;
 
 public interface IFlashCardMediaService
 {
-    /// <summary>
-    /// Upload image vào temp folder
-    /// </summary>
     Task<string?> UploadTempImageAsync(IFormFile file, CancellationToken cancellationToken = default);
     
-    /// <summary>
-    /// Upload audio vào temp folder
-    /// </summary>
     Task<string?> UploadTempAudioAsync(IFormFile file, CancellationToken cancellationToken = default);
     
-    Task<string> CommitImageAsync(string tempKey, CancellationToken cancellationToken = default);
+    Task<ServiceResponse<(string ImageKey, string ContentType)>> CommitImageAsync(string tempKey, CancellationToken cancellationToken = default);
 
-    Task<string> CommitAudioAsync(string tempKey, CancellationToken cancellationToken = default);
+    Task<ServiceResponse<(string AudioKey, string ContentType)>> CommitAudioAsync(string tempKey, CancellationToken cancellationToken = default);
 
     Task DeleteImageAsync(string imageKey, CancellationToken cancellationToken = default);
 
@@ -26,4 +21,3 @@ public interface IFlashCardMediaService
 
     string BuildAudioUrl(string? audioKey);
 }
-

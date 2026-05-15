@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { Container, Button, Card, Row, Col, Badge } from "react-bootstrap";
 import { FaPlus, FaEdit, FaTrash, FaVolumeUp, FaRegListAlt } from "react-icons/fa";
+import { PiCardsDuotone } from "react-icons/pi";
 import TeacherHeader from "../../../Components/Header/TeacherHeader";
 import Breadcrumb from "../../../Components/Common/Breadcrumb/Breadcrumb";
 import { teacherService } from "../../../Services/teacherService";
@@ -159,20 +160,22 @@ export default function TeacherModuleFlashCardDetail() {
     <>
       <TeacherHeader />
       <div className="teacher-module-flashcard-detail-container">
-        <Container>
-          <div className="breadcrumb-section mt-3">
+        <Container fluid className="p-0 content-wrapper">
+          <div className="mb-4">
             <Breadcrumb
               items={[
                 { label: "Quản lý khoá học", path: ROUTE_PATHS.TEACHER_COURSE_MANAGEMENT },
-                { label: course?.title || course?.Title || "Khóa học", path: `/teacher/course/${courseId}` },
+                { label: course?.title || course?.Title || "Khoá học", path: `/teacher/course/${courseId}` },
                 { label: lesson?.title || lesson?.Title || "Bài học", path: `/teacher/course/${courseId}/lesson/${lessonId}` },
                 { label: "Quản lý từ vựng", isCurrent: true }
               ]}
-              showHomeIcon={false}
+              showHomeIcon={true}
+              className="breadcrumb-compact"
             />
           </div>
 
-          <div className="flashcard-management-header mb-4 mt-4">
+          <div className="teacher-main-page-content p-0 border-0 shadow-none bg-transparent">
+            <div className="flashcard-management-header mb-4 mt-0">
             <div className="d-flex align-items-center justify-content-between">
               <div className="header-content">
                 <h2 className="mb-1 fw-bold text-primary">Quản lý từ vựng</h2>
@@ -196,12 +199,25 @@ export default function TeacherModuleFlashCardDetail() {
           </div>
 
           {loading ? (
-             <div className="text-center py-5"><div className="spinner-border text-primary"></div></div>
+            <div className="text-center py-5">
+              <div className="spinner-border text-primary" role="status">
+                <span className="visually-hidden">Đang tải...</span>
+              </div>
+            </div>
           ) : flashcards.length === 0 ? (
-             <div className="text-center py-5 bg-light rounded text-muted">
-                 <p>Chưa có từ vựng nào trong bộ này.</p>
-                 <Button variant="primary" onClick={() => { setFlashcardToUpdate(null); setShowCreateModal(true); }}>Tạo từ vựng đầu tiên</Button>
-             </div>
+            <div className="no-flashcards-message">
+              <div className="empty-icon-wrapper">
+                <PiCardsDuotone />
+              </div>
+              <h4>Chưa có Flashcard nào</h4>
+              <p>Bộ từ vựng này hiện đang trống. Hãy thêm các thẻ từ vựng mới để giúp học viên ghi nhớ kiến thức tốt hơn.</p>
+              <Button 
+                className="btn-primary-custom px-4" 
+                onClick={() => { setFlashcardToUpdate(null); setShowCreateModal(true); }}
+              >
+                Tạo từ vựng đầu tiên
+              </Button>
+            </div>
           ) : (
              <Row xs={1} md={2} lg={3} className="g-4">
                  {flashcards.map((card, idx) => (
@@ -243,10 +259,11 @@ export default function TeacherModuleFlashCardDetail() {
                         </Card>
                      </Col>
                  ))}
-             </Row>
+            </Row>
           )}
-        </Container>
-      </div>
+        </div>
+      </Container>
+    </div>
 
       <CreateFlashCardModal 
         show={showCreateModal}

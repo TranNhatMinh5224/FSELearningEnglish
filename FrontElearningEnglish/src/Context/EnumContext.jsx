@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect, useMemo } from 'react';
 import enumService from '../Services/enumService';
 
 const EnumContext = createContext();
@@ -38,29 +38,49 @@ export const EnumProvider = ({ children }) => {
         fetchEnums();
     }, []);
 
-    // Helper functions
+    // Tự động tạo mappings từ Name sang Value để dùng trong logic code
+    // Ví dụ: mappings.QuestionType.MultipleChoice sẽ trả về giá trị từ backend
+    const mappings = useMemo(() => {
+        if (!enums) return {};
+        const map = {};
+        Object.keys(enums).forEach(enumName => {
+            map[enumName] = {};
+            enums[enumName].forEach(item => {
+                // Hỗ trợ cả PascalCase và camelCase từ API
+                const name = item.Name || item.name;
+                const value = item.Value !== undefined ? item.Value : item.value;
+                if (name) map[enumName][name] = value;
+            });
+        });
+        return map;
+    }, [enums]);
+
     const getEnumLabel = (enumName, value) => {
         if (!enums || !enums[enumName]) return 'Unknown';
-        const enumItem = enums[enumName].find(item => item.value === value);
-        return enumItem ? enumItem.name : 'Unknown';
+        const enumItem = enums[enumName].find(item => {
+            const itemVal = item.Value !== undefined ? item.Value : item.value;
+            return itemVal === value;
+        });
+        return enumItem ? (enumItem.DisplayName || enumItem.displayName || enumItem.Name || enumItem.name) : 'Unknown';
     };
 
     const getEnumOptions = (enumName) => {
         if (!enums || !enums[enumName]) return [];
         return enums[enumName].map(item => ({
-            value: item.value,
-            label: item.name
+            value: item.Value !== undefined ? item.Value : item.value,
+            label: item.DisplayName || item.displayName || item.Name || item.name
         }));
     };
 
     const value = {
         enums,
+        mappings, // Đối tượng mapping động
         loading,
         error,
         getEnumLabel,
         getEnumOptions,
         
-        // Shortcuts cho các enum thường dùng
+        // Shortcuts cho các enum thường dùng (Raw data)
         questionTypes: enums?.QuestionType || [],
         quizTypes: enums?.QuizType || [],
         quizStatuses: enums?.QuizStatus || [],

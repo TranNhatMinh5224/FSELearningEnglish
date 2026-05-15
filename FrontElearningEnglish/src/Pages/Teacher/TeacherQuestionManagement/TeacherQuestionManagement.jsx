@@ -1,14 +1,15 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { Container, Button, Card, Badge } from "react-bootstrap";
-import { FaPlus, FaArrowLeft, FaEdit, FaTrash, FaLayerGroup, FaRegListAlt } from "react-icons/fa";
+import { FaPlus, FaEdit, FaTrash, FaLayerGroup } from "react-icons/fa";
 import TeacherHeader from "../../../Components/Header/TeacherHeader";
 import Breadcrumb from "../../../Components/Common/Breadcrumb/Breadcrumb";
 import CreateQuestionModal from "../../../Components/Teacher/CreateQuestionModal/CreateQuestionModal";
-import CreateQuizGroupModal from "../../../Components/Teacher/CreateQuizGroupModal/CreateQuizGroupModal"; // Import Group Modal
+import CreateQuizGroupModal from "../../../Components/Teacher/CreateQuizGroupModal/CreateQuizGroupModal";
 import ConfirmModal from "../../../Components/Common/ConfirmModal/ConfirmModal";
 import SuccessModal from "../../../Components/Common/SuccessModal/SuccessModal";
 import NotificationModal from "../../../Components/Common/NotificationModal/NotificationModal";
+import { PiFilesDuotone } from "react-icons/pi";
 import { questionService } from "../../../Services/questionService";
 import { quizService } from "../../../Services/quizService";
 import { teacherService } from "../../../Services/teacherService";
@@ -23,49 +24,36 @@ export default function TeacherQuestionManagement() {
   const { courseId, lessonId, moduleId, assessmentId, quizId, sectionId, groupId } = useParams();
   const navigate = useNavigate();
   const { user, roles, isAuthenticated } = useAuth();
-  
-  // Auto-detect admin role from AuthContext
+
   const isAdmin = roles && roles.some(role => {
     const roleName = typeof role === 'string' ? role : (role?.name || '');
     return ["SuperAdmin", "ContentAdmin", "FinanceAdmin", "Admin"].includes(roleName);
   });
-  
+
   const isTeacher = (roles && roles.some(role => {
     const roleName = typeof role === 'string' ? role : (role?.name || '');
     return roleName === "Teacher";
-  })) || 
-  user?.teacherSubscription?.isTeacher === true || 
-  isAdmin;
-  
+  })) || user?.teacherSubscription?.isTeacher === true || isAdmin;
+
   const [questions, setQuestions] = useState([]);
-  const [groups, setGroups] = useState([]); // Store groups list
+  const [groups, setGroups] = useState([]);
   const [course, setCourse] = useState(null);
   const [lesson, setLesson] = useState(null);
   const [assessment, setAssessment] = useState(null);
-  const [quiz, setQuiz] = useState(null);
   const [contextData, setContextData] = useState({ title: "", subtitle: "" });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [notification, setNotification] = useState({ isOpen: false, type: "info", message: "" });
-  
 
-
-  // Question Modal states
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [questionToUpdate, setQuestionToUpdate] = useState(null);
-  const [targetGroupId, setTargetGroupId] = useState(null); // Which group adding question to?
-
-  // Question Delete Modal
+  const [targetGroupId, setTargetGroupId] = useState(null);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [questionToDelete, setQuestionToDelete] = useState(null);
-  
-  // Group Modals (Edit/Delete)
   const [showGroupEditModal, setShowGroupEditModal] = useState(false);
   const [groupToUpdate, setGroupToUpdate] = useState(null);
   const [showGroupDeleteModal, setShowGroupDeleteModal] = useState(false);
   const [groupToDelete, setGroupToDelete] = useState(null);
-
-  // Success Modal states
   const [successMessage, setSuccessMessage] = useState("");
   const [showSuccessModal, setShowSuccessModal] = useState(false);
 
@@ -73,138 +61,62 @@ export default function TeacherQuestionManagement() {
     setLoading(true);
     setError("");
     try {
-      let questionsRes;
+      let qList = [];
+      let gList = [];
       let title = "";
       let subtitle = "";
 
-      // 1. Fetch contextual info (Group or Section)
       if (groupId) {
-        let gData = null;
-        try {
-          const groupRes = await quizService.getQuizGroupById(groupId);
-          if (groupRes.data?.success) gData = groupRes.data.data;
-        } catch (e) { console.warn("Teacher group fetch failed"); }
+        const groupRes = isAdmin
+          ? await quizService.getAdminQuizGroupById(groupId)
+          : await quizService.getQuizGroupById(groupId);
 
-        if (!gData && isAdmin) {
-          try {
-            const adminGroupRes = await quizService.getAdminQuizGroupById(groupId);
-            if (adminGroupRes.data?.success) gData = adminGroupRes.data.data;
-          } catch (e) { console.error("Admin group fallback failed"); }
+        if (groupRes.data?.success) {
+          const groupData = groupRes.data.data;
+          title = `Group: ${groupData.title || groupData.Title || groupData.name || groupData.Name}`;
+          subtitle = groupData.description || groupData.Description;
+          qList = groupData.questions || groupData.Questions || [];
+          setGroups([groupData]);
         }
-        
-        if (gData) {
-          title = `Group: ${gData.name || gData.Name || "Untitled Group"}`;
-          subtitle = gData.title || gData.Title;
-        }
-
-        // Fetch questions for group
-        try {
-          questionsRes = await questionService.getQuestionsByGroup(groupId);
-        } catch (e) { console.error("Questions by group fetch failed"); }
-
       } else if (sectionId) {
-        let sData = null;
-        try {
-          const sectionRes = await quizService.getQuizSectionById(sectionId);
-          if (sectionRes.data?.success) sData = sectionRes.data.data;
-        } catch (e) { console.warn("Teacher section fetch failed"); }
+        const sectionRes = isAdmin
+          ? await quizService.getAdminQuizSectionById(sectionId)
+          : await quizService.getQuizSectionById(sectionId);
 
-        if (!sData && isAdmin) {
-          try {
-            const adminSectionRes = await quizService.getAdminQuizSectionById(sectionId);
-            if (adminSectionRes.data?.success) sData = adminSectionRes.data.data;
-          } catch (e) { console.error("Admin section fallback failed"); }
+        if (sectionRes.data?.success) {
+          title = `Section: ${sectionRes.data.data.title || sectionRes.data.data.Title}`;
         }
 
-        if (sData) {
-          title = `Section: ${sData.title || sData.Title || "Untitled Section"}`;
-        }
-        
-        // Parallel fetch for questions and groups in section
-        const fetchSectionContent = async () => {
-          let qList = [];
-          let gList = [];
-          
-          try {
-            const qRes = await questionService.getQuestionsBySection(sectionId);
-            if (qRes.data?.success) qList = Array.isArray(qRes.data.data) ? qRes.data.data : (qRes.data.data?.questions || []);
-          } catch (e) { console.warn("Questions fetch failed"); }
+        const qRes = await questionService.getQuestionsBySection(sectionId);
+        if (qRes.data?.success) qList = qRes.data.data || [];
 
-          try {
-            const gRes = await quizService.getQuizGroupsBySection(sectionId);
-            if (gRes.data?.success) {
-              const data = gRes.data.data;
-              gList = Array.isArray(data) ? data : (data?.groups || []);
-            }
-          } catch (e) { console.warn("Teacher groups fetch failed"); }
+        const gRes = await quizService.getQuizGroupsBySection(sectionId);
+        if (gRes.data?.success) gList = gRes.data.data || [];
 
-          if (gList.length === 0 && isAdmin) {
-            try {
-              const adminGRes = await quizService.getAdminQuizGroupsBySection(sectionId);
-              if (adminGRes.data?.success) {
-                const data = adminGRes.data.data;
-                gList = Array.isArray(data) ? data : (data?.groups || []);
-              }
-            } catch (e) { console.error("Admin groups fallback failed"); }
-          }
-          
-          return { qList, gList };
-        };
-
-        const { qList, gList } = await fetchSectionContent();
-        setQuestions(qList);
         setGroups(gList);
       }
 
+      setQuestions(qList);
       setContextData({ title, subtitle });
 
-      // Fetch metadata for breadcrumbs (Robust)
-      const metadataPromises = [
-        teacherService.getCourseDetail(courseId),
-        teacherService.getLessonById(lessonId)
-      ];
-
-      const [courseRes, lessonRes] = await Promise.all(metadataPromises);
+      const courseRes = await teacherService.getCourseDetail(courseId);
       if (courseRes.data?.success) setCourse(courseRes.data.data);
+
+      const lessonRes = await teacherService.getLessonById(lessonId);
       if (lessonRes.data?.success) setLesson(lessonRes.data.data);
 
-      // Assessment metadata
-      let assessmentData = null;
-      try {
-        const assessmentRes = await assessmentService.getTeacherAssessmentById(assessmentId);
-        if (assessmentRes.data?.success) assessmentData = assessmentRes.data.data;
-      } catch (e) { console.warn("Teacher assessment fetch failed"); }
-
-      if (!assessmentData && isAdmin) {
-        try {
-          const adminAssessmentRes = await assessmentService.getAdminAssessmentById(assessmentId);
-          if (adminAssessmentRes.data?.success) assessmentData = adminAssessmentRes.data.data;
-        } catch (e) { console.error("Admin assessment fallback failed"); }
-      }
-      setAssessment(assessmentData);
-
-      // Quiz metadata
-      let quizData = null;
-      try {
-        const quizRes = await quizService.getTeacherQuizById(quizId);
-        if (quizRes.data?.success) quizData = quizRes.data.data;
-      } catch (e) { console.warn("Teacher quiz fetch failed"); }
-
-      if (!quizData && isAdmin) {
-        try {
-          const adminQuizRes = await quizService.getAdminQuizById(quizId);
-          if (adminQuizRes.data?.success) quizData = adminQuizRes.data.data;
-        } catch (e) { console.error("Admin quiz fallback failed"); }
-      }
-      setQuiz(quizData);
+      const assessmentRes = isAdmin
+        ? await assessmentService.getAdminAssessmentById(assessmentId)
+        : await assessmentService.getTeacherAssessmentById(assessmentId);
+      if (assessmentRes.data?.success) setAssessment(assessmentRes.data.data);
 
     } catch (err) {
       console.error("Fetch Data Error:", err);
-      setError("Không thể tải dữ liệu đầy đủ. Vui lòng thử lại sau.");
+      setError("Không thể tải dữ liệu. Vui lòng thử lại sau.");
     } finally {
       setLoading(false);
     }
-  }, [sectionId, groupId, assessmentId, courseId, lessonId, quizId, isAdmin]);
+  }, [sectionId, groupId, assessmentId, courseId, lessonId, isAdmin]);
 
   useEffect(() => {
     if (!isAuthenticated || !isTeacher) {
@@ -214,56 +126,15 @@ export default function TeacherQuestionManagement() {
     fetchData();
   }, [isAuthenticated, isTeacher, navigate, fetchData]);
 
-  const handleCreateSuccess = (newQuestion) => {
-    setSuccessMessage("Tạo câu hỏi thành công!");
-    setShowSuccessModal(true);
-    fetchData(); 
-  };
-
-  const handleUpdateSuccess = (updatedQuestion) => {
-    setSuccessMessage("Cập nhật câu hỏi thành công!");
-    setShowSuccessModal(true);
-    fetchData();
-  };
-
-  // --- Group Handlers ---
-  const handleGroupEditSuccess = () => {
-      setSuccessMessage("Cập nhật Group thành công!");
-      setShowSuccessModal(true);
-      fetchData();
-  };
-
-  const confirmDeleteGroup = async () => {
-      if (!groupToDelete) return;
-      try {
-          const res = isAdmin
-            ? await quizService.deleteAdminQuizGroup(groupToDelete.quizGroupId)
-            : await quizService.deleteQuizGroup(groupToDelete.quizGroupId);
-          if (res.data?.success) {
-              setSuccessMessage("Xóa Group thành công!");
-              setShowSuccessModal(true);
-              setShowGroupDeleteModal(false);
-              fetchData();
-          } else {
-              setNotification({ isOpen: true, type: "error", message: res.data?.message || "Xóa thất bại" });
-          }
-      } catch (err) {
-          console.error(err);
-          setNotification({ isOpen: true, type: "error", message: "Lỗi khi xóa Group" });
-      }
-  };
-
-
-  // --- Common Handlers ---
   const handleAddQuestion = (targetGroup = null) => {
-      setTargetGroupId(targetGroup ? targetGroup.quizGroupId : null); // If null, it's standalone (or new group creation context)
-      setQuestionToUpdate(null);
-      setShowCreateModal(true);
+    setTargetGroupId(targetGroup ? (targetGroup.quizGroupId || targetGroup.QuizGroupId) : null);
+    setQuestionToUpdate(null);
+    setShowCreateModal(true);
   };
 
   const handleEditQuestion = (question) => {
     setQuestionToUpdate(question);
-    setTargetGroupId(question.quizGroupId); 
+    setTargetGroupId(question.quizGroupId || question.QuizGroupId);
     setShowCreateModal(true);
   };
 
@@ -275,306 +146,242 @@ export default function TeacherQuestionManagement() {
   const confirmDeleteQuestion = async () => {
     if (!questionToDelete) return;
     try {
-      const res = await questionService.deleteQuestion(questionToDelete.questionId);
+      const res = await questionService.deleteQuestion(questionToDelete.questionId || questionToDelete.QuestionId);
       if (res.data?.success) {
         setSuccessMessage("Xóa câu hỏi thành công!");
         setShowSuccessModal(true);
         setShowDeleteModal(false);
-        setQuestionToDelete(null);
         fetchData();
       } else {
         setNotification({ isOpen: true, type: "error", message: res.data?.message || "Xóa thất bại" });
       }
     } catch (err) {
-      console.error(err);
       setNotification({ isOpen: true, type: "error", message: "Lỗi khi xóa câu hỏi" });
     }
   };
 
-  // --- Helpers for Display ---
-  const standaloneQuestions = questions.filter(q => !q.quizGroupId);
+  const confirmDeleteGroup = async () => {
+    if (!groupToDelete) return;
+    try {
+      const gId = groupToDelete.quizGroupId || groupToDelete.QuizGroupId;
+      const res = isAdmin ? await quizService.deleteAdminQuizGroup(gId) : await quizService.deleteQuizGroup(gId);
+      if (res.data?.success) {
+        setSuccessMessage("Xóa nhóm thành công!");
+        setShowSuccessModal(true);
+        setShowGroupDeleteModal(false);
+        fetchData();
+      } else {
+        setNotification({ isOpen: true, type: "error", message: res.data?.message || "Xóa thất bại" });
+      }
+    } catch (err) {
+      setNotification({ isOpen: true, type: "error", message: "Lỗi khi xóa nhóm" });
+    }
+  };
+
+  const renderQuestionCard = (q, index) => {
+    const renderQuestionBody = () => {
+      if (q.type === 5 || q.Type === 5) { // Matching
+        let pairs = [];
+        try {
+          const json = q.correctAnswersJson || q.CorrectAnswersJson;
+          const parsed = typeof json === 'string' ? JSON.parse(json) : json;
+          if (Array.isArray(parsed)) {
+            pairs = parsed.map(p => ({ key: p.leftSide || p.key, value: p.rightSide || p.value }));
+          } else if (typeof parsed === 'object' && parsed !== null) {
+            pairs = Object.entries(parsed).map(([k, v]) => ({ key: k, value: v }));
+          }
+        } catch (e) { console.error("Matching parse error", e); }
+
+        return pairs.length > 0 && (
+          <div className="mt-2 bg-light p-2 rounded small border">
+            {pairs.map((p, i) => (
+              <div key={i} className="d-flex align-items-center gap-2 mb-1">
+                <Badge bg="primary">{p.key}</Badge> <span>➡</span> <Badge bg="success">{p.value}</Badge>
+              </div>
+            ))}
+          </div>
+        );
+      }
+
+      const options = q.options || q.Options || [];
+      return (
+        <ul className="list-unstyled mb-0 mt-2 small">
+          {options.map((opt, i) => (
+            <li key={i} className={opt.isCorrect || opt.IsCorrect ? "text-success fw-bold" : "text-muted"}>
+              {(opt.isCorrect || opt.IsCorrect) && "✓ "} {opt.text || opt.Text}
+            </li>
+          ))}
+        </ul>
+      );
+    };
+
+    const mediaUrl = q.mediaUrl || q.MediaUrl;
+
+    return (
+      <Card key={q.questionId || q.QuestionId || index} className="mb-3 border-0 shadow-sm question-card">
+        <Card.Body className="p-3">
+          <div className="d-flex justify-content-between gap-3">
+            <div className="flex-grow-1">
+              <div className="d-flex align-items-center gap-2 mb-2">
+                <div className="question-number-badge">#{index + 1}</div>
+                <Badge bg="info">{getQuestionTypeLabel(q.type || q.Type)}</Badge>
+                <div className="ms-auto fw-bold text-danger">{(q.points || q.Points || 0).toFixed(1)} pts</div>
+              </div>
+              <h6 className="fw-bold mb-2">{q.questionText || q.QuestionText || q.stemText || q.StemText}</h6>
+
+              {mediaUrl && (
+                <div className="media-preview mb-3 rounded overflow-hidden border bg-light text-center" style={{ maxHeight: '250px' }}>
+                  {mediaUrl.match(/\.(mp4|webm|mov)$/i) ? (
+                    <video src={mediaUrl} controls className="mw-100" style={{ maxHeight: '250px' }} />
+                  ) : mediaUrl.match(/\.(mp3|wav|ogg)$/i) ? (
+                    <audio src={mediaUrl} controls className="w-100 mt-2 p-2" />
+                  ) : (
+                    <img src={mediaUrl} alt="Question" className="img-fluid" style={{ maxHeight: '250px', cursor: 'zoom-in' }} onClick={() => window.open(mediaUrl, '_blank')} />
+                  )}
+                </div>
+              )}
+              {renderQuestionBody()}
+            </div>
+            <div className="d-flex flex-column gap-2">
+              <Button variant="light" size="sm" onClick={() => handleEditQuestion(q)}><FaEdit className="text-primary" /></Button>
+              <Button variant="light" size="sm" onClick={() => handleDeleteQuestion(q)}><FaTrash className="text-danger" /></Button>
+            </div>
+          </div>
+        </Card.Body>
+      </Card>
+    );
+  };
+
+  const standaloneQuestions = questions.filter(q => !(q.quizGroupId || q.QuizGroupId));
   const questionsByGroup = {};
   questions.forEach(q => {
-      if (q.quizGroupId) {
-          if (!questionsByGroup[q.quizGroupId]) questionsByGroup[q.quizGroupId] = [];
-          questionsByGroup[q.quizGroupId].push(q);
-      }
+    const gId = q.quizGroupId || q.QuizGroupId;
+    if (gId) {
+      if (!questionsByGroup[gId]) questionsByGroup[gId] = [];
+      questionsByGroup[gId].push(q);
+    }
   });
-
-  const renderQuestionCard = (q, index, isGrouped = false) => {
-      // Helper to render body content based on type
-      const renderQuestionBody = () => {
-          if (q.type === 5) { // Matching
-              let pairs = [];
-              try {
-                  if (q.matchingPairs) pairs = q.matchingPairs; // from draft
-                  else if (q.correctAnswersJson) pairs = JSON.parse(q.correctAnswersJson);
-              } catch (e) { console.error("Error parsing matching pairs", e); }
-
-              if (pairs.length > 0) {
-                  return (
-                      <div className="mt-2 bg-light p-2 rounded small">
-                          {pairs.map((p, i) => (
-                              <div key={i} className="d-flex align-items-center gap-2 mb-1">
-                                  <span className="fw-bold text-dark">{p.key}</span>
-                                  <span className="text-muted">➡</span>
-                                  <span className="text-dark">{p.value}</span>
-                              </div>
-                          ))}
-                      </div>
-                  );
-              }
-          }
-          
-          if (q.type === 6) { // Ordering
-              return (
-                  <ol className="mt-2 ps-3 mb-0 small">
-                      {q.options?.map((opt, idx) => (
-                          <li key={idx} className="mb-1 text-dark">
-                              {opt.text}
-                          </li>
-                      ))}
-                  </ol>
-              );
-          }
-
-          // Default (MCQ, FillBlank, etc.)
-          return (
-            <ul className="list-unstyled options-preview mb-0 small text-muted mt-2">
-                {q.options?.map((opt, idx) => (
-                    <li key={idx} className={`mb-1 ${opt.isCorrect ? "text-success fw-bold" : ""}`}>
-                        {opt.isCorrect && "✓ "} {opt.text}
-                    </li>
-                ))}
-            </ul>
-          );
-      };
-
-      return (
-        <Card key={q.questionId || q.tempId} className="mb-3 border-0 shadow-sm question-card">
-            <Card.Body className="p-3">
-                <div className="d-flex justify-content-between">
-                <div className="d-flex gap-3 w-100">
-                    <div className="question-index text-center pt-1">
-                        <span className="badge rounded-pill bg-secondary">#{index + 1}</span>
-                    </div>
-                    <div className="flex-grow-1">
-                        <div className="d-flex align-items-center gap-2 mb-2">
-                            <Badge bg="info">{getQuestionTypeLabel(q.type)}</Badge>
-                            <span className="text-muted small">Points: {q.points}</span>
-                        </div>
-                        <h6 className="question-stem mb-1 fw-bold text-break">{q.stemText}</h6>
-                        {renderQuestionBody()}
-                    </div>
-                </div>
-
-                <div className="action-buttons d-flex flex-column gap-2 justify-content-start ms-2">
-                    <Button variant="light" size="sm" onClick={() => handleEditQuestion(q)} title="Sửa">
-                    <FaEdit className="text-primary" />
-                    </Button>
-                    <Button variant="light" size="sm" onClick={() => handleDeleteQuestion(q)} title="Xóa">
-                    <FaTrash className="text-danger" />
-                    </Button>
-                </div>
-                </div>
-            </Card.Body>
-        </Card>
-      );
-  };
 
   return (
     <>
       <TeacherHeader />
       <div className="teacher-question-management-container">
-        <Container>
-          {/* Premium Header */}
-          <div className="question-header-section">
-            <div className="d-flex align-items-center justify-content-between mb-4 flex-wrap gap-3">
-              <div className="d-flex flex-column">
-                <Breadcrumb
-                  items={[
-                    { label: "Quản lý khoá học", path: ROUTE_PATHS.TEACHER_COURSE_MANAGEMENT },
-                    { label: course?.title || course?.Title || "Khoá học", path: `/teacher/course/${courseId}` },
-                    { label: lesson?.title || lesson?.Title || "Bài học", path: `/teacher/course/${courseId}/lesson/${lessonId}` },
-                    { label: assessment?.title || assessment?.Title || "Quản lý bài tập", path: ROUTE_PATHS.TEACHER_QUIZ_ESSAY_MANAGEMENT(courseId, lessonId, moduleId, assessmentId) },
-                    { label: quiz?.title || quiz?.Title || "Quản lý Quiz", path: ROUTE_PATHS.TEACHER_QUIZ_SECTION_MANAGEMENT(courseId, lessonId, moduleId, assessmentId, quizId) },
-                    { label: "Quản lý câu hỏi", isCurrent: true }
-                  ]}
-                  showHomeIcon={true}
-                />
-                <h1 className="premium-gradient-text mt-3 mb-0">Quản lý kho câu hỏi</h1>
-              </div>
-              
-              <div className="d-flex gap-3 align-items-center">
-                {contextData.title && (
-                   <div className="section-pill">
-                     {contextData.title}
-                   </div>
-                )}
-                <div className="header-stats-badge">
-                  <FaRegListAlt />
-                  <span>{questions.length} Câu hỏi</span>
-                </div>
-              </div>
-            </div>
+        <Container fluid className="p-0 content-wrapper">
+          <div className="mb-4">
+            <Breadcrumb
+              items={[
+                { label: "Quản lý khóa học", path: ROUTE_PATHS.TEACHER_COURSE_MANAGEMENT },
+                { label: course?.title || "Khóa học", path: `/teacher/course/${courseId}` },
+                { label: lesson?.title || "Chương học", path: `/teacher/course/${courseId}/lesson/${lessonId}` },
+                { label: assessment?.title || "Bài kiểm tra", path: ROUTE_PATHS.TEACHER_QUIZ_ESSAY_MANAGEMENT(courseId, lessonId, moduleId, assessmentId) },
+                { label: "Câu hỏi", isCurrent: true }
+              ]}
+              showHomeIcon={true}
+              className="breadcrumb-compact"
+            />
+          </div>
 
-            <div className="d-flex gap-3 mt-4">
-              <Button variant="primary" className="premium-btn shadow-sm px-4 py-2" onClick={() => handleAddQuestion(null)}>
-                  <FaPlus className="me-2" /> Thêm câu hỏi mới
+          <div className="d-flex justify-content-between align-items-center my-4">
+            <div>
+              <h2 className="premium-gradient-text fw-bold mb-1">{contextData.title}</h2>
+              <p className="text-muted mb-0">{contextData.subtitle}</p>
+            </div>
+            <div className="d-flex gap-3">
+              <div className="header-stats-badge bg-white shadow-sm px-3 py-2 rounded d-flex align-items-center gap-2">
+                <PiFilesDuotone size={24} className="text-primary" />
+                <span className="fw-bold">{questions.length} Items</span>
+              </div>
+              <Button className="premium-btn" onClick={() => handleAddQuestion(null)}>
+                <FaPlus className="me-2" /> New Question
               </Button>
             </div>
           </div>
 
-          {/* Content */}
           {loading ? (
-             <div className="text-center py-5"><div className="spinner-border text-primary"></div></div>
+            <div className="text-center py-5"><div className="spinner-border text-primary"></div></div>
           ) : error ? (
             <div className="alert alert-danger">{error}</div>
           ) : (
-            <div className="question-content-area">
-                
-                {/* 1. Standalone Questions */}
-                {standaloneQuestions.length > 0 && (
-                    <div className="mb-4">
-                        <h5 className="text-muted border-bottom pb-2 mb-3">Câu hỏi lẻ ({standaloneQuestions.length})</h5>
-                        {standaloneQuestions.map((q, idx) => renderQuestionCard(q, idx))}
-                    </div>
-                )}
+            <div className="content-area">
+              {standaloneQuestions.length > 0 && (
+                <div className="mb-5">
+                  <h5 className="text-muted border-bottom pb-2 mb-3">Standalone Questions</h5>
+                  {standaloneQuestions.map((q, i) => renderQuestionCard(q, i))}
+                </div>
+              )}
 
-                {/* 2. Groups Display */}
-                {groups.map((group) => {
-                    const groupQuestions = questionsByGroup[group.quizGroupId] || [];
-                    return (
-                        <div key={group.quizGroupId} className="mb-5 group-container">
-                            {/* Group Header Bar */}
-                            <div className="group-header-bar bg-light border rounded p-3 mb-3 d-flex justify-content-between align-items-center shadow-sm" style={{borderLeft: '5px solid #0d6efd'}}>
-                                <div className="flex-grow-1 me-3">
-                                    <div className="d-flex align-items-center gap-2 mb-2">
-                                        <FaLayerGroup className="text-primary"/>
-                                        <Badge bg="secondary">Total: {group.sumScore} pts</Badge>
-                                    </div>
-                                    <div className="text-primary fw-bold" style={{
-                                        fontSize: '0.95rem',
-                                        display: '-webkit-box',
-                                        WebkitLineClamp: '2',
-                                        WebkitBoxOrient: 'vertical',
-                                        overflow: 'hidden',
-                                        textOverflow: 'ellipsis',
-                                        lineHeight: '1.4'
-                                    }} title={group.name}>
-                                        {group.name}
-                                    </div>
-                                    {group.title && (
-                                        <div className="text-muted small mt-1" style={{
-                                            display: '-webkit-box',
-                                            WebkitLineClamp: '1',
-                                            WebkitBoxOrient: 'vertical',
-                                            overflow: 'hidden',
-                                            textOverflow: 'ellipsis'
-                                        }} title={group.title}>
-                                            {group.title}
-                                        </div>
-                                    )}
-                                </div>
-                                <div className="d-flex gap-2">
-                                    <Button variant="outline-primary" size="sm" onClick={() => handleAddQuestion(group)}>
-                                        <FaPlus className="me-1"/> Thêm câu hỏi vào nhóm
-                                    </Button>
-                                    <Button variant="outline-secondary" size="sm" onClick={() => { setGroupToUpdate(group); setShowGroupEditModal(true); }}>
-                                        <FaEdit />
-                                    </Button>
-                                    <Button variant="outline-danger" size="sm" onClick={() => { setGroupToDelete(group); setShowGroupDeleteModal(true); }}>
-                                        <FaTrash />
-                                    </Button>
-                                </div>
-                            </div>
+              {groups.map((group) => {
+                const gId = group.quizGroupId || group.QuizGroupId;
+                const gQuestions = questionsByGroup[gId] || group.questions || group.Questions || [];
+                const imgUrl = group.imgKey || group.ImgKey;
+                const videoUrl = group.videoKey || group.VideoKey;
+                const audioUrl = group.audioKey || group.AudioKey;
 
-                            {/* Group Questions List (Indented) */}
-                            <div className="group-questions-list ps-4 ms-2 border-start border-3 border-light">
-                                {groupQuestions.length === 0 ? (
-                                    <div className="text-muted fst-italic py-2 ps-3">Chưa có câu hỏi nào trong nhóm này.</div>
-                                ) : (
-                                    groupQuestions.map((q, idx) => renderQuestionCard(q, idx, true))
-                                )}
-                            </div>
+                return (
+                  <div key={gId} className="mb-5 group-card-v2 shadow-sm rounded border overflow-hidden bg-white">
+                    <div className="group-header p-4 bg-light border-bottom d-flex justify-content-between align-items-start">
+                      <div className="flex-grow-1">
+                        <div className="d-flex align-items-center gap-3 mb-2">
+                          <FaLayerGroup className="text-primary" size={24} />
+                          <h4 className="fw-bold mb-0">{group.title || group.Title || group.name || group.Name}</h4>
+                          <span className="points-badge-premium">Total: {group.sumScore || group.SumScore} pts</span>
                         </div>
-                    );
-                })}
+                        {(group.description || group.Description) && <p className="text-muted mb-3">{group.description || group.Description}</p>}
 
-                {/* Bulk Drafts */}
-                {questions.length === 0 && groups.length === 0 && (
-                    <div className="text-center py-5 text-muted bg-light rounded">
-                        <p className="mb-3">Chưa có nội dung nào.</p>
-                        <Button variant="primary" onClick={() => handleAddQuestion(null)}>Tạo nội dung đầu tiên</Button>
+                        {(imgUrl || videoUrl || audioUrl) && (
+                          <div className="group-media-preview d-flex gap-3 flex-wrap mt-3">
+                            {imgUrl && <img src={imgUrl} alt="Group" className="img-thumbnail" style={{ maxWidth: '200px' }} />}
+                            {videoUrl && <video src={videoUrl} controls className="img-thumbnail" style={{ maxWidth: '300px' }} />}
+                            {audioUrl && <audio src={audioUrl} controls className="mt-auto" />}
+                          </div>
+                        )}
+                      </div>
+                      <div className="d-flex gap-2">
+                        <Button variant="outline-primary" size="sm" onClick={() => handleAddQuestion(group)}><FaPlus className="me-1" /> Add Question</Button>
+                        <Button variant="outline-secondary" size="sm" onClick={() => { setGroupToUpdate(group); setShowGroupEditModal(true); }}><FaEdit /></Button>
+                        <Button variant="outline-danger" size="sm" onClick={() => { setGroupToDelete(group); setShowGroupDeleteModal(true); }}><FaTrash /></Button>
+                      </div>
                     </div>
-                )}
+                    <div className="group-body p-4 bg-white">
+                      {gQuestions.length === 0 ? (
+                        <div className="text-center py-4 text-muted border rounded bg-light-subtle fst-italic">
+                          No questions in this group yet.
+                        </div>
+                      ) : (
+                        gQuestions.map((q, i) => renderQuestionCard(q, i))
+                      )}
+                    </div>
+                  </div>
+                );
+              })}
             </div>
           )}
         </Container>
       </div>
 
-      {/* Question Modal */}
-      <CreateQuestionModal 
+      <CreateQuestionModal
         show={showCreateModal}
-        onClose={() => {
-          setShowCreateModal(false);
-          setQuestionToUpdate(null);
-          setTargetGroupId(null);
-        }}
-        onSuccess={questionToUpdate ? handleUpdateSuccess : handleCreateSuccess}
-        sectionId={sectionId ? parseInt(sectionId) : null}
-        groupId={targetGroupId || (groupId ? parseInt(groupId) : null)}
+        onClose={() => setShowCreateModal(false)}
+        onSuccess={fetchData}
+        sectionId={parseInt(sectionId)}
+        groupId={targetGroupId}
         questionToUpdate={questionToUpdate}
         isAdmin={isAdmin}
       />
-      
-      {/* Group Modals */}
+
       <CreateQuizGroupModal
-          show={showGroupEditModal}
-          onClose={() => setShowGroupEditModal(false)}
-          onSuccess={handleGroupEditSuccess}
-          quizSectionId={sectionId}
-          groupToUpdate={groupToUpdate}
-          isAdmin={isAdmin}
+        show={showGroupEditModal}
+        onClose={() => setShowGroupEditModal(false)}
+        onSuccess={fetchData}
+        quizSectionId={sectionId}
+        groupToUpdate={groupToUpdate}
+        isAdmin={isAdmin}
       />
 
-      <ConfirmModal 
-        isOpen={showGroupDeleteModal}
-        onClose={() => setShowGroupDeleteModal(false)}
-        onConfirm={confirmDeleteGroup}
-        title="Xóa Group?"
-        message="Bạn có chắc chắn muốn xóa Group này? Tất cả câu hỏi trong Group cũng sẽ bị xóa."
-        confirmText="Xóa Group"
-        cancelText="Hủy"
-        type="danger"
-      />
-
-      {/* Question Delete */}
-      <ConfirmModal 
-        isOpen={showDeleteModal}
-        onClose={() => setShowDeleteModal(false)}
-        onConfirm={confirmDeleteQuestion}
-        title="Xóa câu hỏi?"
-        message="Hành động này không thể hoàn tác."
-        confirmText="Xóa"
-        cancelText="Hủy"
-        type="danger"
-      />
-
-      <SuccessModal 
-        isOpen={showSuccessModal}
-        onClose={() => setShowSuccessModal(false)}
-        title="Thành công"
-        message={successMessage}
-        autoClose={true}
-      />
-
-      <NotificationModal
-        isOpen={notification.isOpen}
-        onClose={() => setNotification({ ...notification, isOpen: false })}
-        type={notification.type}
-        message={notification.message}
-      />
+      <ConfirmModal isOpen={showDeleteModal} onClose={() => setShowDeleteModal(false)} onConfirm={confirmDeleteQuestion} title="Delete Question?" message="This action cannot be undone." type="danger" />
+      <ConfirmModal isOpen={showGroupDeleteModal} onClose={() => setShowGroupDeleteModal(false)} onConfirm={confirmDeleteGroup} title="Delete Group?" message="All questions in this group will also be deleted." type="danger" />
+      <SuccessModal isOpen={showSuccessModal} onClose={() => setShowSuccessModal(false)} title="Success" message={successMessage} autoClose={true} />
+      <NotificationModal isOpen={notification.isOpen} onClose={() => setNotification({ ...notification, isOpen: false })} type={notification.type} message={notification.message} />
     </>
   );
 }

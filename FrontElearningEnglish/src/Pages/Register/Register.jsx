@@ -5,6 +5,8 @@ import Header from "../../Components/Header/LogoHeader";
 import { useNavigate } from "react-router-dom";
 import { authService } from "../../Services/authService";
 import { InputField, DatePicker } from "../../Components/Auth";
+import { FaUser, FaEnvelope, FaLock, FaPhone, FaVenus, FaMars } from "react-icons/fa6";
+import { FaCalendarAlt } from "react-icons/fa";
 
 export default function Register() {
   const navigate = useNavigate();
@@ -53,10 +55,10 @@ export default function Register() {
     }
     const trimmed = email.trim();
     const lower = trimmed.toLowerCase();
-      // Allow common TLDs (longer variants first)
-      const emailRegex = /^[a-z0-9._%+\-]+@[a-z0-9.\-]+\.(?:com\.vn|org\.vn|edu\.vn|co\.uk|com|net|org|info|io|co|gov|edu|vn)$/i;
-      if (!emailRegex.test(lower)) {
-        return "Email không hợp lệ. Chấp nhận .com, .net, .org, .io, .vn, .com.vn, .co.uk...";
+    // Allow common TLDs (longer variants first)
+    const emailRegex = /^[a-z0-9._%+\-]+@[a-z0-9.\-]+\.(?:com\.vn|org\.vn|edu\.vn|co\.uk|com|net|org|info|io|co|gov|edu|vn)$/i;
+    if (!emailRegex.test(lower)) {
+      return "Email không hợp lệ. Chấp nhận .com, .net, .org, .io, .vn, .com.vn, .co.uk...";
     }
     return "";
   };
@@ -289,13 +291,19 @@ export default function Register() {
 
   return (
     <div className="auth-container">
-      <Header />
-
       <Container>
         <Row className="justify-content-center">
           <Col xs={12} sm={10} md={8} lg={6} xl={5}>
             <div className="auth-card">
-              <h1 className="auth-title">Tạo tài khoản của bạn</h1>
+              {/* Logo moved INSIDE the card for modern look */}
+              <div className="auth-card-logo">
+                <Header variant="dark" />
+              </div>
+              
+              <div className="auth-header-section">
+                <h1 className="auth-title">Đăng Ký Tài Khoản</h1>
+                <p className="auth-subtitle">Bắt đầu hành trình chinh phục tiếng Anh ngay hôm nay</p>
+              </div>
 
               {/* General error message */}
               {generalError && (
@@ -318,6 +326,7 @@ export default function Register() {
                       error={errors.firstName}
                       disabled={loading}
                       maxLength={20}
+                      icon={<FaUser size={16} />}
                     />
                   </Col>
                   <Col xs={12} sm={6}>
@@ -331,6 +340,7 @@ export default function Register() {
                       error={errors.lastName}
                       disabled={loading}
                       maxLength={20}
+                      icon={<FaUser size={16} />}
                     />
                   </Col>
                 </Row>
@@ -347,13 +357,12 @@ export default function Register() {
                     error={errors.email}
                     disabled={loading}
                     required
-                    pattern="[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.(?:com\.vn|org\.vn|edu\.vn|co\.uk|com|net|org|info|io|co|gov|edu|vn)"
-                    title="Email phải có đuôi hợp lệ (ví dụ: .com, .net, .org, .io, .vn, .com.vn)"
+                    icon={<FaEnvelope size={16} />}
                   />
                 </Form.Group>
 
                 {/* Password */}
-                <Form.Group className="mb-2">
+                <Form.Group className="mb-3">
                   <InputField
                     type="password"
                     name="password"
@@ -366,10 +375,13 @@ export default function Register() {
                     showPasswordToggle={true}
                     showPassword={showPassword}
                     onTogglePassword={() => setShowPassword(!showPassword)}
+                    icon={<FaLock size={16} />}
                   />
-                  <Form.Text className="password-note">
-                    * chú ý mật khẩu tối thiểu 6 ký tự bao gồm chữ hoa & ký tự đặc biệt!
-                  </Form.Text>
+                  <div className="password-note-container">
+                    <Form.Text className="password-note">
+                      Mật khẩu tối thiểu 6 ký tự (bao gồm chữ hoa & ký tự đặc biệt)
+                    </Form.Text>
+                  </div>
                 </Form.Group>
 
                 {/* Confirm Password */}
@@ -386,6 +398,7 @@ export default function Register() {
                     showPasswordToggle={true}
                     showPassword={showConfirmPassword}
                     onTogglePassword={() => setShowConfirmPassword(!showConfirmPassword)}
+                    icon={<FaLock size={16} />}
                   />
                 </Form.Group>
 
@@ -400,12 +413,16 @@ export default function Register() {
                     onBlur={handleBlur}
                     error={errors.phoneNumber}
                     disabled={loading}
+                    icon={<FaPhone size={16} />}
                   />
                 </Form.Group>
 
                 {/* Date of Birth */}
-                <Form.Group className="mb-3">
-                  <div className="date-picker-wrapper d-flex flex-column">
+                <Form.Group className="mb-4">
+                  <Form.Label className="field-label d-flex align-items-center gap-2">
+                    <FaCalendarAlt className="text-primary" /> Ngày sinh
+                  </Form.Label>
+                  <div className="date-picker-wrapper">
                     <DatePicker
                       value={formData.dateOfBirth}
                       onChange={handleDateChange}
@@ -413,44 +430,42 @@ export default function Register() {
                       hasError={!!errors.dateOfBirth}
                     />
                     {errors.dateOfBirth && (
-                      <Form.Text className="text-danger d-block text-center">
+                      <span className="error-text text-center w-100 d-block mt-2">
                         {errors.dateOfBirth}
-                      </Form.Text>
+                      </span>
                     )}
                   </div>
                 </Form.Group>
 
-                {/* Gender Radio Buttons */}
-                <Form.Group className="mb-3">
-                  <Form.Label className="gender-radio-label">Giới tính</Form.Label>
-                  <div className="d-flex gap-4">
-                    <Form.Check
-                      type="radio"
-                      id="gender-female"
-                      name="gender"
-                      value="female"
-                      label="Nữ"
-                      checked={formData.gender === "female"}
-                      onChange={handleGenderChange}
-                      disabled={loading}
-                      className="gender-radio-option"
-                    />
-                    <Form.Check
-                      type="radio"
-                      id="gender-male"
-                      name="gender"
-                      value="male"
-                      label="Nam"
-                      checked={formData.gender === "male"}
-                      onChange={handleGenderChange}
-                      disabled={loading}
-                      className="gender-radio-option"
-                    />
+                {/* Gender Selection */}
+                <Form.Group className="mb-4">
+                  <Form.Label className="field-label d-flex align-items-center gap-2">
+                    <FaMars className="text-primary" /> Giới tính
+                  </Form.Label>
+                  <div className="gender-selection-container">
+                    <div 
+                      className={`gender-option ${formData.gender === "female" ? "active" : ""}`}
+                      onClick={() => !loading && handleGenderChange({ target: { value: "female" } })}
+                    >
+                      <div className="gender-icon female">
+                        <FaVenus />
+                      </div>
+                      <span className="gender-name">Nữ</span>
+                    </div>
+                    <div 
+                      className={`gender-option ${formData.gender === "male" ? "active" : ""}`}
+                      onClick={() => !loading && handleGenderChange({ target: { value: "male" } })}
+                    >
+                      <div className="gender-icon male">
+                        <FaMars />
+                      </div>
+                      <span className="gender-name">Nam</span>
+                    </div>
                   </div>
                   {errors.gender && (
-                    <Form.Text className="text-danger d-block">
+                    <span className="error-text mt-2 d-block">
                       {errors.gender}
-                    </Form.Text>
+                    </span>
                   )}
                 </Form.Group>
 

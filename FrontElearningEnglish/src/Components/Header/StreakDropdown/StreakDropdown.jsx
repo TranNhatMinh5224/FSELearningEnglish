@@ -24,7 +24,8 @@ export default function StreakDropdown() {
                 id="streak-dropdown"
             >
                 <FaFire className="streak-icon" />
-                <span>{streakDays || 0} ngày</span>
+                <span className="streak-count">{streakDays || 0}</span>
+                <span className="streak-text-label"> ngày</span>
             </Dropdown.Toggle>
 
             <Dropdown.Menu className="streak-dropdown">

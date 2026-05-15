@@ -68,16 +68,19 @@ export default function AssignmentDetail() {
             <MainHeader />
             <div className="assignment-detail-container">
                 <Container>
-                    <Breadcrumb 
-                        items={[
-                            { label: "Khóa học của tôi", path: "/my-courses" },
-                            { label: course?.title || "Khóa học", path: `/course/${courseId}` },
-                            { label: "Lesson", path: `/course/${courseId}/learn` },
-                            { label: lesson?.title || "Bài học", path: `/course/${courseId}/lesson/${lessonId}` },
-                            { label: "Bài tập", isCurrent: true }
-                        ]}
-                    />
-                    {/* Breadcrumb ... (Giữ nguyên logic breadcrumb cũ) */}
+                    <Row>
+                        <Col>
+                            <Breadcrumb 
+                                items={[
+                                    { label: "Khóa học của tôi", path: "/my-courses" },
+                                    { label: course?.title || "Khóa học", path: `/course/${courseId}` },
+                                    { label: "Lesson", path: `/course/${courseId}/learn` },
+                                    { label: lesson?.title || "Bài học", path: `/course/${courseId}/lesson/${lessonId}` },
+                                    { label: "Bài tập", isCurrent: true }
+                                ]}
+                            />
+                        </Col>
+                    </Row>
                     <div className="mb-4 pt-3">
                         <h2 className="text-primary fw-bold">{moduleName}</h2>
                         <p className="text-muted">Danh sách các bài kiểm tra trong module này.</p>

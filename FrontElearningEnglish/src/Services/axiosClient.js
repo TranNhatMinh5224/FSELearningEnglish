@@ -13,9 +13,10 @@ const axiosClient = axios.create({
 axiosClient.interceptors.request.use(
   (config) => {
     const token = tokenStorage.getAccessToken();
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
+    const isInternalRequest = !config.url?.startsWith("http") || config.url?.startsWith(API_BASE_URL);
 
+    if (token && isInternalRequest) {
+      config.headers.Authorization = `Bearer ${token}`;
       config.headers["X-Access-Token"] = token;
     }
     return config;

@@ -1,6 +1,7 @@
 using LearningEnglish.Application.DTOs;
 using LearningEnglish.Domain.Entities;
 using LearningEnglish.Domain.Enums;
+using LearningEnglish.Application.Interface.Infrastructure.MediaService;
 using System.Text.Json;
 
 namespace LearningEnglish.Application.Common.Helpers
@@ -9,7 +10,7 @@ namespace LearningEnglish.Application.Common.Helpers
     public static class QuizReviewBuilder
     {
         
-        public static List<QuestionReviewDto> BuildQuestionReviewList(Quiz quiz, QuizAttempt attempt)
+        public static List<QuestionReviewDto> BuildQuestionReviewList(Quiz quiz, QuizAttempt attempt, IQuestionMediaService questionMediaService)
         {
             var userAnswers = AnswerNormalizer.DeserializeAnswersJson(attempt.AnswersJson);
             var scores = AnswerNormalizer.DeserializeScoresJson(attempt.ScoresJson);
@@ -25,11 +26,11 @@ namespace LearningEnglish.Application.Common.Helpers
             }
 
             return allQuestions.DistinctBy(q => q.QuestionId).OrderBy(q => q.QuestionId)
-                .Select(q => BuildQuestionReviewDto(q, userAnswers, scores))
+                .Select(q => BuildQuestionReviewDto(q, userAnswers, scores, questionMediaService))
                 .ToList();
         }
 
-        public static List<QuizAttemptSectionReviewDto> BuildStructuredQuestionReview(Quiz quiz, QuizAttempt attempt)
+        public static List<QuizAttemptSectionReviewDto> BuildStructuredQuestionReview(Quiz quiz, QuizAttempt attempt, IQuestionMediaService questionMediaService, IQuizGroupMediaService quizGroupMediaService)
         {
             var sectionReviews = new List<QuizAttemptSectionReviewDto>();
             var userAnswers = AnswerNormalizer.DeserializeAnswersJson(attempt.AnswersJson);
@@ -58,9 +59,20 @@ namespace LearningEnglish.Application.Common.Helpers
                             GroupId = group.QuizGroupId,
                             Title = group.Title,
                             Description = group.Description,
-                            MediaUrl = group.ImgKey ?? group.VideoKey,
+                            MediaUrl = !string.IsNullOrWhiteSpace(group.ImgKey) ? quizGroupMediaService.BuildImageUrl(group.ImgKey) : 
+                                       (!string.IsNullOrWhiteSpace(group.VideoKey) ? quizGroupMediaService.BuildVideoUrl(group.VideoKey) : 
+                                       (!string.IsNullOrWhiteSpace(group.AudioKey) ? quizGroupMediaService.BuildAudioUrl(group.AudioKey) : null)),
+                            MediaType = !string.IsNullOrWhiteSpace(group.ImgKey) ? "image" : 
+                                        (!string.IsNullOrWhiteSpace(group.VideoKey) ? "video" : 
+                                        (!string.IsNullOrWhiteSpace(group.AudioKey) ? "audio" : null)),
+                            
+                            // Map cụ thể
+                            ImgUrl = quizGroupMediaService.BuildImageUrl(group.ImgKey),
+                            VideoUrl = quizGroupMediaService.BuildVideoUrl(group.VideoKey),
+                            AudioUrl = quizGroupMediaService.BuildAudioUrl(group.AudioKey),
+                            
                             Questions = group.Questions.OrderBy(q => q.QuestionId)
-                                .Select(q => BuildQuestionReviewDto(q, userAnswers, scores))
+                                .Select(q => BuildQuestionReviewDto(q, userAnswers, scores, questionMediaService))
                                 .ToList()
                         };
 
@@ -82,7 +94,7 @@ namespace LearningEnglish.Application.Common.Helpers
                         {
                             ItemType = "Question",
                             DisplayOrder = question.QuestionId, // Using ID as order fallback
-                            Question = BuildQuestionReviewDto(question, userAnswers, scores)
+                            Question = BuildQuestionReviewDto(question, userAnswers, scores, questionMediaService)
                         });
                     }
                 }
@@ -94,13 +106,12 @@ namespace LearningEnglish.Application.Common.Helpers
             return sectionReviews;
         }
 
-        private static QuestionReviewDto BuildQuestionReviewDto(Question question, Dictionary<int, object?> userAnswers, Dictionary<int, decimal> scores)
+        private static QuestionReviewDto BuildQuestionReviewDto(Question question, Dictionary<int, object?> userAnswers, Dictionary<int, decimal> scores, IQuestionMediaService questionMediaService)
         {
             var questionReview = new QuestionReviewDto
             {
                 QuestionId = question.QuestionId,
                 QuestionText = question.StemText,
-                MediaUrl = question.MediaKey,
                 Type = question.Type,
                 Points = question.Points,
                 Score = scores.ContainsKey(question.QuestionId) ? scores[question.QuestionId] : 0,
@@ -112,6 +123,9 @@ namespace LearningEnglish.Application.Common.Helpers
                 Options = new List<AnswerOptionReviewDto>()
             };
 
+            // Map media properties
+            FillMediaReviewProperties(question.MediaKey, question.MediaType, questionReview, questionMediaService);
+
             questionReview.UserAnswerText = BuildAnswerText(question, questionReview.UserAnswer);
             questionReview.CorrectAnswerText = BuildAnswerText(question, questionReview.CorrectAnswer);
 
@@ -121,18 +135,50 @@ namespace LearningEnglish.Application.Common.Helpers
 
                 foreach (var option in question.Options.OrderBy(o => o.AnswerOptionId))
                 {
-                    questionReview.Options.Add(new AnswerOptionReviewDto
+                    var optionReview = new AnswerOptionReviewDto
                     {
                         OptionId = option.AnswerOptionId,
                         OptionText = option.Text ?? string.Empty,
-                        MediaUrl = option.MediaKey,
                         IsCorrect = option.IsCorrect,
                         IsSelected = userAnswerIds.Contains(option.AnswerOptionId)
-                    });
+                    };
+                    
+                    // Map media for option
+                    FillMediaReviewProperties(option.MediaKey, option.MediaType, optionReview, questionMediaService);
+                    
+                    questionReview.Options.Add(optionReview);
                 }
             }
 
             return questionReview;
+        }
+
+        /// <summary>
+        /// Shared helper to fill media properties for review DTOs.
+        /// </summary>
+        private static void FillMediaReviewProperties(string? mediaKey, string? mediaType, dynamic dto, IQuestionMediaService mediaService)
+        {
+            string? mKey = !string.IsNullOrWhiteSpace(mediaKey) ? mediaKey : null;
+            string? url = mediaService.BuildMediaUrl(mKey);
+
+            dto.MediaUrl = url;
+            dto.MediaType = mediaType;
+
+            bool isImage = (mediaType != null && mediaType.StartsWith("image")) || (mediaType == null && mKey != null);
+            bool isVideo = mediaType != null && mediaType.StartsWith("video");
+            bool isAudio = mediaType != null && mediaType.StartsWith("audio");
+
+            dto.ImgUrl = isImage ? url : null;
+            dto.VideoUrl = isVideo ? url : null;
+            dto.AudioUrl = isAudio ? url : null;
+
+            // Type fallbacks for UI
+            if (dto is QuestionReviewDto qDto)
+            {
+                qDto.ImgType = isImage ? (mediaType ?? "image/jpeg") : null;
+                qDto.VideoType = isVideo ? mediaType : null;
+                qDto.AudioType = isAudio ? mediaType : null;
+            }
         }
 
        

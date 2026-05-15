@@ -88,15 +88,12 @@ export default function ForgotPassword() {
         <Row className="justify-content-center">
           <Col xs={12} sm={10} md={8} lg={6} xl={5}>
             <div className="forgot-password-card">
-              <div className="forgot-password-icon-wrapper">
-                <FaLock className="forgot-password-icon" />
+              <div className="forgot-password-header-section">
+                <h1 className="forgot-password-title">Quên Mật Khẩu?</h1>
+                <p className="forgot-password-subtitle">
+                  Nhập email đăng ký để nhận mã OTP đặt lại mật khẩu.
+                </p>
               </div>
-
-              <h1 className="forgot-password-title">Quên mật khẩu?</h1>
-
-              <p className="forgot-password-description">
-                Nhập email bạn đã dùng để đăng ký, chúng tôi sẽ gửi mã OTP để đặt lại mật khẩu.
-              </p>
 
               <Form onSubmit={handleSendOTP}>
                 <Form.Group className="mb-3">

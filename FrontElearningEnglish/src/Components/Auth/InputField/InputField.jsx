@@ -16,6 +16,7 @@ export default function InputField({
     maxLength,
     ...rest
 }) {
+    const inputId = rest.id || name;
     const containerClasses = [
         "input-field-container",
         error ? "error" : "",
@@ -25,13 +26,19 @@ export default function InputField({
     return (
         <div className="input-field-wrapper">
             <div className={containerClasses}>
+                {rest.icon && (
+                    <div className="input-field-icon">
+                        {rest.icon}
+                    </div>
+                )}
                 <input
                     type={showPasswordToggle ? (showPassword ? "text" : "password") : type}
-                    className="input-field"
+                    className={`input-field ${rest.icon ? "has-icon" : ""}`}
                     placeholder={placeholder}
                     value={value}
                     onChange={onChange}
                     disabled={disabled}
+                    id={inputId}
                     name={name}
                     maxLength={maxLength !== undefined ? maxLength : (showPasswordToggle ? 20 : undefined)}
                     {...rest}

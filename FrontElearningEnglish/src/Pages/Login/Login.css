@@ -14,11 +14,12 @@
 .auth-card {
   background: var(--color-bg-white, #ffffff);
   border-radius: var(--radius-xl, clamp(1rem, 0.8rem + 1vw, 1.5rem));
-  padding: var(--padding-container-xl, clamp(2rem, 1.5rem + 2.5vw, 4rem));
+  padding: var(--padding-container-xl, clamp(1.5rem, 1.25rem + 2vw, 3rem)); /* Reduced slightly for mobile */
   box-shadow: 0 20px 40px var(--shadow-lg, rgba(0, 0, 0, 0.15));
   text-align: center;
   position: relative;
   z-index: 1;
+  width: 100%;
 }
 
 /* ===========================
@@ -26,17 +27,17 @@
 =========================== */
 
 .auth-title {
-  font-size: var(--font-size-3xl, clamp(1.875rem, 1.5rem + 1.875vw, 2.25rem));
+  font-size: var(--font-size-3xl, clamp(1.75rem, 1.5rem + 1vw, 2.25rem)); /* Slightly smaller min */
   font-weight: 700;
   color: var(--color-text-primary, #1f2937);
   line-height: 1.2;
-  margin-bottom: var(--spacing-sm, clamp(0.5rem, 0.4rem + 0.5vw, 0.75rem));
+  margin-bottom: 0.5rem;
 }
 
 .auth-subtitle {
-  font-size: var(--font-size-base, clamp(1rem, 0.95rem + 0.25vw, 1.125rem));
+  font-size: var(--font-size-base, clamp(0.95rem, 0.9rem + 0.2vw, 1.125rem));
   color: var(--color-text-secondary, #6b7280);
-  margin: var(--spacing-sm, clamp(0.5rem, 0.4rem + 0.5vw, 0.75rem)) 0 var(--spacing-lg, clamp(1rem, 0.8rem + 1vw, 1.5rem));
+  margin: 0.5rem 0 1.5rem;
   line-height: 1.5;
 }
 
@@ -168,14 +169,21 @@
 
 @media (max-width: 768px) {
   .auth-container {
-    padding: var(--padding-container-md, clamp(1rem, 0.75rem + 1.25vw, 2rem)) var(--padding-container-sm, clamp(0.75rem, 0.5rem + 1.25vw, 1.5rem));
+    padding: 2rem 1rem;
     min-height: 100vh;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: flex-start !important;
+    overflow-y: auto; /* Ensure scrollability */
   }
 
   .auth-card {
-    padding: var(--padding-container-lg, clamp(1.5rem, 1rem + 2.5vw, 3rem));
-    margin-top: var(--spacing-xl, clamp(1.5rem, 1.2rem + 1.5vw, 2rem));
-    margin-bottom: var(--spacing-xl, clamp(1.5rem, 1.2rem + 1.5vw, 2rem));
+    padding: 2rem 1.5rem;
+    margin-top: 1rem;
+    margin-bottom: 2rem;
+    width: 100%;
+    max-width: 450px;
   }
 }
 
@@ -205,68 +213,12 @@
   }
 }
 
-/* ===========================
-   LOGO POSITIONING
-=========================== */
-.auth-logo-container {
-  position: absolute;
-  top: 2rem;
-  left: 2rem;
-  z-index: 2;
-}
-
-
-.auth-logo-container .header {
-  gap: 12px;
-}
-
-.auth-logo-container .header-logo {
-  width: 48px;
-  height: 48px;
-  border-radius: 50%;
-  object-fit: cover;
-}
-
-.auth-logo-container .header-title {
-  color: var(--color-text-white, white);
-  font-size: clamp(16px, 1rem + 0.5vw, 20px);
-  font-weight: 600;
-  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-}
-
-@media (max-width: 768px) {
-  .auth-logo-container {
-    bottom: clamp(1rem, 0.75rem + 1.25vw, 1.5rem);
-    left: clamp(1rem, 0.75rem + 1.25vw, 1.5rem);
-  }
-
-  .auth-logo-container .header-logo {
-    width: 40px;
-    height: 40px;
-  }
-
-  .auth-logo-container .header-title {
-    font-size: clamp(14px, 0.875rem + 0.25vw, 18px);
-  }
-}
-
-@media (max-width: 576px) {
-  .auth-logo-container .header {
-    gap: 8px;
-  }
-
-  .auth-logo-container .header-logo {
-    width: 36px;
-    height: 36px;
-  }
-
-  .auth-logo-container .header-title {
-    font-size: 14px;
-  }
-}
+/* Clean up redundant mobile header styles if any */
+/* Clean up redundant mobile header styles if any */
 
 @media (min-width: 992px) {
   .auth-container {
-    min-height: 125vh; /* Compensate for desktop zoom: 0.8 */
+    min-height: 125vh;
+    /* Compensate for desktop zoom: 0.8 */
   }
 }

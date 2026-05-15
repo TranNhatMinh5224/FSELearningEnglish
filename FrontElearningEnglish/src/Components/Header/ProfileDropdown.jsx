@@ -2,7 +2,7 @@
 import React from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { Dropdown } from "react-bootstrap";
-import { FaUserCircle } from "react-icons/fa";
+import UserAvatar from "../Common/UserAvatar/UserAvatar";
 import { useAuth } from "../../Context/AuthContext";
 import { ROUTE_PATHS } from "../../Routes/Paths";
 
@@ -35,12 +35,14 @@ export default function ProfileDropdown() {
         className="profile-trigger d-flex align-items-center"
         id="profile-dropdown"
       >
-        <div className="avatar d-flex align-items-center justify-content-center">
-          {!isGuest && user?.avatarUrl ? (
-            <img src={user.avatarUrl} alt={`Avatar của ${user.fullName || 'người dùng'}`} className="avatar-img" />
-          ) : (
-            <FaUserCircle className="avatar-default-icon" />
-          )}
+        <div className="avatar-header-wrapper d-flex align-items-center justify-content-center">
+          <UserAvatar 
+            imageUrl={isGuest ? null : user?.avatarUrl}
+            displayName={isGuest ? "Guest" : user?.fullName}
+            size={38}
+            borderWidth={2}
+            borderColor="rgba(255,255,255,0.2)"
+          />
         </div>
         {!isGuest && (
           <div className="user-info d-flex flex-column">

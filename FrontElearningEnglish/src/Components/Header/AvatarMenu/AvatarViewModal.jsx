@@ -1,10 +1,11 @@
 import React from "react";
 import { Modal } from "react-bootstrap";
 import { FaTimes } from "react-icons/fa";
+import UserAvatar from "../../Common/UserAvatar/UserAvatar";
 import "./AvatarViewModal.css";
 
 export default function AvatarViewModal({ show, onClose, avatarUrl, fullName }) {
-    const displayAvatarUrl = avatarUrl || `https://ui-avatars.com/api/?name=${encodeURIComponent(fullName || 'User')}&background=6366f1&color=fff&size=256`;
+    // UserAvatar will handle the fallback logic
 
     return (
         <Modal
@@ -23,14 +24,14 @@ export default function AvatarViewModal({ show, onClose, avatarUrl, fullName }) 
                 >
                     <FaTimes />
                 </button>
-                <div className="avatar-view-container">
-                    <img
-                        src={displayAvatarUrl}
-                        alt={`Ảnh đại diện của ${fullName || 'người dùng'}`}
-                        className="avatar-view-image"
-                        onError={(e) => {
-                            e.target.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(fullName || 'User')}&background=6366f1&color=fff&size=256`;
-                        }}
+                <div className="avatar-view-container d-flex justify-content-center align-items-center">
+                    <UserAvatar 
+                        imageUrl={avatarUrl}
+                        displayName={fullName}
+                        size={320}
+                        borderWidth={8}
+                        borderColor="#fff"
+                        className="avatar-view-image-new"
                     />
                 </div>
             </Modal.Body>

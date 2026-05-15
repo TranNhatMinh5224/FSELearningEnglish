@@ -142,6 +142,7 @@ namespace LearningEnglish.Infrastructure.Data
                  .OnDelete(DeleteBehavior.SetNull);
 
                 e.Property(u => u.Balance)
+                 .HasColumnType("numeric")
                  .HasPrecision(18, 2);
             });
 
@@ -244,6 +245,7 @@ namespace LearningEnglish.Infrastructure.Data
                  .IsRequired();
 
                 e.Property(c => c.Price)
+                 .HasColumnType("numeric")
                  .HasPrecision(18, 2);
 
                 e.Property(c => c.CreatedAt)
@@ -511,6 +513,7 @@ namespace LearningEnglish.Infrastructure.Data
                  .HasMaxLength(2000);
 
                 e.Property(q => q.TotalPossibleScore)
+                 .HasColumnType("numeric")
                  .HasPrecision(18, 2);
 
                 e.HasOne(q => q.Assessment)
@@ -570,6 +573,10 @@ namespace LearningEnglish.Infrastructure.Data
                 e.Property(qg => qg.DisplayOrder)
                  .IsRequired()
                  .HasDefaultValue(0);
+                
+                e.Property(qg => qg.SumScore)
+                 .HasColumnType("numeric")
+                 .HasPrecision(18, 2);
 
                 e.HasOne(qg => qg.QuizSection)
                  .WithMany(qs => qs.QuizGroups)
@@ -601,6 +608,10 @@ namespace LearningEnglish.Infrastructure.Data
 
                 e.Property(es => es.ImageType)
                  .HasMaxLength(50);
+                
+                e.Property(es => es.TotalPoints)
+                 .HasColumnType("numeric")
+                 .HasPrecision(18, 2);
 
                 e.HasOne(es => es.Assessment)
                  .WithMany(a => a.Essays)
@@ -622,6 +633,7 @@ namespace LearningEnglish.Infrastructure.Data
                  .HasMaxLength(5000);
 
                 e.Property(q => q.Points)
+                 .HasColumnType("numeric")
                  .HasPrecision(18, 2);
 
                 e.Property(q => q.CorrectAnswersJson)
@@ -691,6 +703,7 @@ namespace LearningEnglish.Infrastructure.Data
                  .HasMaxLength(100);
 
                 e.Property(tp => tp.Price)
+                 .HasColumnType("numeric")
                  .HasPrecision(18, 2);
             });
 
@@ -888,6 +901,7 @@ namespace LearningEnglish.Infrastructure.Data
 
                 // Column constraints
                 e.Property(qa => qa.TotalScore)
+                 .HasColumnType("numeric")
                  .HasPrecision(18, 2);
 
                 e.Property(qa => qa.ScoresJson)
@@ -927,6 +941,10 @@ namespace LearningEnglish.Infrastructure.Data
 
                 e.Property(es => es.TeacherFeedback)
                  .HasMaxLength(5000);
+                
+                e.Property(es => es.TeacherScore)
+                 .HasColumnType("numeric")
+                 .HasPrecision(18, 2);
 
                 e.HasOne(es => es.Essay)
                  .WithMany(e => e.EssaySubmissions)
@@ -956,6 +974,10 @@ namespace LearningEnglish.Infrastructure.Data
                  .WithMany(u => u.ModuleCompletions)
                  .HasForeignKey(mc => mc.UserId)
                  .OnDelete(DeleteBehavior.Cascade);
+
+                e.Property(mc => mc.ProgressPercentage)
+                 .HasColumnType("numeric")
+                 .HasPrecision(18, 2);
             });
 
             // LessonCompletion
@@ -984,6 +1006,10 @@ namespace LearningEnglish.Infrastructure.Data
                  .WithMany(c => c.CourseProgresses)
                  .HasForeignKey(cp => cp.CourseId)
                  .OnDelete(DeleteBehavior.Cascade);
+
+                e.Property(cp => cp.ProgressPercentage)
+                 .HasColumnType("numeric")
+                 .HasPrecision(18, 2);
             });
 
             // FlashCardReview
@@ -1108,6 +1134,7 @@ namespace LearningEnglish.Infrastructure.Data
                  .IsRequired();
 
                 e.Property(p => p.Amount)
+                 .HasColumnType("numeric")
                  .HasPrecision(18, 2);
 
                 e.Property(p => p.Description)
@@ -1238,14 +1265,17 @@ namespace LearningEnglish.Infrastructure.Data
                 e.HasKey(wt => wt.WalletTransactionId);
 
                 e.Property(wt => wt.Amount)
+                 .HasColumnType("numeric")
                  .HasPrecision(18, 2)
                  .IsRequired();
 
                 e.Property(wt => wt.BalanceBefore)
+                 .HasColumnType("numeric")
                  .HasPrecision(18, 2)
                  .IsRequired();
 
                 e.Property(wt => wt.BalanceAfter)
+                 .HasColumnType("numeric")
                  .HasPrecision(18, 2)
                  .IsRequired();
 
@@ -1269,6 +1299,36 @@ namespace LearningEnglish.Infrastructure.Data
                 e.HasIndex(wt => wt.UserId);
                 e.HasIndex(wt => wt.CreatedAt);
                 e.HasIndex(wt => wt.Type);
+            });
+
+            // ===== AssetFrontend =====
+            modelBuilder.Entity<AssetFrontend>(e =>
+            {
+                e.ToTable("AssetsFrontend");
+                e.HasKey(a => a.Id);
+
+                e.Property(a => a.NameImage)
+                 .IsRequired()
+                 .HasMaxLength(255);
+
+                e.Property(a => a.KeyImage)
+                 .IsRequired()
+                 .HasMaxLength(500);
+
+                e.Property(a => a.ImageType)
+                 .HasMaxLength(100);
+
+                e.Property(a => a.AssetType)
+                 .IsRequired();
+
+                e.Property(a => a.CreatedAt)
+                 .IsRequired();
+
+                e.Property(a => a.UpdatedAt)
+                 .IsRequired();
+
+                // Index để tìm nhanh theo loại asset (Logo, Banner, v.v.)
+                e.HasIndex(a => a.AssetType);
             });
         
          // ===== SEED   DATA =====

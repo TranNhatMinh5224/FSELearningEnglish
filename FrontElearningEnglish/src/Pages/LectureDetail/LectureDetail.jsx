@@ -10,6 +10,8 @@ import { lectureService } from "../../Services/lectureService";
 import { courseService } from "../../Services/courseService";
 import { lessonService } from "../../Services/lessonService";
 import { moduleService } from "../../Services/moduleService";
+import { LectureContentSkeleton, LectureTreeSkeleton } from "../../Components/Common/Skeleton/LectureDetailSkeleton";
+import Skeleton from "../../Components/Common/Skeleton/Skeleton";
 import "./LectureDetail.css";
 
 export default function LectureDetail() {
@@ -189,7 +191,21 @@ export default function LectureDetail() {
     if (loadingTree) return (
         <div className="lecture-page-wrapper">
             <MainHeader />
-            <div className="lecture-loading"><div className="loading-spinner"></div><p>Đang tải...</p></div>
+            <Container className="py-4 py-md-5">
+                <div className="lecture-boxed-container d-flex flex-column">
+                    <div className="lecture-header-skeleton p-4 border-bottom">
+                        <Skeleton width="40%" height="32px" />
+                    </div>
+                    <div className="d-flex flex-grow-1">
+                        <div style={{ width: '300px' }} className="border-right">
+                            <LectureTreeSkeleton />
+                        </div>
+                        <div className="flex-grow-1 p-4">
+                            <LectureContentSkeleton />
+                        </div>
+                    </div>
+                </div>
+            </Container>
         </div>
     );
 
@@ -226,17 +242,21 @@ export default function LectureDetail() {
                         )}
 
                         <aside 
-                            className={`lecture-sidebar d-flex flex-column ${sidebarCollapsed ? 'collapsed' : ''}`}
+                            className={`lecture-sidebar d-flex flex-column ${sidebarCollapsed ? 'collapsed' : ''} ${isResizingRef.current ? 'resizing' : ''}`}
                             style={{ 
                                 width: sidebarCollapsed ? 0 : `${sidebarWidth}px`, 
                                 minWidth: sidebarCollapsed ? 0 : `${sidebarWidth}px` 
                             }}
                         >
-                            <LectureTree
-                                lectureTree={lectureTree}
-                                currentLectureId={currentLectureId}
-                                onLectureClick={handleLectureClick}
-                            />
+                            {loadingTree ? (
+                                <LectureTreeSkeleton />
+                            ) : (
+                                <LectureTree
+                                    lectureTree={lectureTree}
+                                    currentLectureId={currentLectureId}
+                                    onLectureClick={handleLectureClick}
+                                />
+                            )}
                         </aside>
 
                         {!sidebarCollapsed && (
@@ -249,11 +269,15 @@ export default function LectureDetail() {
                         <div className="lecture-main-wrapper d-flex flex-column flex-grow-1">
                             <section className="lecture-content-section flex-grow-1">
                                 <div className="lecture-content-container">
-                                    <LectureContent
-                                        lecture={currentLecture}
-                                        loading={loadingLecture}
-                                        error={error}
-                                    />
+                                    {loadingLecture ? (
+                                        <LectureContentSkeleton />
+                                    ) : (
+                                        <LectureContent
+                                            lecture={currentLecture}
+                                            loading={loadingLecture}
+                                            error={error}
+                                        />
+                                    )}
                                 </div>
                             </section>
 

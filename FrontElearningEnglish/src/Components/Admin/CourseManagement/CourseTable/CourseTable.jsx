@@ -41,26 +41,46 @@ export default function CourseTable({
           <thead>
             <tr>
               <th style={{width: '35%'}}>Course Name</th>
-              <th>Instructor</th>
-              <th>Type</th>
-              <th>Price</th>
-              <th>Students</th>
-              <th>Actions</th>
+              <th style={{width: '18%'}}>Instructor</th>
+              <th style={{width: '12%'}}>Type</th>
+              <th style={{width: '12%'}}>Price</th>
+              <th style={{width: '10%'}} className="text-center">Students</th>
+              <th style={{width: '13%'}} className="text-end pe-4">Actions</th>
             </tr>
           </thead>
-          <tbody>
-            {loading ? (
-              <tr>
-                <td colSpan="6" className="text-center py-4">
-                  <div className="spinner-border text-primary" role="status">
-                    <span className="visually-hidden">Loading...</span>
-                  </div>
-                </td>
-              </tr>
+          <tbody className={loading ? "table-loading-fade" : ""}>
+            {loading && courses.length === 0 ? (
+              // Show skeleton rows ONLY on initial load
+              Array.from({ length: pageSize }).map((_, index) => (
+                <tr key={`skeleton-${index}`}>
+                  <td>
+                    <div className="course-info">
+                      <div className="skeleton skeleton-thumbnail"></div>
+                      <div className="table-course-details">
+                        <div className="skeleton skeleton-title"></div>
+                      </div>
+                    </div>
+                  </td>
+                  <td><div className="skeleton skeleton-text" style={{ width: '120px' }}></div></td>
+                  <td><div className="skeleton skeleton-badge"></div></td>
+                  <td><div className="skeleton skeleton-text" style={{ width: '80px' }}></div></td>
+                  <td className="text-center"><div className="skeleton skeleton-text" style={{ width: '40px', margin: '0 auto' }}></div></td>
+                  <td>
+                    <div className="action-buttons">
+                      <div className="skeleton skeleton-circle"></div>
+                      <div className="skeleton skeleton-circle"></div>
+                      <div className="skeleton skeleton-circle"></div>
+                    </div>
+                  </td>
+                </tr>
+              ))
             ) : courses.length === 0 ? (
               <tr>
-                <td colSpan="6" className="text-center py-4 text-muted">
-                  No courses found
+                <td colSpan="6" className="text-center py-5 text-muted">
+                  <div className="no-data-content">
+                    <MdMenuBook size={48} className="mb-3 opacity-20" />
+                    <p>No courses found</p>
+                  </div>
                 </td>
               </tr>
             ) : (
@@ -80,7 +100,7 @@ export default function CourseTable({
                         alt="Course"
                         className="course-thumbnail"
                       />
-                      <div className="course-details">
+                      <div className="table-course-details">
                         <div className="table-course-title">{course.title}</div>
                       </div>
                     </div>
@@ -94,6 +114,7 @@ export default function CourseTable({
                       <button 
                         className="table-action-btn action-view" 
                         title="View Details"
+                        aria-label="View Details"
                         onClick={(e) => {
                           e.stopPropagation();
                           onView(course.courseId);
@@ -104,6 +125,7 @@ export default function CourseTable({
                       <button 
                         className="table-action-btn action-edit" 
                         title="Edit"
+                        aria-label="Edit Course"
                         onClick={(e) => {
                           e.stopPropagation();
                           onEdit(course);
@@ -114,6 +136,7 @@ export default function CourseTable({
                       <button 
                         className="table-action-btn action-delete" 
                         title="Delete"
+                        aria-label="Delete Course"
                         onClick={(e) => {
                           e.stopPropagation();
                           onDelete(course.courseId);

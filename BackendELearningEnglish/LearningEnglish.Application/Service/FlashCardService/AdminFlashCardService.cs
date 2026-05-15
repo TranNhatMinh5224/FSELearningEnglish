@@ -52,8 +52,13 @@ namespace LearningEnglish.Application.Service
                 {
                     try
                     {
-                        imageKey = await _flashCardMediaService.CommitImageAsync(dto.ImageTempKey);
-                        flashCard.ImageKey = imageKey;
+                        var result = await _flashCardMediaService.CommitImageAsync(dto.ImageTempKey);
+                        if (result.Success)
+                        {
+                            imageKey = result.Data.ImageKey;
+                            flashCard.ImageKey = imageKey;
+                            flashCard.ImageType = result.Data.ContentType;
+                        }
                     }
                     catch (Exception imageEx)
                     {
@@ -70,8 +75,13 @@ namespace LearningEnglish.Application.Service
                 {
                     try
                     {
-                        audioKey = await _flashCardMediaService.CommitAudioAsync(dto.AudioTempKey);
-                        flashCard.AudioKey = audioKey;
+                        var result = await _flashCardMediaService.CommitAudioAsync(dto.AudioTempKey);
+                        if (result.Success)
+                        {
+                            audioKey = result.Data.AudioKey;
+                            flashCard.AudioKey = audioKey;
+                            flashCard.AudioType = result.Data.ContentType;
+                        }
                     }
                     catch (Exception audioEx)
                     {
@@ -95,16 +105,16 @@ namespace LearningEnglish.Application.Service
                 _cache.RemoveByPrefix(CacheKeys.FlashCardsPrefix);
 
                 // Map DTO inline
-                var result = _mapper.Map<FlashCardDto>(created);
+                var mappedResult = _mapper.Map<FlashCardDto>(created);
                 if (!string.IsNullOrWhiteSpace(created.ImageKey))
-                    result.ImageUrl = _flashCardMediaService.BuildImageUrl(created.ImageKey);
+                    mappedResult.ImageUrl = _flashCardMediaService.BuildImageUrl(created.ImageKey);
                 if (!string.IsNullOrWhiteSpace(created.AudioKey))
-                    result.AudioUrl = _flashCardMediaService.BuildAudioUrl(created.AudioKey);
+                    mappedResult.AudioUrl = _flashCardMediaService.BuildAudioUrl(created.AudioKey);
 
                 response.Success = true;
                 response.StatusCode = 201;
                 response.Message = "Tạo FlashCard thành công";
-                response.Data = result;
+                response.Data = mappedResult;
                 return response;
             }
             catch (Exception ex)
@@ -139,8 +149,13 @@ namespace LearningEnglish.Application.Service
                     {
                         try
                         {
-                            flashCard.ImageKey = await _flashCardMediaService.CommitImageAsync(flashCardDto.ImageTempKey);
-                            committedImageKeys.Add(flashCard.ImageKey);
+                            var imgResult = await _flashCardMediaService.CommitImageAsync(flashCardDto.ImageTempKey);
+                            if (imgResult.Success)
+                            {
+                                flashCard.ImageKey = imgResult.Data.ImageKey;
+                                flashCard.ImageType = imgResult.Data.ContentType;
+                                committedImageKeys.Add(flashCard.ImageKey);
+                            }
                         }
                         catch (Exception imageEx)
                         {
@@ -168,8 +183,13 @@ namespace LearningEnglish.Application.Service
                     {
                         try
                         {
-                            flashCard.AudioKey = await _flashCardMediaService.CommitAudioAsync(flashCardDto.AudioTempKey);
-                            committedAudioKeys.Add(flashCard.AudioKey);
+                            var audioResult = await _flashCardMediaService.CommitAudioAsync(flashCardDto.AudioTempKey);
+                            if (audioResult.Success)
+                            {
+                                flashCard.AudioKey = audioResult.Data.AudioKey;
+                                flashCard.AudioType = audioResult.Data.ContentType;
+                                committedAudioKeys.Add(flashCard.AudioKey);
+                            }
                         }
                         catch (Exception audioEx)
                         {
@@ -200,7 +220,7 @@ namespace LearningEnglish.Application.Service
                 _cache.RemoveByPrefix(CacheKeys.FlashCardsPrefix);
 
                 // Map DTO inline
-                var result = created.Select(fc =>
+                var mappedBulkResult = created.Select(fc =>
                 {
                     var d = _mapper.Map<FlashCardDto>(fc);
                     if (!string.IsNullOrWhiteSpace(fc.ImageKey))
@@ -213,7 +233,7 @@ namespace LearningEnglish.Application.Service
                 response.Success = true;
                 response.StatusCode = 201;
                 response.Message = "Import flashcards thành công";
-                response.Data = result;
+                response.Data = mappedBulkResult;
                 return response;
             }
             catch (Exception ex)
@@ -256,8 +276,13 @@ namespace LearningEnglish.Application.Service
                 {
                     try
                     {
-                        newImageKey = await _flashCardMediaService.CommitImageAsync(dto.ImageTempKey);
-                        flashCard.ImageKey = newImageKey;
+                        var imgResult = await _flashCardMediaService.CommitImageAsync(dto.ImageTempKey);
+                        if (imgResult.Success)
+                        {
+                            newImageKey = imgResult.Data.ImageKey;
+                            flashCard.ImageKey = newImageKey;
+                            flashCard.ImageType = imgResult.Data.ContentType;
+                        }
                     }
                     catch (Exception imageEx)
                     {
@@ -274,8 +299,13 @@ namespace LearningEnglish.Application.Service
                 {
                     try
                     {
-                        newAudioKey = await _flashCardMediaService.CommitAudioAsync(dto.AudioTempKey);
-                        flashCard.AudioKey = newAudioKey;
+                        var audioResult = await _flashCardMediaService.CommitAudioAsync(dto.AudioTempKey);
+                        if (audioResult.Success)
+                        {
+                            newAudioKey = audioResult.Data.AudioKey;
+                            flashCard.AudioKey = newAudioKey;
+                            flashCard.AudioType = audioResult.Data.ContentType;
+                        }
                     }
                     catch (Exception audioEx)
                     {

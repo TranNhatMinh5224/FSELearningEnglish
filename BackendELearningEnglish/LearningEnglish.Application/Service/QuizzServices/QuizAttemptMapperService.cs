@@ -39,33 +39,41 @@ public class QuizAttemptMapperService : IQuizAttemptMapper
                 QuizId = section.QuizId,  // ID quiz
                 Title = section.Title,
                 Description = section.Description,  // Mô tả section
-                DisplayOrder = 0,  // TODO: Cần thêm DisplayOrder vào QuizSection entity
+                DisplayOrder = 0, 
                 Items = new List<QuizItemDto>()
             };
 
             // 1. Map groups sang QuizItemDto
-            var groupItems = section.QuizGroups.Select(g => new QuizItemDto
+            var groupItems = section.QuizGroups.Select(g => 
             {
-                ItemType = "Group",
-                ItemIndex = g.DisplayOrder,
-                
-                // Group properties - MAP TẤT CẢ FIELDS TỪ ENTITY
-                GroupId = g.QuizGroupId,
-                Name = g.Name,
-                Title = g.Title,  // Tiêu đề group (Photographs, Short Conversations)
-                Description = g.Description,  // Đoạn văn/bài đọc cho Reading Comprehension
-                ImgUrl = _quizGroupMediaService.BuildImageUrl(g.ImgKey),
-                ImgType = g.ImgType,  // image/jpeg, image/png
-                VideoUrl = _quizGroupMediaService.BuildVideoUrl(g.VideoKey),
-                VideoType = g.VideoType,  // video/mp4
-                AudioUrl = _quizGroupMediaService.BuildAudioUrl(g.AudioKey),
-                AudioType = g.AudioType,  // audio/mpeg
-                VideoDuration = g.VideoDuration,  // Độ dài video (seconds)
-                SumScore = g.SumScore,  // Tổng điểm của group
-                Questions = g.Questions
-                    .DistinctBy(q => q.QuestionId)
-                    .Select(q => MapToQuestionDto(q, attemptId, quiz.ShuffleAnswers.GetValueOrDefault(false)))
-                    .ToList()
+                var dto = new QuizItemDto
+                {
+                    ItemType = "Group",
+                    ItemIndex = g.DisplayOrder,
+                    
+                    // Group properties
+                    GroupId = g.QuizGroupId,
+                    Name = g.Name,
+                    Title = g.Title,
+                    Description = g.Description,
+                    
+                    ImgUrl = _quizGroupMediaService.BuildImageUrl(g.ImgKey),
+                    VideoUrl = _quizGroupMediaService.BuildVideoUrl(g.VideoKey),
+                    AudioUrl = _quizGroupMediaService.BuildAudioUrl(g.AudioKey),
+                    
+                    // Fallback types if keys exist but types are missing
+                    ImgType = !string.IsNullOrWhiteSpace(g.ImgKey) ? (g.ImgType ?? "image/jpeg") : null,
+                    VideoType = !string.IsNullOrWhiteSpace(g.VideoKey) ? (g.VideoType ?? "video/mp4") : null,
+                    AudioType = !string.IsNullOrWhiteSpace(g.AudioKey) ? (g.AudioType ?? "audio/mpeg") : null,
+                    
+                    VideoDuration = g.VideoDuration,
+                    SumScore = g.SumScore,
+                    Questions = g.Questions
+                        .DistinctBy(q => q.QuestionId)
+                        .Select(q => MapToQuestionDto(q, attemptId, quiz.ShuffleAnswers.GetValueOrDefault(false)))
+                        .ToList()
+                };
+                return dto;
             }).ToList();
 
             // 2. Map standalone questions sang QuizItemDto
@@ -104,45 +112,67 @@ public class QuizAttemptMapperService : IQuizAttemptMapper
    
     public QuestionDto MapToQuestionDto(Question q, int attemptId, bool shuffleAnswers)
     {
-        return new QuestionDto
+        var dto = new QuestionDto
         {
             QuestionId = q.QuestionId,
             QuestionText = q.StemText,
-            // Sử dụng MediaService
-            MediaUrl = _questionMediaService.BuildMediaUrl(q.MediaKey),
-            MediaType = q.MediaType,  // Loại media (image/png, audio/mpeg)
             Type = q.Type,
             Points = q.Points,
-            DisplayOrder = q.DisplayOrder,  // Thứ tự hiển thị
+            DisplayOrder = q.DisplayOrder,
             IsAnswered = false,
             CurrentScore = null,
             MetadataJson = q.MetadataJson,
             CorrectAnswersJson = q.CorrectAnswersJson,
             Options = MapToOptionDtos(q, attemptId, shuffleAnswers)
         };
-    }
 
+        FillMediaProperties(q, dto);
+        return dto;
+    }
 
     public QuizItemDto MapToStandaloneQuestionItemDto(Question q, int attemptId, bool shuffleAnswers)
     {
-        return new QuizItemDto
+        var dto = new QuizItemDto
         {
             ItemType = "Question",
             ItemIndex = q.DisplayOrder,
-            
-            // Question properties
             QuestionId = q.QuestionId,
             QuestionText = q.StemText,
-            // Sử dụng MediaService
-            MediaUrl = _questionMediaService.BuildMediaUrl(q.MediaKey),
             Type = q.Type,
             Points = q.Points,
             IsAnswered = false,
-            CurrentScore = null,
             MetadataJson = q.MetadataJson,
             CorrectAnswersJson = q.CorrectAnswersJson,
             Options = MapToOptionDtos(q, attemptId, shuffleAnswers)
         };
+
+        FillMediaProperties(q, dto);
+        return dto;
+    }
+
+    /// <summary>
+    /// Helper method to fill media properties for question DTOs.
+    /// Handles fallback for missing MediaType when MediaKey is present.
+    /// </summary>
+    private void FillMediaProperties(Question q, dynamic dto)
+    {
+        string? mKey = !string.IsNullOrWhiteSpace(q.MediaKey) ? q.MediaKey : null;
+        string? mediaUrl = _questionMediaService.BuildMediaUrl(mKey);
+
+        dto.MediaUrl = mediaUrl;
+        dto.MediaType = q.MediaType;
+
+        bool isImage = (q.MediaType != null && q.MediaType.StartsWith("image")) || (q.MediaType == null && mKey != null);
+        bool isVideo = q.MediaType != null && q.MediaType.StartsWith("video");
+        bool isAudio = q.MediaType != null && q.MediaType.StartsWith("audio");
+
+        dto.ImgUrl = isImage ? mediaUrl : null;
+        dto.VideoUrl = isVideo ? mediaUrl : null;
+        dto.AudioUrl = isAudio ? mediaUrl : null;
+
+        dto.ImgType = isImage ? (q.MediaType ?? "image/jpeg") : null;
+        dto.VideoType = isVideo ? q.MediaType : null;
+        dto.AudioType = isAudio ? q.MediaType : null;
     }
 
   

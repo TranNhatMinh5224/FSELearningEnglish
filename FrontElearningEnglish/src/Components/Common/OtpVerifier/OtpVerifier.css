@@ -5,31 +5,54 @@
   align-items: center;
   background: linear-gradient(135deg, #7abfec 0%, #fdf2f8 100%);
   padding: 20px;
+  position: relative;
+  overflow: hidden;
 }
 
 .otp-box {
   width: 100%;
-  max-width: 420px;
+  max-width: 440px;
   background: #fff;
-  padding: 48px 40px;
-  border-radius: 20px;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+  padding: 48px;
+  border-radius: 24px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
   text-align: center;
 }
 
-.otp-box h2 {
-  font-size: 28px;
-  font-weight: 700;
-  color: #1f2937;
-  margin-bottom: 12px;
+.otp-header-section {
+  margin-bottom: 35px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
-.otp-desc {
-  font-size: 14px;
+.otp-title {
+  font-size: 28px;
+  font-weight: 900;
+  background: linear-gradient(90deg, #6fd5e0 0%, #d447b6 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin-bottom: 10px;
+  letter-spacing: -0.5px;
+  text-transform: uppercase;
+}
+
+.otp-subtitle {
+  font-size: 15px;
   color: #6b7280;
-  margin-bottom: 32px;
+  margin-bottom: 12px;
   line-height: 1.5;
   text-align: center;
+}
+
+.otp-header-section::after {
+  content: "";
+  width: 50px;
+  height: 4px;
+  background: linear-gradient(90deg, #6fd5e0 0%, #d447b6 100%);
+  border-radius: 10px;
+  display: block;
 }
 
 .otp-input-group {
@@ -86,20 +109,26 @@
   font-weight: 600;
 }
 
-/* Bootstrap Button primary override */
-.otp-btn.btn-primary {
-  background: linear-gradient(to right, #41d6e3 0%, #06b6d4 100%) !important;
-  border: none !important;
+/* Bootstrap Button primary override - specificity to avoid important */
+.otp-container .otp-btn.btn-primary {
+  background: linear-gradient(90deg, #6fd5e0 0%, #d447b6 100%);
+  border: none;
   border-radius: 12px;
-  font-weight: 600;
-  box-shadow: 0 4px 12px rgba(65, 214, 227, 0.3);
+  font-weight: 700;
+  box-shadow: 0 10px 20px rgba(111, 213, 224, 0.2);
   transition: all 0.3s ease;
+  color: white;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
-.otp-btn.btn-primary:hover:not(:disabled) {
+.otp-container .otp-btn.btn-primary:hover:not(:disabled) {
   transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(65, 214, 227, 0.4);
-  opacity: 0.95;
+  box-shadow: 0 15px 25px rgba(212, 71, 182, 0.3);
+  opacity: 1;
+  filter: brightness(1.05);
+  color: white;
+  background: linear-gradient(90deg, #6fd5e0 0%, #d447b6 100%);
 }
 
 .otp-btn.btn-primary:active:not(:disabled) {
@@ -161,8 +190,13 @@
 }
 
 @keyframes spin {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 .otp-timer {
@@ -183,8 +217,70 @@
   margin-left: 8px;
 }
 
+/* ===========================
+   LOGO POSITIONING - Match Login/Register
+=========================== */
+.auth-logo-container {
+  position: absolute;
+  top: 2rem;
+  left: 2rem;
+  z-index: 2;
+}
+
+.auth-logo-container .header {
+  gap: 12px;
+}
+
+.auth-logo-container .header-logo {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.auth-logo-container .header-title {
+  color: var(--color-text-white, white);
+  font-size: clamp(16px, 1rem + 0.5vw, 20px);
+  font-weight: 600;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+@media (max-width: 768px) {
+  .auth-logo-container {
+    bottom: clamp(1rem, 0.75rem + 1.25vw, 1.5rem);
+    left: clamp(1rem, 0.75rem + 1.25vw, 1.5rem);
+    top: auto;
+    /* Reset top on mobile */
+  }
+
+  .auth-logo-container .header-logo {
+    width: 40px;
+    height: 40px;
+  }
+
+  .auth-logo-container .header-title {
+    font-size: clamp(14px, 0.875rem + 0.25vw, 18px);
+  }
+}
+
+@media (max-width: 576px) {
+  .auth-logo-container .header {
+    gap: 8px;
+  }
+
+  .auth-logo-container .header-logo {
+    width: 36px;
+    height: 36px;
+  }
+
+  .auth-logo-container .header-title {
+    font-size: 14px;
+  }
+}
+
 @media (min-width: 992px) {
   .otp-container {
-    min-height: 125vh; /* Compensate for desktop zoom: 0.8 */
+    min-height: 125vh;
+    /* Compensate for desktop zoom: 0.8 */
   }
 }

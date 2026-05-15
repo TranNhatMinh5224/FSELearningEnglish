@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useCallback } from "react";
+import React, { useState, useEffect, useRef, useCallback, useMemo } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { Container, Row, Col, Button } from "react-bootstrap";
 import MainHeader from "../../Components/Header/MainHeader";
@@ -44,13 +44,13 @@ export default function QuizDetail() {
     const pendingNavigationRef = useRef(null); // URL để navigate sau khi đóng notification
 
     // Get paged items (stand-alone questions or entire groups)
-    const getPagedItems = () => {
+    const pagedItems = useMemo(() => {
         if (!quizAttempt) return [];
 
         const sections = quizAttempt.QuizSections || quizAttempt.quizSections || [];
         if (!sections || sections.length === 0) return [];
 
-        const pagedItems = [];
+        const itemsList = [];
         let globalNumber = 1;
         sections.forEach((section, sectionIdx) => {
             const sectionInfo = {
@@ -67,7 +67,7 @@ export default function QuizDetail() {
                     const type = item.ItemType || item.itemType;
                     if (type === "Question") {
                         if (item.QuestionId || item.questionId) {
-                            pagedItems.push({
+                            itemsList.push({
                                 ...item,
                                 _itemType: "Question",
                                 _sectionInfo: sectionInfo,
@@ -78,7 +78,7 @@ export default function QuizDetail() {
                         }
                     } else if (type === "Group") {
                         const questionsInGroup = item.Questions || item.questions || [];
-                        pagedItems.push({
+                        itemsList.push({
                             ...item,
                             _itemType: "Group",
                             _sectionInfo: sectionInfo,
@@ -91,6 +91,7 @@ export default function QuizDetail() {
                                 groupDescription: item.Description || item.description,
                                 groupImgUrl: item.ImgUrl || item.imgUrl,
                                 groupVideoUrl: item.VideoUrl || item.videoUrl,
+                                groupAudioUrl: item.AudioUrl || item.audioUrl,
                                 groupSumScore: item.SumScore || item.sumScore
                             }
                         });
@@ -103,7 +104,7 @@ export default function QuizDetail() {
                 const gs = section.QuizGroups || section.quizGroups || [];
 
                 qs.forEach(q => {
-                    pagedItems.push({
+                    itemsList.push({
                         ...q,
                         _itemType: "Question",
                         _sectionInfo: sectionInfo,
@@ -115,7 +116,7 @@ export default function QuizDetail() {
 
                 gs.forEach(g => {
                     const questionsInGroup = g.Questions || g.questions || [];
-                    pagedItems.push({
+                    itemsList.push({
                         ...g,
                         _itemType: "Group",
                         _sectionInfo: sectionInfo,
@@ -128,6 +129,7 @@ export default function QuizDetail() {
                             groupDescription: g.Description || g.description,
                             groupImgUrl: g.ImgUrl || g.imgUrl,
                             groupVideoUrl: g.VideoUrl || g.videoUrl,
+                            groupAudioUrl: g.AudioUrl || g.audioUrl,
                             groupSumScore: g.SumScore || g.sumScore
                         }
                     });
@@ -136,14 +138,13 @@ export default function QuizDetail() {
             }
         });
 
-        return pagedItems;
-    };
+        return itemsList;
+    }, [quizAttempt]);
 
-    const pagedItems = getPagedItems();
     const currentPagedItem = pagedItems[currentQuestionIndex];
 
     // Derived flattened questions for count and sidebar
-    const questions = (() => {
+    const questions = useMemo(() => {
         const all = [];
         pagedItems.forEach(item => {
             if (item._itemType === "Group") {
@@ -155,7 +156,7 @@ export default function QuizDetail() {
             }
         });
         return all;
-    })();
+    }, [pagedItems]);
 
     useEffect(() => {
         // Tạo key duy nhất cho quizId và attemptId hiện tại
@@ -348,7 +349,8 @@ export default function QuizDetail() {
                                 groupTitle: item.Title || item.title,
                                 groupDescription: item.Description || item.description,
                                 groupImgUrl: item.ImgUrl || item.imgUrl,
-                                groupVideoUrl: item.VideoUrl || item.videoUrl
+                                groupVideoUrl: item.VideoUrl || item.videoUrl,
+                                groupAudioUrl: item.AudioUrl || item.audioUrl
                             };
                             gq.forEach(q => allQuestions.push({ ...q, _groupInfo: gInfo }));
                         }
@@ -368,7 +370,8 @@ export default function QuizDetail() {
                                 groupTitle: g.Title || g.title,
                                 groupDescription: g.Description || g.description,
                                 groupImgUrl: g.ImgUrl || g.imgUrl,
-                                groupVideoUrl: g.VideoUrl || g.videoUrl
+                                groupVideoUrl: g.VideoUrl || g.videoUrl,
+                                groupAudioUrl: g.AudioUrl || g.audioUrl
                             };
                             gq.forEach(q => allQuestions.push({ ...q, _groupInfo: gInfo }));
                         });
@@ -572,9 +575,6 @@ export default function QuizDetail() {
                     }
                 } else {
                     console.error("✗ Submit failed - Response not successful");
-                    console.error("Response data:", response.data);
-                    console.error("Status code:", response.status);
-
                     setNotification({
                         isOpen: true,
                         type: "error",
@@ -584,28 +584,19 @@ export default function QuizDetail() {
                 }
             } catch (apiErr) {
                 console.error("✗ API Error submitting quiz:", apiErr);
-                console.error("Error details:", {
-                    message: apiErr.message,
-                    response: apiErr.response,
-                    status: apiErr.response?.status,
-                    data: apiErr.response?.data,
-                    config: apiErr.config
-                });
-
                 setNotification({
                     isOpen: true,
                     type: "error",
-                    message: apiErr.response?.data?.message || apiErr.message || "Không thể nộp bài. Vui lòng kiểm tra console để xem chi tiết lỗi."
+                    message: apiErr.response?.data?.message || apiErr.message || "Không thể nộp bài"
                 });
                 setSubmitting(false);
             }
         } catch (err) {
             console.error("✗ Unexpected error in handleSubmitQuiz:", err);
-            console.error("Error stack:", err.stack);
             setNotification({
                 isOpen: true,
                 type: "error",
-                message: err.message || "Có lỗi xảy ra khi nộp bài. Vui lòng thử lại."
+                message: err.message || "Có lỗi xảy ra khi nộp bài"
             });
             setSubmitting(false);
         } finally {
@@ -642,6 +633,12 @@ export default function QuizDetail() {
         return () => document.removeEventListener('fullscreenchange', handleFullscreenChange);
     }, [isFocusMode]);
 
+    // Dùng ref để timer không phụ thuộc vào handleSubmitQuiz
+    const handleSubmitQuizRef = useRef(handleSubmitQuiz);
+    useEffect(() => {
+        handleSubmitQuizRef.current = handleSubmitQuiz;
+    }, [handleSubmitQuiz]);
+
     const calculateAndUpdateRemainingTime = useCallback(() => {
         if (!endTimeRef.current || submitting || isSubmitted) {
             if (!endTimeRef.current) setRemainingTime(null);
@@ -665,14 +662,14 @@ export default function QuizDetail() {
                     timerIntervalRef.current = null;
                 }
 
-                // Call handleSubmitQuiz to auto-submit (chỉ gọi một lần)
-                handleSubmitQuiz();
+                // Call handleSubmitQuiz via Ref to avoid dependency loop
+                handleSubmitQuizRef.current();
             }
         } catch (error) {
             console.error("❌ Error calculating remaining time:", error);
             setRemainingTime(null);
         }
-    }, [submitting, handleSubmitQuiz]);
+    }, [submitting, isSubmitted]);
 
     const startTimer = useCallback(() => {
         // Clear existing timer if any
@@ -763,7 +760,7 @@ export default function QuizDetail() {
         };
     }, [quizAttempt, quiz, calculateEndTime, calculateAndUpdateRemainingTime, startTimer]);
 
-    const handleAnswerChange = (questionId, answer) => {
+    const handleAnswerChange = React.useCallback((questionId, answer) => {
         // Cập nhật local state ngay lập tức để UI responsive
         setAnswers(prev => ({
             ...prev,
@@ -800,18 +797,15 @@ export default function QuizDetail() {
                     // Không cần update state vì đã update ở trên
                 } else {
                     console.error("❌ [AutoSave] Error saving answer:", response.data?.message);
-                    // Không hiển thị notification để tránh làm phiền user
-                    // Chỉ log để debug
                 }
             } catch (err) {
                 console.error("❌ [AutoSave] Error saving answer:", err);
-                // Không hiển thị notification để tránh làm phiền user
             } finally {
                 savingAnswersRef.current.delete(questionId);
                 delete saveAnswerTimeoutRef.current[questionId];
             }
         }, 500); // Debounce 500ms
-    };
+    }, [quizAttempt, attemptId]);
 
     const handleNext = async () => {
         // Clear debounce timer for current paged item questions
@@ -1001,6 +995,25 @@ export default function QuizDetail() {
                 <Container className="py-4">
                     <Row>
                         <Col lg={9}>
+                            {/* Mobile Sticky Timer Container */}
+                            <div className="mobile-timer-container d-lg-none">
+                                <QuizTimer
+                                    timeLimit={timeLimit}
+                                    remainingTime={remainingTime}
+                                    onTimeUp={() => {
+                                        if (!autoSubmitCalledRef.current && !submitting) {
+                                            autoSubmitCalledRef.current = true;
+                                            setNotification({
+                                                isOpen: true,
+                                                type: "warning",
+                                                message: "Hết thời gian làm bài!"
+                                            });
+                                            handleSubmitQuiz();
+                                        }
+                                    }}
+                                />
+                            </div>
+
                             <div className="quiz-content">
                                 <div className="quiz-header">
                                     <h2 className="quiz-title">{quiz?.title || "Quiz"}</h2>
@@ -1059,22 +1072,23 @@ export default function QuizDetail() {
                         </Col>
                         <Col lg={3}>
                             <div className="quiz-sidebar d-flex flex-column">
-                                <QuizTimer
-                                    timeLimit={timeLimit}
-                                    remainingTime={remainingTime}
-                                    onTimeUp={() => {
-                                        // Chỉ gọi một lần
-                                        if (!autoSubmitCalledRef.current && !submitting) {
-                                            autoSubmitCalledRef.current = true;
-                                            setNotification({
-                                                isOpen: true,
-                                                type: "warning",
-                                                message: "Hết thời gian làm bài!"
-                                            });
-                                            handleSubmitQuiz();
-                                        }
-                                    }}
-                                />
+                                <div className="d-none d-lg-block">
+                                    <QuizTimer
+                                        timeLimit={timeLimit}
+                                        remainingTime={remainingTime}
+                                        onTimeUp={() => {
+                                            if (!autoSubmitCalledRef.current && !submitting) {
+                                                autoSubmitCalledRef.current = true;
+                                                setNotification({
+                                                    isOpen: true,
+                                                    type: "warning",
+                                                    message: "Hết thời gian làm bài!"
+                                                });
+                                                handleSubmitQuiz();
+                                            }
+                                        }}
+                                    />
+                                </div>
 
                                 <QuizNavigation
                                     questions={questions}
@@ -1083,7 +1097,7 @@ export default function QuizDetail() {
                                     onGoToQuestion={handleGoToQuestion}
                                 />
 
-                                <div className="quiz-submit-section">
+                                <div className="quiz-submit-section mt-4">
                                     <Button
                                         size="lg"
                                         className="submit-quiz-btn"

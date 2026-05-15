@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { Modal, Button } from "react-bootstrap";
 import { FaInfoCircle } from "react-icons/fa";
+import { PiArticleDuotone } from "react-icons/pi";
 import { essayService } from "../../../Services/essayService";
 import FileUpload from "../../Common/FileUpload/FileUpload";
 import ConfirmModal from "../../Common/ConfirmModal/ConfirmModal";
@@ -256,11 +257,14 @@ export default function CreateEssayModal({ show, onClose, onSuccess, assessmentI
       backdrop={true}
       keyboard={true}
       centered 
-      className="create-essay-modal modal-modern" 
+      className={`create-essay-modal modal-modern ${isAdmin ? "admin-modal" : "teacher-modal"}`} 
       dialogClassName="create-essay-modal-dialog"
     >
       <Modal.Header closeButton={false}>
-        <Modal.Title className="modal-title-centered fw-bold">{isUpdateMode ? "Cập nhật Essay" : "Tạo Essay mới"}</Modal.Title>
+        <Modal.Title className="modal-title-centered fw-bold">
+          <PiArticleDuotone className="me-2" style={{ fontSize: "2.2rem", verticalAlign: "middle" }} />
+          {isUpdateMode ? "Cập nhật Bài luận" : "Khởi tạo Bài luận"}
+        </Modal.Title>
         <PremiumCloseButton onClick={handleClose} />
       </Modal.Header>
       <Modal.Body>

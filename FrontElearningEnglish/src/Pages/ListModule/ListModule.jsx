@@ -226,7 +226,7 @@ export default function ListModule() {
     }
 
     const lessonTitle = lesson?.title || lesson?.Title || "Bài học";
-    const lessonDescription = lesson?.description || lesson?.Description || "";
+    const lessonDescription = lesson?.description || lesson?.Description || lesson?.summary || lesson?.Summary || "";
 
 
 

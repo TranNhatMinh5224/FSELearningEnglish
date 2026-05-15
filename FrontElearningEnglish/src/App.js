@@ -13,7 +13,8 @@ import "./Components/Common/Modal/BaseModal.css";
 // React Query
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
-const ChatBotWidget = lazy(() => import("./Components/Common/ChatBotWidget/ChatBotWidget"));
+// Conditional ChatBot Widget
+import ConditionalChatBot from "./Components/Common/ChatBotWidget/ConditionalChatBot";
 
 // Initialize QueryClient
 const queryClient = new QueryClient({
@@ -37,8 +38,10 @@ function App() {
             <AssetProvider>
               <AppRoutes />
               <ToastContainer position="top-right" autoClose={3000} />
+              
+              {/* Chỉ hiển thị Chatbot cho User (không hiện cho Admin/Teacher) */}
               <Suspense fallback={null}>
-                <ChatBotWidget />
+                <ConditionalChatBot />
               </Suspense>
             </AssetProvider>
           </EnumProvider>

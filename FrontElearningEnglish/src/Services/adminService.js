@@ -25,8 +25,12 @@ export const adminService = {
     return axiosClient.delete(API_ENDPOINTS.ADMIN.COURSES.DELETE(id));
   },
   getCourseContent: (courseId) => {
-      // Sử dụng endpoint public để lấy cấu trúc bài học
-      return axiosClient.get(`/user/courses/${courseId}`); 
+    // Sử dụng endpoint public để lấy cấu trúc bài học
+    return axiosClient.get(`/user/courses/${courseId}`);
+  },
+  getCourseDetail: (courseId) => {
+    // Sử dụng endpoint admin để lấy thông tin chi tiết (đầy đủ metadata)
+    return axiosClient.get(`/admin/courses/${courseId}`);
   },
 
   // --- LESSON MANAGEMENT ---
@@ -101,10 +105,10 @@ export const adminService = {
     return axiosClient.put(API_ENDPOINTS.ADMIN.USERS.UNBLOCK(userId));
   },
   upgradeUserToTeacher: (data) => {
-      return axiosClient.post(API_ENDPOINTS.ADMIN.USERS.UPGRADE_TEACHER, data);
+    return axiosClient.post(API_ENDPOINTS.ADMIN.USERS.UPGRADE_TEACHER, data);
   },
   adjustBalance: (userId, data) => {
-      return axiosClient.post(API_ENDPOINTS.ADMIN.USERS.ADJUST_BALANCE(userId), data);
+    return axiosClient.post(API_ENDPOINTS.ADMIN.USERS.ADJUST_BALANCE(userId), data);
   },
 
   // --- ESSAY SUBMISSIONS ---

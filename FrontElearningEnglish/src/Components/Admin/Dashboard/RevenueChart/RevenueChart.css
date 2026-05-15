@@ -1,5 +1,88 @@
-/* RevenueChart Component Styles */
-.revenue-chart-container {
+/* RevenueChart Component Styles - Fintech Edition */
+.chart-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+}
+
+.chart-legend {
+  display: flex;
+  gap: 1.5rem;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+.dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+}
+
+.dot.courses { background: var(--fintech-primary); }
+.dot.packages { background: var(--fintech-secondary); }
+
+/* Custom Tooltip Styling */
+.custom-chart-tooltip {
+  background: white;
+  padding: 1rem;
+  border-radius: 12px;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+  border: 1px solid #f1f5f9;
+  min-width: 180px;
+}
+
+.tooltip-date {
+  font-weight: 700;
+  font-size: 0.85rem;
+  color: var(--text-main);
+  margin-bottom: 8px;
+}
+
+.tooltip-divider {
+  height: 1px;
+  background: #f1f5f9;
+  margin-bottom: 8px;
+}
+
+.tooltip-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+
+.tooltip-item .label {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  flex: 1;
+}
+
+.tooltip-item .value {
+  font-weight: 700;
+  font-size: 0.75rem;
+  color: var(--text-main);
+}
+
+.tooltip-total {
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px dashed #e2e8f0;
+  display: flex;
+  justify-content: space-between;
+  font-weight: 800;
+  font-size: 0.8rem;
+  color: var(--fintech-primary);
+}
+
+.chart-wrapper {
   width: 100%;
   height: 350px;
 }
@@ -9,7 +92,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  height: 100%;
-  color: #6b7280;
-  font-size: 0.95rem;
+  height: 350px;
+  color: var(--text-muted);
+  font-weight: 500;
 }

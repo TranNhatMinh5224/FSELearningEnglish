@@ -67,22 +67,22 @@ export default function EssaySubmissionList({ essayId, essayTitle, onBack, isAdm
       const submission = submissions.find(
         (s) => (s.submissionId || s.SubmissionId) === submissionId
       );
-      
+
       const response = isAdmin
         ? await essaySubmissionService.downloadAdminSubmissionFile(submissionId)
         : await essaySubmissionService.downloadSubmissionFile(submissionId);
-      
+
       // Get filename from Content-Disposition header or use attachmentType
       let fileName = `submission-${submissionId}`;
       const contentDisposition = response.headers['content-disposition'] || response.headers['Content-Disposition'];
-      
+
       if (contentDisposition) {
         const fileNameMatch = contentDisposition.match(/filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/);
         if (fileNameMatch && fileNameMatch[1]) {
           fileName = fileNameMatch[1].replace(/['"]/g, '');
         }
       }
-      
+
       // If no filename from header, try to get from attachmentType
       if (fileName === `submission-${submissionId}` && submission) {
         const attachmentType = submission.attachmentType || submission.AttachmentType;
@@ -98,7 +98,7 @@ export default function EssaySubmissionList({ essayId, essayTitle, onBack, isAdm
             'application/dotx': 'dotx',
             'application/dotm': 'dotm'
           };
-          
+
           // Try to get extension from attachmentType
           let extension = 'pdf'; // default
           if (attachmentType.includes('word') || attachmentType.includes('docx')) {
@@ -118,11 +118,11 @@ export default function EssaySubmissionList({ essayId, essayTitle, onBack, isAdm
               }
             }
           }
-          
+
           fileName = `submission-${submissionId}.${extension}`;
         }
       }
-      
+
       // Get content type from response
       const contentType = response.headers['content-type'] || response.headers['Content-Type'] || 'application/octet-stream';
       const blob = new Blob([response.data], { type: contentType });
@@ -191,7 +191,7 @@ export default function EssaySubmissionList({ essayId, essayTitle, onBack, isAdm
         </Card.Header>
         <Card.Body>
           {error && <div className="alert alert-danger">{error}</div>}
-          
+
           {submissions.length === 0 ? (
             <div className="text-center text-muted py-5">
               <p>Chưa có bài nộp nào</p>
@@ -214,13 +214,13 @@ export default function EssaySubmissionList({ essayId, essayTitle, onBack, isAdm
                     const userName = submission.userName || submission.UserName || "N/A";
                     const submittedAt = submission.submittedAt || submission.SubmittedAt;
                     const status = submission.status !== undefined ? submission.status : (submission.Status !== undefined ? submission.Status : null);
-                    const score = submission.teacherScore !== undefined ? submission.teacherScore : 
-                                  (submission.TeacherScore !== undefined ? submission.TeacherScore :
-                                  (submission.score !== undefined ? submission.score :
-                                  (submission.Score !== undefined ? submission.Score : null)));
-                    const hasAttachment = submission.hasAttachment || submission.HasAttachment || 
-                                          submission.attachmentUrl || submission.AttachmentUrl || 
-                                          submission.attachmentKey || submission.AttachmentKey;
+                    const score = submission.teacherScore !== undefined ? submission.teacherScore :
+                      (submission.TeacherScore !== undefined ? submission.TeacherScore :
+                        (submission.score !== undefined ? submission.score :
+                          (submission.Score !== undefined ? submission.Score : null)));
+                    const hasAttachment = submission.hasAttachment || submission.HasAttachment ||
+                      submission.attachmentUrl || submission.AttachmentUrl ||
+                      submission.attachmentKey || submission.AttachmentKey;
 
                     return (
                       <tr key={submissionId}>
@@ -265,7 +265,7 @@ export default function EssaySubmissionList({ essayId, essayTitle, onBack, isAdm
               <CustomPagination
                 currentPage={currentPage}
                 totalPages={totalPages}
-                totalCount={totalPages * pageSize} 
+                totalCount={totalPages * pageSize}
                 pageSize={pageSize}
                 onPageChange={setCurrentPage}
                 showInfo={false}

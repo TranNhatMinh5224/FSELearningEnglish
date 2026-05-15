@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import "./LogoHeader.css";
 import { useAssets } from "../../Context/AssetContext";
 
-export default function Header() {
+export default function Header({ variant = "light" }) {
   const navigate = useNavigate();
   const { getLogo } = useAssets();
   const logo = getLogo();
@@ -13,7 +13,11 @@ export default function Header() {
   };
 
   return (
-    <div className="header d-flex align-items-center" onClick={handleLogoClick} style={{ cursor: "pointer" }}>
+    <div 
+      className={`header d-flex align-items-center ${variant === "dark" ? "header-dark" : ""}`} 
+      onClick={handleLogoClick} 
+      style={{ cursor: "pointer" }}
+    >
       {logo && <img src={logo} alt="logo" className="header-logo" />}
       <span className="header-title">Catalunya English</span>
     </div>

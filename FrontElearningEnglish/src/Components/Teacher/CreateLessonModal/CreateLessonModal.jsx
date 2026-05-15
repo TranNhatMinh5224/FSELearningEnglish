@@ -240,10 +240,17 @@ export default function CreateLessonModal({ show, onClose, onSuccess, courseId, 
 
   return (
     <>
-      <Modal show={show} onHide={handleCancel} centered size="xl" className="create-lesson-modal modal-modern" dialogClassName="create-lesson-modal-dialog">
+      <Modal
+        show={show}
+        onHide={handleCancel}
+        centered
+        className="create-lesson-modal modal-modern"
+        dialogClassName="create-lesson-modal-dialog"
+      >
         <Modal.Header closeButton={false}>
-          <Modal.Title className="fw-bold modal-title-centered">
-            {isUpdateMode ? "Cập nhật bài học" : "Tạo bài học mới"}
+          <Modal.Title className="modal-title-custom">
+            <FaLayerGroup className="me-2 header-icon" />
+            {isUpdateMode ? "Cập nhật Chương học" : "Thiết lập Chương học"}
           </Modal.Title>
           <PremiumCloseButton onClick={handleCancel} />
         </Modal.Header>
@@ -255,7 +262,7 @@ export default function CreateLessonModal({ show, onClose, onSuccess, courseId, 
               <div className="section-title"><FaLayerGroup /> Thông tin chung</div>
               <div className="row g-3">
                 <div className="col-12">
-                  <Form.Label className="fw-bold">Tiêu đề bài học <span className="text-danger">*</span></Form.Label>
+                  <Form.Label className="fw-bold">Tiêu đề chương học <span className="text-danger">*</span></Form.Label>
                   <Form.Control
                     type="text"
                     isInvalid={touched.title && !!errors.title}
@@ -265,7 +272,7 @@ export default function CreateLessonModal({ show, onClose, onSuccess, courseId, 
                       if (touched.title) validateField("title", e.target.value);
                     }}
                     onBlur={(e) => handleBlur("title", e.target.value)}
-                    placeholder="Nhập tiêu đề bài học..."
+                    placeholder="Ví dụ: Unit 1: Greetings & Introductions..."
                     maxLength={200}
                   />
                   <div className="d-flex justify-content-between align-items-center mt-1">
@@ -281,7 +288,7 @@ export default function CreateLessonModal({ show, onClose, onSuccess, courseId, 
                 </div>
 
                 <div className="col-12">
-                  <Form.Label className="fw-bold">Mô tả</Form.Label>
+                  <Form.Label className="fw-bold">Mô tả chương</Form.Label>
                   <Form.Control
                     as="textarea"
                     rows={4}
@@ -292,7 +299,7 @@ export default function CreateLessonModal({ show, onClose, onSuccess, courseId, 
                       if (touched.description) validateField("description", e.target.value);
                     }}
                     onBlur={(e) => handleBlur("description", e.target.value)}
-                    placeholder="Nhập mô tả bài học (tùy chọn)..."
+                    placeholder="Mô tả tóm tắt nội dung chính của chương này..."
                     maxLength={200}
                     style={{ resize: 'vertical', minHeight: '100px' }}
                   />
@@ -321,8 +328,8 @@ export default function CreateLessonModal({ show, onClose, onSuccess, courseId, 
                 onUploadSuccess={handleImageUploadSuccess}
                 onRemove={handleImageRemove}
                 onError={handleImageUploadError}
-                label={isUpdateMode ? "Thay đổi ảnh bài học" : "Chọn ảnh đại diện cho bài học"}
-                hint="Khuyến nghị tỉ lệ 16:9 để hiển thị đẹp nhất trên danh sách bài học."
+                label={isUpdateMode ? "Thay đổi ảnh chương học" : "Chọn ảnh đại diện cho chương học"}
+                hint="Khuyến nghị tỉ lệ 16:9 để hiển thị đẹp nhất trên danh sách chương học."
                 previewClassName="course-image-preview"
                 enablePaste={true}
               />
@@ -337,7 +344,7 @@ export default function CreateLessonModal({ show, onClose, onSuccess, courseId, 
             Hủy bỏ
           </Button>
           <Button className="btn-primary-custom" onClick={handleSubmit} disabled={submitting}>
-            {submitting ? "Đang lưu..." : (isUpdateMode ? "Cập nhật bài học" : "Tạo bài học")}
+            {submitting ? "Đang lưu..." : (isUpdateMode ? "Cập nhật chương học" : "Khởi tạo ngay")}
           </Button>
         </Modal.Footer>
       </Modal>
@@ -347,7 +354,7 @@ export default function CreateLessonModal({ show, onClose, onSuccess, courseId, 
         onClose={() => setShowConfirmCancel(false)}
         onConfirm={handleConfirmCancel}
         title="Xác nhận hủy bỏ"
-        message="Bạn có nội dung chưa lưu. Bạn có chắc chắn muốn hủy bỏ không?"
+        message="Dữ liệu chương học chưa được lưu. Bạn có chắc chắn muốn hủy bỏ không?"
         confirmText="Hủy bỏ"
         cancelText="Tiếp tục chỉnh sửa"
         type="warning"

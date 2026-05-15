@@ -7,6 +7,8 @@ export const quizAttemptService = {
     
     checkActiveAttempt: (quizId) => axiosClient.get(API_ENDPOINTS.QUIZ_ATTEMPTS.CHECK_ACTIVE(quizId)),
     
+    checkAnyActiveAttempt: () => axiosClient.get(API_ENDPOINTS.QUIZ_ATTEMPTS.GET_ANY_ACTIVE),
+    
     submit: (attemptId) => axiosClient.post(API_ENDPOINTS.QUIZ_ATTEMPTS.SUBMIT(attemptId)),
     
     updateAnswer: (attemptId, data) => axiosClient.post(API_ENDPOINTS.QUIZ_ATTEMPTS.UPDATE_ANSWER(attemptId), data),

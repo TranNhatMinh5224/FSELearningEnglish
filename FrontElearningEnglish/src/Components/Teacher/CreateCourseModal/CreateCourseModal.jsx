@@ -65,7 +65,10 @@ export default function CreateCourseModal({ show, onClose, onSuccess, courseData
         dialogClassName="create-course-modal-dialog"
       >
         <Modal.Header closeButton={false}>
-          <Modal.Title className="fw-bold">{isUpdateMode ? "Cập nhật lớp học" : "Tạo lớp học mới"}</Modal.Title>
+          <Modal.Title className="modal-title-custom">
+            <FaGraduationCap className="me-2 header-icon" />
+            {isUpdateMode ? "Cập nhật Khóa học" : "Khởi tạo Khóa học"}
+          </Modal.Title>
           <PremiumCloseButton onClick={handleClose} />
         </Modal.Header>
         <Modal.Body className="create-course-modal-body p-4">
@@ -148,7 +151,7 @@ export default function CreateCourseModal({ show, onClose, onSuccess, courseData
             onClick={handleSubmit}
             disabled={isSubmitting || uploadingImage}
           >
-            {isSubmitting ? (isUpdateMode ? "Đang xử lý..." : "Đang tạo...") : (isUpdateMode ? "Lưu thay đổi" : "Tạo lớp học")}
+            {isSubmitting ? (isUpdateMode ? "Đang xử lý..." : "Đang khởi tạo...") : (isUpdateMode ? "Lưu thay đổi" : "Khởi tạo Khóa học")}
           </Button>
         </Modal.Footer>
       </Modal>
