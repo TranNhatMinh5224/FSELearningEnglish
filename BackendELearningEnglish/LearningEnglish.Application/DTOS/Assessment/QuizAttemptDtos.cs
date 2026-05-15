@@ -30,6 +30,7 @@ namespace LearningEnglish.Application.DTOs
 
         // Thêm nếu cần: EndTime tính từ StartedAt + Duration (không lưu DB)
         public DateTime? EndTime { get; set; }
+        public bool IsScoreHidden { get; set; } // Flag để UI biết điểm đang bị ẩn
     }
 
     // DTO cho kết quả chi tiết sau submit (điểm, đáp án đúng)
