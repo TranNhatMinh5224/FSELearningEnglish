@@ -1,5 +1,6 @@
 import React from "react";
 import { Modal, Row, Col, Badge } from "react-bootstrap";
+import { FaReceipt } from "react-icons/fa";
 import "./PaymentDetailModal.css";
 
 export default function PaymentDetailModal({ isOpen, onClose, transaction, loading }) {
@@ -55,7 +56,7 @@ export default function PaymentDetailModal({ isOpen, onClose, transaction, loadi
 
     if (loading) {
         return (
-            <Modal show={isOpen} onHide={onClose} size="lg" centered className="payment-detail-modal modal-modern" dialogClassName="payment-detail-modal-dialog">
+            <Modal show={isOpen} onHide={onClose} centered className="payment-detail-modal modal-modern" dialogClassName="payment-detail-modal-dialog">
                 <Modal.Body>
                     <div className="text-center py-4">
                         <div className="spinner-border text-primary" role="status">
@@ -71,72 +72,75 @@ export default function PaymentDetailModal({ isOpen, onClose, transaction, loadi
     const statusBadge = getStatusBadge(transaction?.status || transaction?.Status);
 
     return (
-        <Modal show={isOpen} onHide={onClose} size="lg" centered className="payment-detail-modal modal-modern" dialogClassName="payment-detail-modal-dialog">
-            <Modal.Header closeButton>
-                <Modal.Title>Chi tiết giao dịch</Modal.Title>
+        <Modal show={isOpen} onHide={onClose} centered className="payment-detail-modal modal-modern" dialogClassName="payment-detail-modal-dialog">
+            <Modal.Header closeButton className="modal-header-centered">
+                <Modal.Title className="d-flex align-items-center justify-content-center gap-2">
+                    <FaReceipt className="header-icon-inline" />
+                    Chi tiết giao dịch
+                </Modal.Title>
             </Modal.Header>
             <Modal.Body>
                 <div className="payment-detail-content">
-                    <Row className="mb-3">
-                        <Col md={4}>
+                    <Row className="detail-row">
+                        <Col xs={5}>
                             <div className="detail-label">Trạng thái</div>
                         </Col>
-                        <Col md={8}>
+                        <Col xs={7} className="text-end">
                             <Badge bg={statusBadge.variant} className={`status-badge-large ${statusBadge.customClass || ""}`}>
                                 {statusBadge.text}
                             </Badge>
                         </Col>
                     </Row>
-
-                    <Row className="mb-3">
-                        <Col md={4}>
+                    
+                    <Row className="detail-row">
+                        <Col xs={5}>
                             <div className="detail-label">Sản phẩm</div>
                         </Col>
-                        <Col md={8}>
-                            <div className="detail-value">
+                        <Col xs={7} className="text-end">
+                            <div className="detail-value text-truncate" title={transaction?.productName || transaction?.ProductName}>
                                 {transaction?.productName || transaction?.ProductName || "N/A"}
                             </div>
                         </Col>
                     </Row>
 
-                    <Row className="mb-3">
-                        <Col md={4}>
+                    <Row className="detail-row">
+                        <Col xs={5}>
                             <div className="detail-label">Loại sản phẩm</div>
                         </Col>
-                        <Col md={8}>
+                        <Col xs={7} className="text-end">
                             <div className="detail-value">
                                 {getProductTypeName(transaction?.productType || transaction?.ProductType)}
                             </div>
                         </Col>
                     </Row>
 
-                    <Row className="mb-3">
-                        <Col md={4}>
+                    <Row className="detail-row">
+                        <Col xs={5}>
                             <div className="detail-label">Số tiền</div>
                         </Col>
-                        <Col md={8}>
+                        <Col xs={7} className="text-end">
                             <div className="detail-value amount-value">
                                 {formatAmount(transaction?.amount || transaction?.Amount)}
                             </div>
                         </Col>
                     </Row>
 
-                    <Row className="mb-3">
-                        <Col md={4}>
+                    <Row className="detail-row">
+                        <Col xs={5}>
                             <div className="detail-label">Phương thức thanh toán</div>
                         </Col>
-                        <Col md={8}>
+                        <Col xs={7} className="text-end">
                             <div className="detail-value">
                                 {transaction?.paymentMethod || transaction?.PaymentMethod || "N/A"}
                             </div>
                         </Col>
                     </Row>
 
-                    <Row className="mb-3">
-                        <Col md={4}>
+                    <Row className="detail-row">
+                        <Col xs={5}>
                             <div className="detail-label">Ngày tạo</div>
                         </Col>
-                        <Col md={8}>
+                        <Col xs={7} className="text-end">
                             <div className="detail-value">
                                 {formatDate(transaction?.createdAt || transaction?.CreatedAt)}
                             </div>
@@ -144,11 +148,11 @@ export default function PaymentDetailModal({ isOpen, onClose, transaction, loadi
                     </Row>
 
                     {transaction?.paidAt || transaction?.PaidAt ? (
-                        <Row className="mb-3">
-                            <Col md={4}>
+                        <Row className="detail-row">
+                            <Col xs={5}>
                                 <div className="detail-label">Ngày thanh toán</div>
                             </Col>
-                            <Col md={8}>
+                            <Col xs={7} className="text-end">
                                 <div className="detail-value">
                                     {formatDate(transaction?.paidAt || transaction?.PaidAt)}
                                 </div>
@@ -158,24 +162,24 @@ export default function PaymentDetailModal({ isOpen, onClose, transaction, loadi
 
                     {transaction?.userName || transaction?.UserName ? (
                         <>
-                            <hr className="my-4" />
-                            <Row className="mb-3">
-                                <Col md={4}>
+                            <div className="divider-modern my-3"></div>
+                            <Row className="detail-row">
+                                <Col xs={5}>
                                     <div className="detail-label">Người thanh toán</div>
                                 </Col>
-                                <Col md={8}>
+                                <Col xs={7} className="text-end">
                                     <div className="detail-value">
                                         {transaction?.userName || transaction?.UserName}
                                     </div>
                                 </Col>
                             </Row>
 
-                            <Row className="mb-3">
-                                <Col md={4}>
+                            <Row className="detail-row">
+                                <Col xs={4}>
                                     <div className="detail-label">Email</div>
                                 </Col>
-                                <Col md={8}>
-                                    <div className="detail-value">
+                                <Col xs={8} className="text-end">
+                                    <div className="detail-value text-truncate" title={transaction?.userEmail || transaction?.UserEmail}>
                                         {transaction?.userEmail || transaction?.UserEmail || "N/A"}
                                     </div>
                                 </Col>
@@ -185,7 +189,7 @@ export default function PaymentDetailModal({ isOpen, onClose, transaction, loadi
                 </div>
             </Modal.Body>
             <Modal.Footer>
-                <button className="btn btn-secondary" onClick={onClose}>
+                <button className="btn-close-modal" onClick={onClose}>
                     Đóng
                 </button>
             </Modal.Footer>

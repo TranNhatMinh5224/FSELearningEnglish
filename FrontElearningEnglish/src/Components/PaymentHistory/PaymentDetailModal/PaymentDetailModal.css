@@ -1,25 +1,111 @@
 /* Clean Bootstrap approach - scoped to PaymentDetailModal only */
 /* Bootstrap handles centering with 'centered' prop, we only add minimal custom styles */
 
+.payment-detail-modal-dialog {
+    max-width: 650px !important;
+    width: 95%;
+}
+
+.modal-header-centered {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: center !important;
+    padding: 2.5rem 1rem 1.5rem !important;
+    position: relative;
+    border-bottom: none !important;
+}
+
+.modal-header-centered .btn-close {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    margin: 0;
+    filter: brightness(0) invert(1);
+    /* Make it white */
+    opacity: 0.8;
+}
+
+.header-icon-wrapper {
+    background: rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(10px);
+    width: 60px;
+    height: 60px;
+    border-radius: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 15px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    animation: floating 3s ease-in-out infinite;
+}
+
+.header-icon {
+    font-size: 28px;
+    color: white;
+}
+
+.modal-header-centered .modal-title {
+    width: 100%;
+    text-align: center;
+    font-size: 1.6rem !important;
+    letter-spacing: -0.5px;
+    margin: 0 !important;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+@keyframes floating {
+    0% {
+        transform: translateY(0px);
+    }
+
+    50% {
+        transform: translateY(-5px);
+    }
+
+    100% {
+        transform: translateY(0px);
+    }
+}
+
 .payment-detail-content {
-    padding: 10px 0;
+    padding: 15px 10px;
+}
+
+.detail-row {
+    padding: 12px 0;
+    border-bottom: 1px solid #f3f4f6;
+    margin-bottom: 0 !important;
+    transition: background-color 0.2s ease;
+}
+
+.detail-row:hover {
+    background-color: #f9fafb;
+}
+
+.detail-row:last-child {
+    border-bottom: none;
 }
 
 .detail-label {
     font-weight: 600;
     color: #6b7280;
-    font-size: 14px;
-    margin-bottom: 4px;
+    font-size: 15px;
+    display: flex;
+    align-items: center;
 }
 
 .detail-value {
     font-size: 16px;
     color: #1f2937;
-    font-weight: 500;
+    font-weight: 600;
+    text-align: right;
+    word-break: break-all;
 }
 
 .amount-value {
-    font-size: 20px;
+    font-size: 22px;
     font-weight: 700;
     color: #10b981;
 }
@@ -28,13 +114,40 @@
     font-size: 14px;
     font-weight: 600;
     padding: 8px 16px;
+    border-radius: 8px;
 }
 
 .status-badge-large.status-completed {
-    background-color: #41d6e3;
+    background-color: #3b82f6;
+    /* Modern Blue */
     color: white;
 }
 
-.payment-detail-modal .modal-footer .btn {
-    min-width: 100px;
+.divider-modern {
+    height: 1px;
+    background: linear-gradient(to right, transparent, #e5e7eb, transparent);
+    width: 100%;
+}
+
+.payment-detail-modal .modal-footer {
+    justify-content: flex-end;
+    border-top: 1px solid #f3f4f6;
+    padding: 1.25rem 2rem;
+}
+
+.payment-detail-modal .modal-footer .btn-close-modal {
+    min-width: 120px;
+    padding: 10px 24px;
+    border-radius: 50px;
+    background-color: #6c757d;
+    color: white;
+    border: none;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.payment-detail-modal .modal-footer .btn-close-modal:hover {
+    background-color: #5a6268;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }

@@ -227,7 +227,7 @@ export default function FlashCardReviewSession() {
 
     return (
         <>
-            <div className="flashcard-review-session-container d-flex flex-column min-vh-100">
+            <div className="flashcard-review-session-container d-flex flex-column">
                 <Container className="flashcard-content-container d-flex flex-column align-items-center">
                     <FlashCardProgressBar
                         current={currentIndex + 1}

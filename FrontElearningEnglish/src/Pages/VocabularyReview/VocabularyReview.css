@@ -175,6 +175,6 @@
 
 @media (min-width: 992px) {
     .vocabulary-review-container {
-        min-height: calc(125vh - 70px);
+        min-height: calc(135vh - 70px);
     }
 }

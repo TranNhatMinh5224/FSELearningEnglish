@@ -231,3 +231,9 @@
         font-size: 1.25rem;
     }
 }
+
+@media (min-width: 992px) {
+  .pronunciation-detail-container {
+    min-height: 135vh;
+  }
+}

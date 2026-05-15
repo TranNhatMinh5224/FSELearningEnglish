@@ -16,28 +16,58 @@
   --quiz-transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
+.quiz-review-modal-v3 .modal-dialog {
+  max-width: 95% !important;
+  height: 95vh;
+  margin: 2.5vh auto;
+}
+
+.quiz-review-modal-v3 .modal-content {
+  height: 100%;
+  border-radius: 20px;
+  overflow: hidden;
+  border: none;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+}
+
 .quiz-review-modal-v3 .modal-header.quiz-header-custom {
   background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%) !important;
   border-bottom: none;
   min-height: 100px;
   display: flex;
   align-items: center;
-  justify-content: center;
+  justify-content: center; /* Center the title */
   border-radius: 20px 20px 0 0;
   position: relative;
+  padding: 1rem 4rem !important; /* Extra padding on sides for absolute elements */
 }
 
-/* Force white 'X' close button */
-.quiz-review-modal-v3 .modal-header .btn-close {
-  background: transparent url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='%23fff'%3e%3cpath d='M.293.293a1 1 0 011.414 0L8 6.586 14.293.293a1 1 0 111.414 1.414L9.414 8l6.293 6.293a1 1 0 01-1.414 1.414L8 9.414l-6.293 6.293a1 1 0 01-1.414-1.414L6.586 8 .293 1.707a1 1 0 010-1.414z'/%3e%3c/svg%3e") center/1.1rem auto no-repeat !important;
-  opacity: 1 !important;
-  box-shadow: none !important;
-  padding: 1.5rem !important;
-  margin: -0.5rem -0.5rem -0.5rem auto !important;
+/* Force white 'X' close button and position it absolutely */
+.quiz-review-modal-v3 .modal-header .btn-close,
+.quiz-review-modal-v3 .modal-header .premium-close-button {
+  position: absolute !important;
+  top: 50% !important;
+  transform: translateY(-50%) !important;
+  right: 20px !important;
+  margin: 0 !important;
+  opacity: 0.8;
+  transition: opacity 0.2s;
+}
+
+.quiz-review-modal-v3 .modal-header .btn-close:hover,
+.quiz-review-modal-v3 .modal-header .premium-close-button:hover {
+  opacity: 1;
+}
+
+/* Ensure title takes full width and centers text */
+.quiz-review-modal-v3 .modal-header .modal-title-centered {
+  width: 100%;
+  justify-content: center;
+  text-align: center;
 }
 
 .quiz-review-modal-v3 .modal-body {
-  height: calc(90vh - 140px); /* Adjust for header and footer */
+  height: calc(95vh - 180px); /* Increased viewport coverage */
   padding: 0;
   display: flex;
   background: var(--student-bg);

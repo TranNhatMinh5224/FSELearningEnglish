@@ -221,7 +221,7 @@
 
 @media (min-width: 992px) {
   .auth-container {
-    min-height: 125vh;
+    min-height: 135vh;
     /* Compensate for desktop zoom: 0.8 */
   }
 }

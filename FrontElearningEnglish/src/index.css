@@ -94,6 +94,26 @@ code {
   body .essay-detail-container,
   body .flashcard-detail-container,
   body .assessment-detail-container,
+  body .vocabulary-review-container,
+  body .vocabulary-notebook-container,
+  body .flashcard-review-session-container,
+  body .quiz-history-container,
+  body .results-container,
+  body .review-completion-container,
+  body .pronunciation-detail-container,
+  body .teacher-course-management-container,
+  body .teacher-course-detail-container,
+  body .teacher-lesson-detail-container,
+  body .teacher-module-lecture-detail-container,
+  body .teacher-module-flashcard-detail-container,
+  body .teacher-question-management-container,
+  body .teacher-quiz-essay-management-container,
+  body .teacher-quiz-section-management-container,
+  body .teacher-student-management-container,
+  body .teacher-submission-management-container,
+  body .auth-container,
+  body .forgot-password-container,
+  body .otp-container,
   body .my-courses-container {
     max-width: none;
     width: 100%;
@@ -125,8 +145,23 @@ code {
   body .quiz-history-container,
   body .results-container,
   body .flashcard-review-session-container,
+  body .auth-container,
+  body .forgot-password-container,
+  body .otp-container,
+  body .review-completion-container,
+  body .pronunciation-detail-container,
+  body .teacher-course-management-container,
+  body .teacher-course-detail-container,
+  body .teacher-lesson-detail-container,
+  body .teacher-module-lecture-detail-container,
+  body .teacher-module-flashcard-detail-container,
+  body .teacher-question-management-container,
+  body .teacher-quiz-essay-management-container,
+  body .teacher-quiz-section-management-container,
+  body .teacher-student-management-container,
+  body .teacher-submission-management-container,
   body .my-courses-container {
-    min-height: 125vh;
+    min-height: 135vh; /* Increased to ensure coverage with zoom 0.8 */
     background-color: var(--color-bg-secondary, #f9fafc);
   }
 }
