@@ -44,6 +44,7 @@ app_data/
 TestResults/
 *.coverage
 *.coveragexml
+*.lscache
 
 
 # File Database thực tế

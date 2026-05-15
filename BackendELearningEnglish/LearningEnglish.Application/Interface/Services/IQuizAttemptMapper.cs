@@ -18,4 +18,8 @@ public interface IQuizAttemptMapper
 
     
     List<AnswerOptionDto> MapToOptionDtos(Question question, int attemptId, bool shuffleAnswers);
+    
+    // Ánh xạ danh sách lịch sử bài làm kèm theo quy tắc ẩn điểm/đáp án
+    List<QuizAttemptDto> MapToAttemptDtos(IEnumerable<QuizAttempt> attempts);
+    QuizAttemptDto MapToAttemptDto(QuizAttempt attempt);
 }

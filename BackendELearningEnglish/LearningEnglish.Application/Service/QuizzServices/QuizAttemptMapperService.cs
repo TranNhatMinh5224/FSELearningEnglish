@@ -3,6 +3,7 @@ using LearningEnglish.Application.DTOs;
 using LearningEnglish.Application.Interface.Infrastructure.MediaService;
 using LearningEnglish.Application.Interface.Services;
 using LearningEnglish.Domain.Entities;
+using AutoMapper;
 
 namespace LearningEnglish.Application.Service;
 
@@ -17,13 +18,16 @@ public class QuizAttemptMapperService : IQuizAttemptMapper
 {
     private readonly IQuestionMediaService _questionMediaService;
     private readonly IQuizGroupMediaService _quizGroupMediaService;
+    private readonly IMapper _mapper;
 
     public QuizAttemptMapperService(
         IQuestionMediaService questionMediaService,
-        IQuizGroupMediaService quizGroupMediaService)
+        IQuizGroupMediaService quizGroupMediaService,
+        IMapper mapper)
     {
         _questionMediaService = questionMediaService;
         _quizGroupMediaService = quizGroupMediaService;
+        _mapper = mapper;
     }
 
   
@@ -194,5 +198,43 @@ public class QuizAttemptMapperService : IQuizAttemptMapper
         }
 
         return options;
+    }
+
+    public QuizAttemptDto MapToAttemptDto(QuizAttempt attempt)
+    {
+        var dto = _mapper.Map<QuizAttemptDto>(attempt);
+        ApplyVisibilityRules(attempt, dto);
+        return dto;
+    }
+
+    public List<QuizAttemptDto> MapToAttemptDtos(IEnumerable<QuizAttempt> attempts)
+    {
+        var dtos = new List<QuizAttemptDto>();
+        foreach (var attempt in attempts)
+        {
+            dtos.Add(MapToAttemptDto(attempt));
+        }
+        return dtos;
+    }
+
+    /// <summary>
+    /// Áp dụng các quy tắc bảo mật dữ liệu (Data Visibility Rules)
+    /// </summary>
+    private void ApplyVisibilityRules(QuizAttempt attempt, QuizAttemptDto dto)
+    {
+        if (attempt.Quiz == null) return;
+
+        // Quy tắc 1: Ẩn điểm nếu giáo viên chưa cho phép hiện ngay
+        if (attempt.Quiz.ShowScoreImmediately == false)
+        {
+            dto.TotalScore = 0;
+            dto.IsScoreHidden = true; // Bật flag ẩn điểm
+        }
+
+        // Quy tắc 2: Xử lý thời gian kết thúc cho bài đang làm
+        if (dto.Status == LearningEnglish.Domain.Enums.QuizAttemptStatus.InProgress && attempt.Quiz.Duration.HasValue)
+        {
+            dto.EndTime = attempt.StartedAt.AddMinutes(attempt.Quiz.Duration.Value);
+        }
     }
 }

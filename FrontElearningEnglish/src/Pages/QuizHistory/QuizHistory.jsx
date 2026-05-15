@@ -7,7 +7,7 @@ import Breadcrumb from "../../Components/Common/Breadcrumb/Breadcrumb";
 import { quizService } from "../../Services/quizService";
 import { useNavigate } from "react-router-dom";
 import { ROUTE_PATHS } from "../../Routes/Paths";
-import { FaCalendarAlt, FaTrophy, FaChevronRight, FaRegClipboard } from "react-icons/fa";
+import { FaCalendarAlt, FaTrophy, FaChevronRight, FaRegClipboard, FaLock } from "react-icons/fa";
 
 export default function QuizHistory() {
     const navigate = useNavigate();
@@ -212,8 +212,17 @@ export default function QuizHistory() {
                                                         </Col>
                                                         <Col xs={4} md={2} className="score-info text-center">
                                                             <span className="label d-md-none">Điểm: </span>
-                                                            <span className="score-value-text">{score}</span>
-                                                            <span className="score-max">/{maxScore}</span>
+                                                            {attempt.isScoreHidden || attempt.IsScoreHidden ? (
+                                                                <div className="score-hidden-wrapper" title="Điểm chưa được công bố">
+                                                                    <FaLock className="score-lock-icon" style={{ fontSize: '0.8rem', marginRight: '4px', color: '#7765F5' }} />
+                                                                    <span className="score-hidden-text" style={{ fontSize: '0.85rem', color: '#6c757d', fontWeight: '500' }}>Chờ</span>
+                                                                </div>
+                                                            ) : (
+                                                                <>
+                                                                    <span className="score-value-text">{score}</span>
+                                                                    <span className="score-max">/{maxScore}</span>
+                                                                </>
+                                                            )}
                                                         </Col>
                                                         <Col xs={4} md={2} className="status-info text-center">
                                                             {getStatusBadge(status)}

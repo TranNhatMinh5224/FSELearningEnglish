@@ -1038,17 +1038,7 @@ namespace LearningEnglish.Application.Service
                     .Where(a => a.Status != QuizAttemptStatus.InProgress)
                     .ToList();
 
-                var attemptDtos = _mapper.Map<List<QuizAttemptDto>>(completedAttempts);
-
-                // Calculate EndTime for each attempt if it's InProgress 
-                // Normally history only shows submitted ones but we'll be safety
-                foreach (var dto in attemptDtos)
-                {
-                    if (dto.Status == QuizAttemptStatus.InProgress && dto.Duration.HasValue)
-                    {
-                        dto.EndTime = dto.StartedAt.AddMinutes(dto.Duration.Value);
-                    }
-                }
+                var attemptDtos = _quizAttemptMapper.MapToAttemptDtos(completedAttempts);
 
                 response.Success = true;
                 response.Data = attemptDtos;
@@ -1077,15 +1067,7 @@ namespace LearningEnglish.Application.Service
                     .Where(a => a.Status != QuizAttemptStatus.InProgress)
                     .ToList();
 
-                var attemptDtos = _mapper.Map<List<QuizAttemptDto>>(completedAttempts);
-
-                foreach (var dto in attemptDtos)
-                {
-                    if (dto.Status == QuizAttemptStatus.InProgress && dto.Duration.HasValue)
-                    {
-                        dto.EndTime = dto.StartedAt.AddMinutes(dto.Duration.Value);
-                    }
-                }
+                var attemptDtos = _quizAttemptMapper.MapToAttemptDtos(completedAttempts);
 
                 response.Success = true;
                 response.Data = attemptDtos;
