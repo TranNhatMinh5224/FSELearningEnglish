@@ -105,7 +105,16 @@ export default function MyCoursesSection({ courses = [] }) {
         <section className="my-courses-section">
             <h2>Kho tàng khóa học nổi bật</h2>
             {loading ? (
-                <div className="loading-message">Đang tải khóa học...</div>
+                <div className="course-skeleton-row">
+                    {[1, 2, 3, 4, 5].map((i) => (
+                        <div key={i} className="course-card-skeleton">
+                            <div className="skeleton-image"></div>
+                            <div className="skeleton-content">
+                                <div className="skeleton-title"></div>
+                            </div>
+                        </div>
+                    ))}
+                </div>
             ) : error ? (
                 <div className="error-message">{error.message || "Lỗi khi tải dữ liệu"}</div>
             ) : displayCourses.length > 0 ? (

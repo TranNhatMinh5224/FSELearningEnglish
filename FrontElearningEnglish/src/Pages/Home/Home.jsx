@@ -15,14 +15,54 @@ import {
 import Footer from "../../Components/Footer/Footer";
 import LoginRequiredModal from "../../Components/Common/LoginRequiredModal/LoginRequiredModal";
 import NotificationModal from "../../Components/Common/NotificationModal/NotificationModal";
+import CelebrationModal from "../../Components/Common/Celebration/CelebrationModal";
+import { useStreak } from "../../Context/StreakContext";
+import { useEffect } from "react";
 
 export default function Home() {
   const { user, isGuest, isAuthenticated } = useAuth();
   const navigate = useNavigate();
-  const [selectedPackage, setSelectedPackage] = useState(null); // null hoặc teacherPackageId
+  const { streakDays } = useStreak();
+  const [selectedPackage, setSelectedPackage] = useState(null);
   const [showLoginModal, setShowLoginModal] = useState(false);
   const [showInfoModal, setShowInfoModal] = useState(false);
   const [infoMessage, setInfoMessage] = useState("");
+  const [showCelebration, setShowCelebration] = useState(false);
+  const [currentMilestone, setCurrentMilestone] = useState({ days: 0, isNew: false });
+
+  useEffect(() => {
+    if (!isAuthenticated || isGuest || !user) return;
+
+    const celebrateMilestone = () => {
+      const milestones = [7, 30, 60, 90, 180, 270, 365, 730, 1095, 1825];
+      const uid = user.userId || user.id || user.UserId || "guest";
+      const lastCelebrated = parseInt(localStorage.getItem(`last_celebrated_streak_${uid}`) || "0");
+      
+      // 1. Check for Streak Milestone
+      const hitMilestone = milestones.find(m => streakDays >= m && lastCelebrated < m);
+      
+      if (hitMilestone) {
+        setCurrentMilestone({ days: hitMilestone, isNew: false });
+        setShowCelebration(true);
+        localStorage.setItem(`last_celebrated_streak_${uid}`, hitMilestone.toString());
+        return;
+      }
+
+      // 2. Check for New User (Welcome celebration)
+      const hasCelebratedWelcome = localStorage.getItem(`celebrated_welcome_${uid}`);
+      if (!hasCelebratedWelcome && (streakDays === 0 || streakDays === 1)) {
+        setCurrentMilestone({ days: 0, isNew: true });
+        setShowCelebration(true);
+        localStorage.setItem(`celebrated_welcome_${uid}`, "true");
+        // Initialize streak storage to current streak to avoid immediate duplicates
+        localStorage.setItem(`last_celebrated_streak_${uid}`, (streakDays || 0).toString());
+      }
+    };
+
+    // Delay a bit to let the page load smoothly
+    const timer = setTimeout(celebrateMilestone, 1500);
+    return () => clearTimeout(timer);
+  }, [isAuthenticated, isGuest, user, streakDays]);
 
   const displayName = isGuest ? "bạn" : user?.fullName || "bạn";
 
@@ -109,6 +149,12 @@ export default function Home() {
         message={infoMessage}
         autoClose={true}
         autoCloseDelay={4000}
+      />
+
+      <CelebrationModal
+        isOpen={showCelebration}
+        onClose={() => setShowCelebration(false)}
+        milestone={currentMilestone}
       />
     </>
   );

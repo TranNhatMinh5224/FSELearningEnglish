@@ -1,4 +1,5 @@
 import React from "react";
+import ReactDOM from "react-dom";
 import { useNavigate } from "react-router-dom";
 import "./LoginRequiredModal.css";
 import { FaLock, FaSignInAlt, FaTimes } from "react-icons/fa";
@@ -14,7 +15,7 @@ export default function LoginRequiredModal({ isOpen, onClose }) {
         navigate(ROUTE_PATHS.LOGIN);
     };
 
-    return (
+    const modalContent = (
         <div className="login-required-modal-overlay" onClick={onClose}>
             <div className="login-required-modal-content" onClick={(e) => e.stopPropagation()}>
                 <div className="login-required-modal-header">
@@ -48,5 +49,7 @@ export default function LoginRequiredModal({ isOpen, onClose }) {
             </div>
         </div>
     );
+
+    return ReactDOM.createPortal(modalContent, document.body);
 }
 

@@ -7,10 +7,10 @@
   background: var(--color-primary-gradient, linear-gradient(90deg, #6fd5e0, #d447b6));
   color: var(--color-text-white, #fff);
   box-shadow: 0 2px 8px var(--shadow-sm, rgba(0, 0, 0, 0.1));
-  /* Anti-vibration: Hardware acceleration */
-  transform: translateZ(0);
-  will-change: transform, box-shadow;
+  /* Removed transform to prevent trapping fixed-position modals */
+  will-change: box-shadow;
   transition: box-shadow 0.3s ease;
+  z-index: 1030; /* Standard Bootstrap fixed-top z-index */
 }
 
 /* Desktop only: Ensure menu items are visible */

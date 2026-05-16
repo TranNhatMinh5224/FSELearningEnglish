@@ -93,6 +93,10 @@ export default function AdminCourseDetail() {
   }, [courseId]);
 
   useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [courseId]);
+
+  useEffect(() => {
     if (!isAuthenticated || !isAdmin) {
       navigate("/home");
       return;

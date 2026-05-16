@@ -101,12 +101,12 @@ axiosClient.interceptors.response.use(
           console.error("[Axios] Refresh token revoked or expired, clearing tokens");
           tokenStorage.clear();
 
-          if (hadTokens) {
-            const currentPath = window.location.pathname;
-            const publicPaths = ['/welcome', '/login', '/register', '/home'];
-            if (!publicPaths.includes(currentPath)) {
-              window.location.href = `/login?redirect=${encodeURIComponent(currentPath)}`;
-            }
+          const currentPath = window.location.pathname;
+          const publicPaths = ['/welcome', '/login', '/register', '/home'];
+          
+          if (!publicPaths.includes(currentPath)) {
+            console.warn(`[Axios] Redirecting from protected path ${currentPath} to login`);
+            window.location.href = `/login?redirect=${encodeURIComponent(currentPath)}`;
           }
         }
 
@@ -120,12 +120,15 @@ axiosClient.interceptors.response.use(
     // Don't redirect if user is on a public page or home page
     if (error.response?.status === 401) {
       const currentPath = window.location.pathname;
-      const allowedPaths = ['/welcome', '/login', '/register', '/home'];
+      const publicPaths = ['/welcome', '/login', '/register', '/home'];
       const hasToken = tokenStorage.getAccessToken();
 
-      // If no token and on allowed path, don't redirect (guest user)
-      if (!hasToken && allowedPaths.includes(currentPath)) {
-        return Promise.reject(error);
+      // If on a protected path and no token found (or token invalid), redirect to login
+      if (!publicPaths.includes(currentPath)) {
+        console.warn(`[Axios] Unauthorized access to ${currentPath}, redirecting to login`);
+        tokenStorage.clear();
+        window.location.href = `/login?redirect=${encodeURIComponent(currentPath)}`;
+        return new Promise(() => {}); // Stop further execution
       }
     }
 

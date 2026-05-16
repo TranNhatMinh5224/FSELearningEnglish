@@ -58,13 +58,22 @@ export default function TeacherCourseDetail() {
       setLoading(true);
       setError("");
 
-      const response = await teacherService.getCourseDetail(courseId);
+      // Fetch both course detail and lessons
+      const [courseRes, lessonsRes] = await Promise.all([
+        teacherService.getCourseDetail(courseId),
+        teacherService.getLessonsByCourse(courseId)
+      ]);
 
-      if (response.data?.success && response.data?.data) {
-        const courseData = response.data.data;
-        setCourse(courseData);
+      if (courseRes.data?.success && courseRes.data?.data) {
+        setCourse(courseRes.data.data);
       } else {
         setError("Không thể tải thông tin khóa học");
+      }
+
+      if (lessonsRes.data?.success && lessonsRes.data?.data) {
+        setLessons(Array.isArray(lessonsRes.data.data) ? lessonsRes.data.data : []);
+      } else {
+        setLessons([]);
       }
     } catch (err) {
       console.error("Error fetching course detail:", err);
@@ -87,6 +96,10 @@ export default function TeacherCourseDetail() {
       console.error("Error fetching lessons:", err);
       setLessons([]);
     }
+  }, [courseId]);
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
   }, [courseId]);
 
   useEffect(() => {

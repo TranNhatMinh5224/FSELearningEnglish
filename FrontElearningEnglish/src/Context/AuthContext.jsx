@@ -62,11 +62,23 @@ export const AuthProvider = ({ children }) => {
         } catch (error) {
           logger.error(`getProfile attempt ${i + 1} failed:`, error);
 
-          // If this is the last retry, set as guest
+          // If this is the last retry, trigger logout to clear everything
           if (i === retries - 1) {
-            logger.error("All getProfile attempts failed.");
+            logger.error("All getProfile attempts failed. Triggering logout.");
+            // Don't use the logout function directly here as it might be complex, 
+            // just clear and redirect
+            tokenStorage.clear();
+            setUser(null);
+            setRoles([]);
+            setIsAuthenticated(false);
             setIsGuest(true);
             setLoading(false);
+            
+            const currentPath = window.location.pathname;
+            const publicPaths = ['/welcome', '/login', '/register', '/home'];
+            if (!publicPaths.includes(currentPath)) {
+              window.location.href = `/login?redirect=${encodeURIComponent(currentPath)}`;
+            }
             return;
           }
 
