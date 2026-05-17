@@ -112,6 +112,7 @@
 .streak-fire-wrapper {
     width: 80px;
     height: 80px;
+    flex-shrink: 0; /* Ensures the circle never gets squished */
     display: flex;
     align-items: center;
     justify-content: center;
@@ -194,6 +195,11 @@
     font-family: 'Inter', sans-serif;
 }
 
+.streak-number.welcome-text {
+    font-size: 32px;
+    letter-spacing: 1.5px;
+}
+
 .streak-label {
     font-size: 16px;
     font-weight: 700;
@@ -244,4 +250,46 @@
 
 .celebration-close-btn:active {
     transform: translateY(-1px);
+}
+
+/* Responsive Styles for Mobile */
+@media (max-width: 480px) {
+    .celebration-content {
+        padding: 30px 20px;
+    }
+
+    .trophy-wrapper {
+        width: 100px;
+        height: 100px;
+    }
+
+    .trophy-icon {
+        font-size: 50px;
+    }
+
+    .streak-display {
+        gap: 12px;
+        padding: 15px;
+    }
+
+    .streak-fire-wrapper {
+        width: 60px;
+        height: 60px;
+    }
+
+    .streak-fire-icon {
+        font-size: 30px;
+    }
+
+    .streak-number {
+        font-size: 42px;
+    }
+
+    .streak-number.welcome-text {
+        font-size: 24px;
+    }
+
+    .milestone-text {
+        font-size: 20px;
+    }
 }

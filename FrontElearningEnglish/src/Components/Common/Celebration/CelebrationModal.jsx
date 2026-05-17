@@ -110,7 +110,9 @@ const CelebrationModal = ({ isOpen, onClose, milestone }) => {
                         <div className="streak-fire-wrapper">
                             <FaFire className="streak-fire-icon" />
                         </div>
-                        <span className="streak-number">{milestone.isNew ? "WELCOME" : milestone.days}</span>
+                        <span className={`streak-number ${milestone.isNew ? 'welcome-text' : ''}`}>
+                            {milestone.isNew ? "WELCOME" : milestone.days}
+                        </span>
                         {!milestone.isNew && <span className="streak-label">NGÀY</span>}
                     </div>
                     <h3 className="milestone-text">{getMilestoneText()}</h3>
