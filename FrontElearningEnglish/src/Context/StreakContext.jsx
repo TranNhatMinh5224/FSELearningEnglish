@@ -6,6 +6,7 @@ const StreakContext = createContext();
 
 export const StreakProvider = ({ children }) => {
   const [streakDays, setStreakDays] = useState(0);
+  const [longestStreak, setLongestStreak] = useState(0);
   const [isActiveToday, setIsActiveToday] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const hasFetchedRef = useRef(false);
@@ -30,8 +31,10 @@ export const StreakProvider = ({ children }) => {
       // Backend trả về PascalCase: CurrentStreak, IsActiveToday, LastActivityDate
       const currentStreak = streakData?.CurrentStreak || streakData?.currentStreak || 0;
       const activeToday = streakData?.IsActiveToday || streakData?.isActiveToday || false;
+      const longest = streakData?.LongestStreak || streakData?.longestStreak || 0;
       
       setStreakDays(currentStreak);
+      setLongestStreak(longest);
       setIsActiveToday(activeToday);
 
       // 2. Nếu chưa check-in hôm nay, gọi check-in
@@ -42,7 +45,9 @@ export const StreakProvider = ({ children }) => {
           if (checkinResult?.Success || checkinResult?.success) {
             // Cập nhật streak sau khi check-in
             const newStreak = checkinResult?.NewCurrentStreak || checkinResult?.newCurrentStreak || currentStreak;
+            const newLongest = checkinResult?.NewLongestStreak || checkinResult?.newLongestStreak || longest;
             setStreakDays(newStreak);
+            setLongestStreak(newLongest);
             setIsActiveToday(true);
           }
         } catch (checkinError) {
@@ -52,6 +57,7 @@ export const StreakProvider = ({ children }) => {
       hasFetchedRef.current = true;
     } catch (error) {
       setStreakDays(0);
+      setLongestStreak(0);
       setIsActiveToday(false);
     } finally {
       setIsLoading(false);
@@ -61,6 +67,7 @@ export const StreakProvider = ({ children }) => {
   useEffect(() => {
     if (isGuest) {
       setStreakDays(0);
+      setLongestStreak(0);
       setIsActiveToday(false);
       hasFetchedRef.current = false;
       return;
@@ -80,6 +87,7 @@ export const StreakProvider = ({ children }) => {
     <StreakContext.Provider
       value={{
         streakDays,
+        longestStreak,
         isActiveToday,
         isLoading,
         fetchAndCheckinStreak,

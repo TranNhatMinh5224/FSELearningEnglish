@@ -193,11 +193,13 @@
     background-clip: text;
     -webkit-text-fill-color: transparent;
     font-family: 'Inter', sans-serif;
+    white-space: nowrap;
 }
 
 .streak-number.welcome-text {
-    font-size: 32px;
-    letter-spacing: 1.5px;
+    font-size: clamp(22px, 5.5vw, 32px);
+    letter-spacing: 1px;
+    white-space: nowrap;
 }
 
 .streak-label {
@@ -283,10 +285,12 @@
 
     .streak-number {
         font-size: 42px;
+        white-space: nowrap;
     }
 
     .streak-number.welcome-text {
-        font-size: 24px;
+        font-size: clamp(16px, 4.5vw, 20px);
+        letter-spacing: 0.5px;
     }
 
     .milestone-text {

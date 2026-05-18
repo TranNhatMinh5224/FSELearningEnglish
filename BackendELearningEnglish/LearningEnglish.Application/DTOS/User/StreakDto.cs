@@ -4,6 +4,7 @@ namespace LearningEnglish.Application.DTOs
     public class StreakDto
     {
         public int CurrentStreak { get; set; } // Chuỗi ngày học liên tục hiện tại
+        public int LongestStreak { get; set; } // Chuỗi ngày học liên tục dài nhất
         public DateTime? LastActivityDate { get; set; } // Ngày hoạt động cuối cùng
         public bool IsActiveToday { get; set; } // Đã học hôm nay chưa
     }

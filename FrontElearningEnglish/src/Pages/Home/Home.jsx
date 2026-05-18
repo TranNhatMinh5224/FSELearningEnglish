@@ -22,13 +22,13 @@ import { useEffect } from "react";
 export default function Home() {
   const { user, isGuest, isAuthenticated } = useAuth();
   const navigate = useNavigate();
-  const { streakDays } = useStreak();
+  const { streakDays, longestStreak } = useStreak();
   const [selectedPackage, setSelectedPackage] = useState(null);
   const [showLoginModal, setShowLoginModal] = useState(false);
   const [showInfoModal, setShowInfoModal] = useState(false);
   const [infoMessage, setInfoMessage] = useState("");
   const [showCelebration, setShowCelebration] = useState(false);
-  const [currentMilestone, setCurrentMilestone] = useState({ days: 0, isNew: false });
+  const [currentMilestone, setCurrentMilestone] = useState({ days: 0, isNew: false, isReturning: false });
 
   useEffect(() => {
     if (!isAuthenticated || isGuest || !user) return;
@@ -42,18 +42,23 @@ export default function Home() {
       const hitMilestone = milestones.find(m => streakDays >= m && lastCelebrated < m);
       
       if (hitMilestone) {
-        setCurrentMilestone({ days: hitMilestone, isNew: false });
+        setCurrentMilestone({ days: hitMilestone, isNew: false, isReturning: false });
         setShowCelebration(true);
         localStorage.setItem(`last_celebrated_streak_${uid}`, hitMilestone.toString());
         return;
       }
 
-      // 2. Check for New User (Welcome celebration)
+      // 2. Check for New User (Welcome celebration) or Returning User (Welcome Back celebration)
       const hasCelebratedWelcome = localStorage.getItem(`celebrated_welcome_${uid}`);
-      if (!hasCelebratedWelcome && (streakDays === 0 || streakDays === 1)) {
-        setCurrentMilestone({ days: 0, isNew: true });
+      if (!hasCelebratedWelcome && (streakDays === 0 || streakDays === 1) && longestStreak <= 1) {
+        setCurrentMilestone({ days: 0, isNew: true, isReturning: false });
         setShowCelebration(true);
         localStorage.setItem(`celebrated_welcome_${uid}`, "true");
+        // Initialize streak storage to current streak to avoid immediate duplicates
+        localStorage.setItem(`last_celebrated_streak_${uid}`, (streakDays || 0).toString());
+      } else if (longestStreak > 1 && (streakDays === 0 || streakDays === 1) && lastCelebrated > streakDays) {
+        setCurrentMilestone({ days: 0, isNew: false, isReturning: true });
+        setShowCelebration(true);
         // Initialize streak storage to current streak to avoid immediate duplicates
         localStorage.setItem(`last_celebrated_streak_${uid}`, (streakDays || 0).toString());
       }
@@ -62,7 +67,7 @@ export default function Home() {
     // Delay a bit to let the page load smoothly
     const timer = setTimeout(celebrateMilestone, 1500);
     return () => clearTimeout(timer);
-  }, [isAuthenticated, isGuest, user, streakDays]);
+  }, [isAuthenticated, isGuest, user, streakDays, longestStreak]);
 
   const displayName = isGuest ? "bạn" : user?.fullName || "bạn";
 
