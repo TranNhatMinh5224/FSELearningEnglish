@@ -383,6 +383,11 @@ The system is designed with a **Structured Monolith** architecture, combining **
 - **Sitemap & Indexing:** Automated `sitemap.xml` and `robots.txt` for efficient crawling.
 - **User Analytics:** Integrated **Google Analytics 4 (GA4)** with a 3s Lazy-loading mechanism to track user behavior without compromising Lighthouse performance scores.
 
+**📸 SEO Evidence (Google Search Console / Google Lighthouse Indexing):**
+<div align="center">
+  <img src="Office/Screenshot/ChungminhSEO.png" width="85%" alt="Catalunya English SEO Evidence">
+</div>
+
 ### 📈 Stress Testing
 - **Scalability:** Passed **2,000 Concurrent Users** without performance degradation.
 - **Throughput:** Handled **~900 Requests Per Second (RPS)**.

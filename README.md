@@ -442,6 +442,11 @@ Hệ thống được thiết kế và kiểm thử nghiêm ngặt để đảm 
 - **Sitemap & Indexing:** Tự động hóa `sitemap.xml` và `robots.txt` chuẩn domain, tối ưu hóa quy trình thu thập dữ liệu của Google Bot.
 - **User Analytics:** Tích hợp **Google Analytics 4 (GA4)** với cơ chế Lazy-loading (3s delay) để đo lường hành vi người dùng mà không ảnh hưởng đến điểm hiệu năng Lighthouse.
 
+**📸 Minh chứng thực tế SEO (Google Search Console / Google Lighthouse Indexing):**
+<div align="center">
+  <img src="Office/Screenshot/ChungminhSEO.png" width="85%" alt="Minh chứng SEO của dự án Catalunya English">
+</div>
+
 ### 📈 Kiểm thử áp lực & Giới hạn chịu tải (Stress Testing)
 Hệ thống đã vượt qua các bài kiểm tra áp lực cực hạn bằng **k6** để xác định dung lượng tối đa:
 - **Ngưỡng tải ổn định:** Vượt qua mức **2,000 người dùng truy cập đồng thời** (Concurrent Users) mà không suy giảm hiệu năng.
