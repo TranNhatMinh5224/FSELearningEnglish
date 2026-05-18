@@ -85,6 +85,7 @@ FSELearningEnglish/
 
 Để đảm bảo hệ thống vận hành ổn định và có khả năng chịu lỗi (Fault-tolerance), toàn bộ logic cốt lõi đã được chuẩn hóa bằng sơ đồ **BPMN 2.0**. Đây là tài liệu nền tảng giúp đội ngũ kỹ thuật hiểu sâu về luồng dữ liệu và các điểm rẽ nhánh nghiệp vụ.
 
+### 💰 4.1 Nhóm Fintech & Thanh toán
 - **Top-Up Flow**: Nạp tiền PayOS, xử lý Webhook Idempotency.  
   [[📄 File XML]](./Office/BPMN/TopUp_Flow.xml)
   <details>
@@ -310,7 +311,7 @@ Hệ thống vượt xa các nền tảng LMS thông thường nhờ việc tíc
 - **Cơ chế:** Hệ thống hóa toàn bộ dữ liệu học tập thông qua biểu đồ trực quan (Recharts).
 - **Giá trị:** Theo dõi chi tiết lịch sử làm bài, tỉ lệ trả lời đúng và lộ trình hoàn thành khóa học. Giúp người học luôn giữ được động lực thông qua việc nhìn thấy sự tiến bộ hàng ngày.
 
-### 👩‍🏫 9.3 Mô hình SaaS "Teacher Empowerment"
+### 👩‍🏫 9.4 Mô hình SaaS "Teacher Empowerment"
 
 <div align="center">
   <img src="./Office/Screenshot/Giaodiengiaovien.png" alt="Teacher SaaS Dashboard" width="800"/>
@@ -319,7 +320,7 @@ Hệ thống vượt xa các nền tảng LMS thông thường nhờ việc tíc
 - **Cơ chế:** Cung cấp giải pháp **Software-as-a-Service** cho giáo viên. Mỗi giáo viên có thể sở hữu không gian quản lý riêng, lớp học riêng và các gói dịch vụ (Teacher Packages).
 - **Giá trị:** Hệ thống quản lý chặt chẽ hạn ngạch tài nguyên (Quotas) và các gói đăng ký, cho phép nền tảng mở rộng quy mô kinh doanh không giới hạn.
 
-### 💳 9.4 Fintech Wallet & Auto-Payment
+### 💳 9.5 Fintech Wallet & Auto-Payment
 
 <div align="center">
   <img src="./Office/Screenshot/naptien.png" alt="Fintech Wallet" width="800"/>
@@ -328,7 +329,7 @@ Hệ thống vượt xa các nền tảng LMS thông thường nhờ việc tíc
 - **Cơ chế:** Tích hợp cổng thanh toán **PayOS (QR Code)** với quy trình cộng tiền tự động. 
 - **Giá trị:** Đảm bảo tính toàn vẹn dữ liệu tài chính thông qua cơ chế **Idempotency Webhook** và hệ thống **Audit Trail** ghi lại mọi biến động số dư ví (Balance History).
 
-### 🎤 9.5 Chấm điểm phát âm bằng AI (AI Pronunciation Assessment)
+### 🎤 9.6 Chấm điểm phát âm bằng AI (AI Pronunciation Assessment)
 
 <div align="center">
   <img src="./Office/Screenshot/champhatam.png" alt="AI Pronunciation Assessment" width="800"/>
@@ -344,46 +345,86 @@ Hệ thống vượt xa các nền tảng LMS thông thường nhờ việc tíc
 Dưới đây là một số giao diện nổi bật khác của hệ thống, thể hiện sự chỉn chu từ UX/UI đến tính năng:
 
 <details>
-  <summary><b>1. Không gian Học tập & Bài giảng</b> (Click để mở rộng)</summary>
+  <summary><b>👇 1. Không gian Học tập & Bài giảng</b> — <i>Click để mở rộng</i></summary>
   <br/>
   <div align="center">
     <i>Trang tổng quan khóa học</i><br/>
     <img src="./Office/Screenshot/Trangkhoahoc.png" alt="Trang Khóa học" width="800"/><br/><br/>
     <i>Giao diện học bài và xem Video</i><br/>
-    <img src="./Office/Screenshot/baigiang.png" alt="Bài giảng 1" width="400"/>
-    <img src="./Office/Screenshot/baigiang2.png" alt="Bài giảng 2" width="400"/><br/><br/>
+    <img src="./Office/Screenshot/baigiang.png" alt="Bài giảng dạng bảng" width="400"/>
+    <img src="./Office/Screenshot/baigiang2.png" alt="Bài giảng dạng video" width="400"/><br/><br/>
     <i>Giao diện làm bài và kết thúc Quiz</i><br/>
-    <img src="./Office/Screenshot/lambaiquiz.png" alt="Làm bài Quiz" width="400"/>
-    <img src="./Office/Screenshot/ketthucbaiquuz.png" alt="Kết thúc Quiz" width="400"/>
+    <img src="./Office/Screenshot/lambaiquiz.png" alt="Làm bài Quiz — Timer + Navigator" width="400"/>
+    <img src="./Office/Screenshot/ketthucbaiquuz.png" alt="Kết thúc Quiz — Bảng kết quả" width="400"/><br/><br/>
+    <i>Xem lại chi tiết từng câu hỏi sau khi nộp bài</i><br/>
+    <img src="./Office/Screenshot/Chitietbaiquiz.png" alt="Chi tiết bài Quiz — Đánh giá từng câu" width="800"/>
   </div>
 </details>
 
 <details>
-  <summary><b>2. Quản trị Hệ thống & SaaS Dashboard</b> (Click để mở rộng)</summary>
+  <summary><b>👇 2. Tính năng AI — Chatbot & Chấm phát âm</b> — <i>Click để mở rộng</i></summary>
   <br/>
   <div align="center">
-    <i>Dashboard Tổng quan (Doanh thu, Học viên)</i><br/>
-    <img src="./Office/Screenshot/dashboard.png" alt="Dashboard Tổng quan" width="800"/><br/><br/>
-    <i>Quản trị phân quyền động (RBAC) & Người dùng</i><br/>
-    <img src="./Office/Screenshot/dashboadRBAC.png" alt="Phân quyền RBAC" width="400"/>
-    <img src="./Office/Screenshot/dashboadusser.png" alt="Quản lý User" width="400"/><br/><br/>
-    <i>Quản trị danh sách khóa học và Bài nộp (Teacher)</i><br/>
-    <img src="./Office/Screenshot/dashboardcourse.png" alt="Quản lý khóa học" width="400"/>
-    <img src="./Office/Screenshot/DarshboardQLbainop.png" alt="Quản lý bài nộp" width="400"/>
+    <i>RAG Chatbot — Tư vấn khóa học dựa trên kho tri thức nội bộ</i><br/>
+    <img src="./Office/Screenshot/chatbot0.png" alt="RAG Chatbot — Câu hỏi người dùng" width="400"/>
+    <img src="./Office/Screenshot/chatbot1.png" alt="RAG Chatbot — Phản hồi từ kho tri thức" width="400"/><br/><br/>
+    <i>AI Chấm phát âm — Phân tích phoneme theo thời gian thực</i><br/>
+    <img src="./Office/Screenshot/champhatam.png" alt="AI Pronunciation Assessment" width="800"/>
   </div>
 </details>
 
 <details>
-  <summary><b>3. Cá nhân hóa, Tài chính & Lịch sử (User Portal)</b> (Click để mở rộng)</summary>
+  <summary><b>👇 3. Quản trị Hệ thống & SaaS Dashboard</b> — <i>Click để mở rộng</i></summary>
   <br/>
   <div align="center">
-    <i>Lịch sử giao dịch và biến động số dư cá nhân</i><br/>
-    <img src="./Office/Screenshot/Dardboardlsgiaodich.png" alt="Lịch sử giao dịch" width="800"/><br/><br/>
-    <i>Giao diện nạp tiền và lịch sử nạp tiền vào ví</i><br/>
-    <img src="./Office/Screenshot/naptien.png" alt="Nạp tiền" width="400"/>
+    <i>Dashboard Tổng quan — Doanh thu, Học viên, Biểu đồ tăng trưởng</i><br/>
+    <img src="./Office/Screenshot/Dashboard.png" alt="Dashboard Tổng quan" width="800"/><br/><br/>
+    <i>Quản lý Khóa học & Gói giáo viên</i><br/>
+    <img src="./Office/Screenshot/DashboardCourse.png" alt="Quản lý khóa học" width="400"/>
+    <img src="./Office/Screenshot/DashboardTeacherPackage.png" alt="Quản lý gói giáo viên" width="400"/><br/><br/>
+    <i>Quản lý Người dùng — Phân quyền, Khóa tài khoản, Nạp ví</i><br/>
+    <img src="./Office/Screenshot/DashboardUser.png" alt="Quản lý người dùng" width="800"/>
+  </div>
+</details>
+
+<details>
+  <summary><b>👇 4. Quản lý Bài nộp & Chấm điểm Essay</b> — <i>Click để mở rộng</i></summary>
+  <br/>
+  <div align="center">
+    <i>Drill-down bài nộp: Khóa học → Bài tập → Từng học sinh</i><br/>
+    <img src="./Office/Screenshot/DashboardQLBaiTap.png" alt="Quản lý bài tập — Grid khóa học" width="800"/><br/><br/>
+    <i>Lịch sử tất cả lần nộp bài Quiz của một học sinh</i><br/>
+    <img src="./Office/Screenshot/DashboardXembaiQuiz.png" alt="Xem lịch sử bài quiz" width="400"/>
+    <img src="./Office/Screenshot/DashboardEssay.png" alt="Danh sách bài Essay" width="400"/><br/><br/>
+    <i>Giao diện chấm Essay — Xem bài làm & Nhập điểm/nhận xét</i><br/>
+    <img src="./Office/Screenshot/ChamBaiEsssay.png" alt="Chấm bài Essay — Tab xem bài" width="400"/>
+    <img src="./Office/Screenshot/ChamdiemEssay.png" alt="Chấm bài Essay — Tab chấm điểm" width="400"/>
+  </div>
+</details>
+
+<details>
+  <summary><b>👇 5. Giám sát Giao dịch & Quản lý Tài chính</b> — <i>Click để mở rộng</i></summary>
+  <br/>
+  <div align="center">
+    <i>Giám sát toàn bộ giao dịch — PayOS & Ví nội bộ, Webhook lỗi</i><br/>
+    <img src="./Office/Screenshot/DashboardQLTransaction.png" alt="Giám sát giao dịch" width="800"/><br/><br/>
+    <i>Giao diện nạp tiền VietQR & Lịch sử thanh toán người dùng</i><br/>
+    <img src="./Office/Screenshot/naptien.png" alt="Nạp tiền QR" width="400"/>
     <img src="./Office/Screenshot/lichsunaptien.png" alt="Lịch sử nạp tiền" width="400"/><br/><br/>
-    <i>Thống kê lịch sử làm bài và tiến trình học tập</i><br/>
-    <img src="./Office/Screenshot/lichsulambai.png" alt="Lịch sử làm bài" width="800"/>
+    <i>Quản lý Assets — Logo, ảnh mặc định bài giảng & khóa học</i><br/>
+    <img src="./Office/Screenshot/DashboardQLAssetFrontend.png" alt="Quản lý Assets" width="800"/>
+  </div>
+</details>
+
+<details>
+  <summary><b>👇 6. Không gian Giáo viên & Học tập thích ứng</b> — <i>Click để mở rộng</i></summary>
+  <br/>
+  <div align="center">
+    <i>Dashboard riêng của Giáo viên — Quản lý lớp học tư</i><br/>
+    <img src="./Office/Screenshot/Giaodiengiaovien.png" alt="Giao diện Giáo viên" width="800"/><br/><br/>
+    <i>Flashcard SM-2 — 5 mức đánh giá độ nhớ cá nhân hóa</i><br/>
+    <img src="./Office/Screenshot/Ontaptuvung.png" alt="Ôn tập từ vựng SM-2" width="400"/>
+    <img src="./Office/Screenshot/lichsulambai.png" alt="Lịch sử làm bài" width="400"/>
   </div>
 </details>
 
@@ -444,7 +485,12 @@ Hệ thống được thiết kế và kiểm thử nghiêm ngặt để đảm 
 
 **📸 Minh chứng thực tế SEO (Google Search Console / Google Lighthouse Indexing):**
 <div align="center">
-  <img src="./Office/Screenshot/ChungminhSEO.png" width="85%" alt="Minh chứng SEO của dự án Catalunya English">
+  <img src="./Office/Screenshot/ChungminhSEO.png" width="85%" alt="Catalunya English — Xếp hạng #1 trên Google Search">
+</div>
+
+**📸 Google Analytics 4 — Theo dõi người dùng thời gian thực:**
+<div align="center">
+  <img src="./Office/Screenshot/GGAnalyst.png" width="85%" alt="Google Analytics 4 — Active Users & Event Tracking">
 </div>
 
 ### 📈 Kiểm thử áp lực & Giới hạn chịu tải (Stress Testing)
@@ -458,10 +504,12 @@ Hệ thống đã vượt qua các bài kiểm tra áp lực cực hạn bằng 
 - **Data Integrity:** Cơ chế kiểm tra dữ liệu đầu vào nghiêm ngặt, đảm bảo an toàn cho các giao dịch tài chính (Top-up).
 - **Audit Trail:** Hệ thống ghi vết biến động số dư ví (Balance History) giúp đối soát và ngăn chặn gian lận.
 
-### 📸 Minh chứng thực tế (Evidence)
+### 📸 Minh chứng hiệu năng & Kiểm thử tải
 <div align="center">
-  <img src="./Office/Screenshot/K6.png" width="45%" alt="k6 Load Test Result 1">
-  <img src="./Office/Screenshot/k62.png" width="45%" alt="k6 Load Test Result 2">
+  <img src="./Office/Screenshot/PerformanceDesktop.png" width="45%" alt="Lighthouse Desktop — 97/96/100/100">
+  <img src="./Office/Screenshot/performanceMobile.png" width="45%" alt="Lighthouse Mobile — 85/96/100/100"><br/>
+  <img src="./Office/Screenshot/K6.png" width="45%" alt="k6 Load Test — 500 VUs, 0% Error, p95=334ms">
+  <img src="./Office/Screenshot/k62.png" width="45%" alt="k6 Stress Test — 2000 VUs, 0% Error, 873 RPS">
 </div>
 
 
