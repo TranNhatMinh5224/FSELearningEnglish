@@ -85,6 +85,7 @@ FSELearningEnglish/
 
 To ensure stability and fault-tolerance, all core logic is standardized using **BPMN 2.0** diagrams. This is the foundational documentation helping technical teams deeply understand data flows and business decision points.
 
+### 💰 4.1 Fintech Group
 - **Top-Up Flow**: PayOS integration, Webhook Idempotency handling.  
   [[📄 XML File]](./Office/BPMN/TopUp_Flow.xml)
   <details>
@@ -286,19 +287,19 @@ The system is designed with a **Structured Monolith** architecture, combining **
 - **Mechanism:** Visualizes learning data through interactive charts (Recharts).
 - **Value:** Tracks detailed practice history, accuracy rates, and course completion progress, keeping learners motivated through visible growth.
 
-### 👩‍🏫 9.3 SaaS "Teacher Empowerment" Model
+### 👩‍🏫 9.4 SaaS "Teacher Empowerment" Model
 <div align="center">
   <img src="./Office/Screenshot/Giaodiengiaovien.png" alt="Teacher SaaS Dashboard" width="800"/>
 </div>
 - Empowering teachers with private spaces and subscription quota management.
 
-### 💳 9.4 Fintech Wallet & Auto-Payment
+### 💳 9.5 Fintech Wallet & Auto-Payment
 <div align="center">
   <img src="./Office/Screenshot/naptien.png" alt="Fintech Wallet" width="800"/>
 </div>
 - **PayOS (QR Code)** integration with automated updates and **Audit Trail**.
 
-### 🎤 9.5 AI Pronunciation Assessment
+### 🎤 9.6 AI Pronunciation Assessment
 <div align="center">
   <img src="./Office/Screenshot/champhatam.png" alt="AI Pronunciation Assessment" width="800"/>
 </div>
@@ -307,35 +308,77 @@ The system is designed with a **Structured Monolith** architecture, combining **
 ---
 
 ## 📸 10. UI Gallery
+
 <details>
   <summary><b>1. Learning Space & Lectures</b></summary>
   <div align="center">
     <img src="./Office/Screenshot/Trangkhoahoc.png" alt="Course Page" width="800"/><br/>
-    <img src="./Office/Screenshot/baigiang.png" alt="Lecture 1" width="400"/>
-    <img src="./Office/Screenshot/baigiang2.png" alt="Lecture 2" width="400"/><br/>
-    <img src="./Office/Screenshot/lambaiquiz.png" alt="Quiz Practice" width="400"/>
-    <img src="./Office/Screenshot/ketthucbaiquuz.png" alt="Quiz Finish" width="400"/>
+    <img src="./Office/Screenshot/baigiang.png" alt="Lecture (Text + Table Format)" width="400"/>
+    <img src="./Office/Screenshot/baigiang2.png" alt="Lecture (Video Format)" width="400"/>
   </div>
 </details>
 
 <details>
-  <summary><b>2. System Admin & SaaS Dashboard</b></summary>
+  <summary><b>2. Quiz & Assessment Experience</b></summary>
   <div align="center">
-    <img src="./Office/Screenshot/dashboard.png" alt="Admin Dashboard" width="800"/><br/>
-    <img src="./Office/Screenshot/dashboadRBAC.png" alt="RBAC Admin" width="400"/>
-    <img src="./Office/Screenshot/dashboadusser.png" alt="User Admin" width="400"/><br/>
-    <img src="./Office/Screenshot/dashboardcourse.png" alt="Course Admin" width="400"/>
-    <img src="./Office/Screenshot/DarshboardQLbainop.png" alt="Submission Admin" width="400"/>
+    <img src="./Office/Screenshot/lambaiquiz.png" alt="Quiz Taking — Timer + Question Navigator" width="800"/><br/>
+    <img src="./Office/Screenshot/ketthucbaiquuz.png" alt="Quiz Result Screen" width="400"/>
+    <img src="./Office/Screenshot/Chitietbaiquiz.png" alt="Quiz Detail Review — Per-question Breakdown" width="400"/>
   </div>
 </details>
 
 <details>
-  <summary><b>3. Personalization & User Portal</b></summary>
+  <summary><b>3. AI-Powered Features</b></summary>
   <div align="center">
-    <img src="./Office/Screenshot/Dardboardlsgiaodich.png" alt="Transaction History" width="800"/><br/>
-    <img src="./Office/Screenshot/naptien.png" alt="Top-up" width="400"/>
-    <img src="./Office/Screenshot/lichsunaptien.png" alt="Top-up History" width="400"/><br/>
-    <img src="./Office/Screenshot/lichsulambai.png" alt="Practice History" width="800"/>
+    <img src="./Office/Screenshot/chatbot0.png" alt="RAG Chatbot — User Query" width="400"/>
+    <img src="./Office/Screenshot/chatbot1.png" alt="RAG Chatbot — Knowledge Retrieval Response" width="400"/><br/>
+    <img src="./Office/Screenshot/champhatam.png" alt="AI Pronunciation Assessment — Phoneme Level Scoring" width="800"/>
+  </div>
+</details>
+
+<details>
+  <summary><b>4. Adaptive Learning (SM-2 Flashcards)</b></summary>
+  <div align="center">
+    <img src="./Office/Screenshot/Ontaptuvung.png" alt="SM-2 Flashcard — 5-Level Memory Rating" width="800"/><br/>
+    <img src="./Office/Screenshot/lichsulambai.png" alt="Quiz History — Practice Progress Tracking" width="800"/>
+  </div>
+</details>
+
+<details>
+  <summary><b>5. System Admin Dashboard</b></summary>
+  <div align="center">
+    <img src="./Office/Screenshot/Dashboard.png" alt="Admin Overview — Revenue, Users, Growth Charts" width="800"/><br/>
+    <img src="./Office/Screenshot/DashboardCourse.png" alt="Course Management — System & Teacher Courses" width="400"/>
+    <img src="./Office/Screenshot/DashboardUser.png" alt="User Management — Role, Status, Wallet Actions" width="400"/><br/>
+    <img src="./Office/Screenshot/DashboardTeacherPackage.png" alt="Teacher Package Management — Subscription Tiers & Quotas" width="800"/>
+  </div>
+</details>
+
+<details>
+  <summary><b>6. Content & Submission Management</b></summary>
+  <div align="center">
+    <img src="./Office/Screenshot/DashboardQLBaiTap.png" alt="Submission Management — Course Grid Drill-down" width="800"/><br/>
+    <img src="./Office/Screenshot/DashboardXembaiQuiz.png" alt="Quiz Submission History — All Attempts per Student" width="400"/>
+    <img src="./Office/Screenshot/DashboardEssay.png" alt="Essay Submission List — Status & Score" width="400"/><br/>
+    <img src="./Office/Screenshot/ChamBaiEsssay.png" alt="Essay Grading — View Submission Tab" width="400"/>
+    <img src="./Office/Screenshot/ChamdiemEssay.png" alt="Essay Grading — Score & Feedback Tab" width="400"/>
+  </div>
+</details>
+
+<details>
+  <summary><b>7. Financial Monitoring & Asset Management</b></summary>
+  <div align="center">
+    <img src="./Office/Screenshot/DashboardQLTransaction.png" alt="Transaction Monitor — PayOS & Internal Wallet Audit Trail" width="800"/><br/>
+    <img src="./Office/Screenshot/naptien.png" alt="Top-up — VietQR Payment Flow" width="400"/>
+    <img src="./Office/Screenshot/lichsunaptien.png" alt="Payment History — User Portal" width="400"/><br/>
+    <img src="./Office/Screenshot/DashboardQLAssetFrontend.png" alt="Asset Management — Logo & Default Images" width="800"/>
+  </div>
+</details>
+
+<details>
+  <summary><b>8. Teacher Space (SaaS)</b></summary>
+  <div align="center">
+    <img src="./Office/Screenshot/Giaodiengiaovien.png" alt="Teacher Dashboard — Private Class Management" width="800"/>
   </div>
 </details>
 
@@ -385,7 +428,12 @@ The system is designed with a **Structured Monolith** architecture, combining **
 
 **📸 SEO Evidence (Google Search Console / Google Lighthouse Indexing):**
 <div align="center">
-  <img src="./Office/Screenshot/ChungminhSEO.png" width="85%" alt="Catalunya English SEO Evidence">
+  <img src="./Office/Screenshot/ChungminhSEO.png" width="85%" alt="Catalunya English — Ranked #1 on Google Search">
+</div>
+
+**📸 Google Analytics 4 — Real-time User Tracking:**
+<div align="center">
+  <img src="./Office/Screenshot/GGAnalyst.png" width="85%" alt="Google Analytics 4 — Active Users & Event Tracking">
 </div>
 
 ### 📈 Stress Testing
@@ -398,12 +446,12 @@ The system is designed with a **Structured Monolith** architecture, combining **
 - **Data Integrity:** Strict input validation for financial transactions.
 - **Audit Trail:** Balance history tracking to prevent fraud.
 
-### 📸 Evidence
+### 📸 Performance & Load Test Evidence
 <div align="center">
-  <img src="./Office/Screenshot/performanceMobile.png" width="45%" alt="Lighthouse Mobile Score">
-  <img src="./Office/Screenshot/PerformanceDesktop.png" width="45%" alt="Lighthouse Desktop Score">
-  <img src="./Office/Screenshot/K6.png" width="45%" alt="k6 Load Test Result 1">
-  <img src="./Office/Screenshot/k62.png" width="45%" alt="k6 Load Test Result 2">
+  <img src="./Office/Screenshot/PerformanceDesktop.png" width="45%" alt="Lighthouse Desktop — 97/96/100/100">
+  <img src="./Office/Screenshot/performanceMobile.png" width="45%" alt="Lighthouse Mobile — 85/96/100/100"><br/>
+  <img src="./Office/Screenshot/K6.png" width="45%" alt="k6 Load Test — 500 VUs, 0% Error, p95=334ms">
+  <img src="./Office/Screenshot/k62.png" width="45%" alt="k6 Stress Test — 2000 VUs, 0% Error, 873 RPS">
 </div>
 
 ---
