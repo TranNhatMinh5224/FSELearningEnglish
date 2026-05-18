@@ -34,6 +34,8 @@ namespace LearningEnglish.Infrastructure.Services
 
             // Replace placeholders
             return template
+                .Replace("https://learning-eng.hocnghiepvu.com", _frontendBaseUrl)
+                .Replace("{{CURRENT_YEAR}}", DateTime.UtcNow.Year.ToString())
                 .Replace("{{OTPCode}}", otpCode)
                 .Replace("{{UserName}}", userName);
         }
@@ -48,6 +50,7 @@ namespace LearningEnglish.Infrastructure.Services
             }
 
             return htmlTemplate
+                .Replace("https://learning-eng.hocnghiepvu.com", _frontendBaseUrl)
                 .Replace("{{UserName}}", userName)
                 .Replace("{{CURRENT_YEAR}}", DateTime.UtcNow.Year.ToString());
         }
@@ -62,6 +65,7 @@ namespace LearningEnglish.Infrastructure.Services
             }
 
             return htmlTemplate
+                .Replace("https://learning-eng.hocnghiepvu.com", _frontendBaseUrl)
                 .Replace("{{UserName}}", userName)
                 .Replace("{{CURRENT_YEAR}}", DateTime.UtcNow.Year.ToString());
         }
@@ -75,10 +79,11 @@ namespace LearningEnglish.Infrastructure.Services
             }
 
             return htmlTemplate
+                .Replace("https://learning-eng.hocnghiepvu.com", _frontendBaseUrl)
                 .Replace("{{USER_NAME}}", userName)
                 .Replace("{{COURSE_NAME}}", courseName)
                 .Replace("{{PURCHASE_DATE}}", DateTime.UtcNow.ToString("dd/MM/yyyy"))
-                .Replace("{{COURSE_URL}}", $"{_frontendBaseUrl}/courses/{courseName.Replace(" ", "-").ToLower()}")
+                .Replace("{{COURSE_URL}}", $"{_frontendBaseUrl}/my-courses")
                 .Replace("{{CURRENT_YEAR}}", DateTime.UtcNow.Year.ToString());
         }
 
@@ -92,12 +97,13 @@ namespace LearningEnglish.Infrastructure.Services
             }
 
             return htmlTemplate
+                .Replace("https://learning-eng.hocnghiepvu.com", _frontendBaseUrl)
                 .Replace("{{USER_NAME}}", userName)
                 .Replace("{{PACKAGE_NAME}}", packageName)
                 .Replace("{{PRICE}}", price.ToString("F2"))
                 .Replace("{{PURCHASE_DATE}}", DateTime.UtcNow.ToString("dd/MM/yyyy"))
                 .Replace("{{VALID_UNTIL}}", validUntil.ToString("dd/MM/yyyy"))
-                .Replace("{{TEACHER_DASHBOARD_URL}}", $"{_frontendBaseUrl}/teacher/dashboard")
+                .Replace("{{TEACHER_DASHBOARD_URL}}", $"{_frontendBaseUrl}/teacher")
                 .Replace("{{CURRENT_YEAR}}", DateTime.UtcNow.Year.ToString());
         }
 
@@ -126,10 +132,11 @@ namespace LearningEnglish.Infrastructure.Services
             };
 
             return htmlTemplate
+                .Replace("https://learning-eng.hocnghiepvu.com", _frontendBaseUrl)
                 .Replace("{{StudentName}}", studentName)
                 .Replace("{{DueCount}}", dueCount.ToString())
                 .Replace("{{Content}}", content)
-                .Replace("{{ReviewUrl}}", $"{_frontendBaseUrl}/flashcards/review")
+                .Replace("{{ReviewUrl}}", $"{_frontendBaseUrl}/vocabulary-review")
                 .Replace("{{CURRENT_YEAR}}", DateTime.UtcNow.Year.ToString());
         }
 
@@ -153,6 +160,7 @@ namespace LearningEnglish.Infrastructure.Services
             };
 
             return htmlTemplate
+                .Replace("https://learning-eng.hocnghiepvu.com", _frontendBaseUrl)
                 .Replace("{{userName}}", userName)
                 .Replace("{{currentStreak}}", currentStreak.ToString())
                 .Replace("{{longestStreak}}", longestStreak.ToString())
