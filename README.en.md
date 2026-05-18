@@ -385,7 +385,7 @@ The system is designed with a **Structured Monolith** architecture, combining **
 
 **📸 SEO Evidence (Google Search Console / Google Lighthouse Indexing):**
 <div align="center">
-  <img src="Office/Screenshot/ChungminhSEO.png" width="85%" alt="Catalunya English SEO Evidence">
+  <img src="./Office/Screenshot/ChungminhSEO.png" width="85%" alt="Catalunya English SEO Evidence">
 </div>
 
 ### 📈 Stress Testing
@@ -400,10 +400,10 @@ The system is designed with a **Structured Monolith** architecture, combining **
 
 ### 📸 Evidence
 <div align="center">
-  <img src="Office/Screenshot/performanceMobile.png" width="45%" alt="Lighthouse Mobile Score">
-  <img src="Office/Screenshot/PerformanceDesktop.png" width="45%" alt="Lighthouse Desktop Score">
-  <img src="Office/Screenshot/K6.png" width="45%" alt="k6 Load Test Result 1">
-  <img src="Office/Screenshot/k62.png" width="45%" alt="k6 Load Test Result 2">
+  <img src="./Office/Screenshot/performanceMobile.png" width="45%" alt="Lighthouse Mobile Score">
+  <img src="./Office/Screenshot/PerformanceDesktop.png" width="45%" alt="Lighthouse Desktop Score">
+  <img src="./Office/Screenshot/K6.png" width="45%" alt="k6 Load Test Result 1">
+  <img src="./Office/Screenshot/k62.png" width="45%" alt="k6 Load Test Result 2">
 </div>
 
 ---

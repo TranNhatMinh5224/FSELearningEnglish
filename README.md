@@ -426,8 +426,8 @@ Hệ thống được kiểm tra và tối ưu hóa chuyên sâu để đáp ứ
 ### 📸 Minh chứng thực tế
 
 <div align="center">
-  <img src="Office/Screenshot/performanceMobile.png" width="45%" alt="Lighthouse Mobile Score">
-  <img src="Office/Screenshot/PerformanceDesktop.png" width="45%" alt="Lighthouse Desktop Score">
+  <img src="./Office/Screenshot/performanceMobile.png" width="45%" alt="Lighthouse Mobile Score">
+  <img src="./Office/Screenshot/PerformanceDesktop.png" width="45%" alt="Lighthouse Desktop Score">
 </div>
 
 
@@ -444,7 +444,7 @@ Hệ thống được thiết kế và kiểm thử nghiêm ngặt để đảm 
 
 **📸 Minh chứng thực tế SEO (Google Search Console / Google Lighthouse Indexing):**
 <div align="center">
-  <img src="Office/Screenshot/ChungminhSEO.png" width="85%" alt="Minh chứng SEO của dự án Catalunya English">
+  <img src="./Office/Screenshot/ChungminhSEO.png" width="85%" alt="Minh chứng SEO của dự án Catalunya English">
 </div>
 
 ### 📈 Kiểm thử áp lực & Giới hạn chịu tải (Stress Testing)
@@ -460,8 +460,8 @@ Hệ thống đã vượt qua các bài kiểm tra áp lực cực hạn bằng 
 
 ### 📸 Minh chứng thực tế (Evidence)
 <div align="center">
-  <img src="Office/Screenshot/K6.png" width="45%" alt="k6 Load Test Result 1">
-  <img src="Office/Screenshot/k62.png" width="45%" alt="k6 Load Test Result 2">
+  <img src="./Office/Screenshot/K6.png" width="45%" alt="k6 Load Test Result 1">
+  <img src="./Office/Screenshot/k62.png" width="45%" alt="k6 Load Test Result 2">
 </div>
 
 
