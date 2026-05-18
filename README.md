@@ -309,7 +309,7 @@ Hệ thống vượt xa các nền tảng LMS thông thường nhờ việc tíc
 </div>
 
 - **Cơ chế:** Hệ thống hóa toàn bộ dữ liệu học tập thông qua biểu đồ trực quan (Recharts).
-- **Giá trị:** Theo dõi chi tiết lịch sử làm bài, tỉ lệ trả lời đúng và lộ trình hoàn thành khóa học. Giúp người học luôn giữ được động lực thông qua việc nhìn thấy sự tiến bộ hàng ngày.
+- **Giá trị:** Theo dõi chi tiết lịch sử làm bài, tỉ lệ trả lời đúng và lộ trình hoàn thành khóa học. Giúp người học luôn giữ được động lực thông qua việc nhìn thấy sự tiến bộ ngày qua ngày.
 
 ### 👩‍🏫 9.4 Mô hình SaaS "Teacher Empowerment"
 
@@ -350,81 +350,96 @@ Dưới đây là một số giao diện nổi bật khác của hệ thống, t
   <div align="center">
     <i>Trang tổng quan khóa học</i><br/>
     <img src="./Office/Screenshot/Trangkhoahoc.png" alt="Trang Khóa học" width="800"/><br/><br/>
-    <i>Giao diện học bài và xem Video</i><br/>
+    <i>Giao diện học bài dạng bảng từ vựng và xem Video</i><br/>
     <img src="./Office/Screenshot/baigiang.png" alt="Bài giảng dạng bảng" width="400"/>
-    <img src="./Office/Screenshot/baigiang2.png" alt="Bài giảng dạng video" width="400"/><br/><br/>
-    <i>Giao diện làm bài và kết thúc Quiz</i><br/>
-    <img src="./Office/Screenshot/lambaiquiz.png" alt="Làm bài Quiz — Timer + Navigator" width="400"/>
-    <img src="./Office/Screenshot/ketthucbaiquuz.png" alt="Kết thúc Quiz — Bảng kết quả" width="400"/><br/><br/>
-    <i>Xem lại chi tiết từng câu hỏi sau khi nộp bài</i><br/>
-    <img src="./Office/Screenshot/Chitietbaiquiz.png" alt="Chi tiết bài Quiz — Đánh giá từng câu" width="800"/>
+    <img src="./Office/Screenshot/baigiang2.png" alt="Bài giảng dạng video" width="400"/>
   </div>
 </details>
 
 <details>
-  <summary><b>👇 2. Tính năng AI — Chatbot & Chấm phát âm</b> — <i>Click để mở rộng</i></summary>
+  <summary><b>👇 2. Trải nghiệm làm bài Quiz & Đánh giá</b> — <i>Click để mở rộng</i></summary>
   <br/>
   <div align="center">
-    <i>RAG Chatbot — Tư vấn khóa học dựa trên kho tri thức nội bộ</i><br/>
+    <i>Giao diện làm bài thi trắc nghiệm và điền từ (có đồng hồ đếm ngược và bảng câu hỏi)</i><br/>
+    <img src="./Office/Screenshot/lambaiquiz.png" alt="Làm bài Quiz — Timer + Navigator" width="800"/><br/><br/>
+    <i>Màn hình hoàn thành bài thi và hiển thị kết quả</i><br/>
+    <img src="./Office/Screenshot/ketthucbaiquuz.png" alt="Kết thúc Quiz — Bảng kết quả" width="800"/>
+  </div>
+</details>
+
+<details>
+  <summary><b>👇 3. Tính năng tích hợp AI — Chatbot & Chấm phát âm</b> — <i>Click để mở rộng</i></summary>
+  <br/>
+  <div align="center">
+    <i>RAG Chatbot — Tư vấn khóa học thông minh dựa trên kho tri thức hệ thống</i><br/>
     <img src="./Office/Screenshot/chatbot0.png" alt="RAG Chatbot — Câu hỏi người dùng" width="400"/>
     <img src="./Office/Screenshot/chatbot1.png" alt="RAG Chatbot — Phản hồi từ kho tri thức" width="400"/><br/><br/>
-    <i>AI Chấm phát âm — Phân tích phoneme theo thời gian thực</i><br/>
+    <i>AI Chấm điểm phát âm — Phân tích chi tiết từng âm tiết (Phonemes) theo thời gian thực</i><br/>
     <img src="./Office/Screenshot/champhatam.png" alt="AI Pronunciation Assessment" width="800"/>
   </div>
 </details>
 
 <details>
-  <summary><b>👇 3. Quản trị Hệ thống & SaaS Dashboard</b> — <i>Click để mở rộng</i></summary>
+  <summary><b>👇 4. Học tập thích ứng (Flashcard SM-2 & Lịch sử học)</b> — <i>Click để mở rộng</i></summary>
   <br/>
   <div align="center">
-    <i>Dashboard Tổng quan — Doanh thu, Học viên, Biểu đồ tăng trưởng</i><br/>
-    <img src="./Office/Screenshot/Dashboard.png" alt="Dashboard Tổng quan" width="800"/><br/><br/>
-    <i>Quản lý Khóa học & Gói giáo viên</i><br/>
-    <img src="./Office/Screenshot/DashboardCourse.png" alt="Quản lý khóa học" width="400"/>
-    <img src="./Office/Screenshot/DashboardTeacherPackage.png" alt="Quản lý gói giáo viên" width="400"/><br/><br/>
-    <i>Quản lý Người dùng — Phân quyền, Khóa tài khoản, Nạp ví</i><br/>
-    <img src="./Office/Screenshot/DashboardUser.png" alt="Quản lý người dùng" width="800"/>
+    <i>Flashcard thuật toán ôn tập ngắt quãng SM-2 với 5 mức độ đánh giá trí nhớ</i><br/>
+    <img src="./Office/Screenshot/Ontaptuvung.png" alt="Ôn tập từ vựng SM-2" width="800"/><br/><br/>
+    <i>Thống kê lịch sử làm bài và theo dõi tiến trình học tập của người dùng</i><br/>
+    <img src="./Office/Screenshot/lichsulambai.png" alt="Lịch sử làm bài" width="800"/>
   </div>
 </details>
 
 <details>
-  <summary><b>👇 4. Quản lý Bài nộp & Chấm điểm Essay</b> — <i>Click để mở rộng</i></summary>
+  <summary><b>👇 5. Quản trị Hệ thống & SaaS Dashboard</b> — <i>Click để mở rộng</i></summary>
   <br/>
   <div align="center">
-    <i>Drill-down bài nộp: Khóa học → Bài tập → Từng học sinh</i><br/>
+    <i>Dashboard tổng quan cho Admin (Doanh thu, Học viên, Tăng trưởng, Phân bố user)</i><br/>
+    <img src="./Office/Screenshot/Dashboard.png" alt="Dashboard Tổng quan" width="800"/><br/><br/>
+    <i>Quản lý các Gói dịch vụ đăng ký giáo viên (Subscription Packages)</i><br/>
+    <img src="./Office/Screenshot/DashboardTeacherPackage.png" alt="Quản lý gói giáo viên" width="800"/><br/><br/>
+    <i>Quản lý danh sách Người dùng — Phân quyền, Thao tác ví, Khóa/Mở khóa</i><br/>
+    <img src="./Office/Screenshot/DashboardUser.png" alt="Quản lý người dùng" width="850"/>
+  </div>
+</details>
+
+<details>
+  <summary><b>👇 6. Quản lý Nội dung & Bài nộp học sinh</b> — <i>Click để mở rộng</i></summary>
+  <br/>
+  <div align="center">
+    <i>Drill-down bài nộp: Quản lý chi tiết theo từng Khóa học → Unit → Bài tập</i><br/>
     <img src="./Office/Screenshot/DashboardQLBaiTap.png" alt="Quản lý bài tập — Grid khóa học" width="800"/><br/><br/>
-    <i>Lịch sử tất cả lần nộp bài Quiz của một học sinh</i><br/>
+    <i>Xem lịch sử mọi lần làm quiz của học sinh & Quản lý danh sách nộp bài tự luận (Essay)</i><br/>
     <img src="./Office/Screenshot/DashboardXembaiQuiz.png" alt="Xem lịch sử bài quiz" width="400"/>
     <img src="./Office/Screenshot/DashboardEssay.png" alt="Danh sách bài Essay" width="400"/><br/><br/>
-    <i>Giao diện chấm Essay — Xem bài làm & Nhập điểm/nhận xét</i><br/>
+    <i>Giao diện chi tiết bài thi Quiz của học sinh với kết quả từng câu</i><br/>
+    <img src="./Office/Screenshot/Chitietbaiquiz.png" alt="Chi tiết kết quả làm bài của học sinh" width="800"/><br/><br/>
+    <i>Giao diện chấm điểm bài viết tự luận Essay của giáo viên (Đề bài/Bài nộp & Trình chấm điểm/Nhận xét)</i><br/>
     <img src="./Office/Screenshot/ChamBaiEsssay.png" alt="Chấm bài Essay — Tab xem bài" width="400"/>
     <img src="./Office/Screenshot/ChamdiemEssay.png" alt="Chấm bài Essay — Tab chấm điểm" width="400"/>
   </div>
 </details>
 
 <details>
-  <summary><b>👇 5. Giám sát Giao dịch & Quản lý Tài chính</b> — <i>Click để mở rộng</i></summary>
+  <summary><b>👇 7. Giám sát Giao dịch & Quản lý Tài chính (Fintech)</b> — <i>Click để mở rộng</i></summary>
   <br/>
   <div align="center">
-    <i>Giám sát toàn bộ giao dịch — PayOS & Ví nội bộ, Webhook lỗi</i><br/>
+    <i>Hệ thống giám sát giao dịch trực quan hỗ trợ đối soát, kiểm tra webhook lỗi, nạp tiền thủ công</i><br/>
     <img src="./Office/Screenshot/DashboardQLTransaction.png" alt="Giám sát giao dịch" width="800"/><br/><br/>
-    <i>Giao diện nạp tiền VietQR & Lịch sử thanh toán người dùng</i><br/>
+    <i>Giao diện thanh toán nạp tiền tự động QR Code (PayOS) & Lịch sử giao dịch phía User</i><br/>
     <img src="./Office/Screenshot/naptien.png" alt="Nạp tiền QR" width="400"/>
     <img src="./Office/Screenshot/lichsunaptien.png" alt="Lịch sử nạp tiền" width="400"/><br/><br/>
-    <i>Quản lý Assets — Logo, ảnh mặc định bài giảng & khóa học</i><br/>
+    <i>Trang Quản lý Assets Frontend — Dễ dàng thay thế Logo, Default Banner trực tiếp từ Admin</i><br/>
     <img src="./Office/Screenshot/DashboardQLAssetFrontend.png" alt="Quản lý Assets" width="800"/>
   </div>
 </details>
 
 <details>
-  <summary><b>👇 6. Không gian Giáo viên & Học tập thích ứng</b> — <i>Click để mở rộng</i></summary>
+  <summary><b>👇 8. Không gian Giáo viên (SaaS Space)</b> — <i>Click để mở rộng</i></summary>
   <br/>
   <div align="center">
-    <i>Dashboard riêng của Giáo viên — Quản lý lớp học tư</i><br/>
-    <img src="./Office/Screenshot/Giaodiengiaovien.png" alt="Giao diện Giáo viên" width="800"/><br/><br/>
-    <i>Flashcard SM-2 — 5 mức đánh giá độ nhớ cá nhân hóa</i><br/>
-    <img src="./Office/Screenshot/Ontaptuvung.png" alt="Ôn tập từ vựng SM-2" width="400"/>
-    <img src="./Office/Screenshot/lichsulambai.png" alt="Lịch sử làm bài" width="400"/>
+    <i>Dashboard dành riêng cho Giáo viên — Quản lý lớp học tư nhân, mã lớp học và học sinh</i><br/>
+    <img src="./Office/Screenshot/Giaodiengiaovien.png" alt="Giao diện Giáo viên" width="800"/>
   </div>
 </details>
 

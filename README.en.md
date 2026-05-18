@@ -322,8 +322,7 @@ The system is designed with a **Structured Monolith** architecture, combining **
   <summary><b>2. Quiz & Assessment Experience</b></summary>
   <div align="center">
     <img src="./Office/Screenshot/lambaiquiz.png" alt="Quiz Taking — Timer + Question Navigator" width="800"/><br/>
-    <img src="./Office/Screenshot/ketthucbaiquuz.png" alt="Quiz Result Screen" width="400"/>
-    <img src="./Office/Screenshot/Chitietbaiquiz.png" alt="Quiz Detail Review — Per-question Breakdown" width="400"/>
+    <img src="./Office/Screenshot/ketthucbaiquuz.png" alt="Quiz Result Screen" width="800"/>
   </div>
 </details>
 
@@ -359,6 +358,7 @@ The system is designed with a **Structured Monolith** architecture, combining **
   <div align="center">
     <img src="./Office/Screenshot/DashboardQLBaiTap.png" alt="Submission Management — Course Grid Drill-down" width="800"/><br/>
     <img src="./Office/Screenshot/DashboardXembaiQuiz.png" alt="Quiz Submission History — All Attempts per Student" width="400"/>
+    <img src="./Office/Screenshot/Chitietbaiquiz.png" alt="Detailed Student Quiz Review Modal" width="400"/>
     <img src="./Office/Screenshot/DashboardEssay.png" alt="Essay Submission List — Status & Score" width="400"/><br/>
     <img src="./Office/Screenshot/ChamBaiEsssay.png" alt="Essay Grading — View Submission Tab" width="400"/>
     <img src="./Office/Screenshot/ChamdiemEssay.png" alt="Essay Grading — Score & Feedback Tab" width="400"/>
