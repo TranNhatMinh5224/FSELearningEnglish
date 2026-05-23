@@ -111,14 +111,16 @@ FSELearningEnglish/
   </details>
 
 ### 🧠 4.2 Nhóm Học thuật & Thuật toán (Learning Engine)
-- **Quiz Lifecycle**: Quản lý bài thi, Auto-save và Auto-submit.  
+- **Quiz Lifecycle**: Quản lý bài thi với Real-time Scoring, Resume Quiz và Auto-submit.  
   [[📄 File XML]](./Office/BPMN/Quiz_Lifecycle.xml)
   <details>
     <summary>🖼️ Xem sơ đồ chi tiết &#38; Giải thích</summary>
     <br/>
     <ul>
-      <li><b>Real-time Persistence:</b> Lưu trạng thái bài làm sau mỗi câu trả lời để tránh mất dữ liệu khi gặp sự cố mạng.</li>
-      <li><b>Background Auto-Submit:</b> Sử dụng Background Task để tự động thu bài và chấm điểm ngay khi hết giờ làm bài.</li>
+      <li><b>Real-time Scoring:</b> Chấm điểm tức thì mỗi khi học sinh chọn đáp án (không đợi nộp bài), lưu song song AnswersJson + ScoresJson + cập nhật TotalScore liên tục.</li>
+      <li><b>Resume Quiz:</b> Khi mất mạng/tắt trình duyệt, hệ thống phục hồi bài dở với cùng seed xáo trộn (Deterministic Shuffle), giữ nguyên thứ tự câu hỏi và đáp án đã chọn.</li>
+      <li><b>Concurrent Prevention:</b> Chặn làm nhiều bài quiz đồng thời (HTTP 409 Conflict). Nếu bài cũ đã hết giờ → auto-submit ngay.</li>
+      <li><b>Background Auto-Submit:</b> Sử dụng Background Task xử lý theo batch 200 records (tránh memory overflow) với throttle giữa các batch, tự động thu bài + gửi Notification + đánh dấu hoàn thành module.</li>
     </ul>
     <img src="./Office/BPMN/Quiz_Lifecycle.png" alt="Quiz Lifecycle" width="100%"/>
   </details>
@@ -234,7 +236,7 @@ Hệ thống được thiết kế theo kiến trúc **Structured Monolith** (Mo
 ### 🧠 6.3 Điểm nhấn Kỹ thuật nâng cao (Advanced Backend Engineering)
 Để giải quyết các bài toán phức tạp về hiệu năng, bảo mật và quản lý tài nguyên máy chủ, hệ thống không chỉ dừng lại ở các thao tác CRUD cơ bản mà còn áp dụng triệt để các giải pháp phần mềm chuyên sâu:
 - **Design Patterns Thực chiến:**
-  - **Strategy Pattern:** Áp dụng cho hệ thống chấm điểm đa dạng (`IScoringStrategy`: *Trắc nghiệm, Điền từ, Nối câu, Sắp xếp...*), giúp dễ dàng thêm loại câu hỏi mới mà không sửa code cũ (Open/Closed Principle).
+  - **Strategy Pattern:** Áp dụng cho hệ thống chấm điểm **6 loại câu hỏi** (`IScoringStrategy`: *Trắc nghiệm 1 đáp án, Trắc nghiệm nhiều đáp án, Đúng/Sai, Điền từ, Nối câu, Sắp xếp thứ tự*). Các loại Matching và MultipleAnswers hỗ trợ **Partial Credit** (cho điểm từng phần). Tuân thủ Open/Closed Principle.
   - **Repository & Unit of Work:** Quản lý Transaction tập trung, đảm bảo tính nguyên tử (Atomicity) khi thực hiện các giao dịch thanh toán và cập nhật khóa học.
   - **CQRS Pattern:** Tích hợp `MediatR` để điều phối các luồng xử lý Command/Query phức tạp.
 - **Fault Tolerance & Background Processing:**
